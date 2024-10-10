@@ -1,5 +1,52 @@
-
+<!DOCTYPE html>
 <html>
-    <p>Site ID: <span id="site_id"></span></p>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two Highcharts Example</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+</head>
+
+<body>
+<p>Station ID: <span id="displayId"></span></p>
+<select id="timeframe">
+    <option value="1" selected>Last 1 Hour</option>
+    <option value="6">Last 6 Hours</option>
+    <option value="12">Last 12 Hours</option>
+    <option value="24">Last 24 Hours</option>
+</select>
+
+<div id="highcharts-container"></div>
+
+<div id="highcharts-container"></div>
+    <!-- <label for="presetColors">Choose a preset color:</label>
+    <select id="presetColors">
+        <option value="#FF5733">Orange</option>
+        <option value="#33FF57">Green</option>
+        <option value="#3357FF">Blue</option>
+        <option value="#FF33A8">Pink</option>
+        <option value="#33FFF7">Cyan</option>
+    </select>
+
+    <div id="colorChart" style="width: 100%; height: 400px; margin-bottom: 50px;"></div>
+
+    <div style="margin-bottom: 20px;">
+        <label for="dataSelection">Select Data Set:</label>
+        <select id="dataSelection" onchange="updateDatasetChart()">
+            <option value="dataset1">Dataset 1</option>
+            <option value="dataset2">Dataset 2</option>
+            <option value="dataset3">Dataset 3</option>
+        </select>
+    </div>
+
+    <div id="datasetChart" style="width: 100%; height: 400px;"></div> -->
+
+</body>
+
 </html>
-<script src="mesonet.js"> </script>
+
+
+<script src="data.js"> </script>
+
+</html>

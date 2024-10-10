@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dynamic Highcharts Color Change</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+</head>
+<body>
+
+
+<div id="container" style="width: 600px; height: 400px;"></div>
+
+<!-- Preset Color Dropdown -->
+<label for="presetColors">Choose a preset color:</label>
+<select id="presetColors">
+  <option value="#FF5733">Orange</option>
+  <option value="#33FF57">Green</option>
+  <option value="#3357FF">Blue</option>
+  <option value="#FF33A8">Pink</option>
+  <option value="#33FFF7">Cyan</option>
+</select>
+
+<script>
+    // Create the chart
+    let chart = Highcharts.chart('container', {
+        chart: {
+            type: 'line'
+        },
+        title: {
+            text: 'Chart with Preset Colors'
+        },
+        series: [{
+            name: 'Series 1',
+            data: [1, 3, 2, 4],
+            color: '#FF5733' // Initial color
+        }]
+    });
+
+    // Change color based on preset selection
+    document.getElementById('presetColors').addEventListener('change', function () {
+        let selectedColor = this.value;
+    
+        // Update the series color with the selected preset
+        chart.series[0].update({
+            color: selectedColor
+        });
+    });
+</script>
+
+<div style="margin-bottom: 20px;">
+    <label for="dataSelection">Select Data Set:</label>
+    <select id="dataSelection" onchange="updateChart()">
+        <option value="dataset1">Dataset 1</option>
+        <option value="dataset2">Dataset 2</option>
+        <option value="dataset3">Dataset 3</option>
+    </select>
+</div>
+
+<div id="graph" style="width: 100%; height: 400px;"></div>
+
+<script>
+    // Initial dataset
+    let dataSets = {
+        dataset1: [26.44, 26, 25.89, 25.9],
+        dataset2: [5, 7, 3, 2],
+        dataset3: [8, 6, 4, 2]
+    };
+
+    // Highcharts configuration
+    let dropdown = Highcharts.chart('graph', {
+        chart: {
+            type: 'line'
+        },
+        title: {
+            text: 'Dynamic Data Based on Dropdown Selection'
+        },
+        xAxis: {
+            categories: ['2024-10-01T12:00:00-10:00', '2024-10-01T12:05:00-10:00', '2024-10-01T12:10:00-10:00', '2024-10-01T12:15:00-10:00']
+        },
+        yAxis: {
+            title: {
+                text: 'Values'
+            }
+        },
+        series: [{
+            name: 'Data',
+            data: dataSets.dataset1
+        }]
+    });
+    
+    // Function to update the chart based on dropdown selection
+    function updateChart() {
+        let selectedDataset = document.getElementById('dataSelection').value;
+        dropdown.series[0].setData(dataSets[selectedDataset]);
+    }
+</script>
+
+</body>
+</html>
+

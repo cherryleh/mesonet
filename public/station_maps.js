@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+
     var latitude = 20.389;
     var longitude = -157.52275766141424;
 
@@ -47,4 +47,4 @@ document.addEventListener('DOMContentLoaded', function () {
     map.attributionControl.setPrefix(
         'View <a href="https://github.com/HandsOnDataViz/leaflet-map-csv" target="_blank">code on GitHub</a>'
     );
-});
+
