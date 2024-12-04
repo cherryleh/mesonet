@@ -1,0 +1,45 @@
+name: Angular Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Inject API token into environment.prod.ts
+        working-directory: mesonet-website
+        run: |
+          mkdir -p src/environments
+          echo "export const environment = { production: true, apiToken: '$(echo '${{ secrets.API_CONFIG_JSON }}' | base64 -d)' };" > src/environments/environment.prod.ts
+      - name: Show project structure
+        working-directory: mesonet-website
+        run: tree
+      - name: Generate environment.ts
+        working-directory: mesonet-website
+        run: |
+          mkdir -p src/environments
+          echo "export const environment = { production: false, apiToken: '' };" > src/environments/environment.ts
+      - name: Verify environment.prod.ts contents
+        working-directory: mesonet-website
+        run: cat src/environments/environment.prod.ts
+
+      - name: Build Angular app to prod
+        working-directory: mesonet-website
+        run: npm install && npm run build:prod
+      
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: mesonet-website/dist/browser
+          branch: prod  
+          token: ${{ secrets.GH_TOKEN }}
