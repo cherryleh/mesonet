@@ -24,11 +24,11 @@ jobs:
         run: npm install -g @angular/cli
 
       - name: Build the Angular app
-        run: ng build --configuration production --base-href="https://cherryleh.github.io/angular-page/"
+        run: ng build --configuration production --base-href="https://cherryleh.github.io/mesonet/"
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: dist/angular-page/browser  # Corrected the folder path
+          folder: dist/mesonet/browser  # Corrected the folder path
           branch: gh-pages
           token: ${{ secrets.GITHUB_TOKEN }}  # Use default GITHUB_TOKEN unless using custom
