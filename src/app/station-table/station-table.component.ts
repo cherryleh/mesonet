@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
   imports: [FormsModule,CommonModule]
 })
 export class StationTableComponent implements OnInit {
-  window = window;
+  
   data: any[] = [];
   filteredData: any[] = [];
   searchTerm: string = '';
