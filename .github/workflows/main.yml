@@ -12,6 +12,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Inject API token into environment.prod.ts
+        working-directory: mesonet-website
+        run: |
+          mkdir -p src/environments
+          echo "export const environment = { production: true, apiToken: '$(echo '${{ secrets.API_CONFIG_JSON }}' | base64 -d)' };" > src/environments/environment.prod.ts
+
+      - name: Generate environment.ts
+        working-directory: mesonet-website
+        run: |
+          mkdir -p src/environments
+          echo "export const environment = { production: false, apiToken: '' };" > src/environments/environment.ts
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
