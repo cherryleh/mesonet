@@ -14,7 +14,7 @@
         <tbody>
             <tr *ngFor="let station of filteredData">
                 <td>{{ station.station_id }}</td>
-                <td><a [href]="'/#/data-display?id=' + station.station_id" style="font-size: 20px" target="_blank">{{
+                <td><a [href]="'mesonet/#/data-display?id=' + station.station_id" style="font-size: 20px" target="_blank">{{
                         station.name }}</a></td>
                 <td>{{ station.lat }}</td>
                 <td>{{ station.lng }}</td>
