@@ -1,0 +1,36 @@
+/* Style for normal link */
+a {
+  color: blue; /* Set the color for normal (unvisited) links */
+  text-decoration: none; /* Remove underline */
+}
+
+/* Style for hovered link */
+a:hover {
+  color: darkblue; /* Change color when the link is hovered */
+}
+
+/* Prevent visited links from turning purple */
+a:visited {
+  color: blue; /* Keeps the original color */
+}
+
+/* Make the table container scrollable */
+.table-container {
+    max-height: 400px; /* Adjust the height as needed */
+    overflow-y: auto; /* Enables vertical scrolling */
+    width: 100%; /* Optional, to set a specific width for the table container */
+    border: 1px solid #ccc; /* Optional, to add a border around the scrollable area */
+  }
+  
+  /* Optional: Table style for better appearance */
+  table {
+    width: 100%; /* Set table width to fill the container */
+    border-collapse: collapse; /* Makes the table look cleaner */
+  }
+  
+  table th, table td {
+    padding: 8px; /* Adds padding to cells */
+    text-align: left; /* Aligns text to the left */
+    border: 1px solid #ddd; /* Adds border between cells */
+  }
+  

@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import * as L from 'leaflet';
 import { environment } from '../../environments/environment';
 import { FormsModule } from '@angular/forms'; 
 
 @Component({
-  selector: 'app-map',
+  selector: 'app-station-map',
   standalone:true,
   imports: [FormsModule],
-  templateUrl: './map.component.html',
-  styleUrls: ['./map.component.css']
+  templateUrl: './station-map.component.html',
+  styleUrls: ['./station-map.component.css']
 })
-export class MapComponent implements OnInit {
+export class StationMapComponent implements AfterViewInit {
   map!: L.Map;
   selectedIsland: string = '';
 
@@ -22,13 +22,12 @@ export class MapComponent implements OnInit {
     'Oahu': { lat: 21.4389, lon: -158.0001 }
   };
 
-  ngOnInit(): void {
-    this.initializeMap();
+  ngAfterViewInit(): void {
+    this.initMap();
     this.fetchStationData();
   }
 
-  // Initialize the map
-  initializeMap(): void {
+  private initMap(): void {
     const latitude = 20.389;
     const longitude = -157.52275766141424;
 
@@ -38,7 +37,7 @@ export class MapComponent implements OnInit {
       zoom: 7
     });
 
-    // Add the basemap
+    
     const basemap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community',
       minZoom: 0,
@@ -62,7 +61,6 @@ export class MapComponent implements OnInit {
     }
   }
 
-  // Fetch the station data from the API and add markers
   fetchStationData(): void {
     const apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations'; // Get the API URL from the environment
     const apiToken = environment.apiToken; // Get the API token from the environment
@@ -74,12 +72,8 @@ export class MapComponent implements OnInit {
         'Content-Type': 'application/json'
       }
     })
-    .then(response => {
-      return response.json();
-    })
+    .then(response => response.json())
     .then((data: any[]) => {
-      console.log('Parsed Data:', data);
-
       data.forEach(station => {
         // Check if the necessary properties are available
         if (station.lat && station.lng && station.name) {
@@ -99,7 +93,4 @@ export class MapComponent implements OnInit {
       console.error('Error fetching station data:', error);
     });
   }
-
-
-  
 }
