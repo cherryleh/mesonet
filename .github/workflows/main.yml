@@ -12,6 +12,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      -run: ls
+
       - name: Inject API token into environment.prod.ts
         working-directory: mesonet
         run: |
