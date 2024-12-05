@@ -19,7 +19,6 @@ jobs:
 
       - name: Generate environment.ts
         run: |
-          mkdir -p src/environments
           echo "export const environment = { production: false, apiToken: '' };" > src/environments/environment.ts
       - name: Setup Node.js
         uses: actions/setup-node@v3
