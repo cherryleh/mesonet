@@ -64,7 +64,6 @@ export class StationMapComponent implements AfterViewInit {
   fetchStationData(): void {
     const apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations'; // Get the API URL from the environment
     const apiToken = environment.apiToken; // Get the API token from the environment
-    console.log(apiToken);
     fetch(apiUrl, {
       method: 'GET',
       headers: {
