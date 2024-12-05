@@ -1,0 +1,24 @@
+<!-- station-table.component.html -->
+<input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Search stations...">
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Station ID</th>
+                <th>Name</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let station of filteredData">
+                <td>{{ station.station_id }}</td>
+                <td><a [href]="'/data-display?id=' + station.station_id" style="font-size: 20px" target="_blank">{{
+                        station.name }}</a></td>
+                <td>{{ station.lat }}</td>
+                <td>{{ station.lng }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

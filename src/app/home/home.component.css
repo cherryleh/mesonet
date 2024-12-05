@@ -1,0 +1,26 @@
+/* home.component.css */
+.section {
+    text-align: center;
+    padding: 50px;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+  }
+  
+.title{
+  font-size: 3vw;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between; /* Pushes items to the left and right */
+  width: 100%;
+}
+
+.left-app{
+  width: 60%; /* Adjust width as needed */
+}
+
+.right-app{
+  width: 40%
+}
