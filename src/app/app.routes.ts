@@ -4,6 +4,7 @@ import { AboutComponent } from './about/about.component';
 import { StationMapComponent } from './station-map/station-map.component';
 import { StationTableComponent } from './station-table/station-table.component';
 import { DataDisplayComponent } from './data-display/data-display.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent }, // Root route displays Home
@@ -11,5 +12,6 @@ export const routes: Routes = [
   { path: 'station-map', component: StationMapComponent},
   { path: 'station-table', component: StationTableComponent},
   { path: 'data-display', component: DataDisplayComponent},
+  { path: 'dashboard', component: DashboardComponent},
   { path: '**', redirectTo: '' } // Wildcard route redirects to Home
 ];

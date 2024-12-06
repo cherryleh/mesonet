@@ -1,14 +1,21 @@
-/* home.component.css */
 .section {
-    text-align: center;
-    padding: 50px;
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-  }
-  
-.title{
-  font-size: 3vw;
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Vertically center items */
+  justify-content: center; /* Horizontally center items */
+  gap: 16px; /* Space between the logo and title */
+  background-color: white;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.section img {
+  height: 200px; /* Set a consistent height for the logo */
+}
+
+.section .title {
+  font-size: 46px; /* Adjust title size */
+  font-weight: bold;
+  margin: 0; /* Remove default margins */
 }
 
 .container {

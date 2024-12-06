@@ -1,0 +1,11 @@
+.grid-container {
+  width: 80%; /* Set width to 80% of the viewport */
+  margin: 0 auto; /* Center the grid horizontally */
+  height: auto; /* Allow the height to adjust based on content */
+}
+
+mat-grid-tile {
+  text-align: center;
+  font-size: 16px;
+  color: white;
+}
