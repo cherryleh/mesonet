@@ -1,67 +1,70 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
-import { environment } from '../../environments/environment';  // Import environment
 import { CommonModule } from '@angular/common';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-station-table',
-  standalone:true,
+  standalone: true,
   templateUrl: './station-table.component.html',
   styleUrls: ['./station-table.component.css'],
-  imports: [FormsModule,CommonModule]
+  imports: [
+    FormsModule,
+    CommonModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule
+  ],
 })
 export class StationTableComponent implements OnInit {
-  
-  data: any[] = [];
-  filteredData: any[] = [];
+  displayedColumns: string[] = ['id', 'name', 'location', 'type']; // Define columns to display
+  dataSource = new MatTableDataSource<any>([]); // Initialize data source
   searchTerm: string = '';
 
-  constructor() { }
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  constructor() {}
 
   ngOnInit(): void {
     this.fetchStationData();
   }
 
-  // Fetch data using fetch API
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator; // Assign paginator after view initialization
+  }
+
   async fetchStationData(): Promise<void> {
-    const apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations'; // Get the API URL from the environment
-    const apiToken = environment.apiToken; // Get the API token from the environment
+    const apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations';
+    const apiToken = environment.apiToken;
 
     try {
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${apiToken}`, // Add the Authorization header with the token
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${apiToken}`,
+          'Content-Type': 'application/json',
+        },
       });
 
-      // Check if the response is OK (status 200)
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const responseData = await response.json();
       console.log('Fetched data:', responseData);
-      this.data = responseData;  // Store the fetched data
-      this.filteredData = responseData;  // Initialize filtered data
+      this.dataSource.data = responseData; // Update data source
     } catch (error) {
       console.error('Error fetching station data:', error);
     }
   }
 
-  // Filter data based on search input
-  onSearch(): void {
-    if (this.searchTerm) {
-      this.filteredData = this.data.filter(item => {
-        return Object.values(item).some((value: unknown) => {
-          // Assert that value is a string
-          return (value as string).toString().toLowerCase().includes(this.searchTerm.toLowerCase());
-        });
-      });
-    } else {
-      this.filteredData = this.data;
-    }
+  applyFilter(event: Event): void {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
-
 }
