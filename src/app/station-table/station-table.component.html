@@ -1,33 +1,5 @@
-<!-- station-table.component.html -->
-<!-- <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Search stations..."> -->
-<!-- 
-<div class="table-container">
-    <table>
-        <thead>
-            <tr>
-                <th>Station ID</th>
-                <th>Name</th>
-                <th>Latitude</th>
-                <th>Longitude</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let station of filteredData">
-                <td>{{ station.station_id }}</td>
-                
-                <td>
-                    <a [href]="'/mesonet/#/data-display?id=' + station.station_id" style="font-size: 20px"
-                        target="_blank">{{
-                        station.name }}</a>
-                </td>
-                <td>{{ station.lat }}</td>
-                <td>{{ station.lng }}</td>
-            </tr>
-        </tbody>
-    </table>
-</div> -->
 <div>
-    <mat-form-field appearance="standard">
+    <mat-form-field appearance="fill">
       <mat-label>Search</mat-label>
       <input
         matInput
@@ -41,25 +13,27 @@
     <!-- ID Column -->
     <ng-container matColumnDef="id">
       <mat-header-cell *matHeaderCellDef> ID </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{ element.id }} </mat-cell>
+      <mat-cell *matCellDef="let element"> {{ element.station_id }} </mat-cell>
     </ng-container>
   
     <!-- Name Column -->
     <ng-container matColumnDef="name">
       <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{ element.name }} </mat-cell>
+      <mat-cell *matCellDef="let element"> <a [href]="'/mesonet/#/dashboard?id=' + element.station_id" style="font-size: 20px"
+        target="_blank">{{
+        element.name }}</a> </mat-cell>
     </ng-container>
   
     <!-- Location Column -->
     <ng-container matColumnDef="location">
       <mat-header-cell *matHeaderCellDef> Location </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{ element.location }} </mat-cell>
+      <mat-cell *matCellDef="let element"> {{ element.lat }} </mat-cell>
     </ng-container>
   
     <!-- Type Column -->
     <ng-container matColumnDef="type">
       <mat-header-cell *matHeaderCellDef> Type </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{ element.type }} </mat-cell>
+      <mat-cell *matCellDef="let element"> {{ element.lng }} </mat-cell>
     </ng-container>
   
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>

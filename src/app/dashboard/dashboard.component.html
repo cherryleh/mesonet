@@ -1,3 +1,8 @@
+<div>
+  <h2>Station Name: {{ stationName }}</h2>
+</div>
+
+<p *ngIf="latestTimestamp">Last updated: {{ getFormattedTimestamp() }}</p>
 <div class="grid-container">
   <mat-grid-list cols="12" rowHeight="100px">
     <mat-grid-tile
@@ -14,13 +19,7 @@
 </div>
 
 
-<div>
-  <h3>Latest Data</h3>
-  <p *ngIf="latestTimestamp">Last updated: {{ getFormattedTimestamp() }}</p>
 
-    <p *ngFor="let key of objectKeys(variables)">
-      <strong>{{ key }}:</strong> {{ variables[key] }}
-    </p>
+  
 
-</div>
   

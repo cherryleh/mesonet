@@ -9,13 +9,14 @@
 }
 
 .section img {
-  height: 200px; /* Set a consistent height for the logo */
+  height: 5%; /* Set a consistent height for the logo */
 }
 
 .section .title {
   font-size: 46px; /* Adjust title size */
   font-weight: bold;
   margin: 0; /* Remove default margins */
+  color: #777777;
 }
 
 .container {
