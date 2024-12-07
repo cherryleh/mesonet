@@ -1,36 +1,27 @@
-/* Style for normal link */
-a {
-  color: blue; /* Set the color for normal (unvisited) links */
-  text-decoration: none; /* Remove underline */
-}
-
-/* Style for hovered link */
-a:hover {
-  color: darkblue; /* Change color when the link is hovered */
-}
-
-/* Prevent visited links from turning purple */
-a:visited {
-  color: blue; /* Keeps the original color */
-}
-
-/* Make the table container scrollable */
 .table-container {
-    max-height: 400px; /* Adjust the height as needed */
-    overflow-y: auto; /* Enables vertical scrolling */
-    width: 100%; /* Optional, to set a specific width for the table container */
-    border: 1px solid #ccc; /* Optional, to add a border around the scrollable area */
-  }
-  
-  /* Optional: Table style for better appearance */
-  table {
-    width: 100%; /* Set table width to fill the container */
-    border-collapse: collapse; /* Makes the table look cleaner */
-  }
-  
-  table th, table td {
-    padding: 8px; /* Adds padding to cells */
-    text-align: left; /* Aligns text to the left */
-    border: 1px solid #ddd; /* Adds border between cells */
-  }
-  
+  max-height: 400px; /* Set a fixed height for the table */
+  overflow-y: auto; /* Enable vertical scrolling */
+  border: 1px solid #ddd; /* Optional: Add a border for better visualization */
+  display: block; /* Ensure the container is block-level */
+}
+
+table {
+  width: 100%; /* Ensure the table takes up full width */
+  border-collapse: collapse; /* Optional: Collapse borders for a cleaner look */
+}
+
+th, td {
+  white-space: nowrap; /* Prevent text from wrapping */
+  padding: 8px; /* Add padding for better readability */
+}
+
+.mat-header-row, .mat-row {
+  display: table-row; /* Default row display for material table rows */
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background-color: white; /* Match table header background */
+  z-index: 1; /* Ensure the header stays above rows */
+}

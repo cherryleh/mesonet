@@ -10,6 +10,10 @@ import { Chart, registerables } from 'chart.js';
 import { DataService } from '../data.service';
 import { StationDataService } from '../station-data.service';
 import { DatePipe } from '@angular/common';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+
+import { DashboardChartComponent } from '../dashboard-chart/dashboard-chart.component'; // Import the standalone component
+
 
 export interface Tile {
   color: string;
@@ -32,13 +36,17 @@ export interface Tile {
     CommonModule,
     MatTableModule,
     MatCardModule,
-    MatGridListModule
+    MatGridListModule,
+    MatProgressBarModule,
+    DashboardChartComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
   providers: [DatePipe]
 })
 export class DashboardComponent implements AfterViewInit {
+
+  refreshIntervalMS = 30000;
   columnCount = 2;
   rowCount = 2;
 
@@ -71,7 +79,7 @@ export class DashboardComponent implements AfterViewInit {
   objectKeys = Object.keys;
 
   tiles: Tile[] = [
-    { text: 'Graph', cols: 8, rows: 6, color: 'lightblue', variableKey: null },
+    { text: 'Graph', cols: 8, rows: 6, color: 'white', variableKey: null },
     { text: 'Hourly Rainfall', cols: this.columnCount, rows: this.rowCount, color: 'lightpink', variableKey: 'Rainfall' },
     { text: 'Air Temperature', cols: this.columnCount, rows: this.rowCount, color: 'lightpink', variableKey: 'Temperature' },
     { text: 'Wind', cols: this.columnCount, rows: this.rowCount, color: 'lightpink', variableKey: 'Wind Speed' },
@@ -119,7 +127,7 @@ export class DashboardComponent implements AfterViewInit {
             this.variables[key] = `${Math.round(variableData.value)}%`;
           }
           else if (key=='Solar Radiation' && variableData){
-            this.variables[key] = `${Math.round(variableData.value)}`;
+            this.variables[key] = `${Math.round(variableData.value)} W/m^2`;
           }
           else {
             this.variables[key] = variableData ? variableData.value : 'N/A';
@@ -162,5 +170,37 @@ export class DashboardComponent implements AfterViewInit {
         console.log(this.id)
       }
     });
+
   }
+
+  ngOnInit(): void {
+    this.updateData();
+  }
+
+  queryData(): void {
+    if (this.id) {
+      console.log('Fetching data for ID:', this.id);
+      this.fetchData(this.id);
+    } else {
+      console.error('ID is not available to query data.');
+    }
+  }
+
+  updateData(): void {
+    this.queryData();
+    setTimeout(() => {
+      this.updateData();
+    }, this.refreshIntervalMS);
+  }
+
+
+  getProgressValue(variableKey: string): number {
+    if (variableKey && this.variables[variableKey]) {
+      const value = parseFloat(this.variables[variableKey]?.replace(/[^\d.]/g, '') || '0');
+      return isNaN(value) ? 0 : value; // Remove units and convert to a number
+    }
+    return 0;
+  }
+
+
 }

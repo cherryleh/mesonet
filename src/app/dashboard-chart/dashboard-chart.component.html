@@ -1,0 +1,10 @@
+<div class="parent">
+  <div>
+    <label for="duration-select">Select Time Range:</label>
+    <select id="duration-select" [(ngModel)]="selectedDuration" (change)="onDurationChange()">
+      <option *ngFor="let duration of durations" [value]="duration.value">{{ duration.label }}</option>
+    </select>
+  </div>
+
+  <div id="container" style="width: 100%;"></div>
+</div>
