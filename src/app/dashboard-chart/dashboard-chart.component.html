@@ -5,6 +5,14 @@
       <option *ngFor="let duration of durations" [value]="duration.value">{{ duration.label }}</option>
     </select>
   </div>
+  <div id="chart-container" class="chart-container">
+    <div *ngIf="isLoading" class="spinner-overlay">
+      <mat-progress-spinner 
+        mode="indeterminate"
+        diameter="50">
+      </mat-progress-spinner>
+    </div>
+    <div id="container"></div> <!-- Keep the container always present -->
+  </div>
 
-  <div id="container" style="width: 100%;"></div>
 </div>

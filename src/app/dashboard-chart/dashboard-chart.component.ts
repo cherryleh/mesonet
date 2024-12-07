@@ -4,18 +4,20 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // Import FormsModule
 import * as Highcharts from 'highcharts';
 import { DashboardChartService } from '../dashboard-chart.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; // Import the spinner module
+
 
 @Component({
   selector: 'app-dashboard-chart',
   standalone: true,
-  imports: [CommonModule, FormsModule], // Add FormsModule here
+  imports: [CommonModule, FormsModule, MatProgressSpinnerModule], // Add FormsModule here
   templateUrl: './dashboard-chart.component.html',
   styleUrls: ['./dashboard-chart.component.css'],
   providers: [DashboardChartService], // Provide the service here if not in root
 })
 export class DashboardChartComponent implements AfterViewInit {
   refreshIntervalMS = 30000; // Refresh interval in milliseconds
-
+  isLoading = false;
   id: string | null = null;
   selectedDuration = '1080';
   durations = [
@@ -49,6 +51,7 @@ export class DashboardChartComponent implements AfterViewInit {
       {
         title: { text: 'Solar Radiation (W/m²)' }, 
         opposite: true,
+        min: 0
       },
     ],
     tooltip: {
@@ -64,6 +67,7 @@ export class DashboardChartComponent implements AfterViewInit {
   constructor(private route: ActivatedRoute, private dataService: DashboardChartService) {}
 
   fetchData(id: string, limit: string): void {
+    this.isLoading = true; // Show the loading indicator
     this.dataService.getData(id, limit).subscribe(
       (data: any[]) => {
         let temperatureData: [number, number][] = [];
@@ -77,16 +81,15 @@ export class DashboardChartComponent implements AfterViewInit {
           if (item.variable === 'Tair_1_Avg') {
             temperatureData.push([timestamp, (value * 1.8) + 32]); // Convert Celsius to Fahrenheit
           } else if (item.variable === 'RF_1_Tot300s') {
-            rainfallData.push([timestamp, value/25.4]); // Rainfall mm to inches
+            rainfallData.push([timestamp, value / 25.4]); // Rainfall mm to inches
           } else if (item.variable === 'SWin_1_Avg') {
             radData.push([timestamp, value]); // Solar Radiation
           }
         });
 
-        // Aggregate data for 7-day duration
         if (limit === '3240' || limit === '7560') {
           temperatureData = this.aggregateToHourly(temperatureData);
-          rainfallData = this.aggregateToHourly(rainfallData, true); // Aggregate by sum
+          rainfallData = this.aggregateToHourly(rainfallData, true); // Aggregate rainfall by sum
           radData = this.aggregateToHourly(radData);
         }
 
@@ -98,6 +101,9 @@ export class DashboardChartComponent implements AfterViewInit {
             type: 'line',
             zIndex: 2,
             color: '#FC7753',
+            marker: {
+              enabled: false, // Disable markers for this series
+            }
           },
           {
             name: 'Rainfall (in)',
@@ -107,6 +113,13 @@ export class DashboardChartComponent implements AfterViewInit {
             zIndex: 1,
             color: '#058DC7',
             pointWidth: 5,
+            marker: {
+              enabled: false,
+            },
+            connectNulls: true,
+            dataGrouping: {
+              enabled: true
+            },
           },
           {
             name: 'Solar Radiation (W/m²)',
@@ -115,6 +128,9 @@ export class DashboardChartComponent implements AfterViewInit {
             type: 'line',
             zIndex: 1,
             color: '#FFC914',
+            marker: {
+              enabled: false, // Disable markers for this series
+            }            
           },
         ] as Highcharts.SeriesOptionsType[];
 
@@ -122,12 +138,15 @@ export class DashboardChartComponent implements AfterViewInit {
         if (container) {
           Highcharts.chart(container, this.chartOptions);
         }
+        this.isLoading = false; // Hide the loading indicator after chart update
       },
       error => {
         console.error('Error fetching data:', error);
+        this.isLoading = false; // Hide the loading indicator on error
       }
     );
   }
+
 
 
   ngAfterViewInit(): void {
@@ -150,6 +169,8 @@ export class DashboardChartComponent implements AfterViewInit {
       this.updateData();
     }, this.refreshIntervalMS);
   }
+
+  
   aggregateToHourly(data: [number, number][], sum = false): [number, number][] {
     const hourlyData: { [hour: string]: { sum: number; count: number } } = {};
 
