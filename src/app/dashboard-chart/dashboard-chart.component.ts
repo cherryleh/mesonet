@@ -32,11 +32,10 @@ export class DashboardChartComponent implements AfterViewInit {
       zooming: {
         type: 'x', // Enable x-axis zoom
       },
-      height: '40%'
     },
     title: {
-      text: 'Variable Data Over Time',
-    },
+      text: ''
+      },
     xAxis: {
       type: 'datetime',
     },
@@ -57,6 +56,7 @@ export class DashboardChartComponent implements AfterViewInit {
     tooltip: {
       shared: true,
       valueDecimals: 2, 
+      xDateFormat: '%b %e, %Y %l:%M%p'
     },
     time: {
       timezoneOffset: 600, // To display in Hawaii time
@@ -174,8 +174,9 @@ export class DashboardChartComponent implements AfterViewInit {
   aggregateToHourly(data: [number, number][], sum = false): [number, number][] {
     const hourlyData: { [hour: string]: { sum: number; count: number } } = {};
 
+    // Step 1: Aggregate data by rounding timestamps to the start of the hour (UTC)
     data.forEach(([timestamp, value]) => {
-      const hourTimestamp = Math.floor(timestamp / (1000 * 60 * 60)) * (1000 * 60 * 60); // Round to the nearest hour
+      const hourTimestamp = Math.floor(timestamp / (1000 * 60 * 60)) * (1000 * 60 * 60); // Round down to the start of the hour
       if (!hourlyData[hourTimestamp]) {
         hourlyData[hourTimestamp] = { sum: 0, count: 0 };
       }
@@ -183,12 +184,19 @@ export class DashboardChartComponent implements AfterViewInit {
       hourlyData[hourTimestamp].count += 1;
     });
 
-    return Object.keys(hourlyData).map(hour => {
-      const timestamp = parseInt(hour, 10);
-      const { sum, count } = hourlyData[hour];
-      return [timestamp, sum / (sum ? 1 : count)]; // Average for temperature or radiation
-    });
+    // Step 2: Calculate the aggregated values for each complete hour
+    return Object.keys(hourlyData)
+      .filter(hour => hourlyData[hour].count === 12) // For 5-minute intervals, expect 12 points per hour
+      .map(hour => {
+        const timestamp = Number(hour) + (30 * 60 * 1000); // Add 30 minutes to get the midpoint of the hour
+        const { sum: totalSum, count } = hourlyData[hour];
+        const result = sum ? totalSum : totalSum / count; // Sum if sum = true, otherwise average
+        return [timestamp, result];
+      });
   }
+
+
+
 
 
   onDurationChange(): void {

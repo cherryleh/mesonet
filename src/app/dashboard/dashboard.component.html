@@ -20,10 +20,6 @@
           <div *ngSwitchCase="'Rainfall'" class="tile-rainfall">
             <p>Hourly Rainfall</p>
             <p>{{ variables['Rainfall'] || 'N/A' }}</p>
-            <mat-progress-bar
-              mode="determinate"
-              [value]="getProgressValue('Rainfall')">
-            </mat-progress-bar>
           </div>
 
           <div *ngSwitchCase="'Temperature'" class="tile-temperature">
