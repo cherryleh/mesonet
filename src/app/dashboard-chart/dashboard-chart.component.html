@@ -1,10 +1,34 @@
 <div class="parent">
-  <div>
-    <label for="duration-select">Select Time Range:</label>
-    <select id="duration-select" [(ngModel)]="selectedDuration" (change)="onDurationChange()">
-      <option *ngFor="let duration of durations" [value]="duration.value">{{ duration.label }}</option>
-    </select>
+  
+  <!-- Dropdown Container (Row 1) -->
+  <div class="dropdown-container">
+    <div class="label-dropdown-wrapper">
+      <label for="duration-select">Select Time Range:</label>
+      <div class="dropdown">
+        <button 
+          class="btn btn-custom dropdown-toggle" 
+          type="button" 
+          id="dropdownMenuButton" 
+          data-bs-toggle="dropdown" 
+          aria-haspopup="true" 
+          aria-expanded="false">
+          {{ getLabelForSelectedDuration() }}
+        </button>
+
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a 
+            class="dropdown-item" 
+            *ngFor="let duration of durations" 
+            (click)="selectDuration(duration.value)"
+            [class.active]="selectedDuration === duration.value">
+            {{ duration.label }}
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Chart Container (Row 2) -->
   <div id="chart-container" class="chart-container">
     <div *ngIf="isLoading" class="spinner-overlay">
       <mat-progress-spinner 
@@ -12,7 +36,7 @@
         diameter="50">
       </mat-progress-spinner>
     </div>
-    <div id="container"></div> <!-- Keep the container always present -->
+    <div id="container"></div> 
   </div>
 
 </div>

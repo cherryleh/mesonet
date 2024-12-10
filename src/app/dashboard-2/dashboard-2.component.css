@@ -1,0 +1,103 @@
+/* Centered Station Name at the Top */
+.dashboard-header {
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  width: 100%;
+}
+
+/* Center the Station Name */
+.station-name {
+  font-size: 24px; 
+  margin: 0; 
+  text-align: center; 
+}
+
+/* Position the Last Updated below and aligned to the right */
+.last-updated {
+  font-size: 0.9rem; 
+  color: #555; 
+  width: 80%; 
+  text-align: right; 
+  margin-top: 8px; 
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 3fr 1fr; 
+  grid-auto-rows: 90px;
+  gap: 8px;
+  width: 80%;
+  margin: 0 auto;
+}
+
+.graph-grid {
+  grid-column: 1 / 2; 
+  grid-row: 1 / span 6; 
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.graph-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.graph-header {
+  border-bottom: 1px solid #edf1f7;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.chart-container {
+  width: 100%;
+  flex-grow: 1;
+  display: block;
+}
+
+.data-side {
+  grid-column: 2 / 3; 
+  grid-row: 1 / span 6; 
+  display: grid;
+  grid-template-columns: repeat(1, 1fr); 
+  grid-template-rows: repeat(6, 1fr); 
+  gap: 8px;
+  border: solid #edf1f7 1px;
+  border-radius: 4px;
+  background-color: white;
+  padding: 30px;
+}
+
+.data-ele {
+  display: block;
+}
+
+.data-content {
+  width: 100%;
+}
+
+.data-grid h3, 
+.data-ele h3 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.title {
+  font-size: 16px;
+}
+
+.index {
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.custom-progress-bar .progress-bar {
+  background-color: #28a745; /* Green */
+}

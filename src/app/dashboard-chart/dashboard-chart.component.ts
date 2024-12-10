@@ -195,13 +195,19 @@ export class DashboardChartComponent implements AfterViewInit {
       });
   }
 
-
-
-
+  selectDuration(value: string): void {
+    this.selectedDuration = value;
+    this.onDurationChange();
+  }
 
   onDurationChange(): void {
     if (this.id) {
       this.fetchData(this.id, this.selectedDuration); // Fetch data for the selected duration
     }
+  }
+
+  getLabelForSelectedDuration(): string {
+    const selected = this.durations.find(d => d.value === this.selectedDuration);
+    return selected ? selected.label : 'Select Duration';
   }
 }
