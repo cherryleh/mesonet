@@ -1,22 +1,22 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // Import FormsModule
+import { FormsModule } from '@angular/forms'; 
 import * as Highcharts from 'highcharts';
 import { DashboardChartService } from '../dashboard-chart.service';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; // Import the spinner module
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; 
 
 
 @Component({
   selector: 'app-dashboard-chart',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatProgressSpinnerModule], // Add FormsModule here
+  imports: [CommonModule, FormsModule, MatProgressSpinnerModule], 
   templateUrl: './dashboard-chart.component.html',
   styleUrls: ['./dashboard-chart.component.css'],
-  providers: [DashboardChartService], // Provide the service here if not in root
+  providers: [DashboardChartService], 
 })
 export class DashboardChartComponent implements AfterViewInit {
-  refreshIntervalMS = 30000; // Refresh interval in milliseconds
+  refreshIntervalMS = 30000; 
   isLoading = false;
   id: string | null = null;
   selectedDuration = '1080';
@@ -26,16 +26,20 @@ export class DashboardChartComponent implements AfterViewInit {
     { label: 'Last 7 Days', value: '7560' },
   ];
   Highcharts = Highcharts;
+  chartRef!: Highcharts.Chart; // Reference to the chart
+  
+  // ViewChild to access the chart container in the DOM
+  @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
+
   chartOptions: Highcharts.Options = {
     chart: {
       type: 'line',
-      zooming: {
-        type: 'x', // Enable x-axis zoom
-      },
     },
+    
+
     title: {
       text: ''
-      },
+    },
     xAxis: {
       type: 'datetime',
     },
@@ -64,10 +68,32 @@ export class DashboardChartComponent implements AfterViewInit {
     series: [], 
   };
 
-  constructor(private route: ActivatedRoute, private dataService: DashboardChartService) {}
+  constructor(
+    private route: ActivatedRoute, 
+    private dataService: DashboardChartService
+  ) {}
+
+  ngAfterViewInit(): void {
+    this.route.queryParams.subscribe(params => {
+      this.id = params['id'];
+      if (this.id) {
+        this.fetchData(this.id, this.selectedDuration); 
+      }
+    });
+    this.updateData();
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    if (this.chartRef) {
+      console.log('Resizing chart...');
+      this.chartRef.reflow();
+    }
+  }
 
   fetchData(id: string, limit: string): void {
-    this.isLoading = true; // Show the loading indicator
+    console.log('Fetching data...');
+    this.isLoading = true; 
     this.dataService.getData(id, limit).subscribe(
       (data: any[]) => {
         let temperatureData: [number, number][] = [];
@@ -79,120 +105,62 @@ export class DashboardChartComponent implements AfterViewInit {
           const value = parseFloat(item.value);
 
           if (item.variable === 'Tair_1_Avg') {
-            temperatureData.push([timestamp, (value * 1.8) + 32]); // Convert Celsius to Fahrenheit
+            temperatureData.push([timestamp, (value * 1.8) + 32]); 
           } else if (item.variable === 'RF_1_Tot300s') {
-            rainfallData.push([timestamp, value / 25.4]); // Rainfall mm to inches
+            rainfallData.push([timestamp, value / 25.4]); 
           } else if (item.variable === 'SWin_1_Avg') {
-            radData.push([timestamp, value]); // Solar Radiation
+            radData.push([timestamp, value]); 
           }
         });
 
-        if (limit === '3240' || limit === '7560') {
-          temperatureData = this.aggregateToHourly(temperatureData);
-          rainfallData = this.aggregateToHourly(rainfallData, true); // Aggregate rainfall by sum
-          radData = this.aggregateToHourly(radData);
-        }
-
         this.chartOptions.series = [
-          {
-            name: 'Temperature (°F)',
-            data: temperatureData,
-            yAxis: 0,
-            type: 'line',
-            zIndex: 2,
-            color: '#FC7753',
-            marker: {
-              enabled: false, // Disable markers for this series
+          { 
+            name: 'Temperature (°F)', 
+            data: temperatureData, 
+            yAxis: 0, 
+            type: 'line', 
+            color: '#FC7753' 
+          },
+          { 
+            name: 'Rainfall (in)', 
+            data: rainfallData, 
+            yAxis: 1, 
+            type: 'column', 
+            color: '#058DC7',
+            maxPointWidth: 5, // Sets the width of each bar to 10px
+            groupPadding: 0.05, // Space between groups of columns
+            pointPadding: 0.05, // Space between individual columns
+            dataGrouping: {
+              enabled: true,
+              units: [['hour', [1]]] // Groups 5-minute intervals into 1-hour intervals
             }
           },
-          {
-            name: 'Rainfall (in)',
-            data: rainfallData,
-            yAxis: 1,
-            type: 'column',
-            zIndex: 1,
-            color: '#058DC7',
-            pointWidth: 5,
-            marker: {
-              enabled: false,
-            },
-            connectNulls: true,
-            dataGrouping: {
-              enabled: true
-            },
-          },
-          {
-            name: 'Solar Radiation (W/m²)',
-            data: radData,
-            yAxis: 2,
-            type: 'line',
-            zIndex: 1,
-            color: '#FFC914',
-            marker: {
-              enabled: false, // Disable markers for this series
-            }            
-          },
+          { 
+            name: 'Solar Radiation (W/m²)', 
+            data: radData, 
+            yAxis: 2, 
+            type: 'line', 
+            color: '#FFC914' 
+          }
         ] as Highcharts.SeriesOptionsType[];
 
-        const container = document.getElementById('container');
-        if (container) {
-          Highcharts.chart(container, this.chartOptions);
+        if (this.chartContainer) {
+          this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
+          console.log('Chart initialized successfully.');
         }
-        this.isLoading = false; // Hide the loading indicator after chart update
+        this.isLoading = false; 
       },
       error => {
         console.error('Error fetching data:', error);
-        this.isLoading = false; // Hide the loading indicator on error
+        this.isLoading = false; 
       }
     );
   }
 
-
-
-  ngAfterViewInit(): void {
-    this.route.queryParams.subscribe(params => {
-      this.id = params['id'];
-      if (this.id) {
-        this.fetchData(this.id, this.selectedDuration); // Fetch with default 24-hour duration
-      }
-    });
-    this.updateData();
-  }
-
-  queryData(): void {
-    console.log('Data fetched from API');
-  }
-
   updateData(): void {
-    this.queryData();
     setTimeout(() => {
       this.updateData();
     }, this.refreshIntervalMS);
-  }
-
-  
-  aggregateToHourly(data: [number, number][], sum = false): [number, number][] {
-    const hourlyData: { [hour: string]: { sum: number; count: number } } = {};
-
-    // Step 1: Aggregate data by rounding timestamps to the start of the hour (UTC)
-    data.forEach(([timestamp, value]) => {
-      const hourTimestamp = Math.floor(timestamp / (1000 * 60 * 60)) * (1000 * 60 * 60); // Round down to the start of the hour
-      if (!hourlyData[hourTimestamp]) {
-        hourlyData[hourTimestamp] = { sum: 0, count: 0 };
-      }
-      hourlyData[hourTimestamp].sum += value;
-      hourlyData[hourTimestamp].count += 1;
-    });
-
-    // Step 2: Calculate the aggregated values for each complete hour
-    return Object.keys(hourlyData)
-      .filter(hour => hourlyData[hour].count === 12) // For 5-minute intervals, expect 12 points per hour
-      .map(hour => {
-        const timestamp = Number(hour) + (30 * 60 * 1000); // Add 30 minutes to get the midpoint of the hour
-        const { sum: totalSum, count } = hourlyData[hour];
-        const result = sum ? totalSum : totalSum / count; // Sum if sum = true, otherwise average
-        return [timestamp, result];
-      });
   }
 
   selectDuration(value: string): void {
@@ -202,7 +170,7 @@ export class DashboardChartComponent implements AfterViewInit {
 
   onDurationChange(): void {
     if (this.id) {
-      this.fetchData(this.id, this.selectedDuration); // Fetch data for the selected duration
+      this.fetchData(this.id, this.selectedDuration); 
     }
   }
 

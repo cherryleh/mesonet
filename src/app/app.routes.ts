@@ -7,6 +7,7 @@ import { DataDisplayComponent } from './data-display/data-display.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { Dashboard2Component } from './dashboard-2/dashboard-2.component';
 import { DashboardChartComponent } from './dashboard-chart/dashboard-chart.component';
+import { TestComponent } from './test/test.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent }, // Root route displays Home
@@ -17,5 +18,6 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent},
   { path: 'dashboard2', component: Dashboard2Component},
   { path: 'dashboard-chart', component:DashboardChartComponent},
+  { path: 'test', component: TestComponent},
   { path: '**', redirectTo: '' } // Wildcard route redirects to Home
 ];

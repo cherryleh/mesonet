@@ -1,5 +1,4 @@
 <div class="parent">
-  
   <!-- Dropdown Container (Row 1) -->
   <div class="dropdown-container">
     <div class="label-dropdown-wrapper">
@@ -29,14 +28,13 @@
   </div>
 
   <!-- Chart Container (Row 2) -->
-  <div id="chart-container" class="chart-container">
+  <div class="chart-container">
     <div *ngIf="isLoading" class="spinner-overlay">
       <mat-progress-spinner 
         mode="indeterminate"
         diameter="50">
       </mat-progress-spinner>
     </div>
-    <div id="container"></div> 
+    <div #chartContainer id="container"></div>
   </div>
-
 </div>

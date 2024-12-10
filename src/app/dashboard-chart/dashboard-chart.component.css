@@ -1,8 +1,9 @@
 /* Parent container to hold dropdown and chart */
 .parent {
-  display: grid;
-  grid-template-rows: auto 1fr; /* Dropdown in first row, chart in second */
-  width: 100%; 
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Full viewport height */
 }
 
 .dropdown-container {
@@ -70,7 +71,6 @@
 .chart-container {
   position: relative;
   width: 100%; 
-  height: 400px; 
 }
 
 .spinner-overlay {
