@@ -82,7 +82,7 @@ export class StationMapComponent implements AfterViewInit {
               fillColor: 'blue', // Fill color
               fillOpacity: 0.2, // Opacity of the fill
               weight: 2});
-            const url = `/mesonet/#/dashboard?id=${station.station_id}`;
+            const url = `/mesonet/#/dashboard2?id=${station.station_id}`;
             circle.bindPopup(`<a href="${url}" style="font-size: 20px" target="_blank">${station.name}</a>`);
           circle.addTo(this.map);
         }

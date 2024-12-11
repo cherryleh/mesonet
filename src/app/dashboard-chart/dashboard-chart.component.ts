@@ -34,6 +34,7 @@ export class DashboardChartComponent implements AfterViewInit {
   chartOptions: Highcharts.Options = {
     chart: {
       type: 'line',
+      height:'500px'
     },
     
 
@@ -119,7 +120,8 @@ export class DashboardChartComponent implements AfterViewInit {
             data: temperatureData, 
             yAxis: 0, 
             type: 'line', 
-            color: '#FC7753' 
+            color: '#FC7753',
+            zIndex: 3
           },
           { 
             name: 'Rainfall (in)', 
@@ -130,10 +132,6 @@ export class DashboardChartComponent implements AfterViewInit {
             maxPointWidth: 5, // Sets the width of each bar to 10px
             groupPadding: 0.05, // Space between groups of columns
             pointPadding: 0.05, // Space between individual columns
-            dataGrouping: {
-              enabled: true,
-              units: [['hour', [1]]] // Groups 5-minute intervals into 1-hour intervals
-            }
           },
           { 
             name: 'Solar Radiation (W/m²)', 

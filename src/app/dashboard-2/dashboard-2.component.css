@@ -17,18 +17,19 @@
 .last-updated {
   font-size: 0.9rem; 
   color: #555; 
-  width: 80%; 
+  width: 90%; 
   text-align: right; 
   margin-top: 8px; 
 }
 
 .grid-container {
   display: grid;
-  grid-template-columns: 3fr 1fr; 
-  grid-auto-rows: 90px;
+  grid-template-columns: 4fr 1fr; 
+  grid-auto-rows: 100px;
   gap: 8px;
-  width: 80%;
+  width: 90%;
   margin: 0 auto;
+  padding-bottom: 100px;
 }
 
 .graph-grid {
@@ -98,6 +99,12 @@
   font-weight: 800;
 }
 
+.progress{
+  height:5px;
+}
+
 .custom-progress-bar .progress-bar {
   background-color: #28a745; /* Green */
 }
+
+.unit{font-size:20px}

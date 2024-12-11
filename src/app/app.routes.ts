@@ -8,6 +8,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { Dashboard2Component } from './dashboard-2/dashboard-2.component';
 import { DashboardChartComponent } from './dashboard-chart/dashboard-chart.component';
 import { TestComponent } from './test/test.component';
+import { HeaderComponent } from './header/header.component';
+import { SidebarComponent } from './sidebar/sidebar.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent }, // Root route displays Home

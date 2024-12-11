@@ -3,3 +3,28 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-color: #EDF1F7 !important;}
+app-header {
+    width: 100%;
+    z-index: 1000; /* Ensures header is on top */
+    position: fixed; /* Sticks the header to the top */
+    top: 0;
+    left: 0;
+  }
+
+  app-sidebar {
+    width: 250px;
+    height: calc(100vh - 60px); /* Full height minus header height */
+    position: fixed; /* Sidebar stays fixed */
+    top: 60px; /* Below the header */
+    left: 0;
+    z-index: 500; /* Lower than the header */
+  }
+
+  .main-content {
+    margin-left: 250px; /* Space for the sidebar */
+    padding-top: 100px;
+    flex: 1; /* Fills remaining space */
+    overflow-y: auto; /* Scrolls if content overflows */
+    position: relative; /* Makes sure Highcharts stays within this space */
+    z-index: 400; /* Lower than sidebar and header */
+  }

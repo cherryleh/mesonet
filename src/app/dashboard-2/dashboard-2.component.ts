@@ -11,7 +11,8 @@ import { StationDataService } from '../station-data.service';
 import { DatePipe } from '@angular/common';
 
 import { DashboardChartComponent } from '../dashboard-chart/dashboard-chart.component'; // Import the standalone component
-
+import { HeaderComponent } from '../header/header.component';
+import { SidebarComponent } from '../sidebar/sidebar.component';
 
 /**
  * @title Dynamic grid-list
@@ -25,7 +26,9 @@ import { DashboardChartComponent } from '../dashboard-chart/dashboard-chart.comp
     CommonModule,
     MatTableModule,
     MatGridListModule,
-    DashboardChartComponent
+    DashboardChartComponent,
+    HeaderComponent,
+    SidebarComponent
   ],
   templateUrl: './dashboard-2.component.html',
   styleUrls: ['./dashboard-2.component.css'],

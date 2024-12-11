@@ -1,80 +1,91 @@
-<div class="dashboard-header">
-    <h2 class="station-name">Station Name: {{ stationName }}</h2>
-    <p *ngIf="latestTimestamp" class="last-updated">Last updated: {{ getFormattedTimestamp() }}</p>
-</div>
+<div class="layout">
+    <app-header></app-header>
+    <div class="content">
+        <app-sidebar></app-sidebar>
+        <div class="main-content">
+            <div class="dashboard-header">
+                <h2 class="station-name">Station Name: {{ stationName }}</h2>
+                <p *ngIf="latestTimestamp" class="last-updated">Last updated: {{ getFormattedTimestamp() }}</p>
+            </div>
 
-<div class="grid-container">
-    <!-- Left side: Chart -->
-    <div class="graph-grid">
-        <div class="graph-content">
-            <div class="graph-header">
-                <p>24-hour Rainfall Total:</p>
-            </div>
-            <div class="chart-container">
-                <app-dashboard-chart></app-dashboard-chart>
-            </div>
-        </div>
-    </div>
-
-    <!-- Right side: Data cards as nested grids -->
-    <div class="data-side">
-        <div class="data-grid">
-            <div class="data-content">
-                <p class="title">Rainfall</p>
-                <p class="index">{{ variables['Rainfall'] || 'N/A' }}</p>
-            </div>
-        </div>
-        <div class="data-ele">
-            <div class="data-content">
-                <p class="title">Temperature</p>
-                <p class="index">{{ variables['Temperature'] || 'N/A' }}</p>
-            </div>
-        </div>
-        <div class="data-ele">
-            <div class="data-content">
-                <p class="title">Wind Speed</p>
-                <p class="index">{{ variables['Wind Speed'] || 'N/A' }}</p>
-            </div>
-        </div>
-        <div class="data-ele">
-            <div class="data-content">
-                <p class="title">Soil Moisture</p>
-                <p class="index"><ng-container *ngIf="variables['Soil Moisture'] !== undefined; else noData">
-                    {{ variables['Soil Moisture'] }} %
-                  </ng-container></p>
-            </div>
-        </div>
-        <div class="data-ele">
-            <div class="data-content">
-                <p class="title">Solar Radiation</p>
-                <p class="index">
-                    <ng-container *ngIf="variables['Solar Radiation'] !== undefined; else noData">
-                      {{ variables['Solar Radiation'] }} W/m<sup>2</sup>
-                    </ng-container>
-                    <ng-template #noData>N/A</ng-template>
-                  </p>
-  
-                <div class="progress custom-progress-bar">
-                    <div class="progress-bar" role="progressbar" [style.width.%]="variables['Solar Radiation'] ?? 0"
-                        aria-valuemin="0" aria-valuemax="100">
+            <div class="grid-container">
+                <!-- Left side: Chart -->
+                <div class="graph-grid">
+                    <div class="graph-content">
+                        <div class="graph-header">
+                            <p>24-hour Rainfall Total:</p>
+                        </div>
+                        <div class="chart-container">
+                            <app-dashboard-chart></app-dashboard-chart>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Right side: Data cards as nested grids -->
+                <div class="data-side">
+                    <div class="data-grid">
+                        <div class="data-content">
+                            <p class="title">Rainfall</p>
+                            <p class="index">{{ variables['Rainfall'] || 'N/A' }}<span class="unit">in</span></p>
+                        </div>
+                    </div>
+                    <div class="data-ele">
+                        <div class="data-content">
+                            <p class="title">Temperature</p>
+                            <p class="index">{{ variables['Temperature'] || 'N/A' }}<span class="unit">&deg;F</span></p>
+                        </div>
+                    </div>
+                    <div class="data-ele">
+                        <div class="data-content">
+                            <p class="title">Wind Speed</p>
+                            <p class="index">{{ variables['Wind Speed'] || 'N/A' }} <span class="unit">mph</span></p>
+                        </div>
+                    </div>
+                    <div class="data-ele">
+                        <div class="data-content">
+                            <p class="title">Soil Moisture</p>
+                            <p class="index"><ng-container
+                                    *ngIf="variables['Soil Moisture'] !== undefined; else noData">
+                                    {{ variables['Soil Moisture'] }} <span class="unit">%</span>
+                                </ng-container></p>
+                        </div>
+                    </div>
+                    <div class="data-ele">
+                        <div class="data-content">
+                            <p class="title">Solar Radiation</p>
+                            <p class="index">
+                                <ng-container *ngIf="variables['Solar Radiation'] !== undefined; else noData">
+                                    {{ variables['Solar Radiation'] }} <span class="unit">W/m<sup>2</sup></span>
+                                </ng-container>
+                                <ng-template #noData>N/A</ng-template>
+                            </p>
+
+                            <div class="progress custom-progress-bar">
+                                <div class="progress-bar" role="progressbar"
+                                [style.width.%]="(+((variables || {})['Solar Radiation'] ?? 0)) / 1200 * 100"
+                                    aria-valuemax="100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="data-ele">
+                        <div class="data-content">
+                            <p class="title">Relative Humidity</p>
+                            <p class="index">{{ variables['Relative Humidity'] !== undefined ? variables['Relative
+                                Humidity']: 'N/A' }}<span class="unit">%</span></p>
+
+                            <div class="progress custom-progress-bar">
+                                <div class="progress-bar" role="progressbar"
+                                    [style.width.%]="variables['Relative Humidity'] ?? 0" aria-valuemin="0"
+                                    aria-valuemax="100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
         </div>
-        <div class="data-ele">
-            <div class="data-content">
-                <p class="title">Relative Humidity</p>
-                <p class="index">{{ variables['Relative Humidity'] !== undefined ? variables['Relative Humidity'] +
-                    '%' : 'N/A' }}</p>
-
-                <div class="progress custom-progress-bar">
-                    <div class="progress-bar" role="progressbar" [style.width.%]="variables['Relative Humidity'] ?? 0"
-                        aria-valuemin="0" aria-valuemax="100">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
     </div>
 </div>
