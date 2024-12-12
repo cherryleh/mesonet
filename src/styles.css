@@ -35,6 +35,7 @@ app-header {
   display: flex;
   justify-content: end; /* Pushes the entire label+dropdown to the right */
   padding: 10px 0px; 
+  z-index: 1000000;
 }
 
 .label-dropdown-wrapper {

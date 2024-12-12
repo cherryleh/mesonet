@@ -1,3 +1,16 @@
-#station-map-dropdown{
-justify-content:left;
-}
+
+#station-map-dropdown {
+    position: relative;
+    z-index: 1100;
+    justify-content:left;
+  }
+  
+  #station-map-dropdown .dropdown-menu {
+    z-index: 1100;
+    position: absolute;
+  }
+  
+  .leaflet-control-container {
+    z-index: 1000 !important; /* Optional, but not recommended */
+  }
+  

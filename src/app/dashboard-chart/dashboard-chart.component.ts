@@ -6,6 +6,7 @@ import * as Highcharts from 'highcharts';
 import { DashboardChartService } from '../dashboard-chart.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; 
 
+import { CumulativeService } from '../../cumulative.service';
 
 @Component({
   selector: 'app-dashboard-chart',
@@ -68,33 +69,25 @@ export class DashboardChartComponent implements OnInit {
       timezoneOffset: 600, // To display in Hawaii time
     },
     series: [], 
-    exporting: {
-      enabled: true, // Enables the export button
-      buttons: {
-        contextButton: {
-          menuItems: ['downloadPNG', 'downloadJPEG', 'downloadPDF', 'downloadSVG', 'separator', 'downloadCSV', 'downloadXLS']
-        }
-      }
-    }
+    exporting: undefined
+    // exporting: {
+    //   enabled: true, // Enables the export button
+    //   buttons: {
+    //     contextButton: {
+    //       menuItems: ['downloadPNG', 'downloadJPEG', 'downloadPDF', 'downloadSVG', 'separator', 'downloadCSV', 'downloadXLS']
+    //     }
+    //   }
+    // }
   };
 
   constructor(
     private route: ActivatedRoute, 
-    private dataService: DashboardChartService
+    private dataService: DashboardChartService,
+    private CumulativeService: CumulativeService
   ) {}
 
   async ngOnInit(): Promise<void> {
     try {
-      // 🛠️ Dynamically import the modules
-      import('highcharts/modules/exporting').then((module) => {
-        module.default(Highcharts);
-      });
-
-      import('highcharts/modules/export-data').then((module) => {
-        module.default(Highcharts);
-      });
-
-      // 🛠️ Get ID from query params
       const params = this.route.snapshot.queryParams;
       this.id = params['id'];
 
@@ -126,6 +119,12 @@ export class DashboardChartComponent implements OnInit {
   }
 
   fetchData(id: string, limit: string): void {
+
+    if (!id || id.trim() === '') {
+      console.error('❌ No valid ID found, skipping data fetch.');
+      return;
+    }
+    
     console.log('Fetching data...');
     this.isLoading = true; 
     this.dataService.getData(id, limit).subscribe(
@@ -146,6 +145,10 @@ export class DashboardChartComponent implements OnInit {
             radData.push([timestamp, value]); 
           }
         });
+
+        const totalRainfall = rainfallData.reduce((sum, point) => sum + point[1], 0); // Calculate total rainfall
+        this.CumulativeService.updateTotalRainfall(totalRainfall); // Update the shared service
+        console.log('Total Rainfall (in):', totalRainfall);
 
         this.chartOptions.series = [
           { 

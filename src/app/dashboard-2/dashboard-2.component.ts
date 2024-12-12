@@ -14,6 +14,7 @@ import { DashboardChartComponent } from '../dashboard-chart/dashboard-chart.comp
 import { HeaderComponent } from '../header/header.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 
+import { CumulativeService } from '../../cumulative.service';
 /**
  * @title Dynamic grid-list
  */
@@ -35,7 +36,7 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
   providers: [DatePipe]
 })
 export class Dashboard2Component implements AfterViewInit {
-
+  totalRainfall: number = 0;
   refreshIntervalMS = 30000;
   dataVariables: string[] = ['Rainfall', 'Temperature', 'Wind Speed', 'Soil Moisture', 'Solar Radiation', 'Relative Humidity'];
 
@@ -51,7 +52,8 @@ export class Dashboard2Component implements AfterViewInit {
   constructor(private route: ActivatedRoute,
     private dataService: DataService,
     private stationDataService: StationDataService,
-    private datePipe: DatePipe) {
+    private datePipe: DatePipe,
+    private CumulativeService: CumulativeService ) {
     // Register all necessary Chart.js components
     Chart.register(...registerables);
   }
@@ -152,6 +154,12 @@ export class Dashboard2Component implements AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.CumulativeService.totalRainfall$.subscribe((total: number) => {
+      this.totalRainfall = total;
+      console.log('Dashboard Total Rainfall (in):', this.totalRainfall);
+    });
+
+
     this.updateData();
   }
 
