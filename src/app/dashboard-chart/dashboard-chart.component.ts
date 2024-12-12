@@ -8,6 +8,19 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { CumulativeService } from '../../cumulative.service';
 
+Promise.all([
+  import('highcharts/modules/exporting') as Promise<{ default: (Highcharts: any) => void }>,
+  import('highcharts/modules/export-data') as Promise<{ default: (Highcharts: any) => void }>
+])
+.then(([Exporting, ExportData]) => {
+  Exporting.default(Highcharts);
+  ExportData.default(Highcharts);
+  console.log('✅ Exporting and Export-Data modules loaded successfully.');
+})
+.catch(err => {
+  console.error('❌ Error loading Highcharts modules:', err);
+});
+
 @Component({
   selector: 'app-dashboard-chart',
   standalone: true,
@@ -69,15 +82,14 @@ export class DashboardChartComponent implements OnInit {
       timezoneOffset: 600, // To display in Hawaii time
     },
     series: [], 
-    exporting: undefined
-    // exporting: {
-    //   enabled: true, // Enables the export button
-    //   buttons: {
-    //     contextButton: {
-    //       menuItems: ['downloadPNG', 'downloadJPEG', 'downloadPDF', 'downloadSVG', 'separator', 'downloadCSV', 'downloadXLS']
-    //     }
-    //   }
-    // }
+    exporting: {
+      enabled: true, // Enables the export button
+      buttons: {
+        contextButton: {
+          menuItems: ['downloadPNG', 'downloadJPEG', 'downloadPDF', 'downloadSVG', 'separator', 'downloadCSV', 'downloadXLS']
+        }
+      }
+    }
   };
 
   constructor(
