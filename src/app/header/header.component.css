@@ -7,6 +7,7 @@
   height: 4.75rem; /* Custom height */
   display: flex; /* Flex layout on header for better control */
   align-items: center; /* Centers child elements vertically */
+  width: 100%;
 }
 
 .container {
@@ -14,15 +15,18 @@
   justify-content: space-between; /* Pushes content to far edges */
   align-items: center; /* Ensures vertical centering of children */
   width: 100%; /* Full width for layout */
+  margin: 0 !important; 
+  max-width: 100% !important;
 }
 
 h1 {
-  margin: 0; /* Removes default margin */
+  margin: 0 !important; /* Removes default margin */
   font-size: 1.5rem; /* Adjusts text size */
 }
 
 nav {
   display: flex;
+  margin-left: auto;
   gap: 15px;
   align-items: center; /* Ensures nav links are centered vertically */
 }

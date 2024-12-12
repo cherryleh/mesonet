@@ -221,6 +221,7 @@ export class DashboardChartComponent implements OnInit {
   onDurationChange(): void {
     if (this.id) {
       this.fetchData(this.id, this.selectedDuration); 
+      console.log(this.selectedDuration)
     }
   }
 
