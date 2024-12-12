@@ -24,14 +24,19 @@
             element.name }}</a></td>
       </ng-container>
   
-      <ng-container matColumnDef="location">
-        <th mat-header-cell *matHeaderCellDef> Location </th>
+      <ng-container matColumnDef="lat">
+        <th mat-header-cell *matHeaderCellDef> Latitude </th>
         <td mat-cell *matCellDef="let element"> {{ element.lat }} </td>
       </ng-container>
   
-      <ng-container matColumnDef="type">
-        <th mat-header-cell *matHeaderCellDef> Type </th>
+      <ng-container matColumnDef="lng">
+        <th mat-header-cell *matHeaderCellDef> Longitude </th>
         <td mat-cell *matCellDef="let element"> {{ element.lng }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="elevation">
+        <th mat-header-cell *matHeaderCellDef> Elevation </th>
+        <td mat-cell *matCellDef="let element"> {{ element.elevation }} </td>
       </ng-container>
   
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

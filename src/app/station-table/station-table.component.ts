@@ -22,7 +22,7 @@ import { environment } from '../../environments/environment';
   ],
 })
 export class StationTableComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'name', 'location', 'type']; // Define columns to display
+  displayedColumns: string[] = ['id', 'name', 'lat', 'lng','elevation']; // Define columns to display
   dataSource = new MatTableDataSource<any>([]); // Initialize data source
   searchTerm: string = '';
 

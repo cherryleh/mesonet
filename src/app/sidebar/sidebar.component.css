@@ -41,7 +41,7 @@ li:last-child {
   justify-content: start; /* Aligns text to the start (left) */
   width: 100%; /* Full width clickable link */
   height: 100%; /* Makes the link fill the whole li */
-  padding-left: 20px; /* Indent for the link text */
+  padding-left: 5px; /* Indent for the link text */
   color: #333;
   text-decoration: none;
   font-size: 13px;
@@ -54,9 +54,16 @@ li:last-child {
 }
 
 .sidebar-submenu {
-  padding-left: 20px;
+  padding-left: 10px;
   padding-top: 10px;
   padding-bottom: 10px;
   margin-bottom: 0;
   color: #8f9bb3;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  margin-left: 10px;
+  margin-right: 0;
 }
