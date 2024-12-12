@@ -1,5 +1,5 @@
 .table-container {
-  max-height: 400px; /* Set a fixed height for the table */
+  max-height: 500px; /* Set a fixed height for the table */
   overflow-y: auto; /* Enable vertical scrolling */
   border: 1px solid #ddd; /* Optional: Add a border for better visualization */
   display: block; /* Ensure the container is block-level */

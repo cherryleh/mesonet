@@ -23,10 +23,13 @@
     "@types/chart.js": "^2.9.41",
     "angular-highcharts": "^17.0.1",
     "bootstrap": "^5.3.3",
+    "canvg": "^3.0.10",
     "chart.js": "^4.4.7",
     "highcharts": "^12.0.2",
+    "jspdf": "^2.5.2",
     "leaflet": "^1.9.4",
     "rxjs": "~7.8.0",
+    "svg2pdf.js": "^2.2.4",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.10"
   },

@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
@@ -15,7 +15,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   styleUrls: ['./dashboard-chart.component.css'],
   providers: [DashboardChartService], 
 })
-export class DashboardChartComponent implements AfterViewInit {
+
+export class DashboardChartComponent implements OnInit {
   refreshIntervalMS = 30000; 
   isLoading = false;
   id: string | null = null;
@@ -67,6 +68,14 @@ export class DashboardChartComponent implements AfterViewInit {
       timezoneOffset: 600, // To display in Hawaii time
     },
     series: [], 
+    exporting: {
+      enabled: true, // Enables the export button
+      buttons: {
+        contextButton: {
+          menuItems: ['downloadPNG', 'downloadJPEG', 'downloadPDF', 'downloadSVG', 'separator', 'downloadCSV', 'downloadXLS']
+        }
+      }
+    }
   };
 
   constructor(
@@ -74,14 +83,38 @@ export class DashboardChartComponent implements AfterViewInit {
     private dataService: DashboardChartService
   ) {}
 
-  ngAfterViewInit(): void {
-    this.route.queryParams.subscribe(params => {
+  async ngOnInit(): Promise<void> {
+    try {
+      // 🛠️ Dynamically import the modules
+      import('highcharts/modules/exporting').then((module) => {
+        module.default(Highcharts);
+      });
+
+      import('highcharts/modules/export-data').then((module) => {
+        module.default(Highcharts);
+      });
+
+      // 🛠️ Get ID from query params
+      const params = this.route.snapshot.queryParams;
       this.id = params['id'];
+
       if (this.id) {
-        this.fetchData(this.id, this.selectedDuration); 
+        console.log('✅ ID from query params:', this.id);
+        
+        // 3️⃣ Initialize the chart once ID is available
+        if (this.chartContainer) {
+          this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
+        }
+
+        // 4️⃣ Fetch the data
+        this.fetchData(this.id, this.selectedDuration);
+      } else {
+        console.error('❌ ID not found in query params. Redirecting...');
+        // this.router.navigate(['/error-page']); // Redirect if no ID is found
       }
-    });
-    this.updateData();
+    } catch (error) {
+      console.error('❌ Error loading Highcharts modules:', error);
+    }
   }
 
   @HostListener('window:resize', ['$event'])
