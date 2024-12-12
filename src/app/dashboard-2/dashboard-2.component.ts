@@ -37,10 +37,11 @@ import { CumulativeService } from '../../cumulative.service';
 })
 export class Dashboard2Component implements AfterViewInit {
   totalRainfall: number = 0;
+  duration: string = '24-hour'; // Set the default duration
   refreshIntervalMS = 30000;
   dataVariables: string[] = ['Rainfall', 'Temperature', 'Wind Speed', 'Soil Moisture', 'Solar Radiation', 'Relative Humidity'];
 
-  id: string | null = null; // Added 'id' property
+  id: string | null = null; 
   latestTimestamp: string | null = null;
   variables: { [key: string]: string | null } = {
     Rainfall: null,
@@ -73,40 +74,37 @@ export class Dashboard2Component implements AfterViewInit {
     this.dataService.getData(id).subscribe({
       next: (response) => {
         if (response.length > 0) {
-          // Assume all timestamps are the same; get the first one
           this.latestTimestamp = response[0].timestamp;
         }
 
-        // Populate the variables object based on the response
         Object.keys(this.variableMapping).forEach((key) => {
           const variableData = response.find(
             (item: any) => item.variable === this.variableMapping[key]
           );
           if (key === 'Temperature' && variableData) {
-            // Convert temperature to Fahrenheit if key is 'Temperature'
             const celsius = parseFloat(variableData.value);
             const fahrenheit = (celsius * 1.8) + 32;
             this.variables[key] = `${fahrenheit.toFixed(1)}`;
           } 
-          else if(key === 'Rainfall'&& variableData){
+          else if(key === 'Rainfall' && variableData){
             const mm = parseFloat(variableData.value);
             const inches = (mm)/25.4;
             this.variables[key] = `${inches.toFixed(1)}`;
           }
-          else if(key === 'Wind Speed'&& variableData){
+          else if(key === 'Wind Speed' && variableData){
             const mps = parseFloat(variableData.value);
             const mph = mps * 2.23694;
             this.variables[key] = `${mph.toFixed(1)}`;
           }
-          else if (key=='Soil Moisture' && variableData){
+          else if (key === 'Soil Moisture' && variableData){
             const sm_dec = parseFloat(variableData.value);
             const sm_pct = sm_dec * 100;
             this.variables[key] = `${Math.round(sm_pct)}`;
           }
-          else if (key=='Relative Humidity' && variableData){
+          else if (key === 'Relative Humidity' && variableData){
             this.variables[key] = `${Math.round(variableData.value)}`;
           }
-          else if (key=='Solar Radiation' && variableData){
+          else if (key === 'Solar Radiation' && variableData){
             this.variables[key] = `${Math.round(variableData.value)}`;
           }
           else {
@@ -122,17 +120,14 @@ export class Dashboard2Component implements AfterViewInit {
     this.stationDataService.getData(id).subscribe({
       next: (response) => {
         if (response.length > 0) {
-          // Extract and assign the station name to the component property
           this.stationName = response[0].name;
-          console.log('Station Name:', this.stationName); // Debugging log
+          console.log('Station Name:', this.stationName);
         }
       },
       error: (error) => {
         console.error('Error fetching station data:', error);
       },
     });
-
-
   }
 
   getFormattedTimestamp(): string {
@@ -145,20 +140,24 @@ export class Dashboard2Component implements AfterViewInit {
     this.route.queryParams.subscribe((params) => {
       this.id = params['id'];
       if (this.id) {
-        // Call the dataService with the id once it's captured
-        this.fetchData(this.id);
-        console.log(this.id)
+        this.fetchData(this.id); // Call fetchData with the default "24-hour" duration
+        console.log(this.id);
       }
     });
-
   }
 
   ngOnInit(): void {
+    this.CumulativeService.updateMessage('24-hour'); // Send default "24-hour" to the service
+
     this.CumulativeService.totalRainfall$.subscribe((total: number) => {
       this.totalRainfall = total;
       console.log('Dashboard Total Rainfall (in):', this.totalRainfall);
     });
 
+    this.CumulativeService.message$.subscribe((message: string) => {
+      this.duration = message;
+      console.log('Received message from CumulativeService:', this.duration);
+    });
 
     this.updateData();
   }
@@ -179,14 +178,11 @@ export class Dashboard2Component implements AfterViewInit {
     }, this.refreshIntervalMS);
   }
 
-
   getProgressValue(variableKey: string): number {
     if (variableKey && this.variables[variableKey]) {
       const value = parseFloat(this.variables[variableKey]?.replace(/[^\d.]/g, '') || '0');
-      return isNaN(value) ? 0 : value; // Remove units and convert to a number
+      return isNaN(value) ? 0 : value;
     }
     return 0;
   }
-
-
 }

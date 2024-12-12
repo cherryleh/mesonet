@@ -42,7 +42,7 @@ export class DashboardChartComponent implements OnInit {
   ];
   Highcharts = Highcharts;
   chartRef!: Highcharts.Chart; // Reference to the chart
-  
+
   // ViewChild to access the chart container in the DOM
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
 
@@ -51,8 +51,6 @@ export class DashboardChartComponent implements OnInit {
       type: 'line',
       height:'500px'
     },
-    
-
     title: {
       text: ''
     },
@@ -83,7 +81,7 @@ export class DashboardChartComponent implements OnInit {
     },
     series: [], 
     exporting: {
-      enabled: true, // Enables the export button
+      enabled: true, 
       buttons: {
         contextButton: {
           menuItems: ['downloadPNG', 'downloadJPEG', 'downloadPDF', 'downloadSVG', 'separator', 'downloadCSV', 'downloadXLS']
@@ -105,17 +103,15 @@ export class DashboardChartComponent implements OnInit {
 
       if (this.id) {
         console.log('✅ ID from query params:', this.id);
-        
-        // 3️⃣ Initialize the chart once ID is available
+      
+        // Initialize the chart once ID is available
         if (this.chartContainer) {
           this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
         }
 
-        // 4️⃣ Fetch the data
         this.fetchData(this.id, this.selectedDuration);
       } else {
         console.error('❌ ID not found in query params. Redirecting...');
-        // this.router.navigate(['/error-page']); // Redirect if no ID is found
       }
     } catch (error) {
       console.error('❌ Error loading Highcharts modules:', error);
@@ -131,12 +127,11 @@ export class DashboardChartComponent implements OnInit {
   }
 
   fetchData(id: string, limit: string): void {
-
     if (!id || id.trim() === '') {
       console.error('❌ No valid ID found, skipping data fetch.');
       return;
     }
-    
+  
     console.log('Fetching data...');
     this.isLoading = true; 
     this.dataService.getData(id, limit).subscribe(
@@ -158,10 +153,9 @@ export class DashboardChartComponent implements OnInit {
           }
         });
 
-        const totalRainfall = rainfallData.reduce((sum, point) => sum + point[1], 0); // Calculate total rainfall
-        this.CumulativeService.updateTotalRainfall(totalRainfall); // Update the shared service
-        console.log('Total Rainfall (in):', totalRainfall);
-
+        const totalRainfall = rainfallData.reduce((sum, point) => sum + point[1], 0); 
+        this.CumulativeService.updateTotalRainfall(totalRainfall); 
+      
         this.chartOptions.series = [
           { 
             name: 'Temperature (°F)', 
@@ -177,9 +171,9 @@ export class DashboardChartComponent implements OnInit {
             yAxis: 1, 
             type: 'column', 
             color: '#058DC7',
-            maxPointWidth: 5, // Sets the width of each bar to 10px
-            groupPadding: 0.05, // Space between groups of columns
-            pointPadding: 0.05, // Space between individual columns
+            maxPointWidth: 5, 
+            groupPadding: 0.05, 
+            pointPadding: 0.05, 
           },
           { 
             name: 'Solar Radiation (W/m²)', 
@@ -192,7 +186,6 @@ export class DashboardChartComponent implements OnInit {
 
         if (this.chartContainer) {
           this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
-          console.log('Chart initialized successfully.');
         }
         this.isLoading = false; 
       },
@@ -212,7 +205,18 @@ export class DashboardChartComponent implements OnInit {
   selectDuration(value: string): void {
     this.selectedDuration = value;
     this.onDurationChange();
+
+    // Map the selected duration to a more descriptive message
+    const durationLabels: { [key: string]: string } = {
+      '1080': '24-hour',
+      '3240': '3-day',
+      '7560': '7-day'
+    };
+
+    const message = durationLabels[this.selectedDuration] || 'Custom duration';
+    this.CumulativeService.updateMessage(message);
   }
+
 
   onDurationChange(): void {
     if (this.id) {
