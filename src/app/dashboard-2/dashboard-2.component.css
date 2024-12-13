@@ -1,31 +1,31 @@
 /* Centered Station Name at the Top */
 .dashboard-header {
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
 }
 
 /* Center the Station Name */
 .station-name {
-  font-size: 24px; 
-  margin: 0; 
-  text-align: center; 
+  font-size: 24px;
+  margin: 0;
+  text-align: center;
 }
 
 /* Position the Last Updated below and aligned to the right */
 .last-updated {
-  font-size: 0.9rem; 
-  color: #555; 
-  width: 90%; 
-  text-align: right; 
-  margin-top: 8px; 
+  font-size: 0.9rem;
+  color: #555;
+  width: 90%;
+  text-align: right;
+  margin-top: 8px;
 }
 
 .grid-container {
   display: grid;
-  grid-template-columns: 4fr 1fr; 
-  grid-auto-rows: 100px;
+  grid-template-columns: 4fr 1fr;
+  grid-auto-rows: 12vh;
   gap: 8px;
   width: 90%;
   margin: 0 auto;
@@ -33,8 +33,8 @@
 }
 
 .graph-grid {
-  grid-column: 1 / 2; 
-  grid-row: 1 / span 6; 
+  grid-column: 1 / 2;
+  grid-row: 1 / span 6;
   background-color: #fff;
   border-radius: 8px;
   overflow: hidden;
@@ -64,11 +64,11 @@
 }
 
 .data-side {
-  grid-column: 2 / 3; 
-  grid-row: 1 / span 6; 
+  grid-column: 2 / 3;
+  grid-row: 1 / span 6;
   display: grid;
-  grid-template-columns: repeat(1, 1fr); 
-  grid-template-rows: repeat(6, 1fr); 
+  grid-template-columns: repeat(1, 1fr);
+  grid-template-rows: repeat(6, 1fr);
   gap: 8px;
   border: solid #edf1f7 1px;
   border-radius: 4px;
@@ -84,14 +84,19 @@
   width: 100%;
 }
 
-.data-grid h3, 
+.data-grid h3,
 .data-ele h3 {
   font-size: 1.2rem;
   margin: 0;
 }
 
+.data-ele {
+  margin-bottom: 20px;
+}
+
 .title {
-  font-size: 1.2vw;
+  font-size: 1vw;
+  margin-bottom: 20px;
 }
 
 .index {
@@ -99,16 +104,16 @@
   font-weight: 800;
 }
 
-.progress{
-  height:5px;
+.progress {
+  height: 5px;
+
 }
 
 .custom-progress-bar .progress-bar {
-  background-color: #28a745; /* Green */
+  background-color: #28a745;
+  /* Green */
 }
 
-.unit{font-size:20px}
-
-.main-content{
-  height: 100vh;
+.unit {
+  font-size: 20px
 }
