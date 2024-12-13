@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
@@ -15,10 +15,10 @@ Promise.all([
 .then(([Exporting, ExportData]) => {
   Exporting.default(Highcharts);
   ExportData.default(Highcharts);
-  console.log('✅ Exporting and Export-Data modules loaded successfully.');
+  console.log('Exporting and Export-Data modules loaded successfully.');
 })
 .catch(err => {
-  console.error('❌ Error loading Highcharts modules:', err);
+  console.error('Error loading Highcharts modules:', err);
 });
 
 @Component({
@@ -41,9 +41,8 @@ export class DashboardChartComponent implements OnInit {
     { label: 'Last 7 Days', value: '7560' },
   ];
   Highcharts = Highcharts;
-  chartRef!: Highcharts.Chart; // Reference to the chart
+  chartRef!: Highcharts.Chart; 
 
-  // ViewChild to access the chart container in the DOM
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
 
   chartOptions: Highcharts.Options = {
@@ -98,25 +97,24 @@ export class DashboardChartComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     try {
-      const params = this.route.snapshot.queryParams;
-      this.id = params['id'];
+      this.route.queryParams.subscribe((params) => {
+        console.log('Full Query Params:', params);
 
-      if (this.id) {
-        console.log('✅ ID from query params:', this.id);
-      
-        // Initialize the chart once ID is available
-        if (this.chartContainer) {
-          this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
-        }
+        this.id = params['id'];
+
+        if (!this.id) return console.error('❌ ID not found in query params.');
+
+        console.log('ID from query params:', this.id);
+
+        this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
 
         this.fetchData(this.id, this.selectedDuration);
-      } else {
-        console.error('❌ ID not found in query params. Redirecting...');
-      }
+      });
     } catch (error) {
-      console.error('❌ Error loading Highcharts modules:', error);
+      console.error('Error during ngOnInit:', error);
     }
   }
+
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
@@ -127,8 +125,8 @@ export class DashboardChartComponent implements OnInit {
   }
 
   fetchData(id: string, limit: string): void {
-    if (!id || id.trim() === '') {
-      console.error('❌ No valid ID found, skipping data fetch.');
+    if (!id) {
+      console.error('No ID available. Skipping fetchData.');
       return;
     }
   
@@ -162,7 +160,7 @@ export class DashboardChartComponent implements OnInit {
             data: temperatureData, 
             yAxis: 0, 
             type: 'line', 
-            color: '#FC7753',
+            color: '#41d68f',
             zIndex: 3
           },
           { 
@@ -170,7 +168,7 @@ export class DashboardChartComponent implements OnInit {
             data: rainfallData, 
             yAxis: 1, 
             type: 'column', 
-            color: '#058DC7',
+            color: '#769dff',
             maxPointWidth: 5, 
             groupPadding: 0.05, 
             pointPadding: 0.05, 
@@ -180,7 +178,7 @@ export class DashboardChartComponent implements OnInit {
             data: radData, 
             yAxis: 2, 
             type: 'line', 
-            color: '#FFC914' 
+            color: '#f9b721' 
           }
         ] as Highcharts.SeriesOptionsType[];
 

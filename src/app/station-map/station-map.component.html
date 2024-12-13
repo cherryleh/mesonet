@@ -2,22 +2,14 @@
   <div class="label-dropdown-wrapper">
     <label for="island-select">Select Island:</label>
     <div class="dropdown">
-      <button 
-        class="btn btn-custom dropdown-toggle" 
-        type="button" 
-        id="dropdownMenuButton" 
-        data-bs-toggle="dropdown" 
-        aria-haspopup="true" 
-        aria-expanded="false">
+      <button class="btn btn-custom dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown"
+        aria-haspopup="true" aria-expanded="false">
         {{ getIslands() }}
       </button>
 
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <!-- Loop through islandList and display the label for each island -->
-        <a 
-          class="dropdown-item" 
-          *ngFor="let island of islandList" 
-          (click)="selectIsland(island.value)"
+        <a class="dropdown-item" *ngFor="let island of islandList" (click)="selectIsland(island.value)"
           [class.active]="selectedIsland === island.value">
           {{ island.label }}
         </a>
@@ -26,4 +18,4 @@
   </div>
 </div>
 
-<div id="map" style="height: 500px; width: 700px;"></div>
+<div id="map" style="height: 80%; width: 100%"></div>

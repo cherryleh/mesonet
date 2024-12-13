@@ -6,10 +6,11 @@
   background-color: white;
   padding-top: 10px;
   padding-bottom: 10px;
+  height: 25vh
 }
 
 .section img {
-  height: 5%; /* Set a consistent height for the logo */
+  height: 20vh; /* Set a consistent height for the logo */
 }
 
 .section .title {
@@ -24,6 +25,7 @@
   justify-content: space-between; /* Pushes items to the left and right */
   width: 100%;
   margin-top: 20px;
+  height: 70vh;
 }
 
 .left-app{
@@ -32,6 +34,7 @@
   background-color: white;
   border-radius: 4px;
   border: solid #edf1f7 1px;
+  height: 80vh;
 }
 
 .right-app{
@@ -40,4 +43,5 @@
   background-color: white;
   border-radius: 4px;
   border: solid #edf1f7 1px;
+  height: 80vh;
 }

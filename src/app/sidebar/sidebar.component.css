@@ -49,9 +49,9 @@ li:last-child {
   transition: all 0.3s ease-in-out;
 }
 
-.nav-link:hover {
-  background-color: #f4f4f9;
-}
+
+
+
 
 .sidebar-submenu {
   padding-left: 10px;
@@ -66,4 +66,8 @@ li:last-child {
   height: 20px;
   margin-left: 10px;
   margin-right: 0;
+}
+
+li:hover {
+  background-color: #f4f4f9;
 }

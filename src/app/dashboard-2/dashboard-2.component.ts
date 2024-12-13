@@ -37,7 +37,7 @@ import { CumulativeService } from '../../cumulative.service';
 })
 export class Dashboard2Component implements AfterViewInit {
   totalRainfall: number = 0;
-  duration: string = '24-hour'; // Set the default duration
+  duration: string = '24-hour'; // Default duration
   refreshIntervalMS = 30000;
   dataVariables: string[] = ['Rainfall', 'Temperature', 'Wind Speed', 'Soil Moisture', 'Solar Radiation', 'Relative Humidity'];
 
@@ -55,7 +55,6 @@ export class Dashboard2Component implements AfterViewInit {
     private stationDataService: StationDataService,
     private datePipe: DatePipe,
     private CumulativeService: CumulativeService ) {
-    // Register all necessary Chart.js components
     Chart.register(...registerables);
   }
 
@@ -140,14 +139,15 @@ export class Dashboard2Component implements AfterViewInit {
     this.route.queryParams.subscribe((params) => {
       this.id = params['id'];
       if (this.id) {
-        this.fetchData(this.id); // Call fetchData with the default "24-hour" duration
+        this.fetchData(this.id);
         console.log(this.id);
       }
     });
   }
 
+  // Send duration to the service
   ngOnInit(): void {
-    this.CumulativeService.updateMessage('24-hour'); // Send default "24-hour" to the service
+    this.CumulativeService.updateMessage('24-hour'); 
 
     this.CumulativeService.totalRainfall$.subscribe((total: number) => {
       this.totalRainfall = total;
