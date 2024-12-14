@@ -1,4 +1,3 @@
-/* Centered Station Name at the Top */
 .dashboard-header {
   display: flex;
   flex-direction: column;
@@ -6,14 +5,12 @@
   width: 100%;
 }
 
-/* Center the Station Name */
 .station-name {
   font-size: 24px;
   margin: 0;
   text-align: center;
 }
 
-/* Position the Last Updated below and aligned to the right */
 .last-updated {
   font-size: 0.9rem;
   color: #555;
@@ -45,8 +42,6 @@
 }
 
 .graph-content {
-  width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
 }

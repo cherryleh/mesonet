@@ -47,7 +47,7 @@ export class DashboardChartComponent implements OnInit {
   chartOptions: Highcharts.Options = {
     chart: {
       type: 'line',
-      height:'500px'
+
     },
     title: {
       text: ''
@@ -86,6 +86,11 @@ export class DashboardChartComponent implements OnInit {
           marker: { enabled: false }
       }
   },
+  legend: {
+    align: 'center', // Center align the legend
+    verticalAlign: 'top', // Move the legend to the top
+    layout: 'horizontal' // Arrange items horizontally
+  },
     exporting: {
       enabled: true, 
       fallbackToExportServer: false,
@@ -112,6 +117,7 @@ export class DashboardChartComponent implements OnInit {
         this.currentTimeISO = new Date().toISOString();
         this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
         this.fetchData(this.id, this.selectedDuration);
+        this.adjustChartHeight();
       });
     } catch (error) {
       console.error('Error during ngOnInit:', error);
@@ -122,9 +128,16 @@ export class DashboardChartComponent implements OnInit {
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
     if (this.chartRef) {
+      this.adjustChartHeight();
       this.chartRef.reflow();
     }
   }
+
+  adjustChartHeight() {
+    const containerHeight = this.chartContainer.nativeElement.offsetHeight;
+    this.chartRef.setSize(null, containerHeight);
+  }
+
 
   fetchData(id: string, duration: string): void {
     this.isLoading = true; 
