@@ -2,24 +2,21 @@ import { Component, OnInit, HostListener, ElementRef, ViewChild } from '@angular
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
-import * as Highcharts from 'highcharts';
+import Highcharts from 'highcharts';
+
 import { DashboardChartService } from '../dashboard-chart.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; 
 
-import { CumulativeService } from '../../cumulative.service';
+import { cumulativeService } from '../../cumulative.service';
 
-Promise.all([
-  import('highcharts/modules/exporting') as Promise<{ default: (Highcharts: any) => void }>,
-  import('highcharts/modules/export-data') as Promise<{ default: (Highcharts: any) => void }>
-])
-.then(([Exporting, ExportData]) => {
-  Exporting.default(Highcharts);
-  ExportData.default(Highcharts);
-  console.log('Exporting and Export-Data modules loaded successfully.');
-})
-.catch(err => {
-  console.error('Error loading Highcharts modules:', err);
-});
+import OfflineExporting from 'highcharts/modules/offline-exporting';
+import Exporting from 'highcharts/modules/exporting';
+import ExportData from 'highcharts/modules/export-data';
+
+Exporting(Highcharts);
+ExportData(Highcharts);
+OfflineExporting(Highcharts);
+
 
 @Component({
   selector: 'app-dashboard-chart',
@@ -31,14 +28,16 @@ Promise.all([
 })
 
 export class DashboardChartComponent implements OnInit {
+  currentTimeISO!: string;
   refreshIntervalMS = 30000; 
   isLoading = false;
   id: string | null = null;
-  selectedDuration = '1080';
+  selectedDuration = '1';
+
   durations = [
-    { label: 'Last 24 Hours', value: '1080' },
-    { label: 'Last 3 Days', value: '3240' },
-    { label: 'Last 7 Days', value: '7560' },
+    { label: 'Last 24 Hours', value: '1' },
+    { label: 'Last 3 Days', value: '3' },
+    { label: 'Last 7 Days', value: '7' },
   ];
   Highcharts = Highcharts;
   chartRef!: Highcharts.Chart; 
@@ -63,6 +62,8 @@ export class DashboardChartComponent implements OnInit {
       {
         title: { text: '5-min Rainfall (in)' }, 
         opposite: true,
+        min: 0,
+        max: 0.5
       },
       {
         title: { text: 'Solar Radiation (W/m²)' }, 
@@ -79,8 +80,15 @@ export class DashboardChartComponent implements OnInit {
       timezoneOffset: 600, // To display in Hawaii time
     },
     series: [], 
+    plotOptions: {
+      series: {
+          lineWidth: 3,
+          marker: { enabled: false }
+      }
+  },
     exporting: {
       enabled: true, 
+      fallbackToExportServer: false,
       buttons: {
         contextButton: {
           menuItems: ['downloadPNG', 'downloadJPEG', 'downloadPDF', 'downloadSVG', 'separator', 'downloadCSV', 'downloadXLS']
@@ -92,22 +100,17 @@ export class DashboardChartComponent implements OnInit {
   constructor(
     private route: ActivatedRoute, 
     private dataService: DashboardChartService,
-    private CumulativeService: CumulativeService
+    private cumulativeService: cumulativeService
   ) {}
 
   async ngOnInit(): Promise<void> {
     try {
       this.route.queryParams.subscribe((params) => {
-        console.log('Full Query Params:', params);
-
         this.id = params['id'];
-
         if (!this.id) return console.error('❌ ID not found in query params.');
 
-        console.log('ID from query params:', this.id);
-
+        this.currentTimeISO = new Date().toISOString();
         this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
-
         this.fetchData(this.id, this.selectedDuration);
       });
     } catch (error) {
@@ -119,20 +122,15 @@ export class DashboardChartComponent implements OnInit {
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
     if (this.chartRef) {
-      console.log('Resizing chart...');
       this.chartRef.reflow();
     }
   }
 
-  fetchData(id: string, limit: string): void {
-    if (!id) {
-      console.error('No ID available. Skipping fetchData.');
-      return;
-    }
-  
-    console.log('Fetching data...');
+  fetchData(id: string, duration: string): void {
     this.isLoading = true; 
-    this.dataService.getData(id, limit).subscribe(
+    const startDate = this.getDateMinusDaysInHST(parseInt(duration));
+    console.log(`Start date is ${startDate}`);
+    this.dataService.getData(id, startDate).subscribe(
       (data: any[]) => {
         let temperatureData: [number, number][] = [];
         let rainfallData: [number, number][] = [];
@@ -151,8 +149,31 @@ export class DashboardChartComponent implements OnInit {
           }
         });
 
+        if (duration=='3' || duration === '7') {
+          temperatureData = this.aggregateToHourly(temperatureData);
+          rainfallData = this.aggregateToHourly(rainfallData, true); // Aggregate rainfall by sum
+          radData = this.aggregateToHourly(radData);
+        }
+
         const totalRainfall = rainfallData.reduce((sum, point) => sum + point[1], 0); 
-        this.CumulativeService.updateTotalRainfall(totalRainfall); 
+        this.cumulativeService.updateTotalRainfall(totalRainfall); 
+
+        const maxRainfall = Math.max(...rainfallData.map(point => point[1]));
+        console.log(`Max rainfall value: ${maxRainfall}`);
+
+        // 🔴 Dynamically update the Rainfall yAxis max using Highcharts update()
+        if (this.chartRef) {
+          this.chartRef.update({
+            yAxis: [{
+              max: null // Temperature
+            }, {
+              max: maxRainfall > 0.6 ? null : 0.6 // Rainfall axis
+            }, {
+              max: null // Solar Radiation
+            }]
+          });
+        }
+
       
         this.chartOptions.series = [
           { 
@@ -194,10 +215,58 @@ export class DashboardChartComponent implements OnInit {
     );
   }
 
+  getDateMinusDaysInHST(days: number): string {
+    const currentDate = new Date();
+    const dateMinusHours = new Date(currentDate.getTime() - (days * 24 * 60 * 60 * 1000));
+
+    const hawaiiTimeFormat = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Pacific/Honolulu',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+
+    const parts = hawaiiTimeFormat.formatToParts(dateMinusHours).reduce((acc, part) => {
+      acc[part.type] = part.value;
+      return acc;
+    }, {} as Record<string, string>);
+
+    return `${parts['year']}-${parts['month']}-${parts['day']}T${parts['hour']}:${parts['minute']}:${parts['second']}-10:00`;
+
+  }
+
   updateData(): void {
     setTimeout(() => {
       this.updateData();
     }, this.refreshIntervalMS);
+  }
+
+  aggregateToHourly(data: [number, number][], sum = false): [number, number][] {
+    const hourlyData: { [hour: string]: { sum: number; count: number } } = {};
+
+    // Step 1: Aggregate data by rounding timestamps to the start of the hour (UTC)
+    data.forEach(([timestamp, value]) => {
+      const hourTimestamp = Math.floor(timestamp / (1000 * 60 * 60)) * (1000 * 60 * 60); // Round down to the start of the hour
+      if (!hourlyData[hourTimestamp]) {
+        hourlyData[hourTimestamp] = { sum: 0, count: 0 };
+      }
+      hourlyData[hourTimestamp].sum += value;
+      hourlyData[hourTimestamp].count += 1;
+    });
+
+    // Step 2: Calculate the aggregated values for each complete hour
+    return Object.keys(hourlyData)
+      .filter(hour => hourlyData[hour].count === 12) // For 5-minute intervals, expect 12 points per hour
+      .map(hour => {
+        const timestamp = Number(hour); // Keep the start of the hour as the timestamp
+        const { sum: totalSum, count } = hourlyData[hour];
+        const result = sum ? totalSum : totalSum / count; // Sum if sum = true, otherwise average
+        return [timestamp, result];
+      });
   }
 
   selectDuration(value: string): void {
@@ -212,7 +281,7 @@ export class DashboardChartComponent implements OnInit {
     };
 
     const message = durationLabels[this.selectedDuration] || 'Custom duration';
-    this.CumulativeService.updateMessage(message);
+    this.cumulativeService.updateMessage(message);
   }
 
 

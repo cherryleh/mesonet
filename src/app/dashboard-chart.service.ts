@@ -11,9 +11,9 @@ export class DashboardChartService {
 
   constructor(private http: HttpClient) {}
 
-  getData(id: string,limit: string): Observable<any> {
+  getData(id: string,start_date: string): Observable<any> {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${environment.apiToken}`); // Your API token here
-    const url = `${this.apiUrl}&station_ids=${id}&limit=${limit}`;
+    const url = `${this.apiUrl}&station_ids=${id}&start_date=${start_date}`;
     console.log(url);
     return this.http.get<any>(url, { headers });
   }

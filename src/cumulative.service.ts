@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class CumulativeService {
+export class cumulativeService {
   // Rainfall BehaviorSubject
   private totalRainfallSubject = new BehaviorSubject<number>(0); // Initialize with 0
   totalRainfall$ = this.totalRainfallSubject.asObservable(); // Expose observable for real-time updates

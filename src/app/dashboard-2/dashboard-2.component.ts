@@ -14,7 +14,7 @@ import { DashboardChartComponent } from '../dashboard-chart/dashboard-chart.comp
 import { HeaderComponent } from '../header/header.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 
-import { CumulativeService } from '../../cumulative.service';
+import { cumulativeService } from '../../cumulative.service';
 /**
  * @title Dynamic grid-list
  */
@@ -54,7 +54,7 @@ export class Dashboard2Component implements AfterViewInit {
     private dataService: DataService,
     private stationDataService: StationDataService,
     private datePipe: DatePipe,
-    private CumulativeService: CumulativeService ) {
+    private cumulativeService: cumulativeService ) {
     Chart.register(...registerables);
   }
 
@@ -147,14 +147,14 @@ export class Dashboard2Component implements AfterViewInit {
 
   // Send duration to the service
   ngOnInit(): void {
-    this.CumulativeService.updateMessage('24-hour'); 
+    this.cumulativeService.updateMessage('24-hour'); 
 
-    this.CumulativeService.totalRainfall$.subscribe((total: number) => {
+    this.cumulativeService.totalRainfall$.subscribe((total: number) => {
       this.totalRainfall = total;
       console.log('Dashboard Total Rainfall (in):', this.totalRainfall);
     });
 
-    this.CumulativeService.message$.subscribe((message: string) => {
+    this.cumulativeService.message$.subscribe((message: string) => {
       this.duration = message;
       console.log('Received message from CumulativeService:', this.duration);
     });
