@@ -6,12 +6,13 @@ import Highcharts from 'highcharts';
 
 import { DashboardChartService } from '../dashboard-chart.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; 
-
+import { DurationService } from '../../dashboard-chart-dropdown.service';
 import { cumulativeService } from '../../cumulative.service';
 
 import OfflineExporting from 'highcharts/modules/offline-exporting';
 import Exporting from 'highcharts/modules/exporting';
 import ExportData from 'highcharts/modules/export-data';
+import { DurationSelectorComponent } from '../duration-selector/duration-selector.component';
 
 Exporting(Highcharts);
 ExportData(Highcharts);
@@ -21,7 +22,7 @@ OfflineExporting(Highcharts);
 @Component({
   selector: 'app-dashboard-chart',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatProgressSpinnerModule], 
+  imports: [CommonModule, FormsModule, MatProgressSpinnerModule, DurationSelectorComponent], 
   templateUrl: './dashboard-chart.component.html',
   styleUrls: ['./dashboard-chart.component.css'],
   providers: [DashboardChartService], 
@@ -47,7 +48,7 @@ export class DashboardChartComponent implements OnInit {
   chartOptions: Highcharts.Options = {
     chart: {
       type: 'line',
-
+      height: '50%'
     },
     title: {
       text: ''
@@ -105,7 +106,8 @@ export class DashboardChartComponent implements OnInit {
   constructor(
     private route: ActivatedRoute, 
     private dataService: DashboardChartService,
-    private cumulativeService: cumulativeService
+    private cumulativeService: cumulativeService,
+    private durationService: DurationService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -116,7 +118,8 @@ export class DashboardChartComponent implements OnInit {
 
         this.currentTimeISO = new Date().toISOString();
         this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
-        this.fetchData(this.id, this.selectedDuration);
+        // this.fetchData(this.id, this.selectedDuration);
+        this.subscribeToDurationChanges();
         this.adjustChartHeight();
       });
     } catch (error) {
@@ -131,6 +134,15 @@ export class DashboardChartComponent implements OnInit {
       this.adjustChartHeight();
       this.chartRef.reflow();
     }
+  }
+
+  subscribeToDurationChanges(): void {
+    this.durationService.selectedDuration$.subscribe((duration) => {
+      this.selectedDuration = duration;
+      if (this.id) {
+        this.fetchData(this.id, this.selectedDuration); 
+      }
+    });
   }
 
   adjustChartHeight() {
@@ -170,6 +182,14 @@ export class DashboardChartComponent implements OnInit {
 
         const totalRainfall = rainfallData.reduce((sum, point) => sum + point[1], 0); 
         this.cumulativeService.updateTotalRainfall(totalRainfall); 
+
+        const durationLabels: Record<string, string> = {
+          '1': 'Last 24 Hours',
+          '3': 'Last 3 Days',
+          '7': 'Last 7 Days',
+        };
+        const message = durationLabels[duration] || 'Custom duration';
+        this.cumulativeService.updateMessage(message);
 
         const maxRainfall = Math.max(...rainfallData.map(point => point[1]));
         console.log(`Max rainfall value: ${maxRainfall}`);
@@ -282,20 +302,31 @@ export class DashboardChartComponent implements OnInit {
       });
   }
 
-  selectDuration(value: string): void {
-    this.selectedDuration = value;
-    this.onDurationChange();
+  // selectDuration(value: string): void {
+  //   if (this.selectedDuration === value) {
+  //     console.log('⏸️ No change in duration, skipping update.');
+  //     return; // 🚀 No update needed if the duration hasn't changed
+  //   }
 
-    // Map the selected duration to a more descriptive message
-    const durationLabels: { [key: string]: string } = {
-      '1080': '24-hour',
-      '3240': '3-day',
-      '7560': '7-day'
-    };
+  //   this.selectedDuration = value;
 
-    const message = durationLabels[this.selectedDuration] || 'Custom duration';
-    this.cumulativeService.updateMessage(message);
-  }
+  //   // Create a mapping of the durations for clarity
+  //   const durationLabels: Record<string, string> = {
+  //     '1': 'Last 24 Hours',
+  //     '3': 'Last 3 Days',
+  //     '7': 'Last 7 Days',
+  //   };
+
+  //   const message = durationLabels[value] || 'Custom duration';
+  //   console.log(`✅ Duration changed to: ${message}`);
+
+  //   // Update the message in cumulativeService
+  //   this.cumulativeService.updateMessage(message);
+
+  //   // Trigger the onDurationChange logic
+  //   this.onDurationChange();
+  // }
+
 
 
   onDurationChange(): void {
@@ -305,8 +336,4 @@ export class DashboardChartComponent implements OnInit {
     }
   }
 
-  getLabelForSelectedDuration(): string {
-    const selected = this.durations.find(d => d.value === this.selectedDuration);
-    return selected ? selected.label : 'Select Duration';
-  }
 }

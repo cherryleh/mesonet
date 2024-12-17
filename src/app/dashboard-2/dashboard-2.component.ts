@@ -13,6 +13,8 @@ import { DatePipe } from '@angular/common';
 import { DashboardChartComponent } from '../dashboard-chart/dashboard-chart.component'; // Import the standalone component
 import { HeaderComponent } from '../header/header.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+import { DurationSelectorComponent } from '../duration-selector/duration-selector.component';
+
 
 import { cumulativeService } from '../../cumulative.service';
 /**
@@ -29,7 +31,8 @@ import { cumulativeService } from '../../cumulative.service';
     MatGridListModule,
     DashboardChartComponent,
     HeaderComponent,
-    SidebarComponent
+    SidebarComponent,
+    DurationSelectorComponent
   ],
   templateUrl: './dashboard-2.component.html',
   styleUrls: ['./dashboard-2.component.css'],

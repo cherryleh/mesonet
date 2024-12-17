@@ -112,3 +112,51 @@
 .unit {
   font-size: 20px
 }
+
+
+
+.graph-header {
+  display: flex; /* Makes the children go side-by-side */
+  justify-content: space-between; /* Spreads them out as much as possible */
+  align-items: center; /* Vertically center the items */
+  gap: 20px; /* Space between the items */
+  padding: 10px 20px; /* Padding inside the container */
+}
+
+app-duration-selector {
+  flex: 0 0 200px; /* Dropdown takes fixed width */
+}
+
+.rainfall-info {
+  display: flex; 
+  flex-direction: column; /* Stack items vertically */
+  align-items: flex-start; /* Left-align the text */
+}
+
+.rainfall-label {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px; /* Space between the two rows */
+}
+
+.rainfall-total {
+  font-size: 1rem;
+  color: #333;
+}
+
+@media (max-width: 768px) {
+  .graph-header {
+    flex-direction: column; /* Stack items vertically on smaller screens */
+    align-items: flex-start; 
+  }
+
+  app-duration-selector {
+    width: 100%; 
+  }
+
+  .rainfall-info {
+    width: 100%; 
+    margin-top: 10px;
+  }
+}

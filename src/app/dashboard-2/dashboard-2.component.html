@@ -12,9 +12,15 @@
                 <div class="graph-grid">
                     <div class="graph-content">
                         <div class="graph-header">
-                            <p>{{ duration }} Rainfall Total:</p>
-                            <p><strong>Total Rainfall:</strong> {{ totalRainfall.toFixed(2) }} in</p>
+                            <app-duration-selector></app-duration-selector>
+                            <div class="rainfall-info">
+                                <p class="rainfall-label">{{ duration }} Rainfall Total:</p>
+                                <p class="rainfall-total"><strong>Total Rainfall:</strong> {{ totalRainfall.toFixed(2)
+                                    }} in</p>
+                            </div>
                         </div>
+
+
                         <div class="chart-container">
                             <app-dashboard-chart></app-dashboard-chart>
                         </div>
@@ -60,7 +66,7 @@
 
                             <div class="progress custom-progress-bar">
                                 <div class="progress-bar" role="progressbar"
-                                [style.width.%]="(+((variables || {})['Solar Radiation'] ?? 0)) / 1200 * 100"
+                                    [style.width.%]="(+((variables || {})['Solar Radiation'] ?? 0)) / 1200 * 100"
                                     aria-valuemax="100">
                                 </div>
                             </div>
@@ -87,4 +93,3 @@
         </div>
     </div>
 </div>
-
