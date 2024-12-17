@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef, ViewChild, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
@@ -29,6 +29,9 @@ OfflineExporting(Highcharts);
 })
 
 export class DashboardChartComponent implements OnInit {
+
+  @Output() durationChanged = new EventEmitter<string>();
+
   currentTimeISO!: string;
   refreshIntervalMS = 30000; 
   isLoading = false;
@@ -111,6 +114,7 @@ export class DashboardChartComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
+    console.log('🔄 ngOnInit is running');
     try {
       this.route.queryParams.subscribe((params) => {
         this.id = params['id'];
@@ -136,14 +140,18 @@ export class DashboardChartComponent implements OnInit {
     }
   }
 
+
+
   subscribeToDurationChanges(): void {
     this.durationService.selectedDuration$.subscribe((duration) => {
-      this.selectedDuration = duration;
+      console.log('📢 Duration changed to:', duration);
+      this.selectedDuration = duration; 
       if (this.id) {
-        this.fetchData(this.id, this.selectedDuration); 
+        this.fetchData(this.id, duration); 
       }
     });
   }
+
 
   adjustChartHeight() {
     const containerHeight = this.chartContainer.nativeElement.offsetHeight;
@@ -152,6 +160,8 @@ export class DashboardChartComponent implements OnInit {
 
 
   fetchData(id: string, duration: string): void {
+    console.log('🔍 Checking if fetchData is being called with:', { id: this.id, selectedDuration: this.selectedDuration });
+
     this.isLoading = true; 
     const startDate = this.getDateMinusDaysInHST(parseInt(duration));
     console.log(`Start date is ${startDate}`);
@@ -184,10 +194,11 @@ export class DashboardChartComponent implements OnInit {
         this.cumulativeService.updateTotalRainfall(totalRainfall); 
 
         const durationLabels: Record<string, string> = {
-          '1': 'Last 24 Hours',
-          '3': 'Last 3 Days',
-          '7': 'Last 7 Days',
+          '1': '24-hour',
+          '3': '3-Day',
+          '7': '7-Day',
         };
+        
         const message = durationLabels[duration] || 'Custom duration';
         this.cumulativeService.updateMessage(message);
 
@@ -329,11 +340,11 @@ export class DashboardChartComponent implements OnInit {
 
 
 
-  onDurationChange(): void {
-    if (this.id) {
-      this.fetchData(this.id, this.selectedDuration); 
-      console.log(this.selectedDuration)
-    }
+  onDurationChange(event: Event): void {
+    const selectedValue = (event.target as HTMLSelectElement).value;
+    console.log('🚀 Child onDurationChange() called with:', selectedValue);
+    this.selectedDuration = selectedValue;
+    this.durationChanged.emit(selectedValue); // 🔥 Send to parent
   }
 
 }

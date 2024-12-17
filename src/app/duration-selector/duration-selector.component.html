@@ -1,10 +1,5 @@
-<div class="dropdown-container" id="dashboard-chart-dropdown">
-  <div class="label-dropdown-wrapper">
-    <label for="duration-select">Select Duration:</label>
-    <select id="duration-select" [ngModel]="selectedDuration" (ngModelChange)="onDurationChange($event)">
-      <option *ngFor="let duration of durations" [value]="duration.value">
-        {{ duration.label }}
-      </option>
-    </select>
-  </div>
-</div>
+<select [ngModel]="selectedDuration" (ngModelChange)="selectDuration($event)">
+  <option *ngFor="let duration of durations" [value]="duration.value">
+    {{ duration.label }}
+  </option>
+</select>

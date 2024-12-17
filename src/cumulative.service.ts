@@ -5,14 +5,11 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class cumulativeService {
-  // Rainfall BehaviorSubject
-  private totalRainfallSubject = new BehaviorSubject<number>(0); // Initialize with 0
-  totalRainfall$ = this.totalRainfallSubject.asObservable(); // Expose observable for real-time updates
+  private totalRainfallSubject = new BehaviorSubject<number>(0); 
+  totalRainfall$ = this.totalRainfallSubject.asObservable(); 
 
-  // New Text BehaviorSubject
-  private messageSubject = new BehaviorSubject<string>(''); // Initialize with empty string
-  message$ = this.messageSubject.asObservable(); // Expose observable for real-time updates
-
+  private messageSubject = new BehaviorSubject<string>(''); 
+  message$ = this.messageSubject.asObservable(); 
   updateTotalRainfall(total: number): void {
     this.totalRainfallSubject.next(total);
   }

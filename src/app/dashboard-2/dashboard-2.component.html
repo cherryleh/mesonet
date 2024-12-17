@@ -13,14 +13,11 @@
                     <div class="graph-content">
                         <div class="graph-header">
                             <app-duration-selector></app-duration-selector>
-                            <div class="rainfall-info">
-                                <p class="rainfall-label">{{ duration }} Rainfall Total:</p>
-                                <p class="rainfall-total"><strong>Total Rainfall:</strong> {{ totalRainfall.toFixed(2)
-                                    }} in</p>
+                            <div class="cumulative-info">
+                                <p class="cumulative-label">{{ duration }} Rainfall Total:</p>
+                                <p class="cumulative-total">{{ totalRainfall.toFixed(2)}} in</p>
                             </div>
                         </div>
-
-
                         <div class="chart-container">
                             <app-dashboard-chart></app-dashboard-chart>
                         </div>

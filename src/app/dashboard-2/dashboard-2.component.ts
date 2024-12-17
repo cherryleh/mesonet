@@ -159,7 +159,6 @@ export class Dashboard2Component implements AfterViewInit {
 
     this.cumulativeService.message$.subscribe((message: string) => {
       this.duration = message;
-      console.log('Received message from CumulativeService:', this.duration);
     });
 
     this.updateData();

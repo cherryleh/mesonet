@@ -11,30 +11,35 @@ import { DurationService } from '../../dashboard-chart-dropdown.service';
   styleUrls: ['./duration-selector.component.css']
 })
 export class DurationSelectorComponent {
+  selectedDuration: string = '1'; // Default to Last 24 Hours
+
   durations = [
     { label: 'Last 24 Hours', value: '1' },
     { label: 'Last 3 Days', value: '3' },
     { label: 'Last 7 Days', value: '7' },
   ];
 
-  selectedDuration = '1'; 
-  selectDuration(value: string): void {
-    this.selectedDuration = value; 
-    console.log(`Selected duration changed to: ${value}`);
+  durationLabels: Record<string, string> = {
+    '1': 'Last 24 Hours',
+    '3': 'Last 3 Days',
+    '7': 'Last 7 Days',
+  };
+
+  constructor(private durationService: DurationService) {
+    // Subscribe to changes in the service to update selectedDuration
+    this.durationService.selectedDuration$.subscribe((duration) => {
+      this.selectedDuration = duration;
+    });
   }
 
-  
-  constructor(private durationService: DurationService) {}
-
-  onDurationChange(value: string): void {
-    this.selectedDuration = value; // Update local selection
-    console.log(`Selected duration changed to: ${value}`);
-    this.durationService.setSelectedDuration(value); // Update shared state using the DurationService
+  selectDuration(value: string): void {
+    this.selectedDuration = value; // Update local state
+    this.durationService.setSelectedDuration(value); // Update the service with the new duration
+    console.log(`Selected duration changed to: ${value}, Label: ${this.getLabelForSelectedDuration()}`);
   }
 
   getLabelForSelectedDuration(): string {
     const selected = this.durations.find(d => d.value === this.selectedDuration);
-    return selected ? selected.label : 'Select Duration';
+    return selected ? selected.label : 'Last 24 Hours'; // Use "Last 24 Hours" as the default instead of "Select Duration"
   }
-
 }

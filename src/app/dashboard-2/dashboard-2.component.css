@@ -127,20 +127,20 @@ app-duration-selector {
   flex: 0 0 200px; /* Dropdown takes fixed width */
 }
 
-.rainfall-info {
+.cumulative-info {
   display: flex; 
   flex-direction: column; /* Stack items vertically */
   align-items: flex-start; /* Left-align the text */
 }
 
-.rainfall-label {
+.cumulative-label {
   font-size: 1rem;
   font-weight: bold;
   color: #333;
   margin-bottom: 5px; /* Space between the two rows */
 }
 
-.rainfall-total {
+.cumulative-total {
   font-size: 1rem;
   color: #333;
 }
@@ -155,7 +155,7 @@ app-duration-selector {
     width: 100%; 
   }
 
-  .rainfall-info {
+  .cumulative-info {
     width: 100%; 
     margin-top: 10px;
   }
