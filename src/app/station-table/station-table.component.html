@@ -19,7 +19,7 @@
   
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef> Name </th>
-        <td mat-cell *matCellDef="let element"> <a [href]="'/mesonet/#/dashboard2?id=' + element.station_id" style="font-size: 20px"
+        <td mat-cell *matCellDef="let element"> <a [href]="'/mesonet/#/dashboard?id=' + element.station_id" style="font-size: 20px"
             target="_blank">{{
             element.name }}</a></td>
       </ng-container>

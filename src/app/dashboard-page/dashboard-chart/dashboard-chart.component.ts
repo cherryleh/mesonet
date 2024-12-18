@@ -4,10 +4,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
 import Highcharts from 'highcharts';
 
-import { DashboardChartService } from '../dashboard-chart.service';
+import { DashboardChartService } from '../../dashboard-chart.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; 
-import { DurationService } from '../../dashboard-chart-dropdown.service';
-import { cumulativeService } from '../../cumulative.service';
+import { DurationService } from '../../../dashboard-chart-dropdown.service';
+import { aggregateService } from '../../../aggregate.service';
 
 import OfflineExporting from 'highcharts/modules/offline-exporting';
 import Exporting from 'highcharts/modules/exporting';
@@ -109,7 +109,7 @@ export class DashboardChartComponent implements OnInit {
   constructor(
     private route: ActivatedRoute, 
     private dataService: DashboardChartService,
-    private cumulativeService: cumulativeService,
+    private aggregateService: aggregateService,
     private durationService: DurationService,
   ) {}
 
@@ -191,7 +191,7 @@ export class DashboardChartComponent implements OnInit {
         }
 
         const totalRainfall = rainfallData.reduce((sum, point) => sum + point[1], 0); 
-        this.cumulativeService.updateTotalRainfall(totalRainfall); 
+        this.aggregateService.updateTotalRainfall(totalRainfall); 
 
         const durationLabels: Record<string, string> = {
           '1': '24-hour',
@@ -199,8 +199,8 @@ export class DashboardChartComponent implements OnInit {
           '7': '7-Day',
         };
         
-        const message = durationLabels[duration] || 'Custom duration';
-        this.cumulativeService.updateMessage(message);
+        const durationText = durationLabels[duration] || 'Custom duration';
+        this.aggregateService.updateDurationText(durationText);
 
         const maxRainfall = Math.max(...rainfallData.map(point => point[1]));
         console.log(`Max rainfall value: ${maxRainfall}`);
@@ -243,7 +243,8 @@ export class DashboardChartComponent implements OnInit {
             data: radData, 
             yAxis: 2, 
             type: 'line', 
-            color: '#f9b721' 
+            color: '#f9b721',
+            visible: false 
           }
         ] as Highcharts.SeriesOptionsType[];
 
@@ -313,38 +314,12 @@ export class DashboardChartComponent implements OnInit {
       });
   }
 
-  // selectDuration(value: string): void {
-  //   if (this.selectedDuration === value) {
-  //     console.log('⏸️ No change in duration, skipping update.');
-  //     return; // 🚀 No update needed if the duration hasn't changed
-  //   }
-
-  //   this.selectedDuration = value;
-
-  //   // Create a mapping of the durations for clarity
-  //   const durationLabels: Record<string, string> = {
-  //     '1': 'Last 24 Hours',
-  //     '3': 'Last 3 Days',
-  //     '7': 'Last 7 Days',
-  //   };
-
-  //   const message = durationLabels[value] || 'Custom duration';
-  //   console.log(`✅ Duration changed to: ${message}`);
-
-  //   // Update the message in cumulativeService
-  //   this.cumulativeService.updateMessage(message);
-
-  //   // Trigger the onDurationChange logic
-  //   this.onDurationChange();
-  // }
-
-
 
   onDurationChange(event: Event): void {
     const selectedValue = (event.target as HTMLSelectElement).value;
     console.log('🚀 Child onDurationChange() called with:', selectedValue);
     this.selectedDuration = selectedValue;
-    this.durationChanged.emit(selectedValue); // 🔥 Send to parent
+    this.durationChanged.emit(selectedValue);
   }
 
 }

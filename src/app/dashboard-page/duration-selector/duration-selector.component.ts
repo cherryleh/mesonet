@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DurationService } from '../../dashboard-chart-dropdown.service';
+import { DurationService } from '../../../dashboard-chart-dropdown.service';
 
 @Component({
   selector: 'app-duration-selector',

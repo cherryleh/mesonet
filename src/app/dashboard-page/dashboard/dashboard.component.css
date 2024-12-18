@@ -46,12 +46,6 @@
   flex-direction: column;
 }
 
-.graph-header {
-  border-bottom: 1px solid #edf1f7;
-  padding: 10px;
-  font-weight: bold;
-}
-
 .chart-container {
   width: 100%;
   flex-grow: 1;
@@ -116,12 +110,14 @@
 
 
 .graph-header {
-  display: flex; /* Makes the children go side-by-side */
-  justify-content: space-between; /* Spreads them out as much as possible */
-  align-items: center; /* Vertically center the items */
-  gap: 20px; /* Space between the items */
-  padding: 10px 20px; /* Padding inside the container */
+  display: flex;
+  justify-content: start; 
+  align-items: center; 
+  gap: 20px; 
+  padding: 10px 20px; 
+  border-bottom: 1px solid #edf1f7;
 }
+
 
 app-duration-selector {
   flex: 0 0 200px; /* Dropdown takes fixed width */
@@ -129,20 +125,21 @@ app-duration-selector {
 
 .cumulative-info {
   display: flex; 
-  flex-direction: column; /* Stack items vertically */
-  align-items: flex-start; /* Left-align the text */
+  flex-direction: column; 
+  align-items: flex-start; 
+  justify-content: center;
 }
 
 .cumulative-label {
-  font-size: 1rem;
-  font-weight: bold;
+  font-size: 0.9rem;
   color: #333;
   margin-bottom: 5px; /* Space between the two rows */
 }
 
 .cumulative-total {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #333;
+  font-weight: 700;
 }
 
 @media (max-width: 768px) {
