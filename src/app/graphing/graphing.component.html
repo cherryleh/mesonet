@@ -1,6 +1,24 @@
 <div class="layout">
-    <app-header></app-header>
-    <div class="content">
-        <app-sidebar></app-sidebar>
+  <app-header></app-header>
+  <div class="content">
+    <app-sidebar></app-sidebar>
+    <div class="main-content">
+      <div class="menu-container">
+        <!-- Variable Selector -->
+        <label for="variableSelect">Select Variable:</label>
+        <select id="variableSelect" (change)="onVariableChange($event)">
+          <option *ngFor="let variable of variables" [value]="variable.value">{{ variable.label }}</option>
+        </select>
+
+        <!-- Duration Selector -->
+        <label for="durationSelect">Select Duration:</label>
+        <select id="durationSelect" (change)="onDurationChange($event)">
+          <option *ngFor="let duration of durations" [value]="duration.value">{{ duration.label }}</option>
+        </select>
+      </div>
+      <button (click)="updateChartButtonClick()">Update Chart</button>
+
+      <div id="graphContainer"></div>
     </div>
+  </div>
 </div>

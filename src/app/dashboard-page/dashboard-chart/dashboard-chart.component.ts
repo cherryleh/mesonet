@@ -120,7 +120,7 @@ export class DashboardChartComponent implements OnInit {
         this.id = params['id'];
         if (!this.id) return console.error('❌ ID not found in query params.');
 
-        this.currentTimeISO = new Date().toISOString();
+        // this.currentTimeISO = new Date().toISOString();
         this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
         // this.fetchData(this.id, this.selectedDuration);
         this.subscribeToDurationChanges();

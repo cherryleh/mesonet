@@ -4,7 +4,7 @@
         <app-sidebar></app-sidebar>
         <div class="main-content">
             <div class="dashboard-header">
-                <h2 class="station-name">Station Name: {{ stationName }}</h2>
+                <app-station-title></app-station-title>
                 <p *ngIf="latestTimestamp" class="last-updated">Last updated: {{ getFormattedTimestamp() }}</p>
             </div>
 

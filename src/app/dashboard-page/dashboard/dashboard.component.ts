@@ -5,9 +5,8 @@ import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { Chart, registerables } from 'chart.js';
-
+import { StationTitleComponent } from '../../station-title/station-title.component';
 import { DataService } from '../../data.service';
-import { StationDataService } from '../../station-data.service';
 import { DatePipe } from '@angular/common';
 
 import { DashboardChartComponent } from '../dashboard-chart/dashboard-chart.component'; // Import the standalone component
@@ -31,7 +30,8 @@ import { aggregateService } from '../../../aggregate.service';
     DashboardChartComponent,
     HeaderComponent,
     SidebarComponent,
-    DurationSelectorComponent
+    DurationSelectorComponent,
+    StationTitleComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -54,7 +54,6 @@ export class DashboardComponent implements AfterViewInit {
 
   constructor(private route: ActivatedRoute,
     private dataService: DataService,
-    private stationDataService: StationDataService,
     private datePipe: DatePipe,
     private aggregateService: aggregateService ) {
     Chart.register(...registerables);
@@ -118,17 +117,7 @@ export class DashboardComponent implements AfterViewInit {
       },
     });
 
-    this.stationDataService.getData(id).subscribe({
-      next: (response) => {
-        if (response.length > 0) {
-          this.stationName = response[0].name;
-          console.log('Station Name:', this.stationName);
-        }
-      },
-      error: (error) => {
-        console.error('Error fetching station data:', error);
-      },
-    });
+    
   }
 
   getFormattedTimestamp(): string {
