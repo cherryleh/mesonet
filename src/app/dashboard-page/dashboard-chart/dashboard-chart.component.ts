@@ -12,7 +12,7 @@ import { aggregateService } from '../../../aggregate.service';
 import OfflineExporting from 'highcharts/modules/offline-exporting';
 import Exporting from 'highcharts/modules/exporting';
 import ExportData from 'highcharts/modules/export-data';
-import { DurationSelectorComponent } from '../duration-selector/duration-selector.component';
+// import { DurationSelectorComponent } from '../duration-selector/duration-selector.component';
 
 Exporting(Highcharts);
 ExportData(Highcharts);
@@ -22,7 +22,7 @@ OfflineExporting(Highcharts);
 @Component({
   selector: 'app-dashboard-chart',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatProgressSpinnerModule, DurationSelectorComponent], 
+  imports: [CommonModule, FormsModule, MatProgressSpinnerModule,], 
   templateUrl: './dashboard-chart.component.html',
   styleUrls: ['./dashboard-chart.component.css'],
   providers: [DashboardChartService], 
