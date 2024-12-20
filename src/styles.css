@@ -20,13 +20,19 @@ app-header {
     z-index: 500; /* Lower than the header */
   }
 
-  .main-content {
+  .parent-container {
     margin-left: 16rem;
     padding-top: 100px;
     flex: 1;
     overflow-y: auto; 
     position: relative; 
     z-index: 400;
+  }
+
+  .main-content{
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
   }
 
 /* Dropdown */

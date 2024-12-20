@@ -2,7 +2,7 @@
     <app-header></app-header>
     <div class="content">
         <app-sidebar></app-sidebar>
-        <div class="main-content">
+        <div class="parent-container">
             <div class="dashboard-header">
                 <app-station-title></app-station-title>
                 <p *ngIf="latestTimestamp" class="last-updated">Last updated: {{ getFormattedTimestamp() }}</p>
