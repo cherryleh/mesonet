@@ -1,24 +1,35 @@
 <div class="layout">
   <app-header></app-header>
-  <div class="content">
-    <app-sidebar></app-sidebar>
-    <div class="main-content">
+  <app-sidebar></app-sidebar>
+  <div class="main-content">
+    <div class="graphing-content" style="width: 80%; margin-left: auto; margin-right: auto;">
       <div class="menu-container">
-        <!-- Variable Selector -->
-        <label for="variableSelect">Select Variable:</label>
-        <select id="variableSelect" (change)="onVariableChange($event)">
-          <option *ngFor="let variable of variables" [value]="variable.value">{{ variable.label }}</option>
-        </select>
+        <div class="select-container">
+          <div class="input-group">
 
-        <!-- Duration Selector -->
-        <label for="durationSelect">Select Duration:</label>
-        <select id="durationSelect" (change)="onDurationChange($event)">
-          <option *ngFor="let duration of durations" [value]="duration.value">{{ duration.label }}</option>
-        </select>
+            <label for="variableSelect">Variable:</label>
+            <select id="variableSelect" (change)="onVariableChange($event)">
+              <option *ngFor="let variable of variables" [value]="variable.value">{{ variable.label }}</option>
+            </select>
+
+          </div>
+          <div class="input-group">
+            <label for="durationSelect">Duration:</label>
+            <select id="durationSelect" (change)="onDurationChange($event)">
+              <option *ngFor="let duration of durations" [value]="duration.value">{{ duration.label }}</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label for="unitSelect">Unit:</label>
+            <select id="unitSelect" (change)="onUnitChange($event)">
+              <option value="metric">Metric</option>
+              <option value="standard">Standard</option>
+            </select>
+          </div>
+          <button class="update-button" (click)="updateChartButtonClick()">Update Chart</button>
+        </div>
       </div>
-      <button (click)="updateChartButtonClick()">Update Chart</button>
-
-      <div id="graphContainer"></div>
+      <div id="graphContainer" class="graph-container"></div>
     </div>
   </div>
 </div>

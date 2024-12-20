@@ -19,14 +19,19 @@ import { CommonModule } from '@angular/common';
 
 export class GraphingComponent implements OnInit, AfterViewInit {
   stationId: string = '';
-  selectedVariable: string = 'RF_1_Tot300s'; // Default variable
+  selectedVariable: string = 'Tair_1_Avg'; // Default variable
   selectedDuration: string = '24h'; // Default duration
+  selectedUnit: 'metric' | 'standard' = 'metric'; // Default to metric
+
   chart: Highcharts.Chart | null = null;
 
-  variables: { label: string, value: string }[] = [
-    { label: 'Rainfall', value: 'RF_1_Tot300s' },
-    { label: 'Soil Moisture', value: 'SM_1_Avg' },
-    { label: 'Rainfall and Soil Moisture', value: 'RF_1_Tot300s,SM_1_Avg' }
+  variables: { label: string, value: string, yAxisTitle: string }[] = [
+    { label: 'Temperature', value: 'Tair_1_Avg', yAxisTitle: 'Temperature (°C)' },
+    { label: 'Rainfall', value: 'RF_1_Tot300s', yAxisTitle: 'Rainfall (mm)' },
+    { label: 'Soil Moisture', value: 'SM_1_Avg', yAxisTitle: 'Soil Moisture (%)' },
+    { label: 'Relative Humidity', value: 'RH_1_Avg', yAxisTitle: 'Relative Humidity (%)' },
+    { label: 'Rainfall and Temperature', value: 'RF_1_Tot300s,Tair_1_Avg', yAxisTitle: '' },
+    { label: 'Rainfall and Soil Moisture', value: 'RF_1_Tot300s,SM_1_Avg', yAxisTitle: '' }
   ];
   durations: { label: string, value: string }[] = [
     { label: 'Last 24 Hours', value: '24h' },
@@ -38,7 +43,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     private route: ActivatedRoute,
     private graphingDataService: GraphingDataService,
     private graphingMenuService: GraphingMenuService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -62,6 +67,12 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     this.selectedDuration = selectedValue;
     this.graphingMenuService.setDuration(this.selectedDuration);
   }
+
+  onUnitChange(event: Event): void {
+    const selectedValue = (event.target as HTMLSelectElement).value as 'metric' | 'standard';
+    this.selectedUnit = selectedValue;
+  }
+
 
   updateChartButtonClick(): void {
     console.log('Update Chart button clicked');
@@ -96,61 +107,66 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     const seriesData: Highcharts.SeriesOptionsType[] = [];
     const variableList = this.selectedVariable.split(',');
 
-    variableList.forEach(variable => {
+    variableList.forEach((variable, index) => {
       const variableData = data
         .filter((item: any) => item.variable === variable) // Filter for the selected variable
         .map((item: any) => ({
           timestamp: new Date(item.timestamp).getTime(), // Convert timestamp to milliseconds
-          value: parseFloat(item.value) // Convert value from string to number
+          value: variable === 'Tair_1_Avg' && this.selectedUnit === 'standard' 
+            ? (parseFloat(item.value) * 9/5) + 32 // Convert to Fahrenheit
+            : variable === 'RF_1_Tot300s' && this.selectedUnit === 'standard' 
+              ? parseFloat(item.value) / 25.4 // Convert to inches
+              : variable === 'SM_1_Avg' 
+                ? parseFloat(item.value) * 100 // Convert Soil Moisture to percentage
+                : parseFloat(item.value) // Convert value from string to number for others
         }));
 
       let aggregatedData = variableData;
 
-      // If the selected duration is 7d or 30d, aggregate to hourly
       if (this.selectedDuration === '7d' || this.selectedDuration === '30d') {
-        aggregatedData = this.aggregateToHourly(variableData);
-      } 
+        aggregatedData = this.aggregateToHourly(variableData, variable);
+      }
 
-      // If the selected duration is 24h, do NOT aggregate (use 5-minute data as-is)
       if (this.selectedDuration === '24h') {
         aggregatedData = variableData.map((item: { timestamp: number; value: number }) => [item.timestamp, item.value]);
       }
 
       seriesData.push({
-        type: 'line',
+        type: variable === 'RF_1_Tot300s' ? 'column' : 'line',
         name: this.variables.find(v => v.value === variable)?.label || variable,
-        data: aggregatedData
+        data: aggregatedData,
+        yAxis: index
       });
     });
 
     return seriesData;
   }
 
-  aggregateToHourly(data: { timestamp: number, value: number }[]): [number, number][] {
-    // Create a map to group values by hour
+
+
+
+  aggregateToHourly(data: { timestamp: number, value: number }[], variable: string): [number, number][] {
     const hourlyMap: Record<string, number[]> = {};
 
     data.forEach(item => {
-      // Convert timestamp to "hour" (e.g., 2024-12-18T19:00:00.000Z)
       const date = new Date(item.timestamp);
       date.setMinutes(0, 0, 0); // Set to the start of the hour
-      const hourKey = date.getTime(); // Get the hour as a timestamp
+      const hourKey = date.getTime();
 
-      // Group values by hour
       if (!hourlyMap[hourKey]) {
         hourlyMap[hourKey] = [];
       }
       hourlyMap[hourKey].push(item.value);
     });
 
-    // Aggregate each hour's data
     const aggregatedData: [number, number][] = Object.entries(hourlyMap).map(([hour, values]) => {
-      const timestamp = parseInt(hour, 10); // Convert the hour key back to a number
-      const averageValue = values.reduce((acc, val) => acc + val, 0) / values.length; // Calculate the average
-      return [timestamp, parseFloat(averageValue.toFixed(2))]; // Round to 2 decimals
+      const timestamp = parseInt(hour, 10);
+      const aggregateValue = variable === 'RF_1_Tot300s'
+        ? values.reduce((acc, val) => acc + val, 0) // Sum for rainfall
+        : values.reduce((acc, val) => acc + val, 0) / values.length; // Mean for other variables
+      return [timestamp, parseFloat(aggregateValue.toFixed(2))];
     });
 
-    // Sort by timestamp
     aggregatedData.sort((a, b) => a[0] - b[0]);
 
     return aggregatedData;
@@ -163,19 +179,25 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     if (!this.chart) {
       this.chart = Highcharts.chart('graphContainer', {
         chart: {
-          type: 'line'
+          type: 'line',
+          height: '45%'
         },
         title: {
-          text: 'Dashboard Chart'
+          text: ''
         },
         xAxis: {
           type: 'datetime'
         },
-        yAxis: {
+        yAxis: [{
           title: {
-            text: 'Values'
+            text: 'Primary Axis'
           }
-        },
+        }, {
+          title: {
+            text: 'Secondary Axis'
+          },
+          opposite: true
+        }],
         tooltip: {
           shared: true,
           valueDecimals: 2,
@@ -184,9 +206,46 @@ export class GraphingComponent implements OnInit, AfterViewInit {
         time: {
           timezoneOffset: 600, // To display in Hawaii time
         },
+        plotOptions: {
+          series: {
+            lineWidth: 3,
+            marker: { enabled: false }
+          }
+        },
         series: [] // Empty initially
       });
     }
+  }
+
+  private getRainfallMax(seriesData: Highcharts.SeriesOptionsType[]): number | undefined {
+    // Find the Rainfall series
+    const rainfallSeries = seriesData.find(series => 
+      series.name === 'Rainfall' && 'data' in series && Array.isArray((series as Highcharts.SeriesColumnOptions).data)
+    ) as Highcharts.SeriesColumnOptions;
+
+    // Check if rainfallSeries and its data array exist
+    if (rainfallSeries && rainfallSeries.data) {
+      // Handle possible Highcharts data formats [x, y] or { x, y } or y
+      const maxValue = Math.max(
+        ...rainfallSeries.data.map((point: any) => {
+          if (Array.isArray(point)) {
+            // Format [x, y]
+            return point[1];
+          } else if (typeof point === 'object' && 'y' in point) {
+            // Format { x, y }
+            return point.y;
+          } else {
+            // Format [y]
+            return point;
+          }
+        })
+      );
+      // If the max value is greater than 0.6, let Highcharts automatically set the max
+      return maxValue > 0.6 ? undefined : 0.6;
+    }
+
+    // Default to 0.6 if no rainfall series exists
+    return 0.6; 
   }
 
   updateChart(seriesData: Highcharts.SeriesOptionsType[]): void {
@@ -194,12 +253,58 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       while (this.chart.series.length) {
         this.chart.series[0].remove(false);
       }
+
+      const variableList = this.selectedVariable.split(',');
+
+      if (variableList.length > 1) {
+        const yAxisTitles = variableList.map(variable => {
+          const originalTitle = this.variables.find(v => v.value === variable)?.yAxisTitle || 'Value';
+          if (variable === 'Tair_1_Avg' && this.selectedUnit === 'standard') {
+            return originalTitle.replace('°C', '°F');
+          } else if (variable === 'RF_1_Tot300s' && this.selectedUnit === 'standard') {
+            return originalTitle.replace('mm', 'in');
+          }
+          return originalTitle;
+        });
+
+        this.chart?.update({
+          yAxis: [{
+            title: { text: yAxisTitles[0] || 'Value' },
+            max: variableList[0] === 'RF_1_Tot300s' ? this.getRainfallMax(seriesData) : undefined
+          }, {
+            title: { text: yAxisTitles[1] || 'Value' },
+            opposite: true
+          }]
+        });
+
+      } else {
+        const variable = this.selectedVariable;
+        let yAxisTitle = this.variables.find(v => v.value === variable)?.yAxisTitle || 'Value';
+        if (variable === 'Tair_1_Avg' && this.selectedUnit === 'standard') {
+          yAxisTitle = yAxisTitle.replace('°C', '°F');
+        } else if (variable === 'RF_1_Tot300s' && this.selectedUnit === 'standard') {
+          yAxisTitle = yAxisTitle.replace('mm', 'in');
+        }
+
+        this.chart?.update({
+          yAxis: [{
+            title: { text: yAxisTitle },
+            max: variable === 'RF_1_Tot300s' ? this.getRainfallMax(seriesData) : undefined
+          }, {
+            title: { text: '' },
+            opposite: true
+          }]
+        });
+      }
+
       seriesData.forEach(series => this.chart?.addSeries(series, false));
+
       this.chart?.redraw();
     } else {
       console.error('Chart is not initialized yet.');
     }
   }
+
 
   getDateMinusDaysInHST(days: number): string {
     const currentDate = new Date();

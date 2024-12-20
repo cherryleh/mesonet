@@ -1,11 +1,11 @@
 import { Component, OnInit, HostListener, ElementRef, ViewChild, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; 
+import { FormsModule } from '@angular/forms';
 import Highcharts from 'highcharts';
 
 import { DashboardChartService } from '../../dashboard-chart.service';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; 
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DurationService } from '../../../dashboard-chart-dropdown.service';
 import { aggregateService } from '../../../aggregate.service';
 
@@ -22,10 +22,10 @@ OfflineExporting(Highcharts);
 @Component({
   selector: 'app-dashboard-chart',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatProgressSpinnerModule,], 
+  imports: [CommonModule, FormsModule, MatProgressSpinnerModule,],
   templateUrl: './dashboard-chart.component.html',
   styleUrls: ['./dashboard-chart.component.css'],
-  providers: [DashboardChartService], 
+  providers: [DashboardChartService],
 })
 
 export class DashboardChartComponent implements OnInit {
@@ -33,7 +33,7 @@ export class DashboardChartComponent implements OnInit {
   @Output() durationChanged = new EventEmitter<string>();
 
   currentTimeISO!: string;
-  refreshIntervalMS = 30000; 
+  refreshIntervalMS = 30000;
   isLoading = false;
   id: string | null = null;
   selectedDuration = '1';
@@ -44,7 +44,7 @@ export class DashboardChartComponent implements OnInit {
     { label: 'Last 7 Days', value: '7' },
   ];
   Highcharts = Highcharts;
-  chartRef!: Highcharts.Chart; 
+  chartRef!: Highcharts.Chart;
 
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
 
@@ -64,39 +64,39 @@ export class DashboardChartComponent implements OnInit {
         title: { text: 'Temperature (°F)' },
       },
       {
-        title: { text: '5-min Rainfall (in)' }, 
+        title: { text: '5-min Rainfall (in)' },
         opposite: true,
         min: 0,
         max: 0.5
       },
       {
-        title: { text: 'Solar Radiation (W/m²)' }, 
+        title: { text: 'Solar Radiation (W/m²)' },
         opposite: true,
         min: 0
       },
     ],
     tooltip: {
       shared: true,
-      valueDecimals: 2, 
+      valueDecimals: 2,
       xDateFormat: '%b %e, %Y %l:%M%p'
     },
     time: {
       timezoneOffset: 600, // To display in Hawaii time
     },
-    series: [], 
+    series: [],
     plotOptions: {
       series: {
-          lineWidth: 3,
-          marker: { enabled: false }
+        lineWidth: 3,
+        marker: { enabled: false }
       }
-  },
-  legend: {
-    align: 'center', // Center align the legend
-    verticalAlign: 'top', // Move the legend to the top
-    layout: 'horizontal' // Arrange items horizontally
-  },
+    },
+    legend: {
+      align: 'center', // Center align the legend
+      verticalAlign: 'top', // Move the legend to the top
+      layout: 'horizontal' // Arrange items horizontally
+    },
     exporting: {
-      enabled: true, 
+      enabled: true,
       fallbackToExportServer: false,
       buttons: {
         contextButton: {
@@ -107,11 +107,11 @@ export class DashboardChartComponent implements OnInit {
   };
 
   constructor(
-    private route: ActivatedRoute, 
+    private route: ActivatedRoute,
     private dataService: DashboardChartService,
     private aggregateService: aggregateService,
     private durationService: DurationService,
-  ) {}
+  ) { }
 
   async ngOnInit(): Promise<void> {
     console.log('🔄 ngOnInit is running');
@@ -145,9 +145,9 @@ export class DashboardChartComponent implements OnInit {
   subscribeToDurationChanges(): void {
     this.durationService.selectedDuration$.subscribe((duration) => {
       console.log('📢 Duration changed to:', duration);
-      this.selectedDuration = duration; 
+      this.selectedDuration = duration;
       if (this.id) {
-        this.fetchData(this.id, duration); 
+        this.fetchData(this.id, duration);
       }
     });
   }
@@ -162,7 +162,7 @@ export class DashboardChartComponent implements OnInit {
   fetchData(id: string, duration: string): void {
     console.log('🔍 Checking if fetchData is being called with:', { id: this.id, selectedDuration: this.selectedDuration });
 
-    this.isLoading = true; 
+    this.isLoading = true;
     const startDate = this.getDateMinusDaysInHST(parseInt(duration));
     console.log(`Start date is ${startDate}`);
     this.dataService.getData(id, startDate).subscribe(
@@ -176,29 +176,29 @@ export class DashboardChartComponent implements OnInit {
           const value = parseFloat(item.value);
 
           if (item.variable === 'Tair_1_Avg') {
-            temperatureData.push([timestamp, (value * 1.8) + 32]); 
+            temperatureData.push([timestamp, (value * 1.8) + 32]);
           } else if (item.variable === 'RF_1_Tot300s') {
-            rainfallData.push([timestamp, value / 25.4]); 
+            rainfallData.push([timestamp, value / 25.4]);
           } else if (item.variable === 'SWin_1_Avg') {
-            radData.push([timestamp, value]); 
+            radData.push([timestamp, value]);
           }
         });
 
-        if (duration=='3' || duration === '7') {
+        if (duration == '3' || duration === '7') {
           temperatureData = this.aggregateToHourly(temperatureData);
           rainfallData = this.aggregateToHourly(rainfallData, true); // Aggregate rainfall by sum
           radData = this.aggregateToHourly(radData);
         }
 
-        const totalRainfall = rainfallData.reduce((sum, point) => sum + point[1], 0); 
-        this.aggregateService.updateTotalRainfall(totalRainfall); 
+        const totalRainfall = rainfallData.reduce((sum, point) => sum + point[1], 0);
+        this.aggregateService.updateTotalRainfall(totalRainfall);
 
         const durationLabels: Record<string, string> = {
           '1': '24-hour',
           '3': '3-Day',
           '7': '7-Day',
         };
-        
+
         const durationText = durationLabels[duration] || 'Custom duration';
         this.aggregateService.updateDurationText(durationText);
 
@@ -211,51 +211,51 @@ export class DashboardChartComponent implements OnInit {
             yAxis: [{
               max: null // Temperature
             }, {
-              max: maxRainfall > 0.6 ? null : 0.6 // Rainfall axis
+              max: maxRainfall > 0.5 ? null : 0.5 // Rainfall axis
             }, {
               max: null // Solar Radiation
             }]
           });
         }
 
-      
+
         this.chartOptions.series = [
-          { 
-            name: 'Temperature (°F)', 
-            data: temperatureData, 
-            yAxis: 0, 
-            type: 'line', 
+          {
+            name: 'Temperature (°F)',
+            data: temperatureData,
+            yAxis: 0,
+            type: 'line',
             color: '#41d68f',
             zIndex: 3
           },
-          { 
-            name: 'Rainfall (in)', 
-            data: rainfallData, 
-            yAxis: 1, 
-            type: 'column', 
+          {
+            name: 'Rainfall (in)',
+            data: rainfallData,
+            yAxis: 1,
+            type: 'column',
             color: '#769dff',
-            maxPointWidth: 5, 
-            groupPadding: 0.05, 
-            pointPadding: 0.05, 
+            maxPointWidth: 5,
+            groupPadding: 0.05,
+            pointPadding: 0.05,
           },
-          { 
-            name: 'Solar Radiation (W/m²)', 
-            data: radData, 
-            yAxis: 2, 
-            type: 'line', 
+          {
+            name: 'Solar Radiation (W/m²)',
+            data: radData,
+            yAxis: 2,
+            type: 'line',
             color: '#f9b721',
-            visible: false 
+            visible: false
           }
         ] as Highcharts.SeriesOptionsType[];
 
         if (this.chartContainer) {
           this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
         }
-        this.isLoading = false; 
+        this.isLoading = false;
       },
       error => {
         console.error('Error fetching data:', error);
-        this.isLoading = false; 
+        this.isLoading = false;
       }
     );
   }

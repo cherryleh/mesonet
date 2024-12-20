@@ -1,0 +1,110 @@
+:host {
+    display: block;
+    width: 100%;
+  }
+  
+  .layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  .content {
+    display: flex;
+    flex: 1;
+  }
+
+
+  .menu-container {
+    margin-bottom: 20px; 
+  }
+  
+  .select-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #d0d7de;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+    flex-wrap: wrap; /* Ensures items wrap on small screens */
+  }
+  
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 200px; 
+  }
+  
+  label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+    color: #333;
+  }
+  
+  select {
+    width: 100%;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border: 1px solid #d0d7de;
+    border-radius: 8px !important;
+    background-color: #ffffff;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  select:focus {
+    border-color: #0056b3;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.25);
+  }
+  
+  option {
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  button.update-button {
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    height: 46px; 
+    align-self: center; 
+  }
+  
+  button.update-button:hover {
+    background-color: #0056b3;
+  }
+  
+  button.update-button:active {
+    background-color: #004494;
+  }
+  
+  button.update-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.25);
+  }
+  
+  .graph-container {
+    flex: 1; 
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #d0d7de;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  

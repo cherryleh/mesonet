@@ -21,12 +21,12 @@ app-header {
   }
 
   .main-content {
-    margin-left: 16rem; /* Space for the sidebar */
+    margin-left: 16rem;
     padding-top: 100px;
-    flex: 1; /* Fills remaining space */
-    overflow-y: auto; /* Scrolls if content overflows */
-    position: relative; /* Makes sure Highcharts stays within this space */
-    z-index: 400; /* Lower than sidebar and header */
+    flex: 1;
+    overflow-y: auto; 
+    position: relative; 
+    z-index: 400;
   }
 
 /* Dropdown */
