@@ -29,7 +29,7 @@ OfflineExporting(Highcharts);
 })
 
 export class DashboardChartComponent implements OnInit {
-  @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
+
   @Output() durationChanged = new EventEmitter<string>();
 
   currentTimeISO!: string;
@@ -46,24 +46,10 @@ export class DashboardChartComponent implements OnInit {
   Highcharts = Highcharts;
   chartRef!: Highcharts.Chart;
 
+  @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
+
   chartOptions: Highcharts.Options = {
     chart: {
-      events: {
-        load() {
-          const chart = this;
-          // Query checkboxes from the DOM
-          chart.series.forEach((series, index) => {
-            const checkbox = chart.container.querySelectorAll('input.highcharts-legend-checkbox')[index] as HTMLInputElement;
-
-            if (checkbox) {
-              checkbox.checked = true; // Mark checkboxes checked by default
-            }
-
-            series.setVisible(true, false); // Ensure series are visible initially
-          });
-        }
-
-      },
       type: 'line',
       height: '50%'
     },
@@ -98,66 +84,52 @@ export class DashboardChartComponent implements OnInit {
       timezoneOffset: 600, // To display in Hawaii time
     },
     series: [],
-    legend: { 
-      enabled: true, 
-      itemCheckboxStyle: { width: 13, height: 13, marginLeft: -40 },
-    },
     plotOptions: {
       series: {
-        showCheckbox: true,
-        events: {
-          checkboxClick: function () {
-            this.setVisible(!this.visible);
-          },
-          legendItemClick: function () {
-            const chart = this.chart;
-            const index = this.index; // Series index
-
-            // Locate the checkbox for this series
-            const checkbox = chart.container.querySelectorAll('input.highcharts-legend-checkbox')[index] as HTMLInputElement;
-
-            if (checkbox) {
-              checkbox.checked = !this.visible; // Sync checkbox with visibility
-            }
-
-            return true; // Allow default click behavior
-          }
-
-          }
-        }
-      },
-      exporting: {
-        enabled: true,
-        fallbackToExportServer: false,
-        buttons: {
-          contextButton: {
-            menuItems: ['downloadPNG', 'downloadJPEG', 'downloadPDF', 'downloadSVG', 'separator', 'downloadCSV', 'downloadXLS']
-          }
+        lineWidth: 3,
+        marker: { enabled: false }
+      }
+    },
+    legend: {
+      align: 'center', // Center align the legend
+      verticalAlign: 'top', // Move the legend to the top
+      layout: 'horizontal' // Arrange items horizontally
+    },
+    exporting: {
+      enabled: true,
+      fallbackToExportServer: false,
+      buttons: {
+        contextButton: {
+          menuItems: ['downloadPNG', 'downloadJPEG', 'downloadPDF', 'downloadSVG', 'separator', 'downloadCSV', 'downloadXLS']
         }
       }
-    };
-
-    constructor(
-      private route: ActivatedRoute,
-      private dataService: DashboardChartService,
-      private aggregateService: aggregateService,
-      private durationService: DurationService,
-    ) { }
-
-    ngOnInit(): void {
-      console.log('🔄 ngOnInit is running');
-        this.route.queryParams.subscribe(params => {
-          this.id = params['id'];
-          if (!this.id) return console.error('❌ ID not found in query params.');
-
-          // this.currentTimeISO = new Date().toISOString();
-          this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
-          // this.fetchData(this.id, this.selectedDuration);
-          this.subscribeToDurationChanges();
-          this.adjustChartHeight();
-        });
-
     }
+  };
+
+  constructor(
+    private route: ActivatedRoute,
+    private dataService: DashboardChartService,
+    private aggregateService: aggregateService,
+    private durationService: DurationService,
+  ) { }
+
+  async ngOnInit(): Promise<void> {
+    console.log('🔄 ngOnInit is running');
+    try {
+      this.route.queryParams.subscribe((params) => {
+        this.id = params['id'];
+        if (!this.id) return console.error('❌ ID not found in query params.');
+
+        // this.currentTimeISO = new Date().toISOString();
+        this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
+        // this.fetchData(this.id, this.selectedDuration);
+        this.subscribeToDurationChanges();
+        this.adjustChartHeight();
+      });
+    } catch (error) {
+      console.error('Error during ngOnInit:', error);
+    }
+  }
 
 
   @HostListener('window:resize', ['$event'])
@@ -171,7 +143,8 @@ export class DashboardChartComponent implements OnInit {
 
 
   subscribeToDurationChanges(): void {
-    this.durationService.selectedDuration$.subscribe(duration => {
+    this.durationService.selectedDuration$.subscribe((duration) => {
+      console.log('📢 Duration changed to:', duration);
       this.selectedDuration = duration;
       if (this.id) {
         this.fetchData(this.id, duration);
@@ -270,7 +243,8 @@ export class DashboardChartComponent implements OnInit {
             data: radData,
             yAxis: 2,
             type: 'line',
-            color: '#f9b721'
+            color: '#f9b721',
+            visible: false
           }
         ] as Highcharts.SeriesOptionsType[];
 
