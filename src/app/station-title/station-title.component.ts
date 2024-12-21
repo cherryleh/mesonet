@@ -11,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class StationTitleComponent implements OnInit {
   stationName: string = ''; 
+  timestamp: string = '';
   id: string | null = null; 
 
   constructor(
@@ -28,7 +29,7 @@ export class StationTitleComponent implements OnInit {
   }
 
   fetchStationData(id: string): void {
-    this.stationDataService.getData(id).subscribe({
+    this.stationDataService.getStationData(id).subscribe({
       next: (response) => {
         if (response.length > 0) {
           this.stationName = response[0].name;

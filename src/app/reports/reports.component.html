@@ -9,10 +9,18 @@
                 <form [formGroup]="reportForm" (ngSubmit)="onSubmit()">
                     <div class="form-container">
                         <label for="startDate">Start Date</label>
-                        <input id="startDate" type="date" formControlName="startDate">
-
+                        <input 
+                            type="date" 
+                            id="startDate" 
+                            formControlName="startDate" 
+                            [min]="minStartDate"
+                          />
                         <label for="endDate">End Date</label>
-                        <input id="endDate" type="date" formControlName="endDate">
+                        <input
+                        id="endDate"
+                        type="date"
+                        formControlName="endDate"
+                        [min]="reportForm.get('startDate')?.value" />
 
                         <button type="submit">Create Report</button>
                         <button type="button" (click)="exportToCSV()">Export CSV</button>
@@ -21,26 +29,23 @@
             </div>
             <div class="table-container">
             <p *ngIf="!formattedData.length" class="no-data">No data available for the selected date range.</p>
-            <table *ngIf="formattedData.length > 0">
-                <thead>
-                    <tr>
-                        <th *ngFor="let header of getTableHeaders()">{{ header }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let row of formattedData">
-                        <td>{{ row.timestamp }}</td>
-                        <td>{{ row.station_id }}</td>
-                        <td>{{ row.RF_1_Tot300s !== null ? row.RF_1_Tot300s : 'N/A' }}</td>
-                        <td>{{ row.RH_1_Avg !== null ? row.RH_1_Avg : 'N/A' }}</td>
-                        <td>{{ row.SM_1_Avg !== null ? row.SM_1_Avg : 'N/A' }}</td>
-                        <td>{{ row.SWin_1_Avg !== null ? row.SWin_1_Avg : 'N/A' }}</td>
-                        <td>{{ row.Tair_1_Avg !== null ? row.Tair_1_Avg : 'N/A' }}</td>
-                        <td>{{ row.WS_1_Avg !== null ? row.WS_1_Avg : 'N/A' }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        </div>
+
+                <table *ngIf="formattedData.length > 0">
+                    <thead>
+                      <tr>
+                        <!-- Dynamic Display Headers -->
+                        <th *ngFor="let header of displayHeaders">{{ header }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let row of formattedData">
+                        <!-- Dynamic Row Values -->
+                        <td *ngFor="let key of headers">
+                          {{ row[key] !== null && row[key] !== undefined ? row[key] : 'N/A' }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+      
     </div>
 </div>

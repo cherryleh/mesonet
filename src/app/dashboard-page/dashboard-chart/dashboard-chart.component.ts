@@ -91,9 +91,13 @@ export class DashboardChartComponent implements OnInit {
       }
     },
     legend: {
-      align: 'center', // Center align the legend
-      verticalAlign: 'top', // Move the legend to the top
-      layout: 'horizontal' // Arrange items horizontally
+      align: 'center',
+      verticalAlign: 'top',
+      layout: 'horizontal',
+      itemHiddenStyle: {
+        color: 'gray',
+        'text-decoration': 'none'
+    }
     },
     exporting: {
       enabled: true,

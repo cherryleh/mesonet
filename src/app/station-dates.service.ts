@@ -6,12 +6,12 @@ import { environment } from '../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
-export class StationDataService {
-  private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?&limit=1&reverse=True';
+export class StationDatesService {
+  private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii&var_ids=RF_1_Tot300s&local_tz=True&limit=1&reverse=True';
 
   constructor(private http: HttpClient) {}
 
-  getStationData(id: string): Observable<any> {
+  getData(id: string): Observable<any> {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${environment.apiToken}`); // Your API token here
     const url = `${this.apiUrl}&station_ids=${id}`;
     console.log(url);
