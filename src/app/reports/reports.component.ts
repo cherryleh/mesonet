@@ -7,25 +7,47 @@ import { StationTitleComponent } from '../station-title/station-title.component'
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ReportsService } from '../reports.service'; 
 import { StationDatesService } from '../station-dates.service';
-import { CommonModule } from '@angular/common'; // Import CommonModule to use *ngIf
-import { ReactiveFormsModule } from '@angular/forms'; // Import ReactiveFormsModule to use formGroup
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTableModule } from '@angular/material/table';
+import { MatNativeDateModule } from '@angular/material/core';
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, SidebarComponent, StationTitleComponent, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    HeaderComponent,
+    SidebarComponent,
+    StationTitleComponent,
+    ReactiveFormsModule,
+    MatDatepickerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatTableModule,
+    MatNativeDateModule
+  ],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.css'
 })
 export class ReportsComponent implements OnInit {
+  today = new Date();
   stationId: string = '';
-  reportForm: FormGroup; // Declare reportForm without initialization to avoid TS2729 error
+  reportForm: FormGroup;
   timestamp: string = '';
   reportData: any[] = [];
   formattedData: any[] = [];
   public minStartDate: string = '';
+  public maxDate: string = '';
+  public showExportButton: boolean = false;
 
-  private headersMap = {
+  public headersMap: { [key: string]: string } = {
     timestamp: 'Timestamp',
     station_id: 'Station ID',
     RF_1_Tot300s: 'Rainfall (mm)',
@@ -45,24 +67,25 @@ export class ReportsComponent implements OnInit {
     private reportsService: ReportsService,
     private StationDatesService: StationDatesService
   ) {
-    this.reportForm = this.fb.group({ // Initialize form in constructor to ensure fb is available
+    this.reportForm = this.fb.group({
       startDate: [''],
       endDate: ['']
     });
   }
 
   ngOnInit(): void {
-    console.log('Headers:', this.headers);
-    console.log('Display Headers:', this.displayHeaders);
+    const today = new Date();
+    this.maxDate = `${today.getFullYear()}-${(today.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
 
+    console.log('Max Date String:', this.maxDate);
     this.route.queryParams.subscribe(params => {
-      this.stationId = params['id'] || 'default_station_id'; // Default ID if none is provided
-      console.log('Station ID:', this.stationId);
+      this.stationId = params['id'] || 'default_station_id';
       this.initializeForm(); 
       this.fetchStationData(this.stationId);
     });
   }
-
 
   initializeForm(): void {
     this.reportForm = this.fb.group({
@@ -72,49 +95,51 @@ export class ReportsComponent implements OnInit {
 
     this.reportForm.get('startDate')?.valueChanges.subscribe(startDate => {
       if (startDate) {
-        // Set the minimum date for endDate to the selected startDate
         const endDateControl = this.reportForm.get('endDate');
-        endDateControl?.setValue(''); // Clear endDate value if startDate changes
+        endDateControl?.setValue('');
         endDateControl?.setValidators([
           (control) => control.value && control.value < startDate ? { invalidDate: true } : null
         ]);
-        endDateControl?.updateValueAndValidity(); // Trigger validation
+        endDateControl?.updateValueAndValidity();
       }
     });
   }
 
   onSubmit(): void {
     let { startDate, endDate } = this.reportForm.value;
-    if (startDate && endDate) {
-      const formatDateToHST = (date: string, time: string) => {
-        // Append 'T00:00:00' to prevent timezone shifts
-        const dateObj = new Date(`${date}T00:00:00`); // Force local time without UTC conversion
-        const localDateStr = dateObj.toISOString().split('T')[0]; // Extract YYYY-MM-DD
-        return `${localDateStr}${time}`; // Append time with HST offset
-      };
-
-
-
-
-      startDate = formatDateToHST(startDate, 'T00:00:00-10:00'); 
-      endDate = formatDateToHST(endDate, 'T23:59:59-10:00'); 
-      console.log(startDate);
-      
-      this.reportsService.getData(this.stationId, startDate, endDate).subscribe(
-        (data) => {
-          this.reportData = data;
-          this.formatTableData();
-          console.log('Formatted Report Data:', this.formattedData);
-        },
-        (error) => {
-          console.error('Error fetching report data:', error);
-        }
-      );
-    } else {
-      console.warn('Start Date and End Date are required.');
+    try {
+      startDate = this.formatDateToHST(startDate, 'T00:00:00-10:00'); 
+      endDate = this.formatDateToHST(endDate, 'T23:59:59-10:00'); 
+    } catch (error) {
+      console.error('Date processing error:', error);
+      return;
     }
+
+    this.reportsService.getData(this.stationId, startDate, endDate).subscribe(
+      (data) => {
+        this.reportData = data;
+        this.formatTableData();
+        this.showExportButton = this.formattedData.length > 0;
+      },
+      (error) => {
+        console.error('Error fetching report data:', error);
+      }
+    );
   }
 
+  formatDateToHST(date: string, time: string): string {
+    if (!date) {
+      console.error('Invalid date:', date);
+      throw new Error('Invalid date provided');
+    }
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) {
+      console.error('Invalid date format:', date);
+      throw new Error('Invalid date format');
+    }
+    const localDateStr = dateObj.toISOString().split('T')[0];
+    return `${localDateStr}${time}`;
+  }
 
   formatTableData(): void {
     const groupedData = this.reportData.reduce((acc, row) => {
@@ -131,35 +156,26 @@ export class ReportsComponent implements OnInit {
           WS_1_Avg: null
         };
       }
-      // Populate the correct field for the variable in the row
       if (row.variable in acc[key]) {
         acc[key][row.variable] = row.value;
       }
       return acc;
     }, {});
 
-    // Convert grouped data to an array and sort by 'timestamp'
     this.formattedData = Object.values(groupedData).sort((a: any, b: any) => {
       return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
     });
-    console.log('Formatted Data:', this.formattedData);
-
   }
 
   formatTimestampForTable(timestamp: string): string {
-    const dateObj = new Date(timestamp); // Parse ISO timestamp
+    const dateObj = new Date(timestamp);
     const yyyy = dateObj.getFullYear();
     const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
     const dd = String(dateObj.getDate()).padStart(2, '0');
     const hh = String(dateObj.getHours()).padStart(2, '0');
     const min = String(dateObj.getMinutes()).padStart(2, '0');
     const ss = String(dateObj.getSeconds()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`; // Excel-friendly format
-  }
-
-
-  getTableHeaders(): string[] {
-    return this.headers; 
+    return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
   }
 
   exportToCSV(): void {
@@ -167,48 +183,32 @@ export class ReportsComponent implements OnInit {
       console.warn('No data available to export.');
       return;
     }
-
-    // Prepare CSV rows
     const csvRows = [];
-
-    // Add display headers from headersMap
-    csvRows.push(this.displayHeaders.join(',')); // Use dynamic headers
-
-    // Add data rows
+    csvRows.push(this.displayHeaders.join(','));
     this.formattedData.forEach(row => {
-      const rowData = this.headers.map(key => 
-        row[key] !== null && row[key] !== undefined ? row[key] : ''
-      );
+      const rowData = this.headers.map(key => row[key] !== null && row[key] !== undefined ? row[key] : '');
       csvRows.push(rowData.join(','));
     });
-
-    // Generate CSV file
-    const csvContent = '\uFEFF' + csvRows.join('\n'); // Add BOM for UTF-8 encoding
+    const csvContent = '\uFEFF' + csvRows.join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
-
-    // Trigger download
     const a = document.createElement('a');
     a.href = url;
     a.download = `report_${this.stationId}_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
-
-    // Clean up
     window.URL.revokeObjectURL(url);
-
-    console.log('Headers:', this.headers);
-    console.log('Display Headers:', this.displayHeaders);
-
   }
+
 
   fetchStationData(id: string): void {
     this.StationDatesService.getData(id).subscribe({
       next: (response) => {
-        if (response.length > 0) {
-          // Format timestamp to 'YYYY-MM-DD'
-          const date = new Date(response[0].timestamp);
-          this.minStartDate = date.toISOString().split('T')[0]; // Extract YYYY-MM-DD
-          console.log('Min Start Date:', this.minStartDate);
+        const date = response[0]?.timestamp ? new Date(response[0].timestamp) : null;
+        if (date && !isNaN(date.getTime())) {
+          this.minStartDate = date.toISOString().split('T')[0];
+        } else {
+          console.warn('Invalid timestamp received:', response[0]?.timestamp);
+          this.minStartDate = this.maxDate;
         }
       },
       error: (error) => {
@@ -216,8 +216,4 @@ export class ReportsComponent implements OnInit {
       },
     });
   }
-
-
 }
-
-
