@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Highcharts from 'highcharts';
 
-import { DashboardChartService } from '../../dashboard-chart.service';
+import { DashboardChartService } from '../../services/dashboard-chart.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DurationService } from '../../../dashboard-chart-dropdown.service';
 import { aggregateService } from '../../../aggregate.service';

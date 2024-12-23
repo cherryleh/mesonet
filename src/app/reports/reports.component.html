@@ -11,6 +11,7 @@
                       <mat-form-field appearance="outline">
                           <mat-label>Start Date</mat-label>
                           <input matInput [matDatepicker]="startPicker" formControlName="startDate" [min]="minStartDate" [max]="today">
+                          <mat-hint>MM/DD/YYYY</mat-hint>
                           <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
                           <mat-datepicker #startPicker></mat-datepicker>
                       </mat-form-field>
@@ -18,6 +19,7 @@
                       <mat-form-field appearance="outline">
                           <mat-label>End Date</mat-label>
                           <input matInput [matDatepicker]="endPicker" formControlName="endDate" [min]="reportForm.get('startDate')?.value" [max]="today">
+                          <mat-hint>MM/DD/YYYY</mat-hint>
                           <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
                           <mat-datepicker #endPicker></mat-datepicker>
                       </mat-form-field>

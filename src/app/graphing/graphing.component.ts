@@ -4,8 +4,8 @@ import { Router, RouterModule } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { StationTitleComponent } from '../station-title/station-title.component';
-import { GraphingDataService } from '../graphing-data.service';
-import { GraphingMenuService } from '../graphing-menu.service';
+import { GraphingDataService } from '../services/graphing-data.service';
+import { GraphingMenuService } from '../services/graphing-menu.service';
 import * as Highcharts from 'highcharts';
 import { CommonModule } from '@angular/common';
 

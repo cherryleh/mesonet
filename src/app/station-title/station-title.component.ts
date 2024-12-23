@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { StationDataService } from '../station-data.service';
+import { StationDataService } from '../services/station-data.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({

@@ -6,7 +6,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { Chart, registerables } from 'chart.js';
 import { StationTitleComponent } from '../../station-title/station-title.component';
-import { DataService } from '../../data.service';
+import { DataService } from '../../services/data.service';
 import { DatePipe } from '@angular/common';
 
 import { DashboardChartComponent } from '../dashboard-chart/dashboard-chart.component'; // Import the standalone component
