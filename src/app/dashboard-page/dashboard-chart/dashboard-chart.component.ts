@@ -12,7 +12,6 @@ import { aggregateService } from '../../../aggregate.service';
 import OfflineExporting from 'highcharts/modules/offline-exporting';
 import Exporting from 'highcharts/modules/exporting';
 import ExportData from 'highcharts/modules/export-data';
-// import { DurationSelectorComponent } from '../duration-selector/duration-selector.component';
 
 Exporting(Highcharts);
 ExportData(Highcharts);
