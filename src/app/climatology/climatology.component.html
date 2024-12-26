@@ -1,13 +1,18 @@
 <div class="layout">
-
     <div class="parent-container">
         <app-header></app-header>
         <app-station-title></app-station-title>
         <app-sidebar></app-sidebar>
         <div class="main-content">
-            <div class="climatology-container">
-                <div #climatologyChart class="graph-container"></div>
-            </div>
+          <p>NOTE: Information on this page is coming from the Hawaii Climate Data Portal gridded contemporary climatology product and does not come from the station data.</p>
+            <div class="unit-toggle">
+                <label for="unitSelector">Select Units:</label>
+                <select id="unitSelector" (change)="toggleUnits()">
+                  <option [value]="false" [selected]="!isMetric">Standard</option>
+                  <option [value]="true" [selected]="isMetric">Metric</option>
+                </select>
+              </div>
+            <div id="climatologyChart" class="graph-container"></div>
         </div>
     </div>
 </div>

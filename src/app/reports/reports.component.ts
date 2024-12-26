@@ -43,8 +43,8 @@ export class ReportsComponent implements OnInit {
   timestamp: string = '';
   reportData: any[] = [];
   formattedData: any[] = [];
-  public minStartDate: string = '';
-  public maxDate: string = '';
+  public minStartDate: Date = new Date(); // Default to today's date
+  public maxDate: Date = new Date();
   public showExportButton: boolean = false;
 
   public headersMap: { [key: string]: string } = {
@@ -75,9 +75,8 @@ export class ReportsComponent implements OnInit {
 
   ngOnInit(): void {
     const today = new Date();
-    this.maxDate = `${today.getFullYear()}-${(today.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+    this.maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
 
     console.log('Max Date String:', this.maxDate);
     this.route.queryParams.subscribe(params => {
@@ -205,7 +204,8 @@ export class ReportsComponent implements OnInit {
       next: (response) => {
         const date = response[0]?.timestamp ? new Date(response[0].timestamp) : null;
         if (date && !isNaN(date.getTime())) {
-          this.minStartDate = date.toISOString().split('T')[0];
+          this.minStartDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+          console.log(this.minStartDate);
         } else {
           console.warn('Invalid timestamp received:', response[0]?.timestamp);
           this.minStartDate = this.maxDate;
