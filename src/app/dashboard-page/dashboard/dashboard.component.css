@@ -130,10 +130,13 @@ app-duration-selector {
   margin-bottom: 5px; /* Space between the two rows */
 }
 
-.cumulative-total {
+.cumulative-value {
   font-size: 0.9rem;
   color: #333;
-  font-weight: 700;
+}
+
+.cumulative-value span {
+  font-weight: 700; 
 }
 
 @media (max-width: 768px) {

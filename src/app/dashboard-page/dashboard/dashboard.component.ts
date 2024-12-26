@@ -14,7 +14,7 @@ import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { DurationSelectorComponent } from '../duration-selector/duration-selector.component';
 
-import { aggregateService } from '../../../aggregate.service';
+import { aggregateService } from '../../services/aggregate.service';
 /**
  * @title Dynamic grid-list
  */
@@ -39,6 +39,10 @@ import { aggregateService } from '../../../aggregate.service';
 })
 export class DashboardComponent implements AfterViewInit {
   totalRainfall: number = 0;
+  meanTemp: number = 0;
+  minTemp: number = 0;
+  maxTemp: number = 0;
+  meanSolarRad: number = 0;
   duration: string = '24-hour'; // Default duration
   refreshIntervalMS = 30000;
   dataVariables: string[] = ['Rainfall', 'Temperature', 'Wind Speed', 'Soil Moisture', 'Solar Radiation', 'Relative Humidity'];
@@ -137,9 +141,25 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.aggregateService.totalRainfall$.subscribe((total: number) => {
-      this.totalRainfall = total;
+    this.aggregateService.totalRainfall$.subscribe((totalRain: number) => {
+      this.totalRainfall = totalRain;
       console.log('Dashboard Total Rainfall (in):', this.totalRainfall);
+    });
+    this.aggregateService.meanTemp$.subscribe((meanTemp: number) => {
+      this.meanTemp = meanTemp;
+      console.log('Dashboard Mean Temp (F):', this.meanTemp);
+    });
+    this.aggregateService.minTemp$.subscribe((minTemp: number) => {
+      this.minTemp = minTemp;
+      console.log('Dashboard Min Temp (F):', this.minTemp);
+    });
+    this.aggregateService.maxTemp$.subscribe((maxTemp: number) => {
+      this.maxTemp = maxTemp;
+      console.log('Dashboard Max Temp (F):', this.maxTemp);
+    });
+    this.aggregateService.meanSolarRad$.subscribe((meanSolarRad: number) => {
+      this.meanSolarRad = meanSolarRad;
+      console.log('Dashboard Mean Solar Radiation (W/m^2):', this.meanSolarRad);
     });
 
     this.aggregateService.durationText$.subscribe((durationText: string) => {

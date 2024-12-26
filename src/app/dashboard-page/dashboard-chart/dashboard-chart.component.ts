@@ -6,8 +6,8 @@ import Highcharts from 'highcharts';
 
 import { DashboardChartService } from '../../services/dashboard-chart.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { DurationService } from '../../../dashboard-chart-dropdown.service';
-import { aggregateService } from '../../../aggregate.service';
+import { DurationService } from '../../services/dashboard-chart-dropdown.service';
+import { aggregateService } from '../../services/aggregate.service';
 
 import OfflineExporting from 'highcharts/modules/offline-exporting';
 import Exporting from 'highcharts/modules/exporting';
@@ -143,8 +143,6 @@ export class DashboardChartComponent implements OnInit {
     }
   }
 
-
-
   subscribeToDurationChanges(): void {
     this.durationService.selectedDuration$.subscribe((duration) => {
       console.log('📢 Duration changed to:', duration);
@@ -154,7 +152,6 @@ export class DashboardChartComponent implements OnInit {
       }
     });
   }
-
 
   adjustChartHeight() {
     const containerHeight = this.chartContainer.nativeElement.offsetHeight;
@@ -195,6 +192,19 @@ export class DashboardChartComponent implements OnInit {
 
         const totalRainfall = rainfallData.reduce((sum, point) => sum + point[1], 0);
         this.aggregateService.updateTotalRainfall(totalRainfall);
+
+        const meanTemp = temperatureData.reduce((sum, point) => sum + point[1], 0) / temperatureData.length;
+        this.aggregateService.updateMeanTemp(meanTemp);
+
+        const minTemp = Math.min(...temperatureData.map(point => point[1]));
+        this.aggregateService.updateMinTemp(minTemp);
+
+        const maxTemp = Math.max(...temperatureData.map(point => point[1]));
+        this.aggregateService.updateMaxTemp(maxTemp);
+
+        const meanSolarRad = radData.reduce((sum, point) => sum + point[1], 0) / radData.length;
+        
+        this.aggregateService.updateMeanSolarRad(meanSolarRad);
 
         const durationLabels: Record<string, string> = {
           '1': '24-hour',
