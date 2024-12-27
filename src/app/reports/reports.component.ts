@@ -15,6 +15,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+import { ViewChild } from '@angular/core';
+
 
 @Component({
   selector: 'app-reports',
@@ -31,18 +35,24 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatInputModule,
     MatButtonModule,
     MatTableModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    MatPaginator
   ],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.css'
 })
 export class ReportsComponent implements OnInit {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
   today = new Date();
   stationId: string = '';
   reportForm: FormGroup;
   timestamp: string = '';
   reportData: any[] = [];
-  formattedData: any[] = [];
+  dataSource = new MatTableDataSource<any>();
+
+
+
   public minStartDate: Date = new Date(); // Default to today's date
   public maxDate: Date = new Date();
   public showExportButton: boolean = false;
@@ -84,6 +94,10 @@ export class ReportsComponent implements OnInit {
       this.initializeForm(); 
       this.fetchStationData(this.stationId);
     });
+
+  }
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
   }
 
   initializeForm(): void {
@@ -118,7 +132,7 @@ export class ReportsComponent implements OnInit {
       (data) => {
         this.reportData = data;
         this.formatTableData();
-        this.showExportButton = this.formattedData.length > 0;
+        this.showExportButton = this.dataSource.data.length > 0;
       },
       (error) => {
         console.error('Error fetching report data:', error);
@@ -161,10 +175,17 @@ export class ReportsComponent implements OnInit {
       return acc;
     }, {});
 
-    this.formattedData = Object.values(groupedData).sort((a: any, b: any) => {
+    this.dataSource.data = Object.values(groupedData).sort((a: any, b: any) => {
       return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
     });
+
+    // Reset paginator after assigning data
+    if (this.paginator) {
+      this.paginator.firstPage(); // Reset to the first page
+    }
+
   }
+
 
   formatTimestampForTable(timestamp: string): string {
     const dateObj = new Date(timestamp);
@@ -178,16 +199,18 @@ export class ReportsComponent implements OnInit {
   }
 
   exportToCSV(): void {
-    if (!this.formattedData || this.formattedData.length === 0) {
+    if (!this.dataSource.data || this.dataSource.data.length === 0) {
       console.warn('No data available to export.');
       return;
     }
     const csvRows = [];
     csvRows.push(this.displayHeaders.join(','));
-    this.formattedData.forEach(row => {
+    this.dataSource.data.forEach(row => {
       const rowData = this.headers.map(key => row[key] !== null && row[key] !== undefined ? row[key] : '');
       csvRows.push(rowData.join(','));
     });
+
+
     const csvContent = '\uFEFF' + csvRows.join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);

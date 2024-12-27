@@ -59,11 +59,14 @@ export class StationSpecificMapComponent {
       // Read query parameters
       this.route.queryParams.subscribe(params => {
         const stationId = params['id']; // Get ID from URL query
-        let foundStation: Station | undefined = data.find(station => station.station_id === stationId); // Find matching station
 
-        // Add markers for all stations
+        // Find the selected station
+        const selectedStation: Station | undefined = data.find(station => station.station_id === stationId);
+
+        // Loop through all stations and add circle markers
         data.forEach(station => {
           if (station.lat && station.lng && station.name) {
+            // Default circle markers for all stations
             const circle = L.circleMarker([station.lat, station.lng], {
               radius: 5,
               color: 'blue',
@@ -71,15 +74,28 @@ export class StationSpecificMapComponent {
               fillOpacity: 0.2,
               weight: 2
             });
+
+            // Add popup for each station
             const url = `/mesonet/#/dashboard?id=${station.station_id}`;
             circle.bindPopup(`<a href="${url}" style="font-size: 20px" target="_blank">${station.name}</a>`);
             circle.addTo(this.map);
           }
         });
 
-        // Center map on the matching station
-        if (foundStation) {
-          this.map.setView([foundStation.lat, foundStation.lng], 10); // Use lat & lng safely
+        // Highlight the selected station with a marker
+        if (selectedStation) {
+          const marker = L.marker([selectedStation.lat, selectedStation.lng], {
+            icon: L.icon({
+              iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Default Leaflet marker icon
+              iconSize: [25, 41], // Size of the icon
+              iconAnchor: [12, 41] // Point of the icon that corresponds to the marker's location
+            })
+          }).addTo(this.map);
+
+          // Center the map and zoom in to the selected station
+          this.map.setView([selectedStation.lat, selectedStation.lng], 15); // Zoom into the selected station
+        } else {
+          console.warn('Station not found for ID:', stationId);
         }
       });
     })
@@ -87,4 +103,7 @@ export class StationSpecificMapComponent {
       console.error('Error fetching station data:', error);
     });
   }
+
+
+
 }

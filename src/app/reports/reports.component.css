@@ -1,38 +1,8 @@
-
-
-
-input[type="date"] {
-  padding: 10px;
-  font-size: 14px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  margin-right: 10px;
-}
-
-form {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-form label {
-  margin-right: 10px;
-}
-
 .form-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
-}
-
-.form-container input {
-  width: 150px;
-}
-
-.form-container button {
-  width: auto;
+  gap: 30px;
 }
 
 table th, table td {
@@ -47,16 +17,11 @@ table th, table td {
 }
 
 .form-box{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
   background-color: #ffffff;
   border-radius: 8px;
   border: 1px solid #d0d7de;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   padding: 20px;
-  flex-wrap: wrap;
 }
 
 .table-container{
@@ -71,10 +36,27 @@ table th, table td {
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   padding: 20px;
   flex-wrap: wrap;
+  height: 50%; 
 }
 
 .mat-header-row {
   background-color: #f1f1f1 !important;
   color: #000 !important;
   font-weight: bold !important;
+}
+
+
+.table-container {
+  display: flex;
+  flex-direction: column;
+  height: auto; /* Adjust height dynamically */
+  overflow: auto; /* Enable scrolling if needed */
+}
+
+.mat-table {
+  flex-grow: 1; /* Allow table to grow within the container */
+}
+
+.mat-paginator {
+  flex-shrink: 0; /* Ensure paginator stays at the bottom */
 }
