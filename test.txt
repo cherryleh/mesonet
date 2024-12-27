@@ -1,19 +1,151 @@
-initializeForm(): void {
-  this.reportForm = this.fb.group({
-    startDate: [''],
-    endDate: ['']
-  });
+import { Component, OnInit, HostListener, ElementRef, ViewChild, Output, EventEmitter } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import Highcharts from 'highcharts';
 
-  // Watch for changes in startDate and update the min value for endDate
-  this.reportForm.get('startDate')?.valueChanges.subscribe(startDate => {
-    if (startDate) {
-      // Set the minimum date for endDate to the selected startDate
-      const endDateControl = this.reportForm.get('endDate');
-      endDateControl?.setValue(''); // Clear endDate value if startDate changes
-      endDateControl?.setValidators([
-        (control) => control.value && control.value < startDate ? { invalidDate: true } : null
-      ]);
-      endDateControl?.updateValueAndValidity(); // Trigger validation
+import { DashboardChartService } from '../../services/dashboard-chart.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { DurationService } from '../../services/dashboard-chart-dropdown.service';
+import { aggregateService } from '../../services/aggregate.service';
+
+import OfflineExporting from 'highcharts/modules/offline-exporting';
+import Exporting from 'highcharts/modules/exporting';
+import ExportData from 'highcharts/modules/export-data';
+
+Exporting(Highcharts);
+ExportData(Highcharts);
+OfflineExporting(Highcharts);
+
+@Component({
+  selector: 'app-dashboard-chart',
+  standalone: true,
+  imports: [CommonModule, FormsModule, MatProgressSpinnerModule],
+  templateUrl: './dashboard-chart.component.html',
+  styleUrls: ['./dashboard-chart.component.css'],
+  providers: [DashboardChartService],
+})
+
+export class DashboardChartComponent implements OnInit {
+
+  @Output() durationChanged = new EventEmitter<string>();
+
+  refreshIntervalMS = 30000;
+  isLoading = false;
+  id: string | null = null;
+  selectedDuration = '1';
+
+  durations = [
+    { label: 'Last 24 Hours', value: '1' },
+    { label: 'Last 3 Days', value: '3' },
+    { label: 'Last 7 Days', value: '7' },
+  ];
+  Highcharts = Highcharts;
+  chartRef!: Highcharts.Chart;
+
+  @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
+
+  chartOptions: Highcharts.Options = {
+    chart: { type: 'line', height: '50%' },
+    title: { text: '' },
+    xAxis: { type: 'datetime' },
+    yAxis: [
+      { title: { text: 'Temperature (°F)' } },
+      { title: { text: '5-min Rainfall (in)' }, opposite: true, min: 0, max: 0.5 },
+      { title: { text: 'Solar Radiation (W/m²)' }, opposite: true, min: 0 },
+    ],
+    tooltip: { shared: true, valueDecimals: 2, xDateFormat: '%b %e, %Y %l:%M%p' },
+    time: { timezoneOffset: 600 },
+    series: [],
+    plotOptions: {
+      series: { lineWidth: 3, marker: { enabled: false } }
+    },
+    legend: {
+      align: 'center', verticalAlign: 'top', layout: 'horizontal',
+      itemHiddenStyle: { color: 'gray', 'text-decoration': 'none' }
+    },
+    exporting: {
+      enabled: true,
+      fallbackToExportServer: false,
+      buttons: {
+        contextButton: {
+          menuItems: ['downloadPNG', 'downloadJPEG', 'downloadPDF', 'downloadSVG', 'separator', 'downloadCSV', 'downloadXLS']
+        }
+      }
     }
-  });
+  };
+
+  constructor(
+    private route: ActivatedRoute,
+    private dataService: DashboardChartService,
+    private aggregateService: aggregateService,
+    private durationService: DurationService
+  ) {}
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe((params) => {
+      this.id = params['id'];
+      if (!this.id) {
+        console.error('❌ ID not found in query params.');
+        return;
+      }
+
+      this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
+      this.subscribeToDurationChanges();
+      this.adjustChartHeight();
+      this.updateData();
+    });
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    if (this.chartRef) {
+      this.adjustChartHeight();
+      this.chartRef.reflow();
+    }
+  }
+
+  subscribeToDurationChanges(): void {
+    this.durationService.selectedDuration$.subscribe((duration) => {
+      this.selectedDuration = duration;
+      if (this.id) {
+        this.fetchData(this.id, duration);
+      }
+    });
+  }
+
+  adjustChartHeight() {
+    const containerHeight = this.chartContainer.nativeElement.offsetHeight;
+    this.chartRef.setSize(null, containerHeight);
+  }
+
+  async fetchData(id: string, duration: string): Promise<void> {
+    this.isLoading = true;
+    try {
+      const startDate = this.getDateMinusDaysInHST(parseInt(duration));
+      const data = await this.dataService.getData(id, startDate).toPromise();
+      const newData = data.map(item => [new Date(item.timestamp).getTime(), parseFloat(item.value)]);
+      const chartData = this.chartRef.series[0]?.data.map(point => [point.x, point.y]);
+
+      if (JSON.stringify(newData) !== JSON.stringify(chartData)) {
+        this.chartRef.series[0].setData(newData, true);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  updateData(): void {
+    if (this.id) {
+      this.fetchData(this.id, this.selectedDuration);
+    }
+    setTimeout(() => this.updateData(), this.refreshIntervalMS);
+  }
+
+  getDateMinusDaysInHST(days: number): string {
+    const date = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    return new Date(date.getTime() - 10 * 60 * 60 * 1000).toISOString().replace('Z', '-10:00');
+  }
 }

@@ -28,6 +28,22 @@ OfflineExporting(Highcharts);
 })
 
 export class DashboardChartComponent implements OnInit {
+  previousTemperatureData: [number, number][] = [];
+  previousRainfallData: [number, number][] = [];
+  previousRadData: [number, number][] = [];
+  private isDataChanged(
+    newData: [number, number][],
+    oldData: [number, number][]
+  ): boolean {
+    if (newData.length !== oldData.length) return true;
+
+    for (let i = 0; i < newData.length; i++) {
+      if (newData[i][0] !== oldData[i][0] || newData[i][1] !== oldData[i][1]) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   @Output() durationChanged = new EventEmitter<string>();
 
@@ -80,7 +96,7 @@ export class DashboardChartComponent implements OnInit {
       xDateFormat: '%b %e, %Y %l:%M%p'
     },
     time: {
-      timezoneOffset: 600, // To display in Hawaii time
+      timezoneOffset: 600, // Hawaii time
     },
     series: [],
     plotOptions: {
@@ -96,7 +112,7 @@ export class DashboardChartComponent implements OnInit {
       itemHiddenStyle: {
         color: 'gray',
         'text-decoration': 'none'
-    }
+      }
     },
     exporting: {
       enabled: true,
@@ -109,6 +125,7 @@ export class DashboardChartComponent implements OnInit {
     }
   };
 
+
   constructor(
     private route: ActivatedRoute,
     private dataService: DashboardChartService,
@@ -117,17 +134,18 @@ export class DashboardChartComponent implements OnInit {
   ) { }
 
   async ngOnInit(): Promise<void> {
-    console.log('🔄 ngOnInit is running');
     try {
       this.route.queryParams.subscribe((params) => {
         this.id = params['id'];
         if (!this.id) return console.error('❌ ID not found in query params.');
 
-        // this.currentTimeISO = new Date().toISOString();
         this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
-        // this.fetchData(this.id, this.selectedDuration);
+
         this.subscribeToDurationChanges();
         this.adjustChartHeight();
+        this.updateData(); 
+        console.log('🔄 Refreshing dashboard chart data...');
+
       });
     } catch (error) {
       console.error('Error during ngOnInit:', error);
@@ -162,9 +180,8 @@ export class DashboardChartComponent implements OnInit {
   fetchData(id: string, duration: string): void {
     console.log('🔍 Checking if fetchData is being called with:', { id: this.id, selectedDuration: this.selectedDuration });
 
-    this.isLoading = true;
     const startDate = this.getDateMinusDaysInHST(parseInt(duration));
-    console.log(`Start date is ${startDate}`);
+    
     this.dataService.getData(id, startDate).subscribe(
       (data: any[]) => {
         let temperatureData: [number, number][] = [];
@@ -218,7 +235,25 @@ export class DashboardChartComponent implements OnInit {
         const maxRainfall = Math.max(...rainfallData.map(point => point[1]));
         console.log(`Max rainfall value: ${maxRainfall}`);
 
-        // 🔴 Dynamically update the Rainfall yAxis max using Highcharts update()
+        const temperatureChanged = this.isDataChanged(temperatureData, this.previousTemperatureData);
+        const rainfallChanged = this.isDataChanged(rainfallData, this.previousRainfallData);
+        const radChanged = this.isDataChanged(radData, this.previousRadData);
+
+        if (!temperatureChanged && !rainfallChanged && !radChanged) {
+          console.log('⏸️ No changes detected. Skipping chart update.');
+          this.isLoading = false; // Reset loading flag!
+          return;
+        }
+        
+        console.log('Temperature Changed:', temperatureChanged);
+        console.log('Rainfall Changed:', rainfallChanged);
+        console.log('Solar Radiation Changed:', radChanged);
+
+        this.previousTemperatureData = temperatureData;
+        this.previousRainfallData = rainfallData;
+        this.previousRadData = radData;
+
+        
         if (this.chartRef) {
           this.chartRef.update({
             yAxis: [{
@@ -250,6 +285,7 @@ export class DashboardChartComponent implements OnInit {
             maxPointWidth: 5,
             groupPadding: 0.05,
             pointPadding: 0.05,
+            animation: false
           },
           {
             name: 'Solar Radiation (W/m²)',
@@ -257,7 +293,8 @@ export class DashboardChartComponent implements OnInit {
             yAxis: 2,
             type: 'line',
             color: '#f9b721',
-            visible: false
+            visible: false,
+            animation: false
           }
         ] as Highcharts.SeriesOptionsType[];
 
@@ -298,10 +335,14 @@ export class DashboardChartComponent implements OnInit {
   }
 
   updateData(): void {
+    if (this.id) {
+      this.fetchData(this.id, this.selectedDuration);
+    }
     setTimeout(() => {
-      this.updateData();
+      this.updateData(); // Recursive call to keep updating
     }, this.refreshIntervalMS);
   }
+
 
   aggregateToHourly(data: [number, number][], sum = false): [number, number][] {
     const hourlyData: { [hour: string]: { sum: number; count: number } } = {};

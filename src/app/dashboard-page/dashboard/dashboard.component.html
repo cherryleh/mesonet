@@ -3,8 +3,8 @@
     <div class="content">
         <app-sidebar></app-sidebar>
         <div class="parent-container">
+            <app-station-title></app-station-title>
             <div class="dashboard-header">
-                <app-station-title></app-station-title>
                 <p *ngIf="latestTimestamp" class="last-updated">Last updated: {{ getFormattedTimestamp() }}</p>
             </div>
 
@@ -14,6 +14,7 @@
                         <div class="graph-header">
                             <app-duration-selector></app-duration-selector>
                             <div class="cumulative-info">
+                                <div id="borderLeft"></div>
                                 <p class="cumulative-label">{{ duration }} Total Rainfall</p>
                                 <p class="cumulative-value"> <span>{{ totalRainfall.toFixed(2)}} in</span></p>
                             </div>

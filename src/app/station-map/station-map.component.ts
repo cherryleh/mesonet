@@ -2,12 +2,12 @@ import { Component, AfterViewInit } from '@angular/core';
 import * as L from 'leaflet';
 import { environment } from '../../environments/environment';
 import { FormsModule } from '@angular/forms'; 
-import { CommonModule } from '@angular/common'; // ✅ Import CommonModule for *ngFor and *ngIf
+import { CommonModule } from '@angular/common'; 
 
 @Component({
   selector: 'app-station-map',
   standalone: true,
-  imports: [FormsModule, CommonModule], // ✅ Add CommonModule to imports
+  imports: [FormsModule, CommonModule], 
   templateUrl: './station-map.component.html',
   styleUrls: ['./station-map.component.css']
 })
