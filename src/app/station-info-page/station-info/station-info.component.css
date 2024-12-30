@@ -1,0 +1,13 @@
+.station-info-container {
+    display: flex;           /* Enables Flexbox */
+    gap: 10px;               /* Optional: Adds space between the elements */
+}
+
+.left, .right {
+    flex: 1;                 /* Each takes up equal space (50%) */
+}
+
+.right img {
+    width: 100%;             /* Ensure image scales to fit the container */
+    height: auto;            /* Maintain aspect ratio */
+}

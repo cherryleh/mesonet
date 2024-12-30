@@ -1,0 +1,23 @@
+<div class="layout">
+    <div class="parent-container">
+        <app-header></app-header>
+        <app-station-title></app-station-title>
+        <app-sidebar></app-sidebar>
+        <div class="main-content">
+            <div class="station-info-container">
+                <app-station-specific-map class="left"></app-station-specific-map>
+                <div class="right">
+                    <div class="info">
+                        <p class="info-label">Station Observation Date</p>
+                        <p class="info-value"> <span>{{stationStartDate}}</span></p>
+                    </div>
+                    <div class="info">
+                        <p class="info-label">Elevation</p>
+                        <!-- <p class="info-value"> <span>{{stationStartDate}}</span></p> -->
+                    </div>
+                    <img [attr.src]="'/station_photos/' + stationId + '.jpeg'" alt="station-photo">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

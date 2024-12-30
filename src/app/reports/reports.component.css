@@ -29,7 +29,6 @@ table th, table td {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px;
   background-color: #ffffff;
   border-radius: 8px;
   border: 1px solid #d0d7de;

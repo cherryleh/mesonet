@@ -9,7 +9,7 @@ import { DashboardChartComponent } from './dashboard-page/dashboard-chart/dashbo
 // import { StationTitleComponent } from './station-title/station-title.component';
 import { GraphingComponent } from './graphing/graphing.component';
 import { ClimatologyComponent } from './climatology/climatology.component';
-import { StationInfoComponent } from './station-info/station-info.component';
+import { StationInfoComponent } from './station-info-page/station-info/station-info.component';
 import { ReportsComponent } from './reports/reports.component';
 
 export const routes: Routes = [

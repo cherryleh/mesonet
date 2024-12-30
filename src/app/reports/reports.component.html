@@ -47,7 +47,7 @@
                     <tr mat-header-row *matHeaderRowDef="headers"></tr>
                     <tr mat-row *matRowDef="let row; columns: headers;"></tr>
                 </table>
-                <mat-paginator #paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Select page">
+                <mat-paginator *ngIf="dataSource.data.length > 0" #paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Select page">
                 </mat-paginator>
             </div>
         </div>
