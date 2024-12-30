@@ -6,16 +6,24 @@
         <div class="main-content">
             <div class="station-info-container">
                 <app-station-specific-map class="left"></app-station-specific-map>
-                <div class="right">
-                    <div class="info">
+                <div class="right info-grid">
+                    <div class="info top-left">
                         <p class="info-label">Station Observation Date</p>
-                        <p class="info-value"> <span>{{stationStartDate}}</span></p>
+                        <p class="info-value">{{stationStartDate}}</p>
                     </div>
-                    <div class="info">
+                    <div class="info top-right">
                         <p class="info-label">Elevation</p>
-                        <!-- <p class="info-value"> <span>{{stationStartDate}}</span></p> -->
+                        <p class="info-value">{{elevation}} ft.</p>
                     </div>
-                    <img [attr.src]="'/station_photos/' + stationId + '.jpeg'" alt="station-photo">
+                    <div class="info bottom-left">
+                        <p class="info-label">Lat/Lon</p>
+                        <p class="info-value">{{lat}} / {{lon}}</p>
+                    </div>
+                    <div class="info bottom-right">
+                        <p class="info-label">Station Status</p>
+                        <p class="info-value">Active</p>
+                    </div>
+                    <img [attr.src]="'/station_photos/' + stationId + '.jpeg'" alt="station-photo" class="station-photo">
                 </div>
             </div>
         </div>
