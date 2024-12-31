@@ -114,6 +114,7 @@ export class ClimatologyComponent implements OnInit {
           title: {
             text: `Rainfall (${this.isMetric ? 'mm' : 'in'})`,
           },
+          opposite: true,
         },
         {
           title: {
@@ -122,7 +123,7 @@ export class ClimatologyComponent implements OnInit {
           labels: {
             format: `{value} ${this.isMetric ? '°C' : '°F'}`,
           },
-          opposite: true,
+          
         },
       ],
       tooltip: {

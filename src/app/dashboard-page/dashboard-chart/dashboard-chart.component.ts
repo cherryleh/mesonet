@@ -49,7 +49,7 @@ export class DashboardChartComponent implements OnInit {
 
   currentTimeISO!: string;
   refreshIntervalMS = 30000;
-  isLoading = false;
+  isLoading = true;
   id: string | null = null;
   selectedDuration = '1';
 
@@ -179,7 +179,6 @@ export class DashboardChartComponent implements OnInit {
 
   fetchData(id: string, duration: string): void {
     console.log('🔍 Checking if fetchData is being called with:', { id: this.id, selectedDuration: this.selectedDuration });
-
     const startDate = this.getDateMinusDaysInHST(parseInt(duration));
     
     this.dataService.getData(id, startDate).subscribe(
@@ -239,16 +238,15 @@ export class DashboardChartComponent implements OnInit {
         const rainfallChanged = this.isDataChanged(rainfallData, this.previousRainfallData);
         const radChanged = this.isDataChanged(radData, this.previousRadData);
 
-        if (!temperatureChanged && !rainfallChanged && !radChanged) {
-          console.log('⏸️ No changes detected. Skipping chart update.');
-          this.isLoading = false; // Reset loading flag!
+        if (temperatureChanged || rainfallChanged || radChanged) {
+          console.log('🔄 Data changed - showing spinner...');
+          this.isLoading = true; // Show spinner
+        } else {
+          console.log('⏸️ No changes detected. Skipping update.');
+          this.isLoading = false; // Don't show spinner, exit early
           return;
         }
         
-        console.log('Temperature Changed:', temperatureChanged);
-        console.log('Rainfall Changed:', rainfallChanged);
-        console.log('Solar Radiation Changed:', radChanged);
-
         this.previousTemperatureData = temperatureData;
         this.previousRainfallData = rainfallData;
         this.previousRadData = radData;
@@ -274,7 +272,8 @@ export class DashboardChartComponent implements OnInit {
             yAxis: 0,
             type: 'line',
             color: '#41d68f',
-            zIndex: 3
+            zIndex: 3,
+            animation: false
           },
           {
             name: 'Rainfall (in)',

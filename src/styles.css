@@ -63,3 +63,28 @@ app-header {
   justify-content: center;
   align-items: center;
 }
+
+select {
+  width: 100%;
+  max-width: 250px;
+  padding: 10px 15px;
+  font-size: 16px !important;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #333;
+  cursor: pointer;
+}
+  
+select:focus {
+  border-color: #0056b3;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.25);
+}
+  
+option {
+  font-size: 1rem;
+  color: #333;
+}
+  
+  

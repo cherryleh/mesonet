@@ -2,18 +2,13 @@
   <div class="label-dropdown-wrapper">
     <label for="island-select">Select Island:</label>
     <div class="dropdown">
-      <button class="btn btn-custom dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown"
-        aria-haspopup="true" aria-expanded="false">
-        {{ getIslands() }}
-      </button>
-
-      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <!-- Loop through islandList and display the label for each island -->
-        <a class="dropdown-item" *ngFor="let island of islandList" (click)="selectIsland(island.value)"
-          [class.active]="selectedIsland === island.value">
+      <select [ngModel]="selectedIsland" (ngModelChange)="selectIsland($event)">
+        <option value="" disabled selected>Select Island</option>
+        <option *ngFor="let island of islandList" [value]="island.value">
           {{ island.label }}
-        </a>
-      </div>
+        </option>
+      </select>
+
     </div>
   </div>
 </div>

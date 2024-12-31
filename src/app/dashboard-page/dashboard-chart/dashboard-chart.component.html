@@ -1,9 +1,6 @@
 <div class="dashboard-chart-container">
-  <div class="chart-container">
-    <div *ngIf="isLoading" class="spinner-overlay">
-      <mat-progress-spinner mode="indeterminate" diameter="50">
-      </mat-progress-spinner>
-    </div>
-    <div #chartContainer></div>
+  <div *ngIf="isLoading" class="spinner-overlay">
+    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
   </div>
+  <div #chartContainer class="chart-container"></div>
 </div>
