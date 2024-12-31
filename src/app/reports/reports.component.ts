@@ -15,7 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ViewChild } from '@angular/core';
 
@@ -36,7 +36,7 @@ import { ViewChild } from '@angular/core';
     MatButtonModule,
     MatTableModule,
     MatNativeDateModule,
-    MatPaginator
+    MatPaginatorModule
   ],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.css'
@@ -177,6 +177,11 @@ export class ReportsComponent implements OnInit {
 
     this.dataSource.data = Object.values(groupedData).sort((a: any, b: any) => {
       return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+    });
+
+    setTimeout(() => {
+      this.dataSource.paginator = this.paginator;
+      this.paginator.firstPage(); // Reset to the first page
     });
 
     // Reset paginator after assigning data

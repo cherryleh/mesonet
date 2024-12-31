@@ -22,20 +22,7 @@ table th, table td {
   border: 1px solid #d0d7de;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   padding: 20px;
-}
-
-.table-container{
-  margin-top: 1rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #ffffff;
-  border-radius: 8px;
-  border: 1px solid #d0d7de;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  padding: 20px;
-  flex-wrap: wrap;
-  height: 50%; 
+  margin-bottom: 2%;
 }
 
 .mat-header-row {
@@ -44,18 +31,42 @@ table th, table td {
   font-weight: bold !important;
 }
 
-
 .table-container {
   display: flex;
-  flex-direction: column;
-  height: auto; /* Adjust height dynamically */
-  overflow: auto; /* Enable scrolling if needed */
+  flex-direction: column; /* Stack table and paginator vertically */
+  align-items: stretch; /* Ensure children stretch to full width */
+  justify-content: flex-start; /* Content starts at the top */
+  max-height: 90vh; /* Limit max height to avoid viewport overflow */
+  overflow: auto; /* Add scrollbars if content overflows */
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #d0d7de;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .mat-table {
-  flex-grow: 1; /* Allow table to grow within the container */
+  flex-grow: 1; /* Allow the table to grow dynamically */
+  overflow-x: auto; /* Add horizontal scrolling if needed */
+  width: 100%;
+}
+
+.mat-paginator-container {
+  width: 100%; /* Ensure paginator spans the full width */
+  padding-top: 10px; /* Add spacing above the paginator */
+  flex-shrink: 0; /* Prevent paginator from shrinking */
+  display: flex;
+  justify-content: flex-end; /* Align paginator to the right */
 }
 
 .mat-paginator {
-  flex-shrink: 0; /* Ensure paginator stays at the bottom */
+  width: 100%; /* Make paginator match table width */
 }
+
+.no-data {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  margin-top: 20px;
+}
+
