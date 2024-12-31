@@ -170,8 +170,16 @@ export class ReportsComponent implements OnInit {
         };
       }
       if (row.variable in acc[key]) {
-        acc[key][row.variable] = row.value;
+        let value = row.value;
+
+        // Multiply Soil Moisture (SM_1_Avg) by 100
+        if (row.variable === 'SM_1_Avg') {
+          value = value * 100;
+        }
+
+        acc[key][row.variable] = value;
       }
+
       return acc;
     }, {});
 

@@ -97,7 +97,7 @@ export class ClimatologyComponent implements OnInit {
     const chartOptions: Highcharts.Options = {
       chart: {
         type: 'column',
-        height: '50%'
+        height: '45%'
       },
       title: {
         text: '',
