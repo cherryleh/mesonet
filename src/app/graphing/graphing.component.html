@@ -31,7 +31,14 @@
           <button class="update-button" (click)="updateChartButtonClick()">Update Chart</button>
         </div>
       </div>
-      <div id="graphContainer" class="graph-container"></div>
+      <div id="graphContainerWrapper">
+        <div *ngIf="isLoading" class="spinner-overlay">
+          <div class="spinner"></div>
+          <div class="spinner-text">Loading...This may take a moment.</div>
+        </div>
+        <div id="graphContainer"></div>
+      </div>
+
     </div>
   </div>
 </div>

@@ -24,7 +24,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   selectedUnit: 'metric' | 'standard' = 'metric'; // Default to metric
 
   chart: Highcharts.Chart | null = null;
-
+  isLoading: boolean = false;
   variables: { label: string, value: string, yAxisTitle: string }[] = [
     { label: 'Temperature', value: 'Tair_1_Avg', yAxisTitle: 'Temperature (°C)' },
     { label: 'Rainfall', value: 'RF_1_Tot300s', yAxisTitle: 'Rainfall (mm)' },
@@ -77,9 +77,11 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   updateChartButtonClick(): void {
     console.log('Update Chart button clicked');
     this.loadData(); // Call loadData() to update the chart
+    
   }
 
   loadData(): void {
+    this.isLoading = true;
     const days = this.getDaysFromDuration(this.selectedDuration);
     const startDate = this.getDateMinusDaysInHST(days);
 
@@ -89,14 +91,17 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
         if (!data || data.length === 0) {
           console.error('No data returned from API or data is empty');
+          this.isLoading = false;
           return;
         }
 
         const seriesData = this.formatData(data);
         this.updateChart(seriesData);
+        this.isLoading = false;
       },
       error => {
         console.error('Error fetching data from API:', error);
+        this.isLoading = false;
       }
     );
   }

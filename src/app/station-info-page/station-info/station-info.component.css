@@ -36,7 +36,7 @@
 
 .right img{
     max-height: 60vh;
-    width: auto;
+    width: 100%;
 }
 
 .info {
