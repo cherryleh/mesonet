@@ -5,7 +5,7 @@ import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { StationTitleComponent } from '../../station-title/station-title.component';
 import { StationSpecificMapComponent } from '../station-specific-map/station-specific-map.component';
 import { StationDatesService } from '../../services/station-dates.service';
-import { StationDataService } from '../../services/station-data.service';
+import { StationDataService } from '../../services/station-info.service';
 import { Subscription, forkJoin } from 'rxjs';
 
 @Component({

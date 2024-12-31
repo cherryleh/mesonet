@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common'; // Import CommonModule for NgIf
 
-import { DataService } from '../services/data.service';
+import { DataService } from '../services/dashboard-data.service';
 import { DatePipe } from '@angular/common';
 
 @Component({

@@ -7,7 +7,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class StationDataService {
-  private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?&reverse=True';
+  private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?';
 
   constructor(private http: HttpClient) {}
 
