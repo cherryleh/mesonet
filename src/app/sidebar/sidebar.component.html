@@ -13,24 +13,34 @@
     <nav class="nav-menu">
       <ul>
         <li>
-          <img src="dashboard.svg" alt="Dashboard Icon" class="icon">
-          <a [routerLink]="'/dashboard'" [queryParamsHandling]="'merge'" class="nav-link">Site Dashboard</a>
+          <a [routerLink]="'/dashboard'" [queryParamsHandling]="'merge'" class="nav-link">
+            <img src="dashboard.svg" alt="Dashboard Icon" class="icon">
+            <span class="link-text">Site Dashboard</span>
+          </a>
         </li>
         <li>
+          <a [routerLink]="'/graphing'" [queryParamsHandling]="'merge'" class="nav-link">
           <img src="graph.svg" alt="Graph Icon" class="icon">
-          <a [routerLink]="'/graphing'" [queryParamsHandling]="'merge'" class="nav-link">Graphing</a>
+          <span class="link-text">Graphing</span>
+        </a>
         </li>
         <li>
+          <a [routerLink]="'/reports'" [queryParamsHandling]="'merge'" class="nav-link">
           <img src="reports.svg" alt="Report Icon" class="icon">
-          <a [routerLink]="'/reports'" [queryParamsHandling]="'merge'" class="nav-link">Reports</a>
+          <span class="link-text">Reports</span>
+        </a>
         </li>
         <li>
+          <a [routerLink]="'/climatology'" [queryParamsHandling]="'merge'" class="nav-link">
           <img src="climo.svg" alt="Dashboard Icon" class="icon">
-          <a [routerLink]="'/climatology'" [queryParamsHandling]="'merge'" class="nav-link">Climatology</a>
+          <span class="link-text">Climatology</span>
+        </a>
         </li>
         <li>
+          <a [routerLink]="'/station-info'" [queryParamsHandling]="'merge'" class="nav-link">
           <img src="info.svg" alt="Dashboard Icon" class="icon">
-          <a [routerLink]="'/station-info'" [queryParamsHandling]="'merge'" class="nav-link">Station Information</a>
+          <span class="link-text">Station Information</span>
+        </a>
         </li>
       </ul>
     </nav>
