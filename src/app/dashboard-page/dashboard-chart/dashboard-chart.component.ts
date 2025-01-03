@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import Highcharts from 'highcharts';
 
 import { DashboardChartService } from '../../services/dashboard-chart.service';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DurationService } from '../../services/dashboard-chart-dropdown.service';
 import { aggregateService } from '../../services/aggregate.service';
 
@@ -21,7 +20,7 @@ OfflineExporting(Highcharts);
 @Component({
   selector: 'app-dashboard-chart',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatProgressSpinnerModule,],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard-chart.component.html',
   styleUrls: ['./dashboard-chart.component.css'],
   providers: [DashboardChartService],
@@ -164,6 +163,7 @@ export class DashboardChartComponent implements OnInit {
   subscribeToDurationChanges(): void {
     this.durationService.selectedDuration$.subscribe((duration) => {
       console.log('📢 Duration changed to:', duration);
+      this.isLoading = true; 
       this.selectedDuration = duration;
       if (this.id) {
         this.fetchData(this.id, duration);
@@ -205,6 +205,8 @@ export class DashboardChartComponent implements OnInit {
           rainfallData = this.aggregateToHourly(rainfallData, true); // Aggregate rainfall by sum
           radData = this.aggregateToHourly(radData);
         }
+
+        this.isLoading = false;
 
         const totalRainfall = rainfallData.reduce((sum, point) => sum + point[1], 0);
         this.aggregateService.updateTotalRainfall(totalRainfall);

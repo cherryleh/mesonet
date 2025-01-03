@@ -7,7 +7,6 @@
       <div class="menu-container">
         <div class="select-container">
           <div class="input-group">
-
             <label for="variableSelect">Variable:</label>
             <select id="variableSelect" (change)="onVariableChange($event)">
               <option *ngFor="let variable of variables" [value]="variable.value">{{ variable.label }}</option>
