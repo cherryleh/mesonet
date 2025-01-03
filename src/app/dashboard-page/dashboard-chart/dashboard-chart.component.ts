@@ -82,7 +82,7 @@ export class DashboardChartComponent implements OnInit {
         title: { text: '5-min Rainfall (in)' },
         opposite: true,
         min: 0,
-        max: 0.5
+        max: 0.2
       },
       {
         title: { text: 'Solar Radiation (W/m²)' },
