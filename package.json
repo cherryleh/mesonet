@@ -23,6 +23,7 @@
     "@types/chart.js": "^2.9.41",
     "angular-highcharts": "^17.0.1",
     "bootstrap": "^5.3.3",
+    "boxicons": "^2.1.4",
     "canvg": "^3.0.10",
     "chart.js": "^4.4.7",
     "highcharts": "^11.1.0",

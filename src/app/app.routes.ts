@@ -11,6 +11,7 @@ import { GraphingComponent } from './graphing/graphing.component';
 import { ClimatologyComponent } from './climatology/climatology.component';
 import { StationInfoComponent } from './station-info-page/station-info/station-info.component';
 import { ReportsComponent } from './reports/reports.component';
+import { AcknowledgementsComponent } from './acknowledgements/acknowledgements.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent }, // Root route displays Home
@@ -24,5 +25,6 @@ export const routes: Routes = [
   { path: 'climatology', component: ClimatologyComponent},
   { path: 'station-info', component: StationInfoComponent},
   { path: 'reports', component: ReportsComponent},
+  { path: 'acknowledgements', component: AcknowledgementsComponent},
   { path: '**', redirectTo: '' } // Wildcard route redirects to Home
 ];

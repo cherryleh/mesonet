@@ -1,27 +1,40 @@
-<aside class="sidebar">
-  <nav class="nav-menu">
-    <p class="sidebar-submenu">SITE MENU</p>
-    <ul>
-      <li>
-        <img src="dashboard.svg" alt="Dashboard Icon" class="icon">
-        <a [routerLink]="'/dashboard'" [queryParamsHandling]="'merge'" class="nav-link">Site Dashboard</a>
-      </li>
-      <li>
-        <img src="graph.svg" alt="Dashboard Icon" class="icon">
-        <a [routerLink]="'/graphing'" [queryParamsHandling]="'merge'" class="nav-link">Graphing</a>
-      </li>
-      <li>
-        <img src="reports.svg" alt="Report Icon" class="icon">
-        <a [routerLink]="'/reports'" [queryParamsHandling]="'merge'" class="nav-link">Reports</a>
-      </li>
-      <li>
-        <img src="climo.svg" alt="Dashboard Icon" class="icon">
-        <a [routerLink]="'/climatology'" [queryParamsHandling]="'merge'" class="nav-link">Climatology</a>
-      </li>
-      <li>
-        <img src="info.svg" alt="Dashboard Icon" class="icon">
-        <a [routerLink]="'/station-info'" [queryParamsHandling]="'merge'" class="nav-link">Station Information</a>
-      </li>
-    </ul>
-  </nav>
-</aside>
+<div class="container">
+  <!-- Sidebar -->
+  <aside [class.collapsed]="isCollapsed" class="sidebar">
+    <!-- Submenu and Toggle Button -->
+    <div class="sidebar-header">
+      <p class="sidebar-submenu">SITE MENU</p>
+      <button class="sidebar-toggle" (click)="toggleSidebar()">
+        <i [class]="isCollapsed ? 'bx bx-arrow-to-right' : 'bx bx-arrow-from-right'"></i>
+      </button>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="nav-menu">
+      <ul>
+        <li>
+          <img src="dashboard.svg" alt="Dashboard Icon" class="icon">
+          <a [routerLink]="'/dashboard'" [queryParamsHandling]="'merge'" class="nav-link">Site Dashboard</a>
+        </li>
+        <li>
+          <img src="graph.svg" alt="Graph Icon" class="icon">
+          <a [routerLink]="'/graphing'" [queryParamsHandling]="'merge'" class="nav-link">Graphing</a>
+        </li>
+        <li>
+          <img src="reports.svg" alt="Report Icon" class="icon">
+          <a [routerLink]="'/reports'" [queryParamsHandling]="'merge'" class="nav-link">Reports</a>
+        </li>
+        <li>
+          <img src="climo.svg" alt="Dashboard Icon" class="icon">
+          <a [routerLink]="'/climatology'" [queryParamsHandling]="'merge'" class="nav-link">Climatology</a>
+        </li>
+        <li>
+          <img src="info.svg" alt="Dashboard Icon" class="icon">
+          <a [routerLink]="'/station-info'" [queryParamsHandling]="'merge'" class="nav-link">Station Information</a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+</div>
+
+

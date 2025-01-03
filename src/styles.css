@@ -21,7 +21,7 @@ app-header {
   }
 
   .parent-container {
-    margin-left: 16rem;
+    /* margin-left: 16rem; */
     padding-top: 4.75rem;
     flex: 1;
     overflow-y: auto; 
@@ -29,13 +29,25 @@ app-header {
     z-index: 400;
   }
 
-  .main-content{
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
-  }
 
-/* Dropdown */
+
+  
+  .main-content {
+    position: relative; /* Respect parent-container's flexbox */
+    transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+    padding: 20px;
+  
+    margin-left: calc(16rem + (100% - 16rem) * 0.1); /* Centered within remaining space */
+    width: calc((100% - 16rem) * 0.8); /* 80% of available space */
+  }
+  
+  /* Collapsed Sidebar */
+  .main-content.collapsed {
+    margin-left: calc(4rem + (100% - 4rem) * 0.1); /* Centered within remaining space */
+    width: calc((100% - 4rem) * 0.8); /* 80% of available space */
+  }
+  
+
 
 .label-dropdown-wrapper {
   display: flex;
