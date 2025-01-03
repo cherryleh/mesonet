@@ -55,7 +55,7 @@
   border: solid #edf1f7 1px;
   border-radius: 4px;
   background-color: white;
-  padding: 30px;
+  padding: 10px 30px 30px 30px;
 }
 
 .data-ele {
@@ -154,4 +154,20 @@ app-duration-selector {
     width: 100%; 
     margin-top: 10px;
   }
+}
+
+.data-side-header {
+  padding: 10px 0; 
+  border-bottom: 1px solid #edf1f7; 
+  margin-bottom: 15px;
+  
+}
+
+.data-side-header h3 {
+  font-size: 1.2rem; 
+  font-weight: 600; 
+  color: #333; 
+  margin: 0;
+  text-align: left;
+  text-align: center;
 }

@@ -134,6 +134,7 @@ export class ReportsComponent implements OnInit {
 
     this.reportsService.getData(this.stationId, startDate, endDate).subscribe(
       (data) => {
+        console.log('Raw Data Length:', data.length); 
         this.reportData = data;
         this.formatTableData();
         this.showExportButton = this.dataSource.data.length > 0;
@@ -187,9 +188,8 @@ export class ReportsComponent implements OnInit {
       return acc;
     }, {});
 
-    this.dataSource.data = Object.values(groupedData).sort((a: any, b: any) => {
-      return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
-    });
+    this.dataSource.data = Object.values(groupedData);
+    console.log(this.dataSource.data.length);
 
     setTimeout(() => {
       this.dataSource.paginator = this.paginator;
