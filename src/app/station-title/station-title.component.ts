@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { StationDataService } from '../services/station-info.service';
 import { ActivatedRoute } from '@angular/router';
 
@@ -13,6 +13,8 @@ export class StationTitleComponent implements OnInit {
   stationName: string = ''; 
   timestamp: string = '';
   id: string | null = null; 
+
+  @Input() isCollapsed: boolean = false;
 
   constructor(
     private stationDataService: StationDataService,

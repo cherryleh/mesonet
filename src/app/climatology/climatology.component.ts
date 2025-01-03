@@ -27,6 +27,13 @@ export class ClimatologyComponent implements OnInit {
   categories: string[] = []; // X-axis categories for months
   isMetric: boolean = false;
 
+
+  isCollapsed = false;
+
+  onToggleSidebar(collapsed: boolean) {
+    this.isCollapsed = collapsed;
+  }
+  
   constructor(private http: HttpClient,private route: ActivatedRoute) {}
 
   ngOnInit(): void {

@@ -47,6 +47,13 @@ export class DashboardComponent implements AfterViewInit {
   refreshIntervalMS = 30000;
   dataVariables: string[] = ['Rainfall', 'Temperature', 'Wind Speed', 'Soil Moisture', 'Solar Radiation', 'Relative Humidity'];
 
+
+  isCollapsed = false;
+
+  onToggleSidebar(collapsed: boolean) {
+    this.isCollapsed = collapsed;
+  }
+  
   id: string | null = null; 
   latestTimestamp: string | null = null;
   variables: { [key: string]: string | null } = {

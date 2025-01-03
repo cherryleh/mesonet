@@ -22,7 +22,11 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   selectedVariable: string = 'Tair_1_Avg'; // Default variable
   selectedDuration: string = '24h'; // Default duration
   selectedUnit: 'metric' | 'standard' = 'metric'; // Default to metric
+  isCollapsed = false;
 
+  onToggleSidebar(collapsed: boolean) {
+    this.isCollapsed = collapsed;
+  }
   chart: Highcharts.Chart | null = null;
   isLoading: boolean = false;
   variables: { label: string, value: string, yAxisTitle: string }[] = [

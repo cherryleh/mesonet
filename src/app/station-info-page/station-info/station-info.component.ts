@@ -23,6 +23,11 @@ export class StationInfoComponent implements OnInit, OnDestroy {
   lat: number | null = null;
   lon: number | null = null;
 
+  isCollapsed = false;
+
+  onToggleSidebar(collapsed: boolean) {
+    this.isCollapsed = collapsed;
+  }
   private subscription: Subscription = new Subscription();
 
   constructor(

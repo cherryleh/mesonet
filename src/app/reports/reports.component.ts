@@ -51,7 +51,11 @@ export class ReportsComponent implements OnInit {
   reportData: any[] = [];
   dataSource = new MatTableDataSource<any>();
 
+  isCollapsed = false;
 
+  onToggleSidebar(collapsed: boolean) {
+    this.isCollapsed = collapsed;
+  }
 
   public minStartDate: Date = new Date(); // Default to today's date
   public maxDate: Date = new Date();

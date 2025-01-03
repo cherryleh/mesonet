@@ -1,13 +1,13 @@
 <div class="layout">
-    <app-header></app-header>
-    <div class="content">
-        <app-sidebar></app-sidebar>
-        <div class="parent-container">
-            <app-station-title></app-station-title>
+    <div class="parent-container">
+        <app-header></app-header>
+        <app-sidebar [class.collapsed]="isCollapsed" (toggle)="onToggleSidebar($event)"></app-sidebar>
+        <app-station-title [isCollapsed]="isCollapsed"></app-station-title>
+        
+        <div class="main-content" [class.collapsed]="isCollapsed">
             <div class="dashboard-header">
                 <p *ngIf="latestTimestamp" class="last-updated">Last updated: {{ getFormattedTimestamp() }}</p>
             </div>
-
             <div class="grid-container">
                 <div class="graph-grid">
                     <div class="graph-content">
@@ -20,11 +20,15 @@
                             </div>
                             <div class="cumulative-info">
                                 <p class="cumulative-label">{{ duration }} Temperature</p>
-                                <p class="cumulative-value">Mean: <span>{{ meanTemp.toFixed(0) }}&deg;F </span>  Min: <span>{{ minTemp.toFixed(0) }}&deg;F</span> Max: <span>{{ maxTemp.toFixed(0) }}&deg;F</span></p>
+                                <p class="cumulative-value">Mean: <span>{{ meanTemp.toFixed(0) }}&deg;F </span> Min:
+                                    <span>{{ minTemp.toFixed(0) }}&deg;F</span> Max: <span>{{ maxTemp.toFixed(0)
+                                        }}&deg;F</span>
+                                </p>
                             </div>
                             <div class="cumulative-info">
                                 <p class="cumulative-label">{{ duration }} Average Solar Radiation</p>
-                                <p class="cumulative-value"><span>{{ meanSolarRad.toFixed(0) }} W/m</span><sup>2</sup></p>
+                                <p class="cumulative-value"><span>{{ meanSolarRad.toFixed(0) }} W/m</span><sup>2</sup>
+                                </p>
                             </div>
                         </div>
                         <div class="chart-container">

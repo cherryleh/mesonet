@@ -1,62 +1,62 @@
 <div class="layout">
-    <app-header></app-header>
-    <div class="parent-container">
-        <app-station-title></app-station-title>
-        <app-sidebar></app-sidebar>
-        <div class="main-content">
-            <!-- <h2>Station Reports</h2> -->
-            <div class="form-box">
-                <form [formGroup]="reportForm" (ngSubmit)="onSubmit()">
-                    <div class="form-container">
-                        <mat-form-field appearance="outline">
-                            <mat-label>MM/DD/YYYY</mat-label>
-                            <input matInput [matDatepicker]="startPicker" formControlName="startDate"
-                                [min]="minStartDate" [max]="today">
-                            <mat-hint>Start Date</mat-hint>
-                            <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-                            <mat-datepicker #startPicker></mat-datepicker>
-                        </mat-form-field>
+  <app-header></app-header>
+  <div class="parent-container">
+    <app-station-title [isCollapsed]="isCollapsed"></app-station-title>
+    <app-sidebar [class.collapsed]="isCollapsed" (toggle)="onToggleSidebar($event)"></app-sidebar>
+    <div class="main-content" [class.collapsed]="isCollapsed">
+      <!-- <h2>Station Reports</h2> -->
+      <div class="form-box">
+        <form [formGroup]="reportForm" (ngSubmit)="onSubmit()">
+          <div class="form-container">
+            <mat-form-field appearance="outline">
+              <mat-label>MM/DD/YYYY</mat-label>
+              <input matInput [matDatepicker]="startPicker" formControlName="startDate" [min]="minStartDate"
+                [max]="today">
+              <mat-hint>Start Date</mat-hint>
+              <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+              <mat-datepicker #startPicker></mat-datepicker>
+            </mat-form-field>
 
-                        <mat-form-field appearance="outline">
-                            <mat-label>MM/DD/YYYY</mat-label>
-                            <input matInput [matDatepicker]="endPicker" formControlName="endDate"
-                                [min]="reportForm.get('startDate')?.value" [max]="today">
-                            <mat-hint>End Date</mat-hint>
-                            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-                            <mat-datepicker #endPicker></mat-datepicker>
-                        </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>MM/DD/YYYY</mat-label>
+              <input matInput [matDatepicker]="endPicker" formControlName="endDate"
+                [min]="reportForm.get('startDate')?.value" [max]="today">
+              <mat-hint>End Date</mat-hint>
+              <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+              <mat-datepicker #endPicker></mat-datepicker>
+            </mat-form-field>
 
-                        <button mat-raised-button type="submit">Create Report</button>
+            <button mat-raised-button type="submit">Create Report</button>
 
-                    </div>
-                </form>
-            </div>
-            <div class="table-container">
-                <div style="text-align: left; width: 100%; padding-bottom: 20px;">
-                  <button mat-raised-button class="export-button" type="button" (click)="exportToCSV()"
-                    *ngIf="dataSource.data.length > 0">Export CSV</button>
-                </div>
-                <p *ngIf="!dataSource.data.length" class="no-data">Select date range for station report.</p>
-                <table *ngIf="dataSource.data.length > 0" mat-table [dataSource]="dataSource" class="mat-elevation-z8"
-                  style="width: 100%;">
-                  <ng-container *ngFor="let header of headers" [matColumnDef]="header">
-                    <th mat-header-cell *matHeaderCellDef> {{ headersMap[header] }} </th>
-                    <td mat-cell *matCellDef="let row"> {{ row[header] !== null && row[header] !== undefined ?
-                      row[header] : 'N/A' }} </td>
-                  </ng-container>
-                  <tr mat-header-row *matHeaderRowDef="headers"></tr>
-                  <tr mat-row *matRowDef="let row; columns: headers;"></tr>
-                </table>
-  
-                <!-- Separate paginator container -->
-                <div class="mat-paginator-container">
-                  <mat-paginator *ngIf="dataSource.data.length > 0" #paginator [pageSizeOptions]="[5, 10, 20]"
-                    showFirstLastButtons aria-label="Select page">
-                  </mat-paginator>
-                </div>
-              </div>
-  
-  
+          </div>
+        </form>
+      </div>
+      <div class="table-container">
+        <div style="text-align: left; width: 100%; padding-bottom: 20px;">
+          <button mat-raised-button class="export-button" type="button" (click)="exportToCSV()"
+            *ngIf="dataSource.data.length > 0">Export CSV</button>
         </div>
+        <p *ngIf="!dataSource.data.length" class="no-data">Select date range for station report.</p>
+        <table *ngIf="dataSource.data.length > 0" mat-table [dataSource]="dataSource" class="mat-elevation-z8"
+          style="width: 100%;">
+          <ng-container *ngFor="let header of headers" [matColumnDef]="header">
+            <th mat-header-cell *matHeaderCellDef> {{ headersMap[header] }} </th>
+            <td mat-cell *matCellDef="let row"> {{ row[header] !== null && row[header] !== undefined ?
+              row[header] : 'N/A' }} </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="headers"></tr>
+          <tr mat-row *matRowDef="let row; columns: headers;"></tr>
+        </table>
+
+        <!-- Separate paginator container -->
+        <div class="mat-paginator-container">
+          <mat-paginator *ngIf="dataSource.data.length > 0" #paginator [pageSizeOptions]="[5, 10, 20]"
+            showFirstLastButtons aria-label="Select page">
+          </mat-paginator>
+        </div>
+      </div>
+
+
     </div>
+  </div>
 </div>

@@ -1,5 +1,17 @@
-.station-name{
+/* Station Name */
+.station-name {
+    position: relative;
     text-align: center;
-    margin-top: 20px !important;
-    margin-bottom: 20px !important;
-}
+    transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+    margin-left: 16rem; /* Expanded sidebar */
+    width: calc(100% - 16rem); /* Adjust width dynamically */
+    margin-top: 2%;
+    margin-bottom: 2;
+  }
+  
+  /* Collapsed Sidebar */
+  .station-name.collapsed {
+    margin-left: 4rem; /* Collapsed sidebar */
+    width: calc(100% - 4rem); /* Adjust width dynamically */
+  }
+  

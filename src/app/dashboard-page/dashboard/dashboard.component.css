@@ -8,7 +8,7 @@
 .last-updated {
   font-size: 0.9rem;
   color: #555;
-  width: 90%;
+  width: 100%;
   text-align: right;
 }
 
@@ -17,7 +17,7 @@
   grid-template-columns: 4fr 1fr;
   grid-auto-rows: 12vh;
   gap: 8px;
-  width: 90%;
+  width: 100%;
   margin: 0 auto;
   padding-bottom: 100px;
 }

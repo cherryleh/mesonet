@@ -1,15 +1,8 @@
 <div class="layout">
     <div class="parent-container">
-      <!-- Header -->
       <app-header></app-header>
-  
-      <!-- Sidebar -->
       <app-sidebar [class.collapsed]="isCollapsed" (toggle)="onToggleSidebar($event)"></app-sidebar>
-  
-      <!-- Main Content -->
       <div class="main-content" [class.collapsed]="isCollapsed">
-        <!-- Example Content -->
-        <p>Auto-rescaling content</p>
       </div> 
     </div>
   </div>
