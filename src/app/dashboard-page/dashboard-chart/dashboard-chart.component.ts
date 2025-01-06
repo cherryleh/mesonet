@@ -65,7 +65,7 @@ export class DashboardChartComponent implements OnInit {
   chartOptions: Highcharts.Options = {
     chart: {
       type: 'line',
-      height: '50%'
+      height: '48%'
     },
     title: {
       text: ''

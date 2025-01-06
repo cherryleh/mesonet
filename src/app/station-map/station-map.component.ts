@@ -89,7 +89,7 @@ export class StationMapComponent implements AfterViewInit {
               fillColor: 'blue', 
               fillOpacity: 0.2, 
               weight: 2});
-            const url = `/mesonet/#/dashboard?id=${station.station_id}`;
+            const url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`;
             circle.bindPopup(`<a href="${url}" style="font-size: 20px" target="_blank">${station.name}</a>`);
           circle.addTo(this.map);
         }
