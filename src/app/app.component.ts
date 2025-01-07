@@ -9,12 +9,10 @@ import { Router, NavigationEnd, RouterModule } from '@angular/router';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-
+  title = 'mesonet';
   constructor(private router: Router) {
-    // Listen for route changes
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        // Send the current hash path to the parent window
         window.parent.postMessage(window.location.hash, '*');
       }
     });

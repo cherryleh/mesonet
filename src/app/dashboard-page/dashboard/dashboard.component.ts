@@ -44,7 +44,7 @@ export class DashboardComponent implements AfterViewInit {
   maxTemp: number = 0;
   meanSolarRad: number = 0;
   duration: string = '24-hour'; // Default duration
-  refreshIntervalMS = 30000;
+  refreshIntervalMS = 60000;
   dataVariables: string[] = ['Rainfall', 'Temperature', 'Wind Speed', 'Soil Moisture', 'Solar Radiation', 'Relative Humidity'];
 
 

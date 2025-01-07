@@ -30,6 +30,8 @@ export class DashboardChartComponent implements OnInit {
   previousTemperatureData: [number, number][] = [];
   previousRainfallData: [number, number][] = [];
   previousRadData: [number, number][] = [];
+  maxRainfall: number = 0.2; // Default value
+
   private isDataChanged(
     newData: [number, number][],
     oldData: [number, number][]
@@ -47,7 +49,7 @@ export class DashboardChartComponent implements OnInit {
   @Output() durationChanged = new EventEmitter<string>();
 
   currentTimeISO!: string;
-  refreshIntervalMS = 30000;
+  refreshIntervalMS = 60000;
   isLoading = true;
   id: string | null = null;
   selectedDuration = '1';
@@ -80,8 +82,7 @@ export class DashboardChartComponent implements OnInit {
       {
         title: { text: '5-min Rainfall (in)' },
         opposite: true,
-        min: 0,
-        max: 0.2
+        min: 0
       },
       {
         title: { text: 'Solar Radiation (W/m²)' },
@@ -236,6 +237,12 @@ export class DashboardChartComponent implements OnInit {
         const maxRainfall = Math.max(...rainfallData.map(point => point[1]));
         console.log(`Max rainfall value: ${maxRainfall}`);
 
+        // Dynamically update the yAxis max value
+        this.chartRef.yAxis[1].update({
+          max: Math.max(0.1, maxRainfall * 1.2) // Ensure a reasonable max value
+        });
+
+
         const temperatureChanged = this.isDataChanged(temperatureData, this.previousTemperatureData);
         const rainfallChanged = this.isDataChanged(rainfallData, this.previousRainfallData);
         const radChanged = this.isDataChanged(radData, this.previousRadData);
@@ -252,19 +259,6 @@ export class DashboardChartComponent implements OnInit {
         this.previousTemperatureData = temperatureData;
         this.previousRainfallData = rainfallData;
         this.previousRadData = radData;
-
-        
-        if (this.chartRef) {
-          this.chartRef.update({
-            yAxis: [{
-              max: null // Temperature
-            }, {
-              max: maxRainfall > 0.5 ? null : 0.5 // Rainfall axis
-            }, {
-              max: null // Solar Radiation
-            }]
-          });
-        }
 
 
         this.chartOptions.series = [
