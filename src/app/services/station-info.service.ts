@@ -14,7 +14,7 @@ export class StationDataService {
   getStationData(id: string): Observable<any> {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${environment.apiToken}`); // Your API token here
     const url = `${this.apiUrl}&station_ids=${id}`;
-    console.log(url);
+    console.log('API request for station metadata: ',url);
     return this.http.get<any>(url, { headers });
   }
 }

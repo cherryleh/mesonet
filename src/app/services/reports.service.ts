@@ -14,8 +14,7 @@ export class ReportsService {
   getData(id: string, start_date: string, end_date: string): Observable<any> {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${environment.apiToken}`); // Your API token here
     const url = `${this.apiUrl}&station_ids=${id}&start_date=${start_date}&end_date=${end_date}`;
-    console.log('Request reports URL:', url);
-    
+    console.log('API request for report: ',url);
     return this.http.get<any>(url, { headers });
   }
 }

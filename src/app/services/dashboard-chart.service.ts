@@ -15,8 +15,7 @@ export class DashboardChartService {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${environment.apiToken}`); // Your API token here
     //const url = `${this.apiUrl}&station_ids=${id}&start_date=${start_date}`;
     const url = `${this.apiUrl}&station_ids=${id}&start_date=2025-01-01T06:00:00-10:00`;
-    console.log(start_date);
-    console.log(url);
+    console.log('API request for dashboard chart: ',url);
     return this.http.get<any>(url, { headers });
   }
 }

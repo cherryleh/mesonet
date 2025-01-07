@@ -34,8 +34,7 @@ export class DurationSelectorComponent {
 
   selectDuration(value: string): void {
     this.selectedDuration = value; // Update local state
-    this.durationService.setSelectedDuration(value); // Update the service with the new duration
-    console.log(`Selected duration changed to: ${value}, Label: ${this.getLabelForSelectedDuration()}`);
+    this.durationService.setSelectedDuration(value); 
   }
 
   getLabelForSelectedDuration(): string {

@@ -14,8 +14,7 @@ export class GraphingDataService {
   getData(id: string, vars: string, start_date: string): Observable<any> {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${environment.apiToken}`); // Your API token here
     const url = `${this.apiUrl}&station_ids=${id}&var_ids=${vars}&start_date=${start_date}`;
-    console.log(start_date);
-    console.log(url);
+    console.log('API request for graphing: ',url);
     return this.http.get<any>(url, { headers });
   }
 }

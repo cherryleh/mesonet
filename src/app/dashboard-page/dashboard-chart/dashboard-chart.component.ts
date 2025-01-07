@@ -144,7 +144,7 @@ export class DashboardChartComponent implements OnInit {
         this.subscribeToDurationChanges();
         this.adjustChartHeight();
         this.updateData(); 
-        console.log('🔄 Refreshing dashboard chart data...');
+        console.log('Refreshing dashboard chart data...');
 
       });
     } catch (error) {
@@ -163,7 +163,7 @@ export class DashboardChartComponent implements OnInit {
 
   subscribeToDurationChanges(): void {
     this.durationService.selectedDuration$.subscribe((duration) => {
-      console.log('📢 Duration changed to:', duration);
+      console.log('Duration changed to:', duration);
       this.isLoading = true; 
       this.selectedDuration = duration;
       if (this.id) {
@@ -179,7 +179,6 @@ export class DashboardChartComponent implements OnInit {
 
 
   fetchData(id: string, duration: string): void {
-    console.log('🔍 Checking if fetchData is being called with:', { id: this.id, selectedDuration: this.selectedDuration });
     const startDate = this.getDateMinusDaysInHST(parseInt(duration));
     
     this.dataService.getData(id, startDate).subscribe(
@@ -235,7 +234,6 @@ export class DashboardChartComponent implements OnInit {
         this.aggregateService.updateDurationText(durationText);
 
         const maxRainfall = Math.max(...rainfallData.map(point => point[1]));
-        console.log(`Max rainfall value: ${maxRainfall}`);
 
         // Dynamically update the yAxis max value
         this.chartRef.yAxis[1].update({
@@ -248,10 +246,8 @@ export class DashboardChartComponent implements OnInit {
         const radChanged = this.isDataChanged(radData, this.previousRadData);
 
         if (temperatureChanged || rainfallChanged || radChanged) {
-          console.log('🔄 Data changed - showing spinner...');
           this.isLoading = true; // Show spinner
         } else {
-          console.log('⏸️ No changes detected. Skipping update.');
           this.isLoading = false; // Don't show spinner, exit early
           return;
         }
@@ -366,7 +362,6 @@ export class DashboardChartComponent implements OnInit {
 
   onDurationChange(event: Event): void {
     const selectedValue = (event.target as HTMLSelectElement).value;
-    console.log('🚀 Child onDurationChange() called with:', selectedValue);
     this.selectedDuration = selectedValue;
     this.durationChanged.emit(selectedValue);
   }

@@ -142,7 +142,6 @@ export class DashboardComponent implements AfterViewInit {
       this.id = params['id'];
       if (this.id) {
         this.fetchData(this.id);
-        console.log(this.id);
       }
     });
   }
@@ -150,23 +149,18 @@ export class DashboardComponent implements AfterViewInit {
   ngOnInit(): void {
     this.aggregateService.totalRainfall$.subscribe((totalRain: number) => {
       this.totalRainfall = totalRain;
-      console.log('Dashboard Total Rainfall (in):', this.totalRainfall);
     });
     this.aggregateService.meanTemp$.subscribe((meanTemp: number) => {
       this.meanTemp = meanTemp;
-      console.log('Dashboard Mean Temp (F):', this.meanTemp);
     });
     this.aggregateService.minTemp$.subscribe((minTemp: number) => {
       this.minTemp = minTemp;
-      console.log('Dashboard Min Temp (F):', this.minTemp);
     });
     this.aggregateService.maxTemp$.subscribe((maxTemp: number) => {
       this.maxTemp = maxTemp;
-      console.log('Dashboard Max Temp (F):', this.maxTemp);
     });
     this.aggregateService.meanSolarRad$.subscribe((meanSolarRad: number) => {
       this.meanSolarRad = meanSolarRad;
-      console.log('Dashboard Mean Solar Radiation (W/m^2):', this.meanSolarRad);
     });
 
     this.aggregateService.durationText$.subscribe((durationText: string) => {
