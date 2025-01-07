@@ -1,13 +1,20 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'mesonet';
+
+  constructor(private router: Router) {
+    // Listen for route changes
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        // Send the current hash path to the parent window
+        window.parent.postMessage(window.location.hash, '*');
+      }
+    });
+  }
 }
