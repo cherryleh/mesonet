@@ -15,9 +15,9 @@ import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { DurationSelectorComponent } from '../duration-selector/duration-selector.component';
 
 import { aggregateService } from '../../services/aggregate.service';
-/**
- * @title Dynamic grid-list
- */
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
 
 
 @Component({
@@ -38,13 +38,17 @@ import { aggregateService } from '../../services/aggregate.service';
   providers: [DatePipe]
 })
 export class DashboardComponent implements AfterViewInit {
+  private refreshTimeout: any;
+  private destroy$ = new Subject<void>();
+  private isDestroyed = false; 
+
   totalRainfall: number = 0;
   meanTemp: number = 0;
   minTemp: number = 0;
   maxTemp: number = 0;
   meanSolarRad: number = 0;
   duration: string = '24-hour'; // Default duration
-  refreshIntervalMS = 60000;
+  refreshIntervalMS = 300000;
   dataVariables: string[] = ['Rainfall', 'Temperature', 'Wind Speed', 'Soil Moisture', 'Solar Radiation', 'Relative Humidity'];
 
 
@@ -82,7 +86,9 @@ export class DashboardComponent implements AfterViewInit {
   objectKeys = Object.keys;
 
   fetchData(id: string): void {
-    this.dataService.getData(id).subscribe({
+    this.dataService.getData(id).pipe(
+      takeUntil(this.destroy$) 
+    ).subscribe({
       next: (response) => {
         if (response.length > 0) {
           this.latestTimestamp = response[0].timestamp;
@@ -138,13 +144,14 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.route.queryParams.subscribe((params) => {
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.id = params['id'];
       if (this.id) {
-        this.fetchData(this.id);
+        this.fetchData(this.id); // Fetch initial data
       }
     });
   }
+
 
   ngOnInit(): void {
     this.aggregateService.totalRainfall$.subscribe((totalRain: number) => {
@@ -180,11 +187,23 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   updateData(): void {
-    this.queryData();
-    setTimeout(() => {
-      this.updateData();
-    }, this.refreshIntervalMS);
+    if (this.isDestroyed || !this.id) {
+      console.log('Component is destroyed or no ID available. Stopping updates.');
+      return; // Exit early if the component is destroyed
+    }
+
+    this.queryData(); // Fetch data
+
+    clearTimeout(this.refreshTimeout); // Clear any previous timeout
+
+    // Schedule the next update ONLY if the component is still active
+    if (!this.isDestroyed) {
+      this.refreshTimeout = setTimeout(() => {
+        this.updateData(); // Recursive update
+      }, this.refreshIntervalMS);
+    }
   }
+
 
   getProgressValue(variableKey: string): number {
     if (variableKey && this.variables[variableKey]) {
@@ -193,4 +212,13 @@ export class DashboardComponent implements AfterViewInit {
     }
     return 0;
   }
+
+  ngOnDestroy(): void {
+    console.log('Dashboard component destroyed. Clearing refresh timer and canceling HTTP requests.');
+    this.isDestroyed = true; // Prevent further updates
+    clearTimeout(this.refreshTimeout); // Stop periodic updates
+    this.destroy$.next(); // Cancel HTTP requests
+    this.destroy$.complete(); // Complete the subject
+  }
+
 }

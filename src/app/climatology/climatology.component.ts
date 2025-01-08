@@ -38,8 +38,7 @@ export class ClimatologyComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.stationId = params['id'] || 'default_station_id'; // Default ID if none is provided
-      console.log('Station ID from URL:', this.stationId);
+      this.stationId = params['id'] || 'default_station_id';
       this.loadCSVData(this.stationId);
     });
   }
@@ -48,7 +47,6 @@ export class ClimatologyComponent implements OnInit {
     const csvUrl = `./climos/${stationId}_climatology.csv`; 
     this.http.get(csvUrl, { responseType: 'text' }).subscribe(
       (data) => {
-        console.log('Raw CSV Data:', data);
         this.parseCSV(data);
         this.createChart();
       },
@@ -91,13 +89,7 @@ export class ClimatologyComponent implements OnInit {
       }
     });
 
-    console.log('Parsed Data:', {
-      categories: this.categories,
-      rfData: this.rfData,
-      tmeanData: this.tmeanData,
-      tminData: this.tminData,
-      tmaxData: this.tmaxData,
-    });
+
   }
 
   createChart(): void {

@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, ElementRef, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef, ViewChild, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +11,9 @@ import { aggregateService } from '../../services/aggregate.service';
 import OfflineExporting from 'highcharts/modules/offline-exporting';
 import Exporting from 'highcharts/modules/exporting';
 import ExportData from 'highcharts/modules/export-data';
+
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 Exporting(Highcharts);
 ExportData(Highcharts);
@@ -26,11 +29,17 @@ OfflineExporting(Highcharts);
   providers: [DashboardChartService],
 })
 
-export class DashboardChartComponent implements OnInit {
+export class DashboardChartComponent implements OnInit, OnDestroy {
   previousTemperatureData: [number, number][] = [];
   previousRainfallData: [number, number][] = [];
   previousRadData: [number, number][] = [];
   maxRainfall: number = 0.2; // Default value
+
+  private refreshTimeout: any;
+  private destroy$ = new Subject<void>();
+  private isDestroyed = false;
+
+
 
   private isDataChanged(
     newData: [number, number][],
@@ -49,7 +58,7 @@ export class DashboardChartComponent implements OnInit {
   @Output() durationChanged = new EventEmitter<string>();
 
   currentTimeISO!: string;
-  refreshIntervalMS = 60000;
+  refreshIntervalMS = 300000;
   isLoading = true;
   id: string | null = null;
   selectedDuration = '1';
@@ -137,14 +146,18 @@ export class DashboardChartComponent implements OnInit {
     try {
       this.route.queryParams.subscribe((params) => {
         this.id = params['id'];
-        if (!this.id) return console.error('❌ ID not found in query params.');
+        if (!this.id) return console.error('ID not found in query params.');
 
         this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
 
         this.subscribeToDurationChanges();
         this.adjustChartHeight();
-        this.updateData(); 
-        console.log('Refreshing dashboard chart data...');
+
+        setTimeout(() => {
+          this.updateData();
+        }, this.refreshIntervalMS);
+
+        console.log('Dashboard chart initialized...');
 
       });
     } catch (error) {
@@ -181,7 +194,7 @@ export class DashboardChartComponent implements OnInit {
   fetchData(id: string, duration: string): void {
     const startDate = this.getDateMinusDaysInHST(parseInt(duration));
     
-    this.dataService.getData(id, startDate).subscribe(
+    this.dataService.getData(id, startDate).pipe(takeUntil(this.destroy$)).subscribe(
       (data: any[]) => {
         let temperatureData: [number, number][] = [];
         let rainfallData: [number, number][] = [];
@@ -326,13 +339,24 @@ export class DashboardChartComponent implements OnInit {
   }
 
   updateData(): void {
-    if (this.id) {
-      this.fetchData(this.id, this.selectedDuration);
+    if (this.isDestroyed || !this.id) {
+      console.log('Component is destroyed or no ID available. Stopping update.');
+      return; // Exit if component is destroyed
     }
-    setTimeout(() => {
-      this.updateData(); // Recursive call to keep updating
-    }, this.refreshIntervalMS);
+
+    this.fetchData(this.id, this.selectedDuration);
+
+    clearTimeout(this.refreshTimeout); // Clear any existing timeout before setting a new one
+
+    // Schedule the next update ONLY IF the component is still active
+    if (!this.isDestroyed) {
+      this.refreshTimeout = setTimeout(() => {
+        this.updateData(); // Recursive call for periodic updates
+      }, this.refreshIntervalMS);
+    }
   }
+
+
 
 
   aggregateToHourly(data: [number, number][], sum = false): [number, number][] {
@@ -365,5 +389,14 @@ export class DashboardChartComponent implements OnInit {
     this.selectedDuration = selectedValue;
     this.durationChanged.emit(selectedValue);
   }
+
+  ngOnDestroy(): void {
+    console.log('Dashboard chart component destroyed. Clearing refresh timer and canceling HTTP requests.');
+    this.isDestroyed = true; // Prevent further updates
+    clearTimeout(this.refreshTimeout); // Stop the periodic updates
+    this.destroy$.next(); // Emit value to cancel HTTP requests
+    this.destroy$.complete(); // Complete the Subject
+  }
+
 
 }
