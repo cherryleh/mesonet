@@ -50,7 +50,7 @@ export class ReportsComponent implements OnInit {
   timestamp: string = '';
   reportData: any[] = [];
   dataSource = new MatTableDataSource<any>();
-
+  isLoading = false;
   isCollapsed = false;
 
   onToggleSidebar(collapsed: boolean) {
@@ -123,12 +123,14 @@ export class ReportsComponent implements OnInit {
   }
 
   onSubmit(): void {
+    this.isLoading = true;
     let { startDate, endDate } = this.reportForm.value;
     try {
       startDate = this.formatDateToHST(startDate, 'T00:00:00-10:00'); 
       endDate = this.formatDateToHST(endDate, 'T23:59:59-10:00'); 
     } catch (error) {
       console.error('Date processing error:', error);
+      this.isLoading = false;
       return;
     }
 
@@ -138,9 +140,11 @@ export class ReportsComponent implements OnInit {
         this.reportData = data;
         this.formatTableData();
         this.showExportButton = this.dataSource.data.length > 0;
+        this.isLoading = false;      
       },
       (error) => {
         console.error('Error fetching report data:', error);
+        this.isLoading = false;
       }
     );
   }

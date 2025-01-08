@@ -32,6 +32,13 @@
         </form>
       </div>
       <div class="table-container">
+        <div *ngIf="isLoading" class="spinner-overlay">
+          <div class="spinner-container">
+            <div class="spinner"></div>
+            <div class="spinner-text">Loading...This may take a moment.</div>
+          </div>
+        </div>
+
         <div style="text-align: left; width: 100%; padding-bottom: 20px;">
           <button mat-raised-button class="export-button" type="button" (click)="exportToCSV()"
             *ngIf="dataSource.data.length > 0">Export CSV</button>
