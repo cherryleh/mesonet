@@ -16,7 +16,7 @@
   display: grid;
   grid-template-columns: 4fr 1fr;
   grid-auto-rows: 12vh;
-  gap: 8px;
+  /* gap: 8px; */
   width: 100%;
   margin: 0 auto;
   padding-bottom: 100px;
@@ -55,7 +55,7 @@
   border: solid #edf1f7 1px;
   border-radius: 4px;
   background-color: white;
-  padding: 10px 30px 30px 30px;
+  padding: 10px;
 }
 
 .data-ele {
@@ -73,12 +73,12 @@
 }
 
 .data-ele {
-  margin-bottom: 2vh;
+  /* margin-bottom: 1.5vh; */
 }
 
 .title {
   font-size: 2vh;
-  margin-bottom: 1.5vh;
+  margin-bottom: 1.3vh;
 }
 
 .index {
@@ -157,14 +157,14 @@ app-duration-selector {
 }
 
 .data-side-header {
-  padding: 10px 0; 
+  padding: 3px 0; 
   border-bottom: 1px solid #edf1f7; 
   margin-bottom: 15px;
   
 }
 
 .data-side-header h3 {
-  font-size: 1.2rem; 
+  font-size: 1vw; 
   font-weight: 600; 
   color: #333; 
   margin: 0;
