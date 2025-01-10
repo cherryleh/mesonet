@@ -49,7 +49,7 @@ export class DashboardComponent implements AfterViewInit {
   meanSolarRad: number = 0;
   duration: string = '24-hour'; // Default duration
   refreshIntervalMS = 300000;
-  dataVariables: string[] = ['Rainfall', 'Temperature', 'Wind Speed', 'Soil Moisture', 'Solar Radiation', 'Relative Humidity'];
+  dataVariables: string[] = ['Rainfall', 'Temperature', 'Wind Speed', 'Wind Direction', 'Soil Moisture', 'Solar Radiation', 'Relative Humidity'];
 
 
   isCollapsed = false;
@@ -80,6 +80,7 @@ export class DashboardComponent implements AfterViewInit {
     'Solar Radiation': 'SWin_1_Avg',
     'Soil Moisture': 'SM_1_Avg',
     'Wind Speed': 'WS_1_Avg',
+    'Wind Direction': 'WDuv_1_Avg',
     'Relative Humidity': 'RH_1_Avg'
   };
 
@@ -98,6 +99,7 @@ export class DashboardComponent implements AfterViewInit {
           const variableData = response.find(
             (item: any) => item.variable === this.variableMapping[key]
           );
+          console.log(`Key: ${key}, Variable: ${this.variableMapping[key]}, Data:`, variableData);
           if (key === 'Temperature' && variableData) {
             const celsius = parseFloat(variableData.value);
             const fahrenheit = (celsius * 1.8) + 32;
@@ -112,6 +114,10 @@ export class DashboardComponent implements AfterViewInit {
             const mps = parseFloat(variableData.value);
             const mph = mps * 2.23694;
             this.variables[key] = `${mph.toFixed(1)}`;
+          }
+          else if (key === 'Wind Direction' && variableData) {
+            const degrees = parseFloat(variableData.value);
+            this.variables[key] = this.getWindDirection(degrees);
           }
           else if (key === 'Soil Moisture' && variableData){
             const sm_dec = parseFloat(variableData.value);
@@ -136,6 +142,13 @@ export class DashboardComponent implements AfterViewInit {
 
     
   }
+
+  getWindDirection(degrees: number): string {
+    const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+    const index = Math.round((degrees % 360) / 22.5) % 16;
+    return directions[index];
+  }
+
 
   getFormattedTimestamp(): string {
     return this.latestTimestamp
