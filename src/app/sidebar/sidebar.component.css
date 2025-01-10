@@ -144,3 +144,13 @@ li {
 .sidebar.collapsed ul li {
   justify-content: center; /* Keep icons centered */
 }
+
+.sidebar-footer{
+  padding: 0 20px;
+  padding-bottom: 2vw;
+  color: inherit
+}
+
+.citation{
+  margin-bottom: 1vw;
+}
