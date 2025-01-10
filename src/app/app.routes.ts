@@ -12,6 +12,7 @@ import { ClimatologyComponent } from './climatology/climatology.component';
 import { StationInfoComponent } from './station-info-page/station-info/station-info.component';
 import { ReportsComponent } from './reports/reports.component';
 import { AcknowledgementsComponent } from './acknowledgements/acknowledgements.component';
+import { ReportsDraftComponent } from './reports-draft/reports-draft.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent }, // Root route displays Home
@@ -26,5 +27,6 @@ export const routes: Routes = [
   { path: 'station-info', component: StationInfoComponent},
   { path: 'reports', component: ReportsComponent},
   { path: 'acknowledgements', component: AcknowledgementsComponent},
+  { path: 'reports-draft', component: ReportsDraftComponent},
   { path: '**', redirectTo: '' } // Wildcard route redirects to Home
 ];

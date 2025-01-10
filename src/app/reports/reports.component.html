@@ -4,7 +4,6 @@
     <app-station-title [isCollapsed]="isCollapsed"></app-station-title>
     <app-sidebar [class.collapsed]="isCollapsed" (toggle)="onToggleSidebar($event)"></app-sidebar>
     <div class="main-content" [class.collapsed]="isCollapsed">
-      <!-- <h2>Station Reports</h2> -->
       <div class="form-box">
         <form [formGroup]="reportForm" (ngSubmit)="onSubmit()">
           <div class="form-container">

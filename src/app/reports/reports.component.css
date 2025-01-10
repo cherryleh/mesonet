@@ -36,8 +36,7 @@ table th, table td {
   flex-direction: column; /* Stack table and paginator vertically */
   align-items: stretch; /* Ensure children stretch to full width */
   justify-content: flex-start; /* Content starts at the top */
-  max-height: 90vh; /* Limit max height to avoid viewport overflow */
-  overflow: auto; /* Add scrollbars if content overflows */
+  /* max-height: 90vh;  */
   padding: 20px;
   background-color: #ffffff;
   border-radius: 8px;
