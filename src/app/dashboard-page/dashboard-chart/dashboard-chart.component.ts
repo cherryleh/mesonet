@@ -76,7 +76,7 @@ export class DashboardChartComponent implements OnInit, OnDestroy {
   chartOptions: Highcharts.Options = {
     chart: {
       type: 'line',
-      height: '55%'
+      // height: '55%'
     },
     title: {
       text: ''
@@ -247,11 +247,15 @@ export class DashboardChartComponent implements OnInit, OnDestroy {
         this.aggregateService.updateDurationText(durationText);
 
         const maxRainfall = Math.max(...rainfallData.map(point => point[1]));
+        console.log('Calculated maxRainfall:', maxRainfall);
 
-        // Dynamically update the yAxis max value
         this.chartRef.yAxis[1].update({
-          max: Math.max(0.1, maxRainfall * 1.2) // Ensure a reasonable max value
+          max: Math.max(0.3, maxRainfall * 1.2),
+          endOnTick: false, // Prevent Highcharts from extending the axis to the next "nice" value
+          allowDecimals: true, // Ensure decimals are displayed if required
         });
+
+        this.chartRef.redraw();
 
 
         const temperatureChanged = this.isDataChanged(temperatureData, this.previousTemperatureData);

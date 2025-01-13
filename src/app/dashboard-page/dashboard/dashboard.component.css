@@ -40,9 +40,12 @@
 }
 
 .chart-container {
+  background-color: aliceblue;
+  height: 100%;
   width: 100%;
   flex-grow: 1;
   display: block;
+  position: relative;
 }
 
 .data-side-grid {
