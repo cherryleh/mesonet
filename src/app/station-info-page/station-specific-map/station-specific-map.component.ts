@@ -68,7 +68,7 @@ export class StationSpecificMapComponent {
           if (station.lat && station.lng && station.name) {
             // Default circle markers for all stations
             const circle = L.circleMarker([station.lat, station.lng], {
-              radius: 5,
+              radius: 8,
               color: 'blue',
               fillColor: 'blue',
               fillOpacity: 0.2,
@@ -84,16 +84,19 @@ export class StationSpecificMapComponent {
 
         // Highlight the selected station with a marker
         if (selectedStation) {
-          const marker = L.marker([selectedStation.lat, selectedStation.lng], {
-            icon: L.icon({
-              iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Default Leaflet marker icon
-              iconSize: [25, 41], // Size of the icon
-              iconAnchor: [12, 41] // Point of the icon that corresponds to the marker's location
-            })
-          }).addTo(this.map);
+          const selectedCircle = L.circleMarker([selectedStation.lat, selectedStation.lng], {
+            radius: 10, // Slightly larger radius for emphasis
+            color: 'red', // Border color
+            fillColor: 'red', // Fill color
+            fillOpacity: 0.7, // Higher opacity for visibility
+            weight: 3 // Slightly thicker border
+          });
+          const selectedUrl = `/mesonet/#/dashboard?id=${selectedStation.station_id}`;
+          selectedCircle.bindPopup(`<a href="${selectedUrl}" style="font-size: 20px" target="_blank">${selectedStation.name}</a>`);
+  
+          selectedCircle.addTo(this.map);
 
-          // Center the map and zoom in to the selected station
-          this.map.setView([selectedStation.lat, selectedStation.lng], 15); // Zoom into the selected station
+          this.map.setView([selectedStation.lat, selectedStation.lng], 15); 
         } else {
           console.warn('Station not found for ID:', stationId);
         }

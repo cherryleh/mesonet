@@ -1,34 +1,56 @@
-.data-side {
-  display: flex;
-  flex-direction: column; /* Separate the header */
-  border: solid #edf1f7 1px;
-  border-radius: 4px;
-  background-color: white;
-  padding: 10px; /* Add padding around the container */
-}
+updateChart(seriesData: Highcharts.SeriesOptionsType[]): void {
+  if (this.chart) {
+    while (this.chart.series.length) {
+      this.chart.series[0].remove(false);
+    }
 
-.data-side-header {
-  padding: 2px 0; /* Compact header */
-  margin-bottom: 10px;
-  border-bottom: 1px solid #edf1f7;
-  text-align: center;
-}
+    const variableList = this.selectedVariable.split(',');
 
-.data-grid {
-  display: grid;
-  grid-template-columns: 1fr; /* Single column */
-  grid-template-rows: repeat(6, 1fr); /* 6 equal rows */
-  gap: 8px; /* Spacing between rows */
-  height: 100%; /* Ensure equal row heights */
-}
+    if (variableList.length > 1) {
+      const yAxisTitles = variableList.map(variable => {
+        const originalTitle = this.variables.find(v => v.value === variable)?.yAxisTitle || 'Value';
+        if (variable === 'Tair_1_Avg' && this.selectedUnit === 'standard') {
+          return originalTitle.replace('°C', '°F');
+        } else if (variable === 'RF_1_Tot300s' && this.selectedUnit === 'standard') {
+          return originalTitle.replace('mm', 'in');
+        }
+        return originalTitle;
+      });
 
-.data-ele {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 10px;
-  border: 1px solid #edf1f7;
-  border-radius: 4px;
-  background-color: #fff;
+      // Ensure Rainfall is on the opposite axis
+      const yAxisConfig = variableList.map((variable, index) => ({
+        title: { text: yAxisTitles[index] || 'Value' },
+        opposite: variable === 'RF_1_Tot300s', // Rainfall on the opposite axis
+        max: variable === 'RF_1_Tot300s' ? this.getRainfallMax(seriesData) : undefined,
+      }));
+
+      this.chart?.update({
+        yAxis: yAxisConfig,
+      });
+
+    } else {
+      const variable = this.selectedVariable;
+      let yAxisTitle = this.variables.find(v => v.value === variable)?.yAxisTitle || 'Value';
+      if (variable === 'Tair_1_Avg' && this.selectedUnit === 'standard') {
+        yAxisTitle = yAxisTitle.replace('°C', '°F');
+      } else if (variable === 'RF_1_Tot300s' && this.selectedUnit === 'standard') {
+        yAxisTitle = yAxisTitle.replace('mm', 'in');
+      }
+
+      this.chart?.update({
+        yAxis: [{
+          title: { text: yAxisTitle },
+          max: variable === 'RF_1_Tot300s' ? this.getRainfallMax(seriesData) : undefined,
+        }, {
+          title: { text: '' },
+          opposite: true,
+        }],
+      });
+    }
+
+    seriesData.forEach(series => this.chart?.addSeries(series, false));
+    this.chart?.redraw();
+  } else {
+    console.error('Chart is not initialized yet.');
+  }
 }

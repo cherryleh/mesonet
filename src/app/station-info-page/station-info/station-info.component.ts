@@ -74,8 +74,8 @@ export class StationInfoComponent implements OnInit, OnDestroy {
           if (metadataResponse && metadataResponse.length > 0) {
             const station = metadataResponse[0];
             this.elevation = station.elevation;
-            this.lat = station.lat;
-            this.lon = station.lng;
+            this.lat = station.lat.toFixed(2);
+            this.lon = station.lng.toFixed(2);
             console.log('Elevation:', this.elevation);
           } else {
             console.warn('No station data found for ID:', this.stationId);

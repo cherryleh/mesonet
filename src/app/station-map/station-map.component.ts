@@ -83,8 +83,10 @@ export class StationMapComponent implements AfterViewInit {
     .then((data: any[]) => {
       data.forEach(station => {
         if (station.lat && station.lng && station.name) {
-          const circle = L.circleMarker([station.lat, station.lng], 
-            {radius: 5, 
+          const randomizedCoords = this.randomizeLatLon(station.lat, station.lng);
+
+          const circle = L.circleMarker([randomizedCoords.lat, randomizedCoords.lon],
+            {radius: 6, 
               color: 'blue', 
               fillColor: 'blue', 
               fillOpacity: 0.2, 
@@ -99,6 +101,14 @@ export class StationMapComponent implements AfterViewInit {
       console.error('Error fetching station data:', error);
     });
   }
+
+  private randomizeLatLon(lat: number, lon: number): { lat: number; lon: number } {
+    // Randomize the 4th decimal place by ±0.0001
+    const latOffset = (Math.random() - 0.5) * 0.0002; // ±0.0001
+    const lonOffset = (Math.random() - 0.5) * 0.0002; // ±0.0001
+    return { lat: lat + latOffset, lon: lon + lonOffset };
+  }
+
 
   getIslands(): string {
     const selected = this.islandList.find(island => island.value === this.selectedIsland);

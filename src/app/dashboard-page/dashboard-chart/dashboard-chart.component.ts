@@ -76,7 +76,7 @@ export class DashboardChartComponent implements OnInit, OnDestroy {
   chartOptions: Highcharts.Options = {
     chart: {
       type: 'line',
-      height: '45%'
+      height: '55%'
     },
     title: {
       text: ''
