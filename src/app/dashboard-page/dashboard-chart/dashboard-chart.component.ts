@@ -33,13 +33,11 @@ export class DashboardChartComponent implements OnInit, OnDestroy {
   previousTemperatureData: [number, number][] = [];
   previousRainfallData: [number, number][] = [];
   previousRadData: [number, number][] = [];
-  maxRainfall: number = 0.2; // Default value
+  // maxRainfall: number = 0.01; 
 
   private refreshTimeout: any;
   private destroy$ = new Subject<void>();
   private isDestroyed = false;
-
-
 
   private isDataChanged(
     newData: [number, number][],
@@ -76,7 +74,7 @@ export class DashboardChartComponent implements OnInit, OnDestroy {
   chartOptions: Highcharts.Options = {
     chart: {
       type: 'line',
-      // height: '55%'
+      animation: false
     },
     title: {
       text: ''
@@ -105,13 +103,14 @@ export class DashboardChartComponent implements OnInit, OnDestroy {
       xDateFormat: '%b %e, %Y %l:%M%p'
     },
     time: {
-      timezoneOffset: 600, // Hawaii time
+      timezoneOffset: 600, 
     },
     series: [],
     plotOptions: {
       series: {
         lineWidth: 3,
-        marker: { enabled: false }
+        marker: { enabled: false },
+        animation: false
       }
     },
     legend: {
@@ -149,8 +148,10 @@ export class DashboardChartComponent implements OnInit, OnDestroy {
         if (!this.id) return console.error('ID not found in query params.');
 
         this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
+        
 
         this.subscribeToDurationChanges();
+        
         this.adjustChartHeight();
 
         setTimeout(() => {
@@ -246,18 +247,6 @@ export class DashboardChartComponent implements OnInit, OnDestroy {
         const durationText = durationLabels[duration] || 'Custom duration';
         this.aggregateService.updateDurationText(durationText);
 
-        const maxRainfall = Math.max(...rainfallData.map(point => point[1]));
-        console.log('Calculated maxRainfall:', maxRainfall);
-
-        this.chartRef.yAxis[1].update({
-          max: Math.max(0.3, maxRainfall * 1.2),
-          endOnTick: false, // Prevent Highcharts from extending the axis to the next "nice" value
-          allowDecimals: true, // Ensure decimals are displayed if required
-        });
-
-        this.chartRef.redraw();
-
-
         const temperatureChanged = this.isDataChanged(temperatureData, this.previousTemperatureData);
         const rainfallChanged = this.isDataChanged(rainfallData, this.previousRainfallData);
         const radChanged = this.isDataChanged(radData, this.previousRadData);
@@ -281,8 +270,7 @@ export class DashboardChartComponent implements OnInit, OnDestroy {
             yAxis: 0,
             type: 'line',
             color: '#41d68f',
-            zIndex: 3,
-            animation: false
+            zIndex: 3
           },
           {
             name: 'Rainfall (in)',
@@ -292,8 +280,7 @@ export class DashboardChartComponent implements OnInit, OnDestroy {
             color: '#769dff',
             maxPointWidth: 5,
             groupPadding: 0.05,
-            pointPadding: 0.05,
-            animation: false
+            pointPadding: 0.05
           },
           {
             name: 'Solar Radiation (W/m²)',
@@ -301,14 +288,17 @@ export class DashboardChartComponent implements OnInit, OnDestroy {
             yAxis: 2,
             type: 'line',
             color: '#f9b721',
-            visible: false,
-            animation: false
+            visible: false            
           }
         ] as Highcharts.SeriesOptionsType[];
 
         if (this.chartContainer) {
           this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
         }
+        const maxRainfall = Math.max(...rainfallData.map(point => point[1]), 0);
+        this.chartRef.yAxis[1].update({
+          max: Math.max(0.1, maxRainfall * 1.2),
+        });
         this.isLoading = false;
       },
       error => {
@@ -359,8 +349,6 @@ export class DashboardChartComponent implements OnInit, OnDestroy {
       }, this.refreshIntervalMS);
     }
   }
-
-
 
 
   aggregateToHourly(data: [number, number][], sum = false): [number, number][] {

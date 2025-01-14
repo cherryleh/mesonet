@@ -17,8 +17,6 @@ export class DataService {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${environment.apiToken}`); // Your API token here
     const url = `${this.apiUrl}&station_ids=${id}`;
     console.log('API request for dashboard data: ',url);
-    return this.http.get<any>(url, { headers }).pipe(
-      tap((response) => console.log('API response:', response)) // Log the response
-    );
+    return this.http.get<any>(url, { headers });
   }
 }
