@@ -218,7 +218,39 @@ export class DashboardChartComponent implements OnInit, OnDestroy {
           temperatureData = this.aggregateToHourly(temperatureData);
           rainfallData = this.aggregateToHourly(rainfallData, true); // Aggregate rainfall by sum
           radData = this.aggregateToHourly(radData);
-        }
+          this.chartOptions.yAxis = [
+            {
+              title: { text: 'Hourly Temperature (°F)' },
+            },
+            {
+              title: { text: 'Hourly Rainfall (in)' },
+              opposite: true,
+              min: 0
+            },
+            {
+              title: { text: 'Hourly Solar Radiation (W/m²)' },
+              opposite: true,
+              min: 0
+            },
+          ];
+        } else {
+          // Reset Y-axis titles for durations other than 3 or 7 days
+          this.chartOptions.yAxis = [
+            {
+              title: { text: 'Temperature (°F)' },
+            },
+            {
+              title: { text: '5-min Rainfall (in)' },
+              opposite: true,
+              min: 0
+            },
+            {
+              title: { text: 'Solar Radiation (W/m²)' },
+              opposite: true,
+              min: 0
+            },
+          ];
+                }
 
         this.isLoading = false;
 

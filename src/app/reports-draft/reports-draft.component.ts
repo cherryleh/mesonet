@@ -128,28 +128,28 @@ export class ReportsDraftComponent implements OnInit{
     Albedo_1_Avg:	'Albedo',
     Tsrf_1_Avg:	'Surface temperature',
     Tsky_1_Avg:	'Sky temperature',
-    Tair_1_Avg:	'Air temperature, sensor 1',
-    Tair_2_Avg:	'Air temperature, sensor 2',
-    RH_1_Avg:	'Relative humidity, sensor 1',
-    RH_2_Avg:	'Relative humidity, sensor 2',
-    VP_1_Avg:	'Vapor pressure, sensor 1',
-    VP_2_Avg:	'Vapor pressure, sensor 2',
-    VPsat_1_Avg:	'Saturation vapor pressure, sensor 1',
-    VPsat_2_Avg:	'Saturation vapor pressure, sensor 2',
-    VPD_1_Avg:	'Vapor pressure deficit, sensor 1',
-    VPD_2_Avg:	'Vapor pressure deficit, sensor 2',
+    Tair_1_Avg:	'Air temperature sensor 1',
+    Tair_2_Avg:	'Air temperature sensor 2',
+    RH_1_Avg:	'Relative humidity sensor 1',
+    RH_2_Avg:	'Relative humidity sensor 2',
+    VP_1_Avg:	'Vapor pressure sensor 1',
+    VP_2_Avg:	'Vapor pressure sensor 2',
+    VPsat_1_Avg:	'Saturation vapor pressure sensor 1',
+    VPsat_2_Avg:	'Saturation vapor pressure sensor 2',
+    VPD_1_Avg:	'Vapor pressure deficit sensor 1',
+    VPD_2_Avg:	'Vapor pressure deficit sensor 2',
     WS_1_Avg:	'Mean wind speed',
     WDuv_1_Avg:	'Unit vector average wind direction',
     P_1:	'Pressure',
     Psl_1:	'Sea level pressure',
-    Tsoil_1_Avg:	'Soil temperature, sensor 1',
+    Tsoil_1_Avg:	'Soil temperature sensor 1',
     SHFsrf_1_Avg:	'Surface soil heat flux',
-    SM_1_Avg:	'Soil moisture, sensor 1',
-    SM_2_Avg:	'Soil moisture, sensor 2',
-    SM_3_Avg:	'Soil moisture, sensor 3',
-    Tsoil_2:	'Soil temperature, sensor 2',
-    Tsoil_3:	'Soil temperature, sensor 3',
-    Tsoil_4:	'Soil temperature, sensor 4',
+    SM_1_Avg:	'Soil moisture sensor 1',
+    SM_2_Avg:	'Soil moisture sensor 2',
+    SM_3_Avg:	'Soil moisture sensor 3',
+    Tsoil_2:	'Soil temperature sensor 2',
+    Tsoil_3:	'Soil temperature sensor 3',
+    Tsoil_4:	'Soil temperature sensor 4',
     RF_1_Tot300s:	'Rainfall',
     RFint_1_Max:	'Maximum Rainfall Intensity'
   };
@@ -231,6 +231,8 @@ export class ReportsDraftComponent implements OnInit{
     );
   }
 
+  
+
   formatDateToHST(date: string, time: string): string {
     if (!date) {
       console.error('Invalid date:', date);
@@ -246,35 +248,32 @@ export class ReportsDraftComponent implements OnInit{
   }
 
   formatTableData(): void {
-    // Define the type for grouped data rows
     type GroupedRow = { [key: string]: any };
 
-    // Reduce the report data into a grouped object
     const groupedData = this.reportData.reduce((acc: { [key: string]: GroupedRow }, row: any) => {
       const key = `${row.timestamp}-${row.station_id}`;
     
-      // Initialize the key if not already present
       if (!acc[key]) {
         acc[key] = Object.keys(this.headersMap).reduce((obj: GroupedRow, header: string) => {
-          obj[header] = null; // Initialize all keys to null
+          obj[header] = null; 
           return obj;
         }, {});
         acc[key]['timestamp'] = this.formatTimestampForTable(row.timestamp);
         acc[key]['station_id'] = row.station_id;
       }
 
-      // Map the variable to its value if it exists in headersMap
       if (row.variable in this.headersMap) {
         let value = row.value;
 
-        // Special formatting for soil moisture variables
         if (row.variable.startsWith('SM_') && row.variable.endsWith('_Avg')) {
-          value = (value * 100).toFixed(2); // Convert to percentage
+          value = (value * 100).toFixed(2); 
         }
 
         acc[key][row.variable] = value;
       }
-
+      console.log('Headers for CSV:', this.headers);
+      console.log('Display Headers for CSV:', this.displayHeaders);
+      console.log('Processed Data Rows:', this.dataSource.data);
       return acc;
     }, {});
 
