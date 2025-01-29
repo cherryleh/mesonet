@@ -16,26 +16,41 @@ export class AppComponent {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         window.parent.postMessage(window.location.hash, '*');
+        this.updateLinkHrefs();
       }
     });
+  }
+  ngAfterViewInit() {
+    this.updateLinkHrefs();
   }
 
   @HostListener('document:click', ['$event'])
   handleNavigation(event: MouseEvent) {
     const target = event.target as HTMLAnchorElement;
 
-    // Ensure the target is an <a> element with an href
     if (target.tagName === 'A' && target.href) {
       const isMiddleClick = event.button === 1;
-      const isCtrlClick = event.ctrlKey || event.metaKey; // MetaKey for macOS Cmd + Click
+      const isCtrlClick = event.ctrlKey || event.metaKey; 
 
-      // Force navigation to stay within Hawaii.edu
       if (isMiddleClick || isCtrlClick) {
         event.preventDefault();
         const relativePath = target.getAttribute('href') || '';
         const correctUrl = this.baseUrl + relativePath.replace(/^#/, '');
-        window.open(correctUrl, '_blank'); // Open new tab within correct domain
+        window.open(correctUrl, '_blank');
       }
     }
+  }
+
+  private updateLinkHrefs() {
+    setTimeout(() => {
+      const links = document.querySelectorAll('a');
+      links.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && !href.startsWith('http')) { 
+          link.setAttribute('href', this.baseUrl + href.replace(/^#/, ''));
+          link.setAttribute('target', '_blank'); 
+        }
+      });
+    }, 100);
   }
 }
