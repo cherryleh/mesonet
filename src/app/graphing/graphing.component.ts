@@ -159,7 +159,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
     data.forEach(item => {
       const date = new Date(item.timestamp);
-      date.setMinutes(0, 0, 0); // Set to the start of the hour
+      date.setMinutes(0, 0, 0); 
       const hourKey = date.getTime();
 
       if (!hourlyMap[hourKey]) {
@@ -189,7 +189,10 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       this.chart = Highcharts.chart('graphContainer', {
         chart: {
           type: 'line',
-          height: '45%'
+          height: '45%',
+          zooming: {
+            type: 'x'
+          }
         },
         title: {
           text: ''
@@ -213,15 +216,18 @@ export class GraphingComponent implements OnInit, AfterViewInit {
           xDateFormat: '%b %e, %Y %l:%M%p'
         },
         time: {
-          timezoneOffset: 600, // To display in Hawaii time
+          timezoneOffset: 600, 
         },
         plotOptions: {
+          column: {
+            pointWidth: 5,
+          },
           series: {
             lineWidth: 3,
             marker: { enabled: false }
           }
         },
-        series: [] // Empty initially
+        series: [] 
       });
     }
   }

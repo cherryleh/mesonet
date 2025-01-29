@@ -74,7 +74,10 @@ export class DashboardChartComponent implements OnInit, OnDestroy {
   chartOptions: Highcharts.Options = {
     chart: {
       type: 'line',
-      animation: false
+      animation: false,
+      zooming: {
+        type: 'x'
+      }
     },
     title: {
       text: ''
