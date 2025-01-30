@@ -4,77 +4,78 @@
     <app-station-title [isCollapsed]="isCollapsed"></app-station-title>
     <app-sidebar [class.collapsed]="isCollapsed" (toggle)="onToggleSidebar($event)"></app-sidebar>
     <div class="main-content" [class.collapsed]="isCollapsed">
-        <form [formGroup]="reportForm" (ngSubmit)="onSubmit()">
-          <div class="form-box">
-            <div class="form-container">
-              <mat-form-field appearance="outline">
-                <mat-label>MM/DD/YYYY</mat-label>
-                <input matInput [matDatepicker]="startPicker" formControlName="startDate"
-                       [max]="today">
-                <mat-hint>Start Date</mat-hint>
-                <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-                <mat-datepicker #startPicker></mat-datepicker>
+      <form [formGroup]="reportForm" (ngSubmit)="validateAndSubmit()">
+        <div class="form-box">
+          <div class="form-container">
+            <mat-form-field appearance="outline">
+              <mat-label>MM/DD/YYYY</mat-label>
+              <input matInput [matDatepicker]="startPicker" formControlName="startDate" [min]="minStartDate" [max]="today">
+              <mat-hint>Start Date</mat-hint>
+              <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+              <mat-datepicker #startPicker></mat-datepicker>
+              <mat-error *ngIf="hasSubmitted && reportForm.get('startDate')?.hasError('required')">
+                Start date is required.
+              </mat-error>
 
-                <!-- Fixing Error Condition -->
-                <mat-error *ngIf="reportForm.get('startDate')?.invalid && reportForm.get('startDate')?.touched">
-                  Select start date
-                </mat-error>
-              </mat-form-field>
 
-              <!-- End Date -->
-              <mat-form-field appearance="outline">
-                <mat-label>MM/DD/YYYY</mat-label>
-                <input matInput [matDatepicker]="endPicker" formControlName="endDate" 
-                       [min]="reportForm.get('startDate')?.value" [max]="today">
-                <mat-hint>End Date</mat-hint>
-                <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-                <mat-datepicker #endPicker></mat-datepicker>
+            </mat-form-field>
 
-                <!-- Display error only if the field is touched and invalid -->
-                <mat-error *ngIf="reportForm.get('endDate')?.hasError('required') && reportForm.get('endDate')?.touched">
-                  Select end date
-                </mat-error>
-              </mat-form-field>
+            <!-- End Date -->
+            <mat-form-field appearance="outline">
+              <mat-label>MM/DD/YYYY</mat-label>
+              <input matInput [matDatepicker]="endPicker" formControlName="endDate" 
+                     [min]="reportForm.get('startDate')?.value" [max]="today">
+              <mat-hint>End Date</mat-hint>
+              <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+              <mat-datepicker #endPicker></mat-datepicker>
 
-              
+              <mat-error *ngIf="hasSubmitted && reportForm.get('endDate')?.hasError('required')">
+                End date is required.
+              </mat-error>
+            </mat-form-field>
+          </div>
 
-              <mat-form-field appearance="outline" class="interval-dropdown">
-                <mat-label>Select Interval</mat-label>
-                <mat-select formControlName="interval">
-                  <mat-option *ngFor="let option of intervalOptions" [value]="option.value">
-                    {{ option.label }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-            </div>
-
-            <div class="form-column">
+          <div class="form-column">
+            <div [matTooltip]="isAutoChecked ? 'This checkbox is required for reports over 1 month' : null"
+                 matTooltipPosition="above">
               <mat-checkbox 
-                formControlName="confirmLongRange" 
-                [matTooltip]="isAutoChecked ? checkboxTooltip : ''" 
-                matTooltipPosition="above">
+                formControlName="confirmLongRange"
+                [disabled]="!!reportForm.get('confirmLongRange')?.disabled"
+                [class.disabled-label]="!!reportForm.get('confirmLongRange')?.disabled">
                 Send download package to email
               </mat-checkbox>
-
-              <mat-form-field appearance="outline" class="email-field">
-                <mat-label>Email</mat-label>
-                <input matInput formControlName="email" type="email" placeholder="Enter your email">
-                <mat-error *ngIf="reportForm.get('email')?.invalid && reportForm.get('email')?.touched">
-                  Please enter a valid email.
-                </mat-error>
-              </mat-form-field>
-
-
-
-              <mat-checkbox formControlName="confirmSubmission">
-                All data is covered under the <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">Attribution-NonCommercial-NoDerivatives 4.0 International</a> licensing agreement. By checking this box, I acknowledge and agree to adhere to the terms of this license in my use of any data provided by this application.
-              </mat-checkbox>
-
             </div>
 
-            <button mat-raised-button type="submit" [disabled]="reportForm.invalid">Create Report</button>
+
+
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" type="email" placeholder="Enter your email">
+              <mat-error *ngIf="reportForm.get('email')?.invalid && reportForm.get('email')?.touched">
+                Please enter a valid email.
+              </mat-error>
+            </mat-form-field>
+
+            <mat-checkbox formControlName="confirmSubmission">
+              I acknowledge the 
+              <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">
+                licensing agreement
+              </a>.
+            </mat-checkbox>
+
+            <!-- Show error ONLY if the user has attempted submission -->
+            <mat-error *ngIf="hasSubmitted && reportForm.get('confirmSubmission')?.invalid">
+              You must agree to the licensing terms before proceeding.
+            </mat-error>
+
           </div>
-        </form>
+
+          <button mat-raised-button type="submit">
+            Create Report
+          </button>
+        </div>
+      </form> <!-- ✅ Ensure this matches the opening form tag -->
+
 
       <div class="table-container">
         <div *ngIf="isLoading" class="spinner-overlay">
@@ -100,7 +101,6 @@
           <tr mat-row *matRowDef="let row; columns: headers;"></tr>
         </table>
 
-        <!-- Separate paginator container -->
         <div class="mat-paginator-container">
           <mat-paginator *ngIf="dataSource.data.length > 0" #paginator [length]="dataSource.data.length" [pageSizeOptions]="[5, 10, 20]"
             showFirstLastButtons aria-label="Select page">

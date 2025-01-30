@@ -65,6 +65,8 @@ export class ReportsComponent implements OnInit {
   isAutoChecked = false;
   checkboxTooltip = ""; 
 
+  hasSubmitted: boolean = false;
+
   intervalOptions = [
     { value: '5-minute', label: '5-Minute' },
     { value: 'hourly', label: 'Hourly' }
@@ -127,30 +129,36 @@ export class ReportsComponent implements OnInit {
 
   initializeForm(): void {
     this.reportForm = this.fb.group({
-      startDate: [''],
-      endDate: [''],
+      startDate: ['', Validators.required],
+      endDate: ['', Validators.required],
       interval: ['hourly'],
       email: ['', [Validators.required, Validators.email]],
-      confirmLongRange: [false],
+      confirmLongRange: new FormControl({ value: false, disabled: false }), // ✅ Explicitly set value & disabled state
       confirmSubmission: [false, Validators.requiredTrue]
-    });
-
-    this.reportForm.get('startDate')?.valueChanges.subscribe(startDate => {
-      const endDateControl = this.reportForm.get('endDate');
-      endDateControl?.setValue('');
-      endDateControl?.setValidators([
-        (control) => control.value && control.value < startDate ? { invalidDate: true } : null
-      ]);
-      endDateControl?.updateValueAndValidity();
     });
 
     this.reportForm.get('startDate')?.valueChanges.subscribe(() => this.checkDateRange());
     this.reportForm.get('endDate')?.valueChanges.subscribe(() => this.checkDateRange());
   }
 
+
+  validateAndSubmit(): void {
+    this.hasSubmitted = true;  // ✅ Mark submission attempt
+    this.checkDateRange();  // ✅ Validate all fields
+
+    if (this.reportForm.invalid) {
+      this.reportForm.markAllAsTouched(); // ✅ Highlight errors only on submit
+      return;
+    }
+
+    this.onSubmit();
+  }
+
+
   onSubmit(): void {
     this.isLoading = true;
     let { startDate, endDate } = this.reportForm.value;
+
     try {
       startDate = this.formatDateToHST(startDate, 'T00:00:00-10:00'); 
       endDate = this.formatDateToHST(endDate, 'T23:59:59-10:00'); 
@@ -174,6 +182,7 @@ export class ReportsComponent implements OnInit {
       }
     );
   }
+
 
   formatDateToHST(date: string, time: string): string {
     if (!date) {
@@ -287,32 +296,29 @@ export class ReportsComponent implements OnInit {
   }
 
   checkDateRange(): void {
-    const startDate = this.reportForm.get('startDate')?.value;
-    const endDate = this.reportForm.get('endDate')?.value;
-    
-    if (startDate && endDate) {
-      const diff = (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24);
-      const checkboxControl = this.reportForm.get('confirmLongRange');
+    const startDateControl = this.reportForm.get('startDate');
+    const endDateControl = this.reportForm.get('endDate');
+    const confirmLongRangeControl = this.reportForm.get('confirmLongRange'); 
 
-      if (diff > 30) {
-        checkboxControl?.setValue(true); // ✅ Auto-check if >1 month
-        this.isAutoChecked = true; // ✅ Show tooltip
-        this.checkboxTooltip = "This checkbox has been automatically checked because the date range exceeds 1 month.";
+    if (startDateControl?.value && endDateControl?.value) {
+      const startDate = new Date(startDateControl.value);
+      const endDate = new Date(endDateControl.value);
+      const dateDiff = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24); // Days difference
+
+      if (dateDiff > 30) {
+        if (!confirmLongRangeControl?.disabled) {
+          confirmLongRangeControl?.patchValue(true, { emitEvent: false });
+          confirmLongRangeControl?.disable({ emitEvent: false });
+          this.isAutoChecked = true;  
+        }
       } else {
-        checkboxControl?.setValue(false); // Uncheck if ≤1 month
-        this.isAutoChecked = false; // ✅ Hide tooltip
-        this.checkboxTooltip = "";
+        if (confirmLongRangeControl?.disabled) {
+          confirmLongRangeControl?.enable({ emitEvent: false });
+          confirmLongRangeControl?.patchValue(false, { emitEvent: false });
+          this.isAutoChecked = false;  
+        }
       }
 
-      this.isLongRangeRequired = diff > 60; // ✅ Require checkbox if >2 months
-
-      if (this.isLongRangeRequired) {
-        checkboxControl?.setValidators([Validators.requiredTrue]); // ✅ Must be checked if >2 months
-      } else {
-        checkboxControl?.clearValidators();
-      }
-
-      checkboxControl?.updateValueAndValidity();
     }
   }
 
