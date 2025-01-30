@@ -8,11 +8,11 @@ import { CommonModule } from '@angular/common';
   selector: 'app-station-map',
   standalone: true,
   imports: [FormsModule, CommonModule], 
-  templateUrl: './station-map.component.html',
-  styleUrls: ['./station-map.component.css']
+  templateUrl: './station-selection-map.component.html',
+  styleUrls: ['./station-selection-map.component.css']
 })
 
-export class StationMapComponent implements AfterViewInit {
+export class StationSelectionMapComponent implements AfterViewInit {
   map!: L.Map;
   selectedIsland: string = '';
 
