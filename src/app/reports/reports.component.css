@@ -3,6 +3,15 @@
   justify-content: center;
   align-items: center;
   gap: 30px;
+  flex-wrap: wrap;
+}
+
+.form-column {
+  display: flex;
+  flex-direction: column; /* Stacks checkbox & email */
+  align-items: start; /* Aligns to left */
+  margin-top: 15px;
+  gap: 10px;
 }
 
 table th, table td {
@@ -21,7 +30,7 @@ table th, table td {
   border-radius: 8px;
   border: 1px solid #d0d7de;
   box-shadow: 0 2px 2px rgba(0,0,0,0.1);
-  padding: 20px;
+  padding: 50px;
   margin-bottom: 2%;
 }
 
@@ -100,7 +109,7 @@ table th, table td {
 }
 
 .spinner-text {
-  font-size: 14px;
+  font-size: 16px;
   color: #333;
   text-align: center;
 }
@@ -116,4 +125,76 @@ table th, table td {
 
 .spinner-overlay {
   z-index: 10000 !important;
+}
+
+mat-checkbox {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  color: #333;
+}
+
+mat-checkbox label {
+  cursor: pointer;
+}
+
+button[type="submit"] {
+  margin-top: 50px;
+}
+
+/* Remove background and shadow from mat-form-field */
+mat-form-field {
+  background-color: transparent !important; /* Remove gray background */
+  box-shadow: none !important; /* Remove any shadows */
+}
+
+/* Remove Material Design outline and box effects */
+mat-form-field .mat-form-field-outline,
+mat-form-field .mat-form-field-outline-thick {
+  display: none !important; /* Remove outlines completely */
+}
+
+/* Style the bottom line */
+mat-form-field .mat-form-field-wrapper {
+  padding-bottom: 2px; /* Add space at the bottom */
+  border-bottom: 1px solid #666; /* Add a thin line */
+  background-color: transparent !important; /* Ensure wrapper is also transparent */
+}
+
+/* Input text style */
+mat-form-field .mat-input-element {
+  font-size: 16px; /* Adjust font size */
+  color: #333; /* Text color */
+  padding: 5px 0; /* Reduce padding */
+  background-color: transparent !important; /* Remove input field background */
+}
+
+/* Floating label style */
+mat-form-field .mat-form-field-label {
+  font-size: 16px; /* Adjust label size */
+  color: #666; /* Label color */
+  background-color: transparent !important; /* Ensure label background is transparent */
+}
+
+/* Highlight bottom line on focus */
+mat-form-field .mat-form-field-ripple {
+  background-color: #000; /* Focus line color */
+}
+
+/* Style error message */
+mat-form-field .mat-error {
+  font-size: 12px;
+  color: red; /* Error text color */
+}
+
+.mdc-label {
+  font-size: 16px !important;
+}
+
+.mdc-text-field {
+  background-color: transparent !important;
+}
+
+.email-field{
+  width: 20%;
 }

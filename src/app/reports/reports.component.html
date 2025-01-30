@@ -4,32 +4,78 @@
     <app-station-title [isCollapsed]="isCollapsed"></app-station-title>
     <app-sidebar [class.collapsed]="isCollapsed" (toggle)="onToggleSidebar($event)"></app-sidebar>
     <div class="main-content" [class.collapsed]="isCollapsed">
-      <div class="form-box">
         <form [formGroup]="reportForm" (ngSubmit)="onSubmit()">
-          <div class="form-container">
-            <mat-form-field appearance="outline">
-              <mat-label>MM/DD/YYYY</mat-label>
-              <input matInput [matDatepicker]="startPicker" formControlName="startDate" [min]="minStartDate"
-                [max]="today">
-              <mat-hint>Start Date</mat-hint>
-              <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-              <mat-datepicker #startPicker></mat-datepicker>
-            </mat-form-field>
+          <div class="form-box">
+            <div class="form-container">
+              <mat-form-field appearance="outline">
+                <mat-label>MM/DD/YYYY</mat-label>
+                <input matInput [matDatepicker]="startPicker" formControlName="startDate"
+                       [max]="today">
+                <mat-hint>Start Date</mat-hint>
+                <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                <mat-datepicker #startPicker></mat-datepicker>
 
-            <mat-form-field appearance="outline">
-              <mat-label>MM/DD/YYYY</mat-label>
-              <input matInput [matDatepicker]="endPicker" formControlName="endDate"
-                [min]="reportForm.get('startDate')?.value" [max]="today">
-              <mat-hint>End Date</mat-hint>
-              <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-              <mat-datepicker #endPicker></mat-datepicker>
-            </mat-form-field>
+                <!-- Fixing Error Condition -->
+                <mat-error *ngIf="reportForm.get('startDate')?.invalid && reportForm.get('startDate')?.touched">
+                  Select start date
+                </mat-error>
+              </mat-form-field>
 
-            <button mat-raised-button type="submit">Create Report</button>
+              <!-- End Date -->
+              <mat-form-field appearance="outline">
+                <mat-label>MM/DD/YYYY</mat-label>
+                <input matInput [matDatepicker]="endPicker" formControlName="endDate" 
+                       [min]="reportForm.get('startDate')?.value" [max]="today">
+                <mat-hint>End Date</mat-hint>
+                <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                <mat-datepicker #endPicker></mat-datepicker>
 
+                <!-- Display error only if the field is touched and invalid -->
+                <mat-error *ngIf="reportForm.get('endDate')?.hasError('required') && reportForm.get('endDate')?.touched">
+                  Select end date
+                </mat-error>
+              </mat-form-field>
+
+              
+
+              <mat-form-field appearance="outline" class="interval-dropdown">
+                <mat-label>Select Interval</mat-label>
+                <mat-select formControlName="interval">
+                  <mat-option *ngFor="let option of intervalOptions" [value]="option.value">
+                    {{ option.label }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="form-column">
+              <mat-checkbox 
+                formControlName="confirmLongRange" 
+                [matTooltip]="isAutoChecked ? checkboxTooltip : ''" 
+                matTooltipPosition="above">
+                Send download package to email
+              </mat-checkbox>
+
+              <mat-form-field appearance="outline" class="email-field">
+                <mat-label>Email</mat-label>
+                <input matInput formControlName="email" type="email" placeholder="Enter your email">
+                <mat-error *ngIf="reportForm.get('email')?.invalid && reportForm.get('email')?.touched">
+                  Please enter a valid email.
+                </mat-error>
+              </mat-form-field>
+
+
+
+              <mat-checkbox formControlName="confirmSubmission">
+                All data is covered under the <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">Attribution-NonCommercial-NoDerivatives 4.0 International</a> licensing agreement. By checking this box, I acknowledge and agree to adhere to the terms of this license in my use of any data provided by this application.
+              </mat-checkbox>
+
+            </div>
+
+            <button mat-raised-button type="submit" [disabled]="reportForm.invalid">Create Report</button>
           </div>
         </form>
-      </div>
+
       <div class="table-container">
         <div *ngIf="isLoading" class="spinner-overlay">
           <div class="spinner-container">

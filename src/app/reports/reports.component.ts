@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router, RouterModule } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { StationTitleComponent } from '../station-title/station-title.component';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { ReportsService } from '../services/reports.service'; 
 import { StationDatesService } from '../services/station-dates.service';
 import { CommonModule } from '@angular/common';
@@ -18,7 +18,10 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ViewChild } from '@angular/core';
-
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatOptionModule } from '@angular/material/core';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-reports',
@@ -36,10 +39,15 @@ import { ViewChild } from '@angular/core';
     MatButtonModule,
     MatTableModule,
     MatNativeDateModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatCheckboxModule,
+    MatTooltipModule,
+    MatOptionModule,
+    MatSelectModule
   ],
   templateUrl: './reports.component.html',
-  styleUrl: './reports.component.css'
+  styleUrl: './reports.component.css',
+  encapsulation: ViewEncapsulation.None,
 })
 export class ReportsComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -52,6 +60,15 @@ export class ReportsComponent implements OnInit {
   dataSource = new MatTableDataSource<any>();
   isLoading = false;
   isCollapsed = false;
+
+  isLongRangeRequired = false;
+  isAutoChecked = false;
+  checkboxTooltip = ""; 
+
+  intervalOptions = [
+    { value: '5-minute', label: '5-Minute' },
+    { value: 'hourly', label: 'Hourly' }
+  ];
 
   onToggleSidebar(collapsed: boolean) {
     this.isCollapsed = collapsed;
@@ -82,8 +99,11 @@ export class ReportsComponent implements OnInit {
     private StationDatesService: StationDatesService
   ) {
     this.reportForm = this.fb.group({
-      startDate: [''],
-      endDate: ['']
+      startDate: ['', Validators.required],
+      endDate: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      confirmLongRange: [false] ,
+      confirmSubmission: [false, Validators.requiredTrue]
     });
   }
 
@@ -100,6 +120,7 @@ export class ReportsComponent implements OnInit {
     });
 
   }
+
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
   }
@@ -107,19 +128,24 @@ export class ReportsComponent implements OnInit {
   initializeForm(): void {
     this.reportForm = this.fb.group({
       startDate: [''],
-      endDate: ['']
+      endDate: [''],
+      interval: ['hourly'],
+      email: ['', [Validators.required, Validators.email]],
+      confirmLongRange: [false],
+      confirmSubmission: [false, Validators.requiredTrue]
     });
 
     this.reportForm.get('startDate')?.valueChanges.subscribe(startDate => {
-      if (startDate) {
-        const endDateControl = this.reportForm.get('endDate');
-        endDateControl?.setValue('');
-        endDateControl?.setValidators([
-          (control) => control.value && control.value < startDate ? { invalidDate: true } : null
-        ]);
-        endDateControl?.updateValueAndValidity();
-      }
+      const endDateControl = this.reportForm.get('endDate');
+      endDateControl?.setValue('');
+      endDateControl?.setValidators([
+        (control) => control.value && control.value < startDate ? { invalidDate: true } : null
+      ]);
+      endDateControl?.updateValueAndValidity();
     });
+
+    this.reportForm.get('startDate')?.valueChanges.subscribe(() => this.checkDateRange());
+    this.reportForm.get('endDate')?.valueChanges.subscribe(() => this.checkDateRange());
   }
 
   onSubmit(): void {
@@ -259,4 +285,35 @@ export class ReportsComponent implements OnInit {
       },
     });
   }
+
+  checkDateRange(): void {
+    const startDate = this.reportForm.get('startDate')?.value;
+    const endDate = this.reportForm.get('endDate')?.value;
+    
+    if (startDate && endDate) {
+      const diff = (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24);
+      const checkboxControl = this.reportForm.get('confirmLongRange');
+
+      if (diff > 30) {
+        checkboxControl?.setValue(true); // ✅ Auto-check if >1 month
+        this.isAutoChecked = true; // ✅ Show tooltip
+        this.checkboxTooltip = "This checkbox has been automatically checked because the date range exceeds 1 month.";
+      } else {
+        checkboxControl?.setValue(false); // Uncheck if ≤1 month
+        this.isAutoChecked = false; // ✅ Hide tooltip
+        this.checkboxTooltip = "";
+      }
+
+      this.isLongRangeRequired = diff > 60; // ✅ Require checkbox if >2 months
+
+      if (this.isLongRangeRequired) {
+        checkboxControl?.setValidators([Validators.requiredTrue]); // ✅ Must be checked if >2 months
+      } else {
+        checkboxControl?.clearValidators();
+      }
+
+      checkboxControl?.updateValueAndValidity();
+    }
+  }
+
 }
