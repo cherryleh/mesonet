@@ -13,6 +13,7 @@ import { StationInfoComponent } from './station-info-page/station-info/station-i
 import { ReportsComponent } from './reports/reports.component';
 import { AcknowledgementsComponent } from './acknowledgements/acknowledgements.component';
 import { ReportsDraftComponent } from './reports-draft/reports-draft.component';
+import { HighchartMapComponent } from './highchart-map/highchart-map.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent }, // Root route displays Home
@@ -28,5 +29,6 @@ export const routes: Routes = [
   { path: 'reports', component: ReportsComponent},
   { path: 'acknowledgements', component: AcknowledgementsComponent},
   { path: 'reports-draft', component: ReportsDraftComponent},
+  { path: 'highchart-map', component: HighchartMapComponent},
   { path: '**', redirectTo: '' } // Wildcard route redirects to Home
 ];

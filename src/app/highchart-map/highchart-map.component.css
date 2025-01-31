@@ -1,0 +1,11 @@
+.highcharts-tooltip-container {
+    pointer-events: auto !important; /* ✅ Allows interaction inside the tooltip */
+  }
+  
+  .tooltip-link {
+    color: blue;
+    text-decoration: underline;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
