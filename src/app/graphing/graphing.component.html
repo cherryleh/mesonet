@@ -6,25 +6,47 @@
     <div class="main-content" [class.collapsed]="isCollapsed">
       <div class="menu-container">
         <div class="select-container">
+          <!-- Variable Selection (Multi-Select) -->
           <div class="input-group">
             <label for="variableSelect">Variable:</label>
-            <select id="variableSelect" (change)="onVariableChange($event)">
-              <option *ngFor="let variable of variables" [value]="variable.value">{{ variable.label }}</option>
-            </select>
-
+            <mat-form-field appearance="outline">
+              <mat-select 
+                id="variableSelect" 
+                multiple 
+                [(ngModel)]="selectedVariables" 
+                (selectionChange)="onVariableChange($event)">
+                <mat-option 
+                  *ngFor="let variable of variables" 
+                  [value]="variable.value" 
+                  [disabled]="isOptionDisabled(variable.value)">
+                  {{ variable.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
           </div>
+
+
+
           <div class="input-group">
             <label for="durationSelect">Duration:</label>
-            <select id="durationSelect" (change)="onDurationChange($event)">
-              <option *ngFor="let duration of durations" [value]="duration.value">{{ duration.label }}</option>
-            </select>
+            <mat-form-field appearance="outline">
+              <mat-select id="durationSelect" [(ngModel)]="selectedDuration" (selectionChange)="onDurationChange($event)">
+                <mat-option *ngFor="let duration of durations" [value]="duration.value">
+                  {{ duration.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
           </div>
+
+          <!-- Unit Selection -->
           <div class="input-group">
             <label for="unitSelect">Units:</label>
-            <select id="unitSelect" (change)="onUnitChange($event)">
-              <option value="metric">Metric</option>
-              <option value="standard">Standard</option>
-            </select>
+            <mat-form-field appearance="outline">
+              <mat-select id="unitSelect" [(ngModel)]="selectedUnit" (selectionChange)="onUnitChange($event)">
+                <mat-option value="metric">Metric</mat-option>
+                <mat-option value="standard">Standard</mat-option>
+              </mat-select>
+            </mat-form-field>
           </div>
           <button class="update-button" (click)="updateChartButtonClick()">Update Chart</button>
         </div>
