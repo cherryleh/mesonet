@@ -27,21 +27,34 @@ html {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    gap: 20px;
+    gap: 20px; /* ✅ Ensure proper spacing */
     background-color: #ffffff;
     border-radius: 8px;
     border: 1px solid #d0d7de;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     padding: 20px;
-    flex-wrap: wrap; 
+    flex-wrap: wrap; /* ✅ Allow dropdowns to wrap properly */
   }
-  
+
+  /* Make sure each input group has enough space */
   .input-group {
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-width: 200px; 
+    max-width: 260px; /* ✅ Increased from 200px to prevent overlap */
   }
+
+  /* Specifically make the variable dropdown wider */
+  .input-group:nth-child(1) mat-form-field {
+    width: 280px !important; /* ✅ Adjust width as needed */
+  }
+
+  /* Ensure other dropdowns also resize correctly */
+  mat-form-field {
+    width: 100%; /* Ensures all dropdowns take full space within their container */
+    max-width: 250px; /* Adjust if needed */
+  }
+
   
   label {
     font-size: 0.875rem;

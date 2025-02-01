@@ -30,10 +30,36 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   isLoading = false;
 
   variables = [
-    { label: 'Temperature', value: 'Tair_1_Avg', yAxisTitle: 'Temperature (°C)' },
+    { label: 'Air Temperature, Sensor 1', value: 'Tair_1_Avg', yAxisTitle: 'Temperature (°C)' },
     { label: 'Rainfall', value: 'RF_1_Tot300s', yAxisTitle: 'Rainfall (mm)' },
     { label: 'Soil Moisture', value: 'SM_1_Avg', yAxisTitle: 'Soil Moisture (%)' },
-    { label: 'Relative Humidity', value: 'RH_1_Avg', yAxisTitle: 'Relative Humidity (%)' }
+    { label: 'Relative Humidity, sensor 1', value: 'RH_1_Avg', yAxisTitle: 'Relative Humidity (%)' },
+    { label: 'Relative Humidity, sensor 2', value: 'RH_2_Avg', yAxisTitle: 'Relative Humidity (%)' },
+    { label: 'Incoming Shortwave Radiation', value: 'SWin_1_Avg', yAxisTitle: 'Incoming Shortwave Radiation (W/m²)' },
+    { label: 'Outgoing Shortwave Radiation', value: 'SWout_1_Avg', yAxisTitle: 'Outgoing Shortwave Radiation (W/m²)' },
+    { label: 'Incoming Longwave Radiation', value: 'LWin_1_Avg', yAxisTitle: 'Incoming Longwave Radiation (W/m²)' },
+    { label: 'Outgoing Longwave Radiation', value: 'LWout_1_Avg', yAxisTitle: 'Outgoing Longwave Radiation (W/m²)' },
+    { label: 'Net Shortwave Radiation', value: 'SWnet_1_Avg', yAxisTitle: 'Net Shortwave Radiation (W/m²)' },
+    { label: 'Net Longwave Radiation', value: 'LWnet_1_Avg', yAxisTitle: 'Net Longwave Radiation (W/m²)' },
+    { label: 'Net Radiation', value: 'Rnet_1_Avg', yAxisTitle: 'Net Radiation (W/m²)' },
+    { label: 'Albedo', value: 'Albedo_1_Avg', yAxisTitle: 'Albedo' },
+    { label: 'Surface Temperature', value: 'Tsrf_1_Avg', yAxisTitle: 'Surface Temperature (°C)' },
+    { label: 'Sky Temperature', value: 'Tsky_1_Avg', yAxisTitle: 'Sky Temperature (°C)' },
+    { label: 'Air Temperature, Sensor 2', value: 'Tair_2_Avg', yAxisTitle: 'Temperature (°C)' },
+    { label: 'Vapor Pressure', value: 'VP_1_Avg', yAxisTitle: 'Vapor Pressure (kPa)' },
+    { label: 'Vapor Pressure', value: 'VP_2_Avg', yAxisTitle: 'Vapor Pressure (kPa)' },
+    { label: 'Vapor pressure deficit, sensor 1', value: 'VPD_1_Avg', yAxisTitle: 'Vapor Pressure Deficit (kPa)' },
+    { label: 'Vapor pressure deficit, sensor 2', value: 'VPD_2_Avg', yAxisTitle: 'Vapor Pressure Deficit (kPa)' },
+    { label: 'Wind Speed', value: 'WS_1_Avg', yAxisTitle: 'Wind Speed (m/s)' },
+    { label: 'Wind Direction', value: 'WDrs_Avg', yAxisTitle: 'Wind Direction (°)' },
+    { label: 'Pressure', value: 'P_1', yAxisTitle: 'Pressure (kPa)' },
+    { label: 'Sea level pressure', value: 'Psl_1', yAxisTitle: 'Pressure (kPa)' },
+    { label: 'Soil Temperature, Sensor 1', value: 'Tsoil_1_Avg', yAxisTitle: 'Soil Temperature (°C)' },
+    { label: 'Soil Temperature, Sensor 2', value: 'Tsoil_2', yAxisTitle: 'Soil Temperature (°C)' },
+    { label: 'Soil Temperature, Sensor 3', value: 'Tsoil_3', yAxisTitle: 'Soil Temperature (°C)' },
+    { label: 'Soil Temperature, Sensor 4', value: 'Tsoil_4', yAxisTitle: 'Soil Temperature (°C)' },
+    { label: 'Surface soil heat flux', value: 'SHFsrf_1_Avg', yAxisTitle: 'Surface Soil Heat Flux' },
+    { label: 'Maximum Rainfall Intensity', value: 'RFint_1_Max', yAxisTitle: 'Maximum Rainfall Intensity (mm/hr)' },
   ];
 
   durations = [
