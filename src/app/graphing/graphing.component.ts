@@ -95,8 +95,9 @@ export class GraphingComponent implements OnInit, AfterViewInit {
         title: { text: '' },
         xAxis: { type: 'datetime' },
         yAxis: [
-          { title: { text: 'Primary Axis' } }, // Left y-axis
-          { title: { text: 'Secondary Axis' }, opposite: true } // Right y-axis
+          { title: { text: '' } }, // Left y-axis (Primary)
+          { title: { text: '' }, opposite: true }, // Right y-axis (Secondary)
+          { title: { text: '' }, opposite: true }  // ✅ Additional right y-axis for third variable
         ],
         tooltip: { shared: true, valueDecimals: 2, xDateFormat: '%b %e, %Y %l:%M%p' },
         time: { timezoneOffset: 600 },
@@ -105,6 +106,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       });
     }
   }
+
 
 
   getDaysFromDuration(duration: string): number {
@@ -160,18 +162,15 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       // Get selected variables' y-axis labels
       const yAxisLabels = this.selectedVariables.map(variable => this.getYAxisLabel(variable));
 
-      // Update the first y-axis title
+      // ✅ Update y-axis titles dynamically
       if (this.chart.yAxis[0]) {
         this.chart.yAxis[0].setTitle({ text: yAxisLabels[0] || 'Primary Axis' });
       }
-
-      // Update the second y-axis title (or clear it if only one variable)
       if (this.chart.yAxis[1]) {
-        if (this.selectedVariables.length > 1) {
-          this.chart.yAxis[1].setTitle({ text: yAxisLabels[1] || yAxisLabels[2] || 'Secondary Axis' });
-        } else {
-          this.chart.yAxis[1].setTitle({ text: '' }); // ✅ Clear the title if only 1 variable
-        }
+        this.chart.yAxis[1].setTitle({ text: this.selectedVariables.length > 1 ? yAxisLabels[1] : '' });
+      }
+      if (this.chart.yAxis[2]) {
+        this.chart.yAxis[2].setTitle({ text: this.selectedVariables.length > 2 ? yAxisLabels[2] : '' });
       }
 
       // Add new series data
@@ -180,11 +179,10 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     }
   }
 
-
-
-
   formatData(data: any): Highcharts.SeriesOptionsType[] {
     if (!data || data.length === 0) return [];
+
+    let nonRainfallIndex = 0; // ✅ Track non-rainfall variable order
 
     return this.selectedVariables.map((variable, index) => {
       const variableData = data
@@ -194,18 +192,33 @@ export class GraphingComponent implements OnInit, AfterViewInit {
           this.convertValue(variable, parseFloat(item.value))
         ]);
 
+      let assignedColor: string;
+      if (variable === 'RF_1_Tot300s') {
+        assignedColor = '#3498DB'; // ✅ Always Blue for Rainfall
+      } else {
+        assignedColor = this.getSelectionColor(nonRainfallIndex);
+        nonRainfallIndex++; // ✅ Only increment for non-rainfall variables
+      }
+
       return {
         type: variable === 'RF_1_Tot300s' ? 'column' : 'line',
-        name: this.getYAxisLabel(variable), // ✅ Update label dynamically
+        name: this.getYAxisLabel(variable),
         data: variableData,
-        yAxis: this.selectedVariables.length === 3
-          ? index === 0 ? 0 : 1
-          : this.selectedVariables.length === 2
-            ? index === 1 ? 1 : 0
-            : 0
+        yAxis: index, // Assign different y-axes
+        zIndex: variable === 'RF_1_Tot300s' ? 0 : 1, // Ensure rainfall is behind
+        color: assignedColor // ✅ Correctly assigns color based on type
       };
     });
   }
+
+  /** Helper function to assign colors correctly */
+  getSelectionColor(nonRainfallIndex: number): string {
+    // ✅ Assign colors in order: Green → Yellow → Red
+    const colorOrder = ['#27AE60', '#F1C40F', '#f55e53']; // Green, Yellow, Red
+    return colorOrder[nonRainfallIndex] || '#000000'; // Default black if extra variables
+  }
+
+
 
   /** Helper function to handle unit conversions */
   convertValue(variable: string, value: number): number {
