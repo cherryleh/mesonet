@@ -31,6 +31,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
   variables = [
     { label: 'Air Temperature, Sensor 1', value: 'Tair_1_Avg', yAxisTitle: 'Temperature (°C)' },
+    { label: 'Air Temperature, Sensor 2', value: 'Tair_2_Avg', yAxisTitle: 'Temperature (°C)' },
     { label: 'Rainfall', value: 'RF_1_Tot300s', yAxisTitle: 'Rainfall (mm)' },
     { label: 'Soil Moisture', value: 'SM_1_Avg', yAxisTitle: 'Soil Moisture (%)' },
     { label: 'Relative Humidity, sensor 1', value: 'RH_1_Avg', yAxisTitle: 'Relative Humidity (%)' },
@@ -45,7 +46,6 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     { label: 'Albedo', value: 'Albedo_1_Avg', yAxisTitle: 'Albedo' },
     { label: 'Surface Temperature', value: 'Tsrf_1_Avg', yAxisTitle: 'Surface Temperature (°C)' },
     { label: 'Sky Temperature', value: 'Tsky_1_Avg', yAxisTitle: 'Sky Temperature (°C)' },
-    { label: 'Air Temperature, Sensor 2', value: 'Tair_2_Avg', yAxisTitle: 'Temperature (°C)' },
     { label: 'Vapor Pressure', value: 'VP_1_Avg', yAxisTitle: 'Vapor Pressure (kPa)' },
     { label: 'Vapor Pressure', value: 'VP_2_Avg', yAxisTitle: 'Vapor Pressure (kPa)' },
     { label: 'Vapor pressure deficit, sensor 1', value: 'VPD_1_Avg', yAxisTitle: 'Vapor Pressure Deficit (kPa)' },
