@@ -80,7 +80,7 @@ export class DashboardComponent implements AfterViewInit {
     'Solar Radiation': 'SWin_1_Avg',
     'Soil Moisture': 'SM_1_Avg',
     'Wind Speed': 'WS_1_Avg',
-    'Wind Direction': 'WDuv_1_Avg',
+    'Wind Direction': 'WDrs_1_Avg',
     'Relative Humidity': 'RH_1_Avg'
   };
 
@@ -117,7 +117,7 @@ export class DashboardComponent implements AfterViewInit {
           }
           else if (key === 'Wind Direction' && variableData) {
             const degrees = parseFloat(variableData.value);
-            this.variables[key] = this.getWindDirection(degrees);
+            this.variables[key] = this.windDirectionToCardinal(degrees);
           }
           else if (key === 'Soil Moisture' && variableData){
             const sm_dec = parseFloat(variableData.value);
@@ -143,9 +143,14 @@ export class DashboardComponent implements AfterViewInit {
     
   }
 
-  getWindDirection(degrees: number): string {
-    const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
-    const index = Math.round((degrees % 360) / 22.5) % 16;
+  windDirectionToCardinal(degrees: number): string {
+    const directions = [
+      "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+      "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW", "N"
+    ];
+  
+    const index = Math.round(degrees / 22.5) % 16;
+    console.log('Wind direction index:', index);
     return directions[index];
   }
 

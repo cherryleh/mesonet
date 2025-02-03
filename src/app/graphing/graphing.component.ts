@@ -51,7 +51,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     { label: 'Vapor pressure deficit, sensor 1', value: 'VPD_1_Avg', yAxisTitle: 'Vapor Pressure Deficit (kPa)' },
     { label: 'Vapor pressure deficit, sensor 2', value: 'VPD_2_Avg', yAxisTitle: 'Vapor Pressure Deficit (kPa)' },
     { label: 'Wind Speed', value: 'WS_1_Avg', yAxisTitle: 'Wind Speed (m/s)' },
-    { label: 'Wind Direction', value: 'WDrs_Avg', yAxisTitle: 'Wind Direction (°)' },
+    { label: 'Wind Direction', value: 'WDrs_1_Avg', yAxisTitle: 'Wind Direction (°)' },
     { label: 'Pressure', value: 'P_1', yAxisTitle: 'Pressure (kPa)' },
     { label: 'Sea level pressure', value: 'Psl_1', yAxisTitle: 'Pressure (kPa)' },
     { label: 'Soil Temperature, Sensor 1', value: 'Tsoil_1_Avg', yAxisTitle: 'Soil Temperature (°C)' },
@@ -102,12 +102,12 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   }
 
   onDurationChange(event: MatSelectChange): void {
-    this.selectedDuration = event.value; // ✅ Use event.value directly
+    this.selectedDuration = event.value; 
     this.graphingMenuService.setDuration(this.selectedDuration);
   }
 
   onUnitChange(event: MatSelectChange): void {
-    this.selectedUnit = event.value as 'metric' | 'standard'; // ✅ Use event.value directly
+    this.selectedUnit = event.value as 'metric' | 'standard'; 
   }
 
   updateChartButtonClick(): void {
@@ -117,13 +117,13 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   initializeChart(): void {
     if (!this.chart) {
       this.chart = Highcharts.chart('graphContainer', {
-        chart: { type: 'line', height: '45%', zooming: { type: 'x' } },
+        chart: { type: 'line', zooming: { type: 'x' } },
         title: { text: '' },
         xAxis: { type: 'datetime' },
         yAxis: [
-          { title: { text: '' } }, // Left y-axis (Primary)
-          { title: { text: '' }, opposite: true }, // Right y-axis (Secondary)
-          { title: { text: '' }, opposite: true }  // ✅ Additional right y-axis for third variable
+          { title: { text: '' } }, 
+          { title: { text: '' }, opposite: true }, 
+          { title: { text: '' }, opposite: true }  
         ],
         tooltip: { shared: true, valueDecimals: 2, xDateFormat: '%b %e, %Y %l:%M%p' },
         time: { timezoneOffset: 600 },
@@ -185,10 +185,8 @@ export class GraphingComponent implements OnInit, AfterViewInit {
         this.chart.series[0].remove(false);
       }
 
-      // Get selected variables' y-axis labels
       const yAxisLabels = this.selectedVariables.map(variable => this.getYAxisLabel(variable));
 
-      // ✅ Update y-axis titles dynamically
       if (this.chart.yAxis[0]) {
         this.chart.yAxis[0].setTitle({ text: yAxisLabels[0] || 'Primary Axis' });
       }
@@ -208,7 +206,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   formatData(data: any): Highcharts.SeriesOptionsType[] {
     if (!data || data.length === 0) return [];
 
-    let nonRainfallIndex = 0; // ✅ Track non-rainfall variable order
+    let nonRainfallIndex = 0; 
 
     return this.selectedVariables.map((variable, index) => {
       const variableData = data
@@ -237,7 +235,6 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     });
   }
 
-  /** Helper function to assign colors correctly */
   getSelectionColor(nonRainfallIndex: number): string {
     // ✅ Assign colors in order: Green → Yellow → Red
     const colorOrder = ['#27AE60', '#F1C40F', '#f55e53']; // Green, Yellow, Red
@@ -246,10 +243,9 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
 
 
-  /** Helper function to handle unit conversions */
   convertValue(variable: string, value: number): number {
     if (this.selectedUnit === 'standard') {
-      if (variable === 'Tair_1_Avg') {
+      if (variable === 'Tair_1_Avg'||variable === 'Tsrf_1_Avg'||variable === 'Tsky_1_Avg'||variable === 'Tair_2_Avg'||variable === 'Tsoil_1_Avg'||variable === 'Tsoil_2'||variable === 'Tsoil_3'||variable === 'Tsoil_4') {
         return (value * 9/5) + 32; // Convert °C to °F
       } else if (variable === 'RF_1_Tot300s') {
         return value / 25.4; // Convert mm to inches
