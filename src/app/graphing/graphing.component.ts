@@ -58,7 +58,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     { label: 'Soil Temperature, Sensor 2', value: 'Tsoil_2', yAxisTitle: 'Soil Temperature (°C)' },
     { label: 'Soil Temperature, Sensor 3', value: 'Tsoil_3', yAxisTitle: 'Soil Temperature (°C)' },
     { label: 'Soil Temperature, Sensor 4', value: 'Tsoil_4', yAxisTitle: 'Soil Temperature (°C)' },
-    { label: 'Surface soil heat flux', value: 'SHFsrf_1_Avg', yAxisTitle: 'Surface Soil Heat Flux' },
+    { label: 'Surface soil heat flux', value: 'SHFsrf_1_Avg', yAxisTitle: 'Surface Soil Heat Flux (W/m²)' },
     { label: 'Maximum Rainfall Intensity', value: 'RFint_1_Max', yAxisTitle: 'Maximum Rainfall Intensity (mm/hr)' },
   ];
 
@@ -197,7 +197,6 @@ export class GraphingComponent implements OnInit, AfterViewInit {
         this.chart.yAxis[2].setTitle({ text: this.selectedVariables.length > 2 ? yAxisLabels[2] : '' });
       }
 
-      // Add new series data
       seriesData.forEach(series => this.chart?.addSeries(series, false));
       this.chart?.redraw();
     }
@@ -206,39 +205,68 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   formatData(data: any): Highcharts.SeriesOptionsType[] {
     if (!data || data.length === 0) return [];
 
-    let nonRainfallIndex = 0; 
+    let nonRainfallIndex = 0;
 
-    return this.selectedVariables.map((variable, index) => {
-      const variableData = data
-        .filter((item: any) => item.variable === variable)
-        .map((item: any) => [
-          new Date(item.timestamp).getTime(),
-          this.convertValue(variable, parseFloat(item.value))
-        ]);
+    return this.selectedVariables
+        .map((variable, index) => {
+            // Extract available timestamps
+            const existingTimestamps = new Set(
+                data
+                    .filter((item: any) => item.variable === variable)
+                    .map((item: any) => new Date(item.timestamp).getTime())
+            );
 
-      let assignedColor: string;
-      if (variable === 'RF_1_Tot300s') {
-        assignedColor = '#3498DB'; // ✅ Always Blue for Rainfall
-      } else {
-        assignedColor = this.getSelectionColor(nonRainfallIndex);
-        nonRainfallIndex++; // ✅ Only increment for non-rainfall variables
-      }
+            // Determine the full time range
+            const timestamps = Array.from(existingTimestamps).map(Number).sort((a, b) => a - b);
+            if (timestamps.length === 0) return { type: 'line', name: variable, data: [] }; 
 
-      return {
-        type: variable === 'RF_1_Tot300s' ? 'column' : 'line',
-        name: this.getYAxisLabel(variable),
-        data: variableData,
-        yAxis: index, // Assign different y-axes
-        zIndex: variable === 'RF_1_Tot300s' ? 0 : 1, // Ensure rainfall is behind
-        color: assignedColor // ✅ Correctly assigns color based on type
-      };
-    });
-  }
+            const minTimestamp = timestamps[0] ?? 0;
+            const maxTimestamp = timestamps[timestamps.length - 1] ?? 0;
+            const interval = 5 * 60 * 1000;
+
+            const variableData: [number, number | null][] = [];
+            for (let ts: number = minTimestamp; ts <= maxTimestamp; ts += interval) {
+                if (existingTimestamps.has(ts)) {
+                    const item = data.find((d: any) => new Date(d.timestamp).getTime() === ts);
+                    let value: number | null = parseFloat(item?.value || '');
+
+                    if (item?.flag !== 0 || isNaN(value)) {
+                        value = null; 
+                    }
+
+                    variableData.push([ts, value]);
+                } else {
+                    variableData.push([ts, null]); 
+                }
+            }
+
+            console.log(`Processed Data for ${variable}:`, variableData); 
+
+            let assignedColor: string;
+            if (variable === 'RF_1_Tot300s') {
+                assignedColor = '#3498DB';
+            } else {
+                assignedColor = this.getSelectionColor(nonRainfallIndex);
+                nonRainfallIndex++;
+            }
+
+            return {
+                type: variable === 'RF_1_Tot300s' ? 'column' : 'line',
+                name: this.getYAxisLabel(variable),
+                data: variableData,
+                yAxis: index,
+                zIndex: variable === 'RF_1_Tot300s' ? 0 : 1,
+                color: assignedColor,
+                connectNulls: false
+            };
+        });
+}
+
+
 
   getSelectionColor(nonRainfallIndex: number): string {
-    // ✅ Assign colors in order: Green → Yellow → Red
-    const colorOrder = ['#27AE60', '#F1C40F', '#f55e53']; // Green, Yellow, Red
-    return colorOrder[nonRainfallIndex] || '#000000'; // Default black if extra variables
+    const colorOrder = ['#27AE60', '#F1C40F', '#f55e53']; 
+    return colorOrder[nonRainfallIndex] || '#000000'; 
   }
 
 
@@ -249,12 +277,15 @@ export class GraphingComponent implements OnInit, AfterViewInit {
         return (value * 9/5) + 32; // Convert °C to °F
       } else if (variable === 'RF_1_Tot300s') {
         return value / 25.4; // Convert mm to inches
+      } else if (variable === 'WS_1_Avg') {
+        return value * 2.23694; // Convert m/s to mph
+      } else if (variable === 'SM_1_Avg') {
+        return value * 100; // Convert % to 0-100 scale
       }
     }
     return value;
   }
 
-  /** Helper function to update y-axis labels dynamically */
   getYAxisLabel(variable: string): string {
     if (variable === 'Tair_1_Avg') {
       return this.selectedUnit === 'standard' ? 'Temperature (°F)' : 'Temperature (°C)';
