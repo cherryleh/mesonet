@@ -207,62 +207,44 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
     let nonRainfallIndex = 0;
 
-    return this.selectedVariables
-        .map((variable, index) => {
-            // Extract available timestamps
-            const existingTimestamps = new Set(
-                data
-                    .filter((item: any) => item.variable === variable)
-                    .map((item: any) => new Date(item.timestamp).getTime())
-            );
+    return this.selectedVariables.map((variable, index) => {
+        // Extract only the relevant data for the specific variable
+        const variableData: [number, number | null][] = data
+            .filter((item: any) => item.variable === variable)
+            .map((item: any): [number, number | null] => {
+                const timestamp = new Date(item.timestamp).getTime();
+                let value: number | null = parseFloat(item?.value || '');
 
-            // Determine the full time range
-            const timestamps = Array.from(existingTimestamps).map(Number).sort((a, b) => a - b);
-            if (timestamps.length === 0) return { type: 'line', name: variable, data: [] }; 
-
-            const minTimestamp = timestamps[0] ?? 0;
-            const maxTimestamp = timestamps[timestamps.length - 1] ?? 0;
-            const interval = 5 * 60 * 1000;
-
-            const variableData: [number, number | null][] = [];
-            for (let ts: number = minTimestamp; ts <= maxTimestamp; ts += interval) {
-                if (existingTimestamps.has(ts)) {
-                    const item = data.find((d: any) => new Date(d.timestamp).getTime() === ts);
-                    let value: number | null = parseFloat(item?.value || '');
-
-                    if (item?.flag !== 0 || isNaN(value)) {
-                        value = null; 
-                    }
-
-                    variableData.push([ts, value]);
-                } else {
-                    variableData.push([ts, null]); 
+                if (item?.flag !== 0 || isNaN(value)) {
+                    value = null; // Mark invalid or missing values
                 }
-            }
 
-            console.log(`Processed Data for ${variable}:`, variableData); 
+                return [timestamp, value];
+            })
+            .sort((a: [number, number | null], b: [number, number | null]) => a[0] - b[0]); // Sort by timestamp
 
-            let assignedColor: string;
-            if (variable === 'RF_1_Tot300s') {
-                assignedColor = '#3498DB';
-            } else {
-                assignedColor = this.getSelectionColor(nonRainfallIndex);
-                nonRainfallIndex++;
-            }
+        console.log(`Processed Data for ${variable}:`, variableData);
 
-            return {
-                type: variable === 'RF_1_Tot300s' ? 'column' : 'line',
-                name: this.getYAxisLabel(variable),
-                data: variableData,
-                yAxis: index,
-                zIndex: variable === 'RF_1_Tot300s' ? 0 : 1,
-                color: assignedColor,
-                connectNulls: false
-            };
-        });
+        // Assign colors and determine chart type
+        let assignedColor: string;
+        if (variable === 'RF_1_Tot300s') {
+            assignedColor = '#3498DB';
+        } else {
+            assignedColor = this.getSelectionColor(nonRainfallIndex);
+            nonRainfallIndex++;
+        }
+
+        return {
+            type: variable === 'RF_1_Tot300s' ? 'column' : 'line',
+            name: this.getYAxisLabel(variable),
+            data: variableData,
+            yAxis: index,
+            zIndex: variable === 'RF_1_Tot300s' ? 0 : 1,
+            color: assignedColor,
+            connectNulls: false
+        };
+    });
 }
-
-
 
   getSelectionColor(nonRainfallIndex: number): string {
     const colorOrder = ['#27AE60', '#F1C40F', '#f55e53']; 
