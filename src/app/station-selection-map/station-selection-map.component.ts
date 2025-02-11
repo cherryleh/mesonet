@@ -103,9 +103,8 @@ export class StationSelectionMapComponent implements AfterViewInit {
   }
 
   private randomizeLatLon(lat: number, lon: number): { lat: number; lon: number } {
-    // Randomize the 4th decimal place by ±0.0001
-    const latOffset = (Math.random() - 0.5) * 0.0002; // ±0.0001
-    const lonOffset = (Math.random() - 0.5) * 0.0002; // ±0.0001
+    const latOffset = (Math.random() - 0.5) * 0.0002; 
+    const lonOffset = (Math.random() - 0.5) * 0.0002;
     return { lat: lat + latOffset, lon: lon + lonOffset };
   }
 

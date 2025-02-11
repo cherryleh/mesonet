@@ -1,0 +1,12 @@
+<div class="container">
+    <div id="map"></div>
+  
+    <!-- Side Panel -->
+    <div class="sidebar" *ngIf="selectedStation">
+      <h3>{{ selectedStation.name }}</h3>
+      <p><strong>Location:</strong> {{ selectedStation.lat }}, {{ selectedStation.lng }}</p>
+      <p><strong>Data:</strong> {{ selectedStation.details }}</p>
+      <button (click)="selectedStation = null">Close</button>
+    </div>
+  </div>
+  

@@ -14,6 +14,7 @@ import { ReportsComponent } from './reports/reports.component';
 import { AcknowledgementsComponent } from './acknowledgements/acknowledgements.component';
 import { ReportsDraftComponent } from './reports-draft/reports-draft.component';
 import { HighchartMapComponent } from './highchart-map/highchart-map.component';
+import { DataMapComponent } from './data-map/data-map.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent }, // Root route displays Home
@@ -30,5 +31,6 @@ export const routes: Routes = [
   { path: 'acknowledgements', component: AcknowledgementsComponent},
   { path: 'reports-draft', component: ReportsDraftComponent},
   { path: 'highchart-map', component: HighchartMapComponent},
+  { path: 'data-map', component: DataMapComponent},
   { path: '**', redirectTo: '' } // Wildcard route redirects to Home
 ];

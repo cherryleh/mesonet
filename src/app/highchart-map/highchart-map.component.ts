@@ -19,9 +19,15 @@ export class HighchartMapComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.http.get("/hawaii.geojson").subscribe((geojson: any) => {
-      this.fetchStationData(geojson);
-    });
+    this.http.get("/hawaii.geojson").subscribe(
+      (geojson: any) => {
+        console.log("GeoJSON Loaded:", geojson); 
+        this.fetchStationData(geojson);
+      },
+      (error) => {
+        console.error("Error loading GeoJSON:", error);
+      }
+    );
   }
 
   async fetchStationData(geojson: any): Promise<void> {
@@ -40,7 +46,6 @@ export class HighchartMapComponent implements OnInit {
 
       const stationIds = stations.map(station => station.station_id).join(",");
 
-      // ✅ Step 2: Fetch measurement data for those stations
       const measurementsUrl = `https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii&var_ids=Tsoil_1_Avg&local_tz=True&station_ids=${stationIds}&start_date=2025-01-30T11:15:00-10:00`;
       const measurements: any[] = await fetch(measurementsUrl, {
         method: 'GET',
@@ -50,7 +55,6 @@ export class HighchartMapComponent implements OnInit {
         }
       }).then(res => res.json());
 
-      // ✅ Step 3: Map measurement values to stations
       const measurementMap: { [key: string]: number } = {};
       measurements.forEach(measurement => {
         if (measurement.station_id && measurement.value !== undefined) {
@@ -58,33 +62,33 @@ export class HighchartMapComponent implements OnInit {
         }
       });
 
-      // ✅ Step 4: Get min/max values to scale color
       const values = Object.values(measurementMap).filter(v => v !== null);
       const minValue = Math.min(...values);
       const maxValue = Math.max(...values);
 
-      // ✅ Step 5: Assign colors using a gradient
       const stationData: Highcharts.SeriesMappointDataOptions[] = stations
-        .filter(station => station.lat && station.lng && station.name)
-        .map(station => {
-          const value = measurementMap[station.station_id] || null;
-          let color = "gray"; // Default color for missing data
+      .filter(station => station.lat && station.lng && station.name)
+      .map(station => {
+        let value = measurementMap[station.station_id] || null;
+        let color = "gray"; // Default color for missing data
 
-          if (value !== null) {
-            color = this.getColorFromValue(value, minValue, maxValue);
+        if (value !== null) {
+          color = this.getColorFromValue(value, minValue, maxValue);
+          value = Math.round(value); // ✅ Convert to whole number
+        }
+
+        return {
+          lat: station.lat,
+          lon: station.lng,
+          name: station.name,
+          color: color,
+          custom: {  
+            url: `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`,
+            value: value // ✅ Store rounded value
           }
+        };
+      });
 
-          return {
-            lat: station.lat,
-            lon: station.lng,
-            name: station.name,
-            color: color,  // ✅ Assign color based on value
-            custom: {  
-              url: `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`,
-              value: value
-            }
-          };
-        });
 
         this.chartOptions = {
           chart: { 
@@ -93,11 +97,11 @@ export class HighchartMapComponent implements OnInit {
           title: { text: "" },
           mapNavigation: { enabled: true, enableMouseWheelZoom: true },
           colorAxis: {
-            min: 15,  // ✅ Set minimum value to 15
-            max: 40,  // ✅ Set maximum value to 40
+            min: 15,  
+            max: 40,  
             stops: [
-              [0, 'rgb(255, 200, 200)'], // Light red for low values (15)
-              [1, 'rgb(255, 0, 0)']      // Deep red for high values (40)
+              [0, 'rgb(255, 200, 200)'], 
+              [1, 'rgb(255, 0, 0)']      
             ],
             labels: {
               format: '{value}' // Format the values shown in the legend
@@ -133,17 +137,33 @@ export class HighchartMapComponent implements OnInit {
               type: "map",
               name: "Hawaii",
               data: [],
-              borderColor: "#000000",  
+              borderColor: "#000000",
               borderWidth: 1
             },
             {
               type: "mappoint",
               name: "Stations",
-              marker: { radius: 10 }, // ✅ Increase marker size
-              data: stationData,  // ✅ Data with dynamic colors
-              dataLabels: { enabled: false } // ✅ Disable station names above markers
+              marker: { 
+                radius: 14 // Adjust marker size
+              },
+              data: stationData,
+              dataLabels: { 
+                enabled: true,  
+                format: "{point.custom.value}", // ✅ Ensure it's a whole number
+                align: "center",
+                verticalAlign: "middle",
+                style: {
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  textOutline: "1px contrast",
+                  color: "black"
+                }
+              }
             }
           ]
+
+
+
         };
   
   
