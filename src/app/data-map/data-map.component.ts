@@ -108,15 +108,20 @@ export class DataMapComponent implements AfterViewInit {
                 }).addTo(this.map);
 
                 marker.on('click', () => {
-                    this.selectedStation = {
-                        name: station.name,
-                        lat: station.lat,
-                        lng: station.lng,
-                        value: numericValue !== null && !isNaN(numericValue) ? numericValue.toFixed(1) : "No Data",
-                        variable: this.selectedVariable,
-                        url: `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`
-                    };
-                });
+                  this.selectedStation = {
+                      name: station.name,
+                      lat: station.lat,
+                      lng: station.lng,
+                      value: numericValue !== null && !isNaN(numericValue) ? numericValue.toFixed(1) : "No Data",
+                      variable: this.selectedVariable,
+                      url: `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`,
+                      details: null // ✅ Placeholder for additional data
+                  };
+
+                  // ✅ Fetch additional details for sidebar
+                  this.fetchStationDetails(station.station_id);
+              });
+
             }
         });
 
@@ -124,6 +129,47 @@ export class DataMapComponent implements AfterViewInit {
         console.error('Error fetching station data:', error);
     }
 }
+
+async fetchStationDetails(stationId: string): Promise<void> {
+  try {
+      const detailsApiUrl = `https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii&var_ids=Tair_1_Avg,Tsoil_1_Avg,RF_1_Tot300s&station_ids=${stationId}&local_tz=True&limit=3`;
+
+      console.log("Fetching station details from:", detailsApiUrl);
+
+      const response = await fetch(detailsApiUrl, {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+      });
+
+      const measurements: { variable?: string; value?: any }[] = await response.json();
+      console.log("Fetched station details:", measurements);
+
+      if (!measurements || measurements.length === 0) {
+          console.warn("No additional data available for this station.");
+          this.selectedStation.details = null;
+          return;
+      }
+
+      const detailsMap: { [key: string]: string } = {};
+      measurements.forEach((measurement) => {
+          if (!measurement.variable) {
+              console.warn("Skipping measurement with missing variable key:", measurement);
+              return;
+          }
+
+          let numericValue = Number(measurement.value);
+          detailsMap[measurement.variable] = !isNaN(numericValue)
+              ? `${numericValue.toFixed(1)} ${measurement.variable.includes("RF") ? "mm" : "°C"}`
+              : "No Data";
+      });
+
+      this.selectedStation.details = detailsMap;
+  } catch (error) {
+      console.error("Error fetching station details:", error);
+      this.selectedStation.details = null;
+  }
+}
+
 
   private getColorFromValue(value: number, min: number, max: number, variable: string): string {
     const normalizedValue = (value - min) / (max - min);
