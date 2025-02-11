@@ -111,21 +111,13 @@ export class DataMapComponent implements AfterViewInit {
   private addLegend(minValue: number, maxValue: number): void {
     const legend = new L.Control({ position: "bottomright" } as any);
 
-
     legend.onAdd = () => {
       const div = L.DomUtil.create("div", "info legend");
 
-      // ✅ Create a color gradient bar for continuous scale
+      // ✅ Create color gradient bar dynamically
       div.innerHTML = `
         <h4>Temperature (°C)</h4>
-        <div style="width: 200px; height: 15px; background: linear-gradient(to right, 
-        ${interpolateViridis(0)}
-        ${interpolateViridis(0.25)}
-        ${interpolateViridis(0.5)}
-        ${interpolateViridis(0.75)}
-        ${interpolateViridis(1)}
-
-        );"></div>
+        <div id="legend-gradient" style="width: 200px; height: 15px;"></div>
         <div style="display: flex; justify-content: space-between;">
           <span>${minValue.toFixed(1)}°C</span>
           <span>${maxValue.toFixed(1)}°C</span>
@@ -136,8 +128,21 @@ export class DataMapComponent implements AfterViewInit {
     };
 
     legend.addTo(this.map);
+
+    // ✅ Apply gradient after element is created
+    setTimeout(() => {
+      const gradientDiv = document.getElementById("legend-gradient");
+      if (gradientDiv) {
+        gradientDiv.style.background = `linear-gradient(to right, 
+          ${interpolateViridis(0)}, 
+          ${interpolateViridis(0.25)}, 
+          ${interpolateViridis(0.5)}, 
+          ${interpolateViridis(0.75)}, 
+          ${interpolateViridis(1)}
+        )`;
+        gradientDiv.style.border = "1px solid black";
+      }
+    }, 100); // Small delay to ensure element exists
   }
-
-
 
 }

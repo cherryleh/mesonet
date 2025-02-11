@@ -24,6 +24,7 @@
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     line-height: 1.5;
+    width: 220px;
   }
   
   .legend h4 {
@@ -31,5 +32,20 @@
     font-weight: bold;
     text-align: center;
   }
+  
+  .legend-gradient {
+    width: 200px;
+    height: 15px;
+    background: linear-gradient(to right, 
+      #440154, /* Viridis Start */
+      #3b528b, 
+      #21908d, 
+      #5dc963, 
+      #fde725  /* Viridis End */
+    );
+    border: 1px solid black;
+    margin-bottom: 5px;
+  }
+  
   
   
