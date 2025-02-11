@@ -1,12 +1,24 @@
-<div class="container">
-    <div id="map"></div>
-  
-    <!-- Side Panel -->
-    <div class="sidebar" *ngIf="selectedStation">
+<div class="controls">
+  <label for="variable-select">Select Variable:</label>
+  <select id="variable-select" (change)="updateVariable($event)">
+    <option *ngFor="let option of variableOptions" [value]="option.id">
+      {{ option.name }}
+    </option>
+  </select>
+</div>
+
+<div class="map-container">
+  <div id="map"></div>
+  @if (selectedStation) {
+    <div class="sidebar">
       <h3>{{ selectedStation.name }}</h3>
-      <p><strong>Location:</strong> {{ selectedStation.lat }}, {{ selectedStation.lng }}</p>
-      <p><strong>Data:</strong> {{ selectedStation.details }}</p>
+      <p><strong>Latitude:</strong> {{ selectedStation.lat }}</p>
+      <p><strong>Longitude:</strong> {{ selectedStation.lng }}</p>
+      <p><strong>{{ selectedStation.variable === 'Tsoil_1_Avg' ? 'Temperature' : 'Rainfall' }}:</strong> 
+        {{ selectedStation.value }}
+      </p>
+      <a [href]="selectedStation.url" target="_blank" class="button">Open Dashboard</a>
       <button (click)="selectedStation = null">Close</button>
     </div>
-  </div>
-  
+  }
+</div>

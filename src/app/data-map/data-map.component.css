@@ -1,51 +1,58 @@
-.container {
-    display: flex;
-    position: relative;
-  }
-  
-  #map {
-    height: 800px;
-    width: 90%; /* Adjust width as needed */
-  }
-  
-  .sidebar {
-    width: 25%;
-    background: white;
-    padding: 15px;
-    border-left: 2px solid #ccc;
-    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
-    position: relative;
-  }
+.map-container {
+  display: flex;
+  position: relative;
+}
 
-  .legend {
-    background: white;
-    padding: 10px;
-    font-size: 14px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    line-height: 1.5;
-    width: 220px;
-  }
-  
-  .legend h4 {
-    margin: 0 0 8px;
-    font-weight: bold;
-    text-align: center;
-  }
-  
-  .legend-gradient {
-    width: 200px;
-    height: 15px;
-    background: linear-gradient(to right, 
-      #440154, /* Viridis Start */
-      #3b528b, 
-      #21908d, 
-      #5dc963, 
-      #fde725  /* Viridis End */
-    );
-    border: 1px solid black;
-    margin-bottom: 5px;
-  }
-  
-  
-  
+#map {
+  height: 800px;
+  width: 75%;
+}
+
+.sidebar {
+  width: 25%;
+  background: white;
+  padding: 15px;
+  border-left: 2px solid #ccc;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.button {
+  display: block;
+  padding: 8px 12px;
+  margin-top: 10px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  border-radius: 4px;
+}
+
+button {
+  margin-top: 10px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.controls {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  z-index: 1000;
+  font-size: 14px;
+}
+
+.controls select {
+  padding: 5px;
+  font-size: 14px;
+}
+
+.map-container {
+  display: flex;
+  position: relative;
+}

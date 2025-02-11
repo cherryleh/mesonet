@@ -1,10 +1,20 @@
-import { Component, AfterViewInit  } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import * as L from 'leaflet';
 import { CommonModule } from '@angular/common';
 import { environment } from "../../environments/environment";  
-import { interpolateViridis } from "d3-scale-chromatic"; // ✅ Correct import for Viridis
+import { interpolateViridis } from "d3-scale-chromatic"; 
 
+interface Station {
+  station_id: string;
+  name: string;
+  lat: number;
+  lng: number;
+}
 
+interface Measurement {
+  station_id: string;
+  value: number;
+}
 
 @Component({
   selector: 'app-data-map',
@@ -16,133 +26,186 @@ import { interpolateViridis } from "d3-scale-chromatic"; // ✅ Correct import f
 export class DataMapComponent implements AfterViewInit {
   private map!: L.Map;
   private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?reverse=True';
-  private measurementsUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii&var_ids=Tsoil_1_Avg&local_tz=True&start_date=2025-01-30T11:15:00-10:00';
-  private apiToken = environment.apiToken;  // ✅ Use imported environment variable
+  private measurementsUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii';
+  private apiToken = environment.apiToken;
+
+  selectedVariable = "Tair_1_Avg"; 
+  variableOptions = [
+    { id: "Tair_1_Avg", name: "Air Temperature" },
+    { id: "Tsoil_1_Avg", name: "Soil Temperature" },
+    { id: "RF_1_Tot300s", name: "Rainfall" }
+  ];
+
+  selectedStation: any = null;
 
   async fetchStationData(): Promise<void> {
     try {
-      const stations: { station_id: string; name: string; lat: number; lng: number }[] = 
-        await fetch(this.apiUrl, {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+        console.log("Fetching stations...");
+
+        const stations: Station[] = await fetch(this.apiUrl, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
         }).then(res => res.json());
 
-      const stationIds = stations.map((station: { station_id: string }) => station.station_id).join(",");
+        console.log("Fetched stations:", stations);
+        if (!stations || stations.length === 0) {
+            console.warn("No station data received!");
+            return;
+        }
 
-      const measurements: { station_id: string; value: number }[] = 
-        await fetch(`${this.measurementsUrl}&station_ids=${stationIds}`, {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+        const stationIds = stations.map(station => station.station_id).join(",");
+
+        const measurementsApiUrl = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=${stationIds}&local_tz=True&limit=${stationIds.length}`;
+        console.log("Fetching measurements from:", measurementsApiUrl);
+
+        const measurements: Measurement[] = await fetch(measurementsApiUrl, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
         }).then(res => res.json());
 
-      const measurementMap: { [key: string]: number } = {};
-      measurements.forEach((measurement: { station_id: string; value: number }) => {
-        if (measurement.station_id && measurement.value !== undefined) {
-          measurementMap[measurement.station_id] = measurement.value;
+        console.log("Fetched measurements:", measurements);
+
+        if (!measurements || measurements.length === 0) {
+            console.warn("No measurement data received!");
+            return;
         }
-      });
 
-      const values = Object.values(measurementMap).filter(v => v !== null);
-      const minValue = Math.min(...values);
-      const maxValue = Math.max(...values);
-      this.addLegend(minValue, maxValue);
+        const measurementMap: { [key: string]: number } = {};
+        measurements.forEach(measurement => {
+            if (measurement.station_id && measurement.value !== undefined) {
+                measurementMap[measurement.station_id] = measurement.value;
+            }
+        });
 
+        this.map.eachLayer(layer => {
+            if (layer instanceof L.CircleMarker) {
+                this.map.removeLayer(layer);
+            }
+        });
 
-      stations.forEach((station: { station_id: string; name: string; lat: number; lng: number }) => {
-        if (station.lat && station.lng) {
-          let value = measurementMap[station.station_id] ?? null; // Ensure value is defined
-          let numericValue = value !== null ? Number(value) : null; // Convert to number
+        const values = Object.values(measurementMap).filter(v => v !== null);
+        if (values.length === 0) return;
 
-          let color = numericValue !== null && !isNaN(numericValue) 
-            ? this.getColorFromValue(numericValue, minValue, maxValue) 
-            : "gray";
+        const minValue = Math.min(...values);
+        const maxValue = Math.max(...values);
 
-          const marker = L.circleMarker([station.lat, station.lng], {
-            radius: 8,
-            color: color,
-            fillColor: color,
-            fillOpacity: 0.8
-          }).addTo(this.map);
+        this.addLegend(minValue, maxValue);
 
-          marker.bindPopup(`
-            <b>${station.name}</b><br>
-            Temperature: ${numericValue !== null && !isNaN(numericValue) ? numericValue.toFixed(1) + "°C" : "No Data"}<br>
-            <a href="https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}" target="_blank">
-              Open Dashboard
-            </a>
-          `);
+        stations.forEach(station => {
+            if (station.lat && station.lng) {
+                let value = measurementMap[station.station_id] ?? null;
+                let numericValue = value !== null ? Number(value) : null;
 
-          // ✅ Click event to update the side panel
-          marker.on('click', () => {
-            this.selectedStation = {
-              name: station.name,
-              lat: station.lat,
-              lng: station.lng,
-              value: numericValue !== null && !isNaN(numericValue) ? numericValue.toFixed(1) : "No Data"
-            };
-          });
-        }
-      });
+                let color = numericValue !== null && !isNaN(numericValue) 
+                    ? this.getColorFromValue(numericValue, minValue, maxValue, this.selectedVariable) 
+                    : "gray";
 
+                const marker = L.circleMarker([station.lat, station.lng], {
+                    radius: 8,
+                    color: color,
+                    fillColor: color,
+                    fillOpacity: 0.8
+                }).addTo(this.map);
 
+                marker.on('click', () => {
+                    this.selectedStation = {
+                        name: station.name,
+                        lat: station.lat,
+                        lng: station.lng,
+                        value: numericValue !== null && !isNaN(numericValue) ? numericValue.toFixed(1) : "No Data",
+                        variable: this.selectedVariable,
+                        url: `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`
+                    };
+                });
+            }
+        });
 
     } catch (error) {
-      console.error('Error fetching station data:', error);
+        console.error('Error fetching station data:', error);
     }
-  }
+}
 
-  private getColorFromValue(value: number, min: number, max: number): string {
-    const scale = interpolateViridis((value - min) / (max - min)); // Normalize to 0-1
-    return scale;
+  private getColorFromValue(value: number, min: number, max: number, variable: string): string {
+    const normalizedValue = (value - min) / (max - min);
+    return variable === "RF_1_Tot300s"
+      ? interpolateViridis(1 - normalizedValue) 
+      : interpolateViridis(normalizedValue); 
   }
-
-  selectedStation: any = null; // Store selected station for sidebar
 
   ngAfterViewInit(): void {
     this.map = L.map('map', {
-      center: [20.389, -157.52275766141424],
+      center: [20.493410, -158.064388],
       zoom: 8,
-      layers: [L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')]
+      layers: [L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')],
+      zoomControl: false 
     });
 
-    this.fetchStationData();
+    L.control.zoom({ position: "bottomleft" }).addTo(this.map);
+
+    setTimeout(() => {
+      this.fetchStationData();
+    }, 500);
   }
 
   private addLegend(minValue: number, maxValue: number): void {
+    const existingLegend = document.querySelector(".info.legend");
+    if (existingLegend) {
+        existingLegend.remove();
+    }
+
     const legend = new L.Control({ position: "bottomright" } as any);
 
+
     legend.onAdd = () => {
-      const div = L.DomUtil.create("div", "info legend");
+        const div = L.DomUtil.create("div", "info legend");
 
-      // ✅ Create color gradient bar dynamically
-      div.innerHTML = `
-        <h4>Temperature (°C)</h4>
-        <div id="legend-gradient" style="width: 200px; height: 15px;"></div>
-        <div style="display: flex; justify-content: space-between;">
-          <span>${minValue.toFixed(1)}°C</span>
-          <span>${maxValue.toFixed(1)}°C</span>
-        </div>
-      `;
+        let variableLabel = "";
+        if (this.selectedVariable === "Tair_1_Avg") {
+            variableLabel = "Air Temperature (°C)";
+        } else if (this.selectedVariable === "Tsoil_1_Avg") {
+            variableLabel = "Soil Temperature (°C)";
+        } else if (this.selectedVariable === "RF_1_Tot300s") {
+            variableLabel = "Rainfall (mm)";
+        } else {
+            variableLabel = "Unknown Variable";
+        }
 
-      return div;
+        div.innerHTML = `
+            <h4>${variableLabel}</h4>
+            <div id="legend-gradient" style="width: 200px; height: 15px;"></div>
+            <div style="display: flex; justify-content: space-between;">
+                <span>${minValue.toFixed(1)}</span>
+                <span>${maxValue.toFixed(1)}</span>
+            </div>
+        `;
+        return div;
     };
 
     legend.addTo(this.map);
 
-    // ✅ Apply gradient after element is created
     setTimeout(() => {
-      const gradientDiv = document.getElementById("legend-gradient");
-      if (gradientDiv) {
-        gradientDiv.style.background = `linear-gradient(to right, 
-          ${interpolateViridis(0)}, 
-          ${interpolateViridis(0.25)}, 
-          ${interpolateViridis(0.5)}, 
-          ${interpolateViridis(0.75)}, 
-          ${interpolateViridis(1)}
-        )`;
-        gradientDiv.style.border = "1px solid black";
-      }
-    }, 100); // Small delay to ensure element exists
-  }
+        const gradientDiv = document.getElementById("legend-gradient");
+        if (gradientDiv) {
+            gradientDiv.style.background = `linear-gradient(to right, 
+                ${this.selectedVariable === "RF_1_Tot300s"
+                    ? `${interpolateViridis(1)}, ${interpolateViridis(0.75)}, ${interpolateViridis(0.5)}, ${interpolateViridis(0.25)}, ${interpolateViridis(0)}`
+                    : `${interpolateViridis(0)}, ${interpolateViridis(0.25)}, ${interpolateViridis(0.5)}, ${interpolateViridis(0.75)}, ${interpolateViridis(1)}`
+                })`;
+            gradientDiv.style.border = "1px solid black";
+        }
+    }, 100);
+}
 
+
+  updateVariable(event: Event): void {
+    this.selectedVariable = (event.target as HTMLSelectElement).value;
+
+    this.map.eachLayer(layer => {
+      if (layer instanceof L.CircleMarker) {
+        this.map.removeLayer(layer);
+      }
+    });
+
+    this.fetchStationData(); 
+  }
 }
