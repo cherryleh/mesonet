@@ -32,8 +32,7 @@ export class DataMapComponent implements AfterViewInit {
   selectedVariable = "Tair_1_Avg"; 
   variableOptions = [
     { id: "Tair_1_Avg", name: "Air Temperature" },
-    { id: "Tsoil_1_Avg", name: "Soil Temperature" },
-    { id: "RF_1_Tot300s", name: "Rainfall" }
+    { id: "Tsoil_1_Avg", name: "Soil Temperature" }
   ];
 
   selectedStation: any = null;
@@ -71,6 +70,9 @@ export class DataMapComponent implements AfterViewInit {
         }
 
         const measurementMap: { [key: string]: number } = {};
+
+        
+        
         measurements.forEach(measurement => {
             if (measurement.station_id && measurement.value !== undefined) {
                 measurementMap[measurement.station_id] = measurement.value;
@@ -97,7 +99,7 @@ export class DataMapComponent implements AfterViewInit {
                 let numericValue = value !== null ? Number(value) : null;
 
                 let color = numericValue !== null && !isNaN(numericValue) 
-                    ? this.getColorFromValue(numericValue, minValue, maxValue, this.selectedVariable) 
+                    ? this.getColorFromValue(numericValue, minValue, maxValue) 
                     : "gray";
 
                 const marker = L.circleMarker([station.lat, station.lng], {
@@ -115,10 +117,9 @@ export class DataMapComponent implements AfterViewInit {
                       value: numericValue !== null && !isNaN(numericValue) ? numericValue.toFixed(1) : "No Data",
                       variable: this.selectedVariable,
                       url: `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`,
-                      details: null // ✅ Placeholder for additional data
+                      details: null
                   };
 
-                  // ✅ Fetch additional details for sidebar
                   this.fetchStationDetails(station.station_id);
               });
 
@@ -132,7 +133,7 @@ export class DataMapComponent implements AfterViewInit {
 
 async fetchStationDetails(stationId: string): Promise<void> {
   try {
-      const detailsApiUrl = `https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii&var_ids=Tair_1_Avg,Tsoil_1_Avg,RF_1_Tot300s&station_ids=${stationId}&local_tz=True&limit=3`;
+      const detailsApiUrl = `https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii&var_ids=Tair_1_Avg,Tsoil_1_Avg,RF_1_Tot300s,SWin_1_Avg,SM_1_Avg&station_ids=${stationId}&local_tz=True&limit=864`;
 
       console.log("Fetching station details from:", detailsApiUrl);
 
@@ -142,41 +143,57 @@ async fetchStationDetails(stationId: string): Promise<void> {
       });
 
       const measurements: { variable?: string; value?: any }[] = await response.json();
-      console.log("Fetched station details:", measurements);
+      console.log("Fetched station details:", JSON.stringify(measurements, null, 2));
 
       if (!measurements || measurements.length === 0) {
           console.warn("No additional data available for this station.");
-          this.selectedStation.details = null;
+          this.selectedStation.details = { "RF_1_Tot300s": "No Data" }; 
           return;
       }
 
       const detailsMap: { [key: string]: string } = {};
-      measurements.forEach((measurement) => {
-          if (!measurement.variable) {
-              console.warn("Skipping measurement with missing variable key:", measurement);
-              return;
-          }
+      let rainfallSum = 0;
+      let rainfallCount = 0;
 
-          let numericValue = Number(measurement.value);
-          detailsMap[measurement.variable] = !isNaN(numericValue)
-              ? `${numericValue.toFixed(1)} ${measurement.variable.includes("RF") ? "mm" : "°C"}`
-              : "No Data";
-      });
+      const unitMapping: { [key: string]: string } = {
+        "Tair_1_Avg": "°C",      // Air Temperature
+        "Tsoil_1_Avg": "°C",     // Soil Temperature
+        "RF_1_Tot300s": "mm",    // Rainfall
+        "SWin_1_Avg": "W/m²",    // Solar Radiation
+        "SM_1_Avg": "%",         // Soil Moisture 
+    };
+
+    measurements.forEach((measurement) => {
+        if (!measurement.variable) {
+            console.warn("Skipping measurement with missing variable key:", measurement);
+            return;
+        }
+
+        let numericValue = Number(measurement.value);
+
+        if (!isNaN(numericValue)) {
+            if (measurement.variable === "SM_1_Avg") {
+                numericValue *= 100;
+            }
+
+            const unit = unitMapping[measurement.variable] || ""; 
+            detailsMap[measurement.variable] = `${numericValue.toFixed(1)} ${unit}`;
+        }
+    });
+
+
 
       this.selectedStation.details = detailsMap;
   } catch (error) {
       console.error("Error fetching station details:", error);
-      this.selectedStation.details = null;
   }
 }
 
 
-  private getColorFromValue(value: number, min: number, max: number, variable: string): string {
-    const normalizedValue = (value - min) / (max - min);
-    return variable === "RF_1_Tot300s"
-      ? interpolateViridis(1 - normalizedValue) 
-      : interpolateViridis(normalizedValue); 
-  }
+private getColorFromValue(value: number, min: number, max: number): string {
+  const normalizedValue = (value - min) / (max - min);
+  return interpolateViridis(normalizedValue); 
+}
 
   ngAfterViewInit(): void {
     this.map = L.map('map', {

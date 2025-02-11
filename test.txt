@@ -1,195 +1,148 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { RouterModule } from '@angular/router';
-import { HeaderComponent } from '../header/header.component';
-import { SidebarComponent } from '../sidebar/sidebar.component';
-import { StationTitleComponent } from '../station-title/station-title.component';
-import { GraphingDataService } from '../services/graphing-data.service';
-import { GraphingMenuService } from '../services/graphing-menu.service';
-import * as Highcharts from 'highcharts';
+import { Component, AfterViewInit } from '@angular/core';
+import * as L from 'leaflet';
 import { CommonModule } from '@angular/common';
+import { environment } from "../../environments/environment";  
+import { interpolateViridis } from "d3-scale-chromatic"; 
+
+interface Station {
+  station_id: string;
+  name: string;
+  lat: number;
+  lng: number;
+}
+
+interface Measurement {
+  station_id: string;
+  value: number;
+}
 
 @Component({
-  selector: 'app-graphing',
+  selector: 'app-data-map',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, SidebarComponent, StationTitleComponent],
-  templateUrl: './graphing.component.html',
-  styleUrl: './graphing.component.css'
+  imports: [CommonModule],
+  templateUrl: './data-map.component.html',
+  styleUrl: './data-map.component.css'
 })
-export class GraphingComponent implements OnInit, AfterViewInit {
-  stationId: string = '';
-  selectedVariables: string[] = ['Tair_1_Avg']; // Default selection as an array
-  selectedDuration: string = '24h';
-  selectedUnit: 'metric' | 'standard' = 'metric';
-  isCollapsed = false;
+export class DataMapComponent implements AfterViewInit {
+  private map!: L.Map;
+  private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?reverse=True';
+  private measurementsUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii';
+  private apiToken = environment.apiToken;
 
-  onToggleSidebar(collapsed: boolean) {
-    this.isCollapsed = collapsed;
+  selectedVariable = "Tair_1_Avg"; 
+  variableOptions = [
+    { id: "Tair_1_Avg", name: "Air Temperature" },
+    { id: "Tsoil_1_Avg", name: "Soil Temperature" }
+  ];
+
+  selectedStation: any = null;
+
+  async fetchStationData(): Promise<void> {
+    try {
+        console.log("Fetching stations...");
+
+        const stations: Station[] = await fetch(this.apiUrl, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+        }).then(res => res.json());
+
+        console.log("Fetched stations:", stations);
+        if (!stations || stations.length === 0) {
+            console.warn("No station data received!");
+            return;
+        }
+
+        const stationIds = stations.map(station => station.station_id).join(",");
+
+        const measurementsApiUrl = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=${stationIds}&local_tz=True&limit=${stationIds.length}`;
+        console.log("Fetching measurements from:", measurementsApiUrl);
+
+        const measurements: Measurement[] = await fetch(measurementsApiUrl, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+        }).then(res => res.json());
+
+        console.log("Fetched measurements:", measurements);
+
+        if (!measurements || measurements.length === 0) {
+            console.warn("No measurement data received!");
+            return;
+        }
+
+        const measurementMap: { [key: string]: number } = {};
+        measurements.forEach(measurement => {
+            if (measurement.station_id && measurement.value !== undefined) {
+                measurementMap[measurement.station_id] = measurement.value;
+            }
+        });
+
+        this.map.eachLayer(layer => {
+            if (layer instanceof L.CircleMarker) {
+                this.map.removeLayer(layer);
+            }
+        });
+
+        const values = Object.values(measurementMap).filter(v => v !== null);
+        if (values.length === 0) return;
+
+        const minValue = Math.min(...values);
+        const maxValue = Math.max(...values);
+
+        this.addLegend(minValue, maxValue);
+
+        stations.forEach(station => {
+            if (station.lat && station.lng) {
+                let value = measurementMap[station.station_id] ?? null;
+                let numericValue = value !== null ? Number(value) : null;
+
+                let color = numericValue !== null && !isNaN(numericValue) 
+                    ? this.getColorFromValue(numericValue, minValue, maxValue) 
+                    : "gray";
+
+                const marker = L.circleMarker([station.lat, station.lng], {
+                    radius: 8,
+                    color: color,
+                    fillColor: color,
+                    fillOpacity: 0.8
+                }).addTo(this.map);
+
+                marker.on('click', () => {
+                  this.selectedStation = {
+                      name: station.name,
+                      lat: station.lat,
+                      lng: station.lng,
+                      value: numericValue !== null && !isNaN(numericValue) ? numericValue.toFixed(1) : "No Data",
+                      variable: this.selectedVariable,
+                      url: `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`,
+                      details: null 
+                  };
+                  this.fetchStationDetails(station.station_id);
+              });
+            }
+        });
+
+    } catch (error) {
+        console.error('Error fetching station data:', error);
+    }
   }
 
-  chart: Highcharts.Chart | null = null;
-  isLoading: boolean = false;
-
-  variables: { label: string, value: string, yAxisTitle: string }[] = [
-    { label: 'Temperature', value: 'Tair_1_Avg', yAxisTitle: 'Temperature (°C)' },
-    { label: 'Rainfall', value: 'RF_1_Tot300s', yAxisTitle: 'Rainfall (mm)' },
-    { label: 'Soil Moisture', value: 'SM_1_Avg', yAxisTitle: 'Soil Moisture (%)' },
-    { label: 'Relative Humidity', value: 'RH_1_Avg', yAxisTitle: 'Relative Humidity (%)' }
-  ];
-
-  durations: { label: string, value: string }[] = [
-    { label: 'Last 24 Hours', value: '24h' },
-    { label: 'Last 7 Days', value: '7d' },
-    { label: 'Last 30 Days', value: '30d' }
-  ];
-
-  constructor(
-    private route: ActivatedRoute,
-    private graphingDataService: GraphingDataService,
-    private graphingMenuService: GraphingMenuService
-  ) { }
-
-  ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      this.stationId = params['id'] || 'default_station_id';
-      this.loadData();
-    });
+  private getColorFromValue(value: number, min: number, max: number): string {
+    const normalizedValue = (value - min) / (max - min);
+    return interpolateViridis(normalizedValue); 
   }
 
   ngAfterViewInit(): void {
-    this.initializeChart();
-  }
-
-  onVariableChange(event: Event): void {
-    const selectedOptions = Array.from((event.target as HTMLSelectElement).selectedOptions);
-    this.selectedVariables = selectedOptions.map(option => option.value).slice(0, 3); // Limit selection to 3
-  }
-
-  updateChartButtonClick(): void {
-    this.loadData();
-  }
-
-  loadData(): void {
-    this.isLoading = true;
-    const days = this.getDaysFromDuration(this.selectedDuration);
-    const startDate = this.getDateMinusDaysInHST(days);
-
-    this.graphingDataService.getData(this.stationId, this.selectedVariables.join(','), startDate).subscribe(
-      data => {
-        if (!data || data.length === 0) {
-          this.isLoading = false;
-          return;
-        }
-
-        const seriesData = this.formatData(data);
-        this.updateChart(seriesData);
-        this.isLoading = false;
-      },
-      error => {
-        console.error('Error fetching data:', error);
-        this.isLoading = false;
-      }
-    );
-  }
-
-formatData(data: any): Highcharts.SeriesOptionsType[] {
-    if (!data || data.length === 0) return [];
-
-    const seriesData: Highcharts.SeriesOptionsType[] = [];
-    this.selectedVariables.forEach((variable, index) => {
-      const variableData = data
-        .filter((item: any) => item.variable === variable)
-        .map((item: any) => ({
-          timestamp: new Date(item.timestamp).getTime(),
-          value: variable === 'Tair_1_Avg' && this.selectedUnit === 'standard' 
-            ? (parseFloat(item.value) * 9/5) + 32
-            : variable === 'RF_1_Tot300s' && this.selectedUnit === 'standard' 
-              ? parseFloat(item.value) / 25.4
-              : variable === 'SM_1_Avg' 
-                ? parseFloat(item.value) * 100
-                : parseFloat(item.value)
-        }));
-
-      let aggregatedData = variableData;
-      if (this.selectedDuration === '7d' || this.selectedDuration === '30d') {
-        aggregatedData = this.aggregateToHourly(variableData, variable);
-      }
-      if (this.selectedDuration === '24h') {
-        aggregatedData = variableData.map((item: { timestamp: number; value: number }) => [item.timestamp, item.value]);
-      }
-
-      seriesData.push({
-        type: variable === 'RF_1_Tot300s' ? 'column' : 'line',
-        name: this.variables.find(v => v.value === variable)?.label || variable,
-        data: aggregatedData,
-        yAxis: index
-      });
+    this.map = L.map('map', {
+      center: [20.493410, -158.064388],
+      zoom: 8,
+      layers: [L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')],
+      zoomControl: false 
     });
 
-    return seriesData;
-  }
-}
+    L.control.zoom({ position: "bottomleft" }).addTo(this.map);
 
-
-  updateChart(seriesData: Highcharts.SeriesOptionsType[]): void {
-    if (this.chart) {
-        while (this.chart.series.length) {
-            this.chart.series[0].remove(false);
-        }
-
-        // Ensure correct number of y-axes
-        const yAxisConfig = this.selectedVariables.map((variable, index) => ({
-            title: { text: this.variables.find(v => v.value === variable)?.yAxisTitle || 'Value' },
-            opposite: index % 2 === 1 // Alternates sides for readability
-        }));
-
-        this.chart?.update({ yAxis: yAxisConfig });
-
-        seriesData.forEach(series => this.chart?.addSeries(series, false));
-        this.chart?.redraw();
-    }
-}
-
-
-  initializeChart(): void {
-    if (!this.chart) {
-      this.chart = Highcharts.chart('graphContainer', {
-        chart: { type: 'line', height: '45%', zooming: { type: 'x' } },
-        title: { text: '' },
-        xAxis: { type: 'datetime' },
-        yAxis: [{ title: { text: 'Primary Axis' } }, { title: { text: 'Secondary Axis' }, opposite: true }],
-        tooltip: { shared: true, valueDecimals: 2, xDateFormat: '%b %e, %Y %l:%M%p' },
-        time: { timezoneOffset: 600 },
-        plotOptions: { column: { pointWidth: 5 }, series: { lineWidth: 3, marker: { enabled: false } } },
-        series: []
-      });
-    }
-  }
-
-  getDateMinusDaysInHST(days: number): string {
-    const currentDate = new Date();
-    const dateMinusHours = new Date(currentDate.getTime() - (days * 24 * 60 * 60 * 1000));
-    return new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Pacific/Honolulu',
-      year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-    }).format(dateMinusHours);
-  }
-
-  getDaysFromDuration(duration: string): number {
-    return duration === '24h' ? 1 : duration === '7d' ? 7 : duration === '30d' ? 30 : 0;
-  }
-
-  onUnitChange(event: Event): void {
-    const selectedValue = (event.target as HTMLSelectElement).value as 'metric' | 'standard';
-    this.selectedUnit = selectedValue;
-  }
-
-  onDurationChange(event: Event): void {
-    const selectedValue = (event.target as HTMLSelectElement).value;
-    this.selectedDuration = selectedValue;
-    this.graphingMenuService.setDuration(this.selectedDuration);
-    const selectedOptions = Array.from((event.target as HTMLSelectElement).selectedOptions);
-    this.selectedVariables = selectedOptions.map(option => option.value).slice(0, 3); // Limit selection to 3
+    setTimeout(() => {
+      this.fetchStationData();
+    }, 500);
   }
 }

@@ -19,6 +19,8 @@
       <p><strong>Air Temperature:</strong> {{ selectedStation.details['Tair_1_Avg'] || 'No Data' }}</p>
       <p><strong>Soil Temperature:</strong> {{ selectedStation.details['Tsoil_1_Avg'] || 'No Data' }}</p>
       <p><strong>Rainfall:</strong> {{ selectedStation.details['RF_1_Tot300s'] || 'No Data' }}</p>
+      <p><strong>Incoming Shortwave Radiation:</strong> {{ selectedStation.details['SWin_1_Avg'] || 'No Data' }}</p>
+      <p><strong>Soil Moisture:</strong> {{ selectedStation.details['SM_1_Avg'] || 'No Data' }}</p>
     </div>
 
     <ng-template #loadingData>
