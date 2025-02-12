@@ -1,33 +1,69 @@
+<app-header></app-header>
 
-<div class="controls">
-  <label for="variable-select">Select Variable:</label>
-  <select id="variable-select" (change)="updateVariable($event)">
-    <option *ngFor="let option of variableOptions" [value]="option.id">
-      {{ option.name }}
-    </option>
-  </select>
-</div>
 <div class="map-container">
+  <!-- Dropdown inside the map-container -->
+  <div class="controls">
+      <label for="variable-select">Select Variable:</label>
+      <select id="variable-select" (change)="updateVariable($event)">
+          <option *ngFor="let option of variableOptions" [value]="option.id">
+              {{ option.name }}
+          </option>
+      </select>
+  </div>
+
+  <!-- Map itself -->
   <div id="map"></div>
 
+  <!-- Sidebar for station details -->
   <div *ngIf="selectedStation" class="sidebar">
-    <h3>{{ selectedStation.name }}</h3>
-    <p><strong>Latitude:</strong> {{ selectedStation.lat }}</p>
-    <p><strong>Longitude:</strong> {{ selectedStation.lng }}</p>
+      <h3>{{ selectedStation.name }}</h3>
+      <p><strong>Latitude:</strong> {{ selectedStation.lat }}</p>
+      <p><strong>Longitude:</strong> {{ selectedStation.lng }}</p>
 
-    <div *ngIf="selectedStation.details; else loadingData">
-      <p><strong>Air Temperature:</strong> {{ selectedStation.details['Tair_1_Avg'] || 'No Data' }}</p>
-      <p><strong>Soil Temperature:</strong> {{ selectedStation.details['Tsoil_1_Avg'] || 'No Data' }}</p>
-      <p><strong>Rainfall:</strong> {{ selectedStation.details['RF_1_Tot300s'] || 'No Data' }}</p>
-      <p><strong>Incoming Shortwave Radiation:</strong> {{ selectedStation.details['SWin_1_Avg'] || 'No Data' }}</p>
-      <p><strong>Soil Moisture:</strong> {{ selectedStation.details['SM_1_Avg'] || 'No Data' }}</p>
-    </div>
+      <div class="unit-toggle">
+          <span class="unit-option" [class.active]="unitSystem === 'metric'">Metric</span>
+          <label class="switch">
+              <input type="checkbox" (change)="toggleUnits($event)">
+              <span class="slider"></span>
+          </label>
+          <span class="unit-option" [class.active]="unitSystem === 'imperial'">Standard</span>
+      </div>
 
-    <ng-template #loadingData>
-      <p>Loading additional data...</p>
-    </ng-template>
+      <div class="station-details" *ngIf="selectedStation.details; else loadingData">
+          <div class="data-row">
+              <i class="icon bx bxs-thermometer"></i>
+              <span>Air Temperature:</span>
+              <strong>{{ convertedDetails['Tair_1_Avg'] || 'No Data' }}</strong>
+          </div>
+          <div class="data-row">
+              <i class="icon bx bx-droplet"></i>
+              <span>Soil Temperature:</span>
+              <strong>{{ convertedDetails['Tsoil_1_Avg'] || 'No Data' }}</strong>
+          </div>
+          <div class="data-row">
+              <i class="icon bx bx-cloud-rain"></i>
+              <span>Rainfall:</span>
+              <strong>{{ convertedDetails['RF_1_Tot300s'] || 'No Data' }}</strong>
+          </div>
+          <div class="data-row">
+              <i class="icon bx bx-sun"></i>
+              <span>Shortwave Radiation:</span>
+              <strong>{{ selectedStation.details['SWin_1_Avg'] || 'No Data' }}</strong>
+          </div>
+          <div class="data-row">
+              <i class="icon bx bx-leaf"></i>
+              <span>Soil Moisture:</span>
+              <strong>{{ selectedStation.details['SM_1_Avg'] || 'No Data' }}</strong>
+          </div>
+      </div>
 
-    <a [href]="selectedStation.url" target="_blank" class="button">Open Dashboard</a>
-    <button (click)="selectedStation = null">Close</button>
+      <ng-template #loadingData>
+          <p>Loading additional data...</p>
+      </ng-template>
+
+      <div class="sidebar-buttons">
+          <a [href]="selectedStation.url" target="_blank" class="button">Open Dashboard</a>
+          <button class="close-btn" (click)="selectedStation = null">Close</button>
+      </div>
   </div>
 </div>

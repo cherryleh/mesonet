@@ -2,7 +2,8 @@ import { Component, AfterViewInit } from '@angular/core';
 import * as L from 'leaflet';
 import { CommonModule } from '@angular/common';
 import { environment } from "../../environments/environment";  
-import { interpolateViridis } from "d3-scale-chromatic"; 
+import { interpolateViridis } from "d3-scale-chromatic";
+import { HeaderComponent } from '../header/header.component';
 
 interface Station {
   station_id: string;
@@ -19,7 +20,7 @@ interface Measurement {
 @Component({
   selector: 'app-data-map',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HeaderComponent],
   templateUrl: './data-map.component.html',
   styleUrl: './data-map.component.css'
 })
@@ -271,4 +272,45 @@ private getColorFromValue(value: number, min: number, max: number): string {
 
     this.fetchStationData(); 
   }
+
+
+  unitSystem: 'metric' | 'imperial' = 'metric';
+  convertedDetails: { [key: string]: string } = {};
+
+  toggleUnits(event: Event): void {
+      this.unitSystem = (event.target as HTMLInputElement).checked ? 'imperial' : 'metric';
+      this.convertUnits();
+  }
+
+  convertUnits(): void {
+      if (!this.selectedStation?.details) return;
+
+      this.convertedDetails = { ...this.selectedStation.details };
+
+      // Convert temperature (°C ↔ °F)
+      if (this.selectedStation.details['Tair_1_Avg']) {
+          const tempC = parseFloat(this.selectedStation.details['Tair_1_Avg']);
+          this.convertedDetails['Tair_1_Avg'] = this.unitSystem === 'imperial' 
+              ? `${((tempC * 9/5) + 32).toFixed(1)} °F` 
+              : `${tempC.toFixed(1)} °C`;
+      }
+
+      if (this.selectedStation.details['Tsoil_1_Avg']) {
+          const tempC = parseFloat(this.selectedStation.details['Tsoil_1_Avg']);
+          this.convertedDetails['Tsoil_1_Avg'] = this.unitSystem === 'imperial' 
+              ? `${((tempC * 9/5) + 32).toFixed(1)} °F` 
+              : `${tempC.toFixed(1)} °C`;
+      }
+
+      // Convert rainfall (mm ↔ inches)
+      if (this.selectedStation.details['RF_1_Tot300s']) {
+          const rainMM = parseFloat(this.selectedStation.details['RF_1_Tot300s']);
+          this.convertedDetails['RF_1_Tot300s'] = this.unitSystem === 'imperial' 
+              ? `${(rainMM / 25.4).toFixed(2)} in` 
+              : `${rainMM.toFixed(1)} mm`;
+      }
+  }
+
+
+
 }
