@@ -84,6 +84,11 @@ export class DashboardChartComponent implements OnInit, OnDestroy {
     },
     xAxis: {
       type: 'datetime',
+      labels: {
+        format: '{value:%b %e, %l:%M %p}', // "Feb 9, 2:30 PM"
+        step: 1 // Ensures labels are spaced properly
+      },
+      tickInterval: 6 * 3600 * 1000, // 6 hours in milliseconds
     },
     yAxis: [
       {

@@ -104,7 +104,14 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   onDurationChange(event: MatSelectChange): void {
     this.selectedDuration = event.value; 
     this.graphingMenuService.setDuration(this.selectedDuration);
+
+    if (this.chart) {
+      this.chart.xAxis[0].update({
+        tickInterval: this.getTickInterval(),
+      });
+    }
   }
+
 
   onUnitChange(event: MatSelectChange): void {
     this.selectedUnit = event.value as 'metric' | 'standard'; 
@@ -119,18 +126,28 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       this.chart = Highcharts.chart('graphContainer', {
         chart: { type: 'line', zooming: { type: 'x' } },
         title: { text: '' },
-        xAxis: { type: 'datetime' },
+        xAxis: {
+          type: 'datetime',
+          labels: {
+            format: '{value:%b %e, %l:%M %p}', // "Feb 9, 2:30 PM"
+          },
+          tickInterval: this.getTickInterval(), // Dynamically set the tick interval
+        },
         yAxis: [
           { title: { text: '' } }, 
           { title: { text: '' }, opposite: true }, 
           { title: { text: '' }, opposite: true }  
         ],
-        tooltip: { shared: true, valueDecimals: 2, xDateFormat: '%b %e, %Y %l:%M%p' },
+        tooltip: { shared: true, valueDecimals: 2, xDateFormat: '%b %e, %Y %l:%M %p' },
         time: { timezoneOffset: 600 },
         plotOptions: { column: { pointWidth: 5 }, series: { lineWidth: 3, marker: { enabled: false } } },
         series: []
       });
     }
+  }
+
+  getTickInterval(): number {
+    return this.selectedDuration === '30d' ? 24 * 3600 * 1000 : 6 * 3600 * 1000;
   }
 
 
