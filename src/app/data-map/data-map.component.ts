@@ -184,7 +184,9 @@ async fetchStationDetails(stationId: string): Promise<void> {
 
 
 
-      this.selectedStation.details = detailsMap;
+    this.selectedStation.details = detailsMap;
+    this.convertUnits(); // Ensure the details are converted immediately after fetching
+
   } catch (error) {
       console.error("Error fetching station details:", error);
   }
