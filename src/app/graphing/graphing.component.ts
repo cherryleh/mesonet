@@ -91,12 +91,11 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
   onVariableChange(event: MatSelectChange): void {
     if (event.value.length > 3) {
-      return; // Prevents selecting more than 3 variables
+      return;
     }
     this.selectedVariables = event.value;
   }
 
-  /** Helper method to disable options when 3 are selected */
   isOptionDisabled(variable: string): boolean {
     return this.selectedVariables.length >= 3 && !this.selectedVariables.includes(variable);
   }
@@ -131,7 +130,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
           labels: {
             format: '{value:%b %e, %l:%M %p}', // "Feb 9, 2:30 PM"
           },
-          tickInterval: this.getTickInterval(), // Dynamically set the tick interval
+          tickInterval: this.getTickInterval(), 
         },
         yAxis: [
           { title: { text: '' } }, 
@@ -187,6 +186,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       data => {
         this.isLoading = false;
         if (!data || data.length === 0) return;
+        console.log('Fetched Data:', data);
         this.updateChart(this.formatData(data));
       },
       error => {
@@ -225,8 +225,9 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     let nonRainfallIndex = 0;
 
     return this.selectedVariables.map((variable, index) => {
-        // Extract only the relevant data for the specific variable
-        const variableData: [number, number | null][] = data
+        const variableData: [number, number | null][] = [];
+
+        const filteredData = data
             .filter((item: any) => item.variable === variable)
             .map((item: any): [number, number | null] => {
                 const timestamp = new Date(item.timestamp).getTime();
@@ -238,11 +239,26 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
                 return [timestamp, value];
             })
-            .sort((a: [number, number | null], b: [number, number | null]) => a[0] - b[0]); // Sort by timestamp
+            .sort((a: [number, number | null], b: [number, number | null]) => a[0] - b[0]);
+
+        for (let i = 0; i < filteredData.length - 1; i++) {
+            const [currentTime, currentValue] = filteredData[i];
+            const [nextTime] = filteredData[i + 1];
+
+            variableData.push([currentTime, currentValue]);
+
+            const timeDiff = nextTime - currentTime;
+            if (timeDiff > 5 * 60 * 1000) { 
+                variableData.push([currentTime + 1, null]);
+            }
+        }
+
+        if (filteredData.length > 0) {
+            variableData.push(filteredData[filteredData.length - 1]);
+        }
 
         console.log(`Processed Data for ${variable}:`, variableData);
 
-        // Assign colors and determine chart type
         let assignedColor: string;
         if (variable === 'RF_1_Tot300s') {
             assignedColor = '#3498DB';
@@ -258,10 +274,11 @@ export class GraphingComponent implements OnInit, AfterViewInit {
             yAxis: index,
             zIndex: variable === 'RF_1_Tot300s' ? 0 : 1,
             color: assignedColor,
-            connectNulls: false
+            connectNulls: false, // Ensures the gaps are visible
         };
     });
 }
+
 
   getSelectionColor(nonRainfallIndex: number): string {
     const colorOrder = ['#27AE60', '#F1C40F', '#f55e53']; 
