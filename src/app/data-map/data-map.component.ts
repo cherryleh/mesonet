@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import * as L from 'leaflet';
 import { CommonModule } from '@angular/common';
 import { environment } from "../../environments/environment";  
@@ -24,7 +24,11 @@ interface Measurement {
   templateUrl: './data-map.component.html',
   styleUrl: './data-map.component.css'
 })
+
 export class DataMapComponent implements AfterViewInit {
+
+    constructor(private cdr: ChangeDetectorRef) {}
+
   private map!: L.Map;
   private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?reverse=True';
   private measurementsUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii';
@@ -185,6 +189,27 @@ async fetchStationData(): Promise<void> {
 
 async fetchStationDetails(stationId: string): Promise<void> {
     try {
+        if (!this.selectedStation) {
+            console.warn("No station selected.");
+            return;
+        }
+
+        // ✅ Reset `selectedStation.details` and `convertedDetails`
+        this.selectedStation = {
+            ...this.selectedStation,
+            details: {
+                "Tair_1_Avg": "No Data",
+                "Tsoil_1_Avg": "No Data",
+                "RF_1_Tot300s": "No Data",
+                "SWin_1_Avg": "No Data",
+                "SM_1_Avg": "No Data"
+            },
+            detailsTimestamp: null
+        };
+
+        this.convertedDetails = { ...this.selectedStation.details }; // ✅ Reset converted values
+        this.cdr.detectChanges(); // ✅ Ensure UI updates immediately
+
         const detailsApiUrl = `https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii&var_ids=Tair_1_Avg,Tsoil_1_Avg,RF_1_Tot300s,SWin_1_Avg,SM_1_Avg&station_ids=${stationId}&local_tz=True&limit=864`;
 
         console.log("Fetching station details from:", detailsApiUrl);
@@ -196,22 +221,16 @@ async fetchStationDetails(stationId: string): Promise<void> {
 
         const measurements: { timestamp?: string; variable?: string; value?: any }[] = await response.json();
 
-        this.selectedStation.details = {
-            "Tair_1_Avg": "No Data",
-            "Tsoil_1_Avg": "No Data",
-            "RF_1_Tot300s": "No Data",
-            "SWin_1_Avg": "No Data",
-            "SM_1_Avg": "No Data"
-        };
-        this.selectedStation.detailsTimestamp = null;
-
+        // ✅ If no data, force "No Data" and update UI
         if (!measurements || measurements.length === 0) {
             console.warn("No additional data available for this station.");
+            this.selectedStation.detailsTimestamp = null;
+            this.convertedDetails = { ...this.selectedStation.details }; // ✅ Sync converted details with "No Data"
+            this.cdr.detectChanges(); // ✅ Ensure UI updates to show "No Data"
             return;
         }
 
-        let latestTimestamp: string | null = null; 
-
+        let latestTimestamp: string | null = null;
         const unitMapping: { [key: string]: string } = {
             "Tair_1_Avg": "°C",
             "Tsoil_1_Avg": "°C",
@@ -219,6 +238,8 @@ async fetchStationDetails(stationId: string): Promise<void> {
             "SWin_1_Avg": "W/m²",
             "SM_1_Avg": "%"
         };
+
+        let updatedDetails = { ...this.selectedStation.details }; // Keep "No Data" unless updated
 
         measurements.forEach((measurement) => {
             if (!measurement.variable || !measurement.timestamp) {
@@ -229,11 +250,11 @@ async fetchStationDetails(stationId: string): Promise<void> {
             let numericValue = Number(measurement.value);
             if (!isNaN(numericValue)) {
                 if (measurement.variable === "SM_1_Avg") {
-                    numericValue *= 100;
+                    numericValue *= 100; // Convert to percentage
                 }
 
                 const unit = unitMapping[measurement.variable] || "";
-                this.selectedStation.details[measurement.variable] = `${numericValue.toFixed(1)} ${unit}`;
+                updatedDetails[measurement.variable] = `${numericValue.toFixed(1)} ${unit}`;
 
                 if (!latestTimestamp) {
                     latestTimestamp = measurement.timestamp;
@@ -241,9 +262,16 @@ async fetchStationDetails(stationId: string): Promise<void> {
             }
         });
 
-        this.selectedStation.detailsTimestamp = latestTimestamp ? this.formatTimestamp(latestTimestamp) : null;
+        // ✅ Update selectedStation and convertedDetails properly
+        this.selectedStation = {
+            ...this.selectedStation,
+            details: updatedDetails,
+            detailsTimestamp: latestTimestamp ? this.formatTimestamp(latestTimestamp) : null
+        };
 
-        this.convertUnits(); 
+        this.convertedDetails = { ...updatedDetails }; // ✅ Sync convertedDetails with updated values
+        this.convertUnits();
+        this.cdr.detectChanges(); // ✅ Ensure UI updates with new data
 
     } catch (error) {
         console.error("Error fetching station details:", error);
