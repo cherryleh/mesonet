@@ -1,8 +1,12 @@
 <app-header></app-header>
 
 <div class="map-container">
-  <!-- Dropdown inside the map-container -->
   <div class="controls">
+    <!-- Display the latest observation time -->
+    <p *ngIf="latestObservationTime" class="observation-time">
+        Latest Observation: <br> {{ latestObservationTime }}
+    </p>
+
       <label for="variable-select">Select Variable:</label>
       <select id="variable-select" (change)="updateVariable($event)">
           <option *ngFor="let option of variableOptions" [value]="option.id">
@@ -17,6 +21,11 @@
   <!-- Sidebar for station details -->
   <div *ngIf="selectedStation" class="sidebar">
       <h3>{{ selectedStation.name }}</h3>
+
+      <div *ngIf="selectedStation.detailsTimestamp" class="details-timestamp">
+        <p><strong>Latest Measurement:</strong> {{ selectedStation.detailsTimestamp }}</p>
+    </div>
+    
       <p><strong>Latitude:</strong> {{ selectedStation.lat }}</p>
       <p><strong>Longitude:</strong> {{ selectedStation.lng }}</p>
 
@@ -42,7 +51,7 @@
           </div>
           <div class="data-row">
               <i class="icon bx bx-cloud-rain"></i>
-              <span>Rainfall:</span>
+              <span>24-Hour Rainfall:</span>
               <strong>{{ convertedDetails['RF_1_Tot300s'] || 'No Data' }}</strong>
           </div>
           <div class="data-row">

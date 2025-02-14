@@ -38,16 +38,71 @@ export class DataMapComponent implements AfterViewInit {
 
   selectedStation: any = null;
 
-  async fetchStationData(): Promise<void> {
+  latestObservationTime: string | null = null;
+
+  async fetchLatestObservationTime(): Promise<string | null> {
     try {
-        console.log("Fetching stations...");
+        const url = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=0115&local_tz=True&limit=1`;
+
+        console.log("Fetching latest observation time from:", url);
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (data && data.length > 0 && data[0].timestamp) {
+            const rawTimestamp = data[0].timestamp;
+            this.latestObservationTime = this.formatTimestamp(rawTimestamp);
+            return rawTimestamp;
+        } else {
+            console.warn("No valid timestamp found in the API response.");
+        }
+    } catch (error) {
+        console.error("Error fetching latest observation time:", error);
+    }
+
+    return null;
+}
+
+formatTimestamp(timestamp: string): string {
+    const date = new Date(timestamp);
+    date.setMinutes(date.getMinutes() - 5); 
+
+    const formattedDate = date.toLocaleDateString('en-US', {
+        month: 'long',  // Full month name (e.g., "February")
+        day: 'numeric', // Day (e.g., "13")
+        year: 'numeric' // Year (e.g., "2025")
+    });
+
+    const formattedTime = date.toLocaleTimeString('en-US', {
+        hour: 'numeric', // Hour (e.g., "2")
+        minute: '2-digit', // Minutes (e.g., "55")
+        hour12: true, // Use 12-hour format
+        timeZone: 'Pacific/Honolulu' // Ensure HST is displayed
+    });
+
+    return `${formattedDate} ${formattedTime}`; // No "at"
+}
+
+
+
+async fetchStationData(): Promise<void> {
+    try {
+        const latestTime = await this.fetchLatestObservationTime();
+
+        if (!latestTime) {
+            console.warn("Could not determine the latest observation time. Using default limit.");
+            return;
+        }
 
         const stations: Station[] = await fetch(this.apiUrl, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
         }).then(res => res.json());
 
-        console.log("Fetched stations:", stations);
         if (!stations || stations.length === 0) {
             console.warn("No station data received!");
             return;
@@ -55,7 +110,7 @@ export class DataMapComponent implements AfterViewInit {
 
         const stationIds = stations.map(station => station.station_id).join(",");
 
-        const measurementsApiUrl = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=${stationIds}&local_tz=True&limit=${stationIds.length}`;
+        const measurementsApiUrl = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=${stationIds}&local_tz=True&start_date=${latestTime}`;
         console.log("Fetching measurements from:", measurementsApiUrl);
 
         const measurements: Measurement[] = await fetch(measurementsApiUrl, {
@@ -63,16 +118,12 @@ export class DataMapComponent implements AfterViewInit {
             headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
         }).then(res => res.json());
 
-        console.log("Fetched measurements:", measurements);
-
         if (!measurements || measurements.length === 0) {
             console.warn("No measurement data received!");
             return;
         }
 
         const measurementMap: { [key: string]: number } = {};
-
-        
         
         measurements.forEach(measurement => {
             if (measurement.station_id && measurement.value !== undefined) {
@@ -111,18 +162,18 @@ export class DataMapComponent implements AfterViewInit {
                 }).addTo(this.map);
 
                 marker.on('click', () => {
-                  this.selectedStation = {
-                      name: station.name,
-                      lat: station.lat,
-                      lng: station.lng,
-                      value: numericValue !== null && !isNaN(numericValue) ? numericValue.toFixed(1) : "No Data",
-                      variable: this.selectedVariable,
-                      url: `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`,
-                      details: null
-                  };
+                    this.selectedStation = {
+                        name: station.name,
+                        lat: station.lat,
+                        lng: station.lng,
+                        value: numericValue !== null && !isNaN(numericValue) ? numericValue.toFixed(1) : "No Data",
+                        variable: this.selectedVariable,
+                        url: `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`,
+                        details: null
+                    };
 
-                  this.fetchStationDetails(station.station_id);
-              });
+                    this.fetchStationDetails(station.station_id);
+                });
 
             }
         });
@@ -133,63 +184,70 @@ export class DataMapComponent implements AfterViewInit {
 }
 
 async fetchStationDetails(stationId: string): Promise<void> {
-  try {
-      const detailsApiUrl = `https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii&var_ids=Tair_1_Avg,Tsoil_1_Avg,RF_1_Tot300s,SWin_1_Avg,SM_1_Avg&station_ids=${stationId}&local_tz=True&limit=864`;
+    try {
+        const detailsApiUrl = `https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii&var_ids=Tair_1_Avg,Tsoil_1_Avg,RF_1_Tot300s,SWin_1_Avg,SM_1_Avg&station_ids=${stationId}&local_tz=True&limit=864`;
 
-      console.log("Fetching station details from:", detailsApiUrl);
+        console.log("Fetching station details from:", detailsApiUrl);
 
-      const response = await fetch(detailsApiUrl, {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
-      });
+        const response = await fetch(detailsApiUrl, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+        });
 
-      const measurements: { variable?: string; value?: any }[] = await response.json();
-      console.log("Fetched station details:", JSON.stringify(measurements, null, 2));
+        const measurements: { timestamp?: string; variable?: string; value?: any }[] = await response.json();
 
-      if (!measurements || measurements.length === 0) {
-          console.warn("No additional data available for this station.");
-          this.selectedStation.details = { "RF_1_Tot300s": "No Data" }; 
-          return;
-      }
+        this.selectedStation.details = {
+            "Tair_1_Avg": "No Data",
+            "Tsoil_1_Avg": "No Data",
+            "RF_1_Tot300s": "No Data",
+            "SWin_1_Avg": "No Data",
+            "SM_1_Avg": "No Data"
+        };
+        this.selectedStation.detailsTimestamp = null;
 
-      const detailsMap: { [key: string]: string } = {};
-      let rainfallSum = 0;
-      let rainfallCount = 0;
-
-      const unitMapping: { [key: string]: string } = {
-        "Tair_1_Avg": "°C",      // Air Temperature
-        "Tsoil_1_Avg": "°C",     // Soil Temperature
-        "RF_1_Tot300s": "mm",    // Rainfall
-        "SWin_1_Avg": "W/m²",    // Solar Radiation
-        "SM_1_Avg": "%",         // Soil Moisture 
-    };
-
-    measurements.forEach((measurement) => {
-        if (!measurement.variable) {
-            console.warn("Skipping measurement with missing variable key:", measurement);
+        if (!measurements || measurements.length === 0) {
+            console.warn("No additional data available for this station.");
             return;
         }
 
-        let numericValue = Number(measurement.value);
+        let latestTimestamp: string | null = null; 
 
-        if (!isNaN(numericValue)) {
-            if (measurement.variable === "SM_1_Avg") {
-                numericValue *= 100;
+        const unitMapping: { [key: string]: string } = {
+            "Tair_1_Avg": "°C",
+            "Tsoil_1_Avg": "°C",
+            "RF_1_Tot300s": "mm",
+            "SWin_1_Avg": "W/m²",
+            "SM_1_Avg": "%"
+        };
+
+        measurements.forEach((measurement) => {
+            if (!measurement.variable || !measurement.timestamp) {
+                console.warn("Skipping measurement with missing data:", measurement);
+                return;
             }
 
-            const unit = unitMapping[measurement.variable] || ""; 
-            detailsMap[measurement.variable] = `${numericValue.toFixed(1)} ${unit}`;
-        }
-    });
+            let numericValue = Number(measurement.value);
+            if (!isNaN(numericValue)) {
+                if (measurement.variable === "SM_1_Avg") {
+                    numericValue *= 100;
+                }
 
+                const unit = unitMapping[measurement.variable] || "";
+                this.selectedStation.details[measurement.variable] = `${numericValue.toFixed(1)} ${unit}`;
 
+                if (!latestTimestamp) {
+                    latestTimestamp = measurement.timestamp;
+                }
+            }
+        });
 
-    this.selectedStation.details = detailsMap;
-    this.convertUnits(); // Ensure the details are converted immediately after fetching
+        this.selectedStation.detailsTimestamp = latestTimestamp ? this.formatTimestamp(latestTimestamp) : null;
 
-  } catch (error) {
-      console.error("Error fetching station details:", error);
-  }
+        this.convertUnits(); 
+
+    } catch (error) {
+        console.error("Error fetching station details:", error);
+    }
 }
 
 
