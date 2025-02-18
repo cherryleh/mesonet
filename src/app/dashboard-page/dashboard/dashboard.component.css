@@ -56,31 +56,30 @@
 }
 
 .data-side {
-  grid-column: 2 / 3; /* Keep it in the second column */
-  grid-row: 1 / span 6; /* Match the same row span as .graph-grid */
+  grid-column: 2 / 3; 
+  grid-row: 1 / span 6; 
   border: solid #edf1f7 1px;
   border-radius: 8px;
   background-color: white;
   padding: 0px 15px 0px 15px;
-  display: flex; /* Optional for better alignment */
+  display: flex; 
   flex-direction: column;
-  justify-content: space-between; /* Optional for distributing content */
-  height: 100%; /* Ensures it fully fills the grid area */
+  justify-content: space-between; 
+  height: 100%; 
 }
 
 
 
 .data-ele {
   display: flex;
-  align-items: center; /* Center vertically */
-
+  align-items: center; 
   height: 100%;
 }
 
 .data-content {
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Center vertically */
+  justify-content: center; 
   width: 100%;
 }
 
@@ -99,7 +98,13 @@
 
 
 .index {
-  font-size: 5.5vh;
+  font-size: 6vh;
+  font-weight: 800;
+  display: block;
+}
+
+.index-pbar {
+  font-size: 5vh;
   font-weight: 800;
   display: block;
 }
@@ -130,16 +135,12 @@
   font-size: 0.8rem;
   color: #555;
   text-align: right;
-  margin-top: 3px; /* Adjust spacing from progress bar */
+  margin-top: 3px; 
 }
-
-
 
 .unit {
   font-size: 2.5vh
 }
-
-
 
 .graph-header {
   display: flex;
@@ -152,7 +153,7 @@
 
 
 app-duration-selector {
-  flex: 0 0 200px; /* Dropdown takes fixed width */
+  flex: 0 0 200px; 
 }
 
 .cumulative-info {
@@ -167,7 +168,7 @@ app-duration-selector {
 .cumulative-label {
   font-size: 0.9rem;
   color: #333;
-  margin-bottom: 5px; /* Space between the two rows */
+  margin-bottom: 5px; 
 }
 
 .cumulative-value {
@@ -181,7 +182,7 @@ app-duration-selector {
 
 @media (max-width: 768px) {
   .graph-header {
-    flex-direction: column; /* Stack items vertically on smaller screens */
+    flex-direction: column; 
     align-items: flex-start; 
   }
 
