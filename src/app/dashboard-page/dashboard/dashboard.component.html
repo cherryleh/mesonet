@@ -58,7 +58,8 @@
                         <div class="data-ele">
                             <div class="data-content">
                                 <p class="title">Wind Speed</p>
-                                <p class="index"> <span style="font-size: 1.5rem;">{{ variables['Wind Direction'] || 'N/A' }} </span>{{ variables['Wind Speed'] || 'N/A' }}<span class="unit"> mph</span>
+                                <p class="index"> <span class="unit">{{ variables['Wind Direction'] || 'N/A' }}
+                                    </span>{{ variables['Wind Speed'] || 'N/A' }}<span class="unit"> mph</span>
                                 </p>
                             </div>
                         </div>
@@ -75,17 +76,23 @@
                                 <p class="title">Solar Radiation</p>
                                 <p class="index">
                                     <ng-container>
-                                        {{ variables['Solar Radiation'] || 'N/A'}} <span class="unit">W/m<sup>2</sup></span>
+                                        {{ variables['Solar Radiation'] || 'N/A'}} <span
+                                            class="unit">W/m<sup>2</sup></span>
                                     </ng-container>
                                     <ng-template #noData>N/A</ng-template>
                                 </p>
-
-                                <div class="progress custom-progress-bar">
-                                    <div class="progress-bar" role="progressbar"
-                                        [style.width.%]="(+((variables || {})['Solar Radiation'] ?? 0)) / 1200 * 100"
-                                        aria-valuemax="100">
+                                <div class="progress-container">
+                                    <div class="progress-wrapper">
+                                        <div class="progress custom-progress-bar">
+                                            <div class="progress-bar" role="progressbar"
+                                                [style.width.%]="(+((variables || {})['Solar Radiation'] ?? 0)) / 1200 * 100"
+                                                aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                        <p class="progress-label">1200 W/m²</p>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                         <div class="data-ele">
@@ -94,12 +101,19 @@
                                 <p class="index">{{ variables['Relative Humidity'] !== undefined ? variables['Relative
                                     Humidity']: 'N/A' }}<span class="unit">%</span></p>
 
-                                <div class="progress custom-progress-bar">
-                                    <div class="progress-bar" role="progressbar"
-                                        [style.width.%]="variables['Relative Humidity'] ?? 0" aria-valuemin="0"
-                                        aria-valuemax="100">
+                                <div class="progress-container">
+                                    <div class="progress-wrapper">
+                                        <div class="progress custom-progress-bar">
+                                            <div class="progress-bar" role="progressbar"
+                                                [style.width.%]="variables['Relative Humidity'] ?? 0" aria-valuemin="0"
+                                                aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                        <p class="progress-label">Max: 100%</p>
                                     </div>
+
                                 </div>
+
                             </div>
                         </div>
                     </div>
