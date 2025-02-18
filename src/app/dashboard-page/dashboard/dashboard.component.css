@@ -84,17 +84,16 @@
   margin: 0;
 }
 
-.data-ele {
-  /* margin-bottom: 1.5vh; */
-}
 
 .title {
   font-size: 2vh;
-  margin-bottom: 1.3vh;
+  margin-bottom: 2vh; /* Increase the margin */
+  display: block; /* Ensure it respects block-level spacing */
 }
 
+
 .index {
-  font-size: 5vh;
+  font-size: 6vh;
   font-weight: 800;
 }
 
