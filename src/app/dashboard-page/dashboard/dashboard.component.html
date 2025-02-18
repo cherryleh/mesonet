@@ -44,43 +44,43 @@
                     <div class="data-side-grid">
                         <div class="data-ele">
                             <div class="data-content">
-                                <p class="title">24-Hour Rainfall</p>
-                                <p class="index">{{ variables['Rainfall'] || 'N/A' }}<span class="unit"> in</span></p>
+                                <div class="title">24-Hour Rainfall</div>
+                                <div class="index">{{ variables['Rainfall'] || 'N/A' }}<span class="unit"> in</span></div>
                             </div>
                         </div>
                         <div class="data-ele">
                             <div class="data-content">
-                                <p class="title">Temperature</p>
-                                <p class="index">{{ variables['Temperature'] || 'N/A' }}<span class="unit">&deg;F</span>
-                                </p>
+                                <div class="title">Temperature</div>
+                                <div class="index">{{ variables['Temperature'] || 'N/A' }}<span class="unit">&deg;F</span>
+                                </div>
                             </div>
                         </div>
                         <div class="data-ele">
                             <div class="data-content">
-                                <p class="title">Wind Speed</p>
-                                <p class="index"> <span class="unit">{{ variables['Wind Direction'] || 'N/A' }}
+                                <div class="title">Wind Speed</div>
+                                <div class="index"> <span class="unit">{{ variables['Wind Direction'] || 'N/A' }}
                                     </span>{{ variables['Wind Speed'] || 'N/A' }}<span class="unit"> mph</span>
-                                </p>
+                                </div>
                             </div>
                         </div>
                         <div class="data-ele">
                             <div class="data-content">
-                                <p class="title">Soil Moisture</p>
-                                <p class="index"><ng-container>
-                                        {{ variables['Soil Moisture'] || 'N/A'}} <span class="unit">%</span>
-                                    </ng-container></p>
+                                <div class="title">Soil Moisture</div>
+                                <div class="index"><ng-container>
+                                        {{ variables['Soil Moisture'] || 'N/A'}}<span class="unit">%</span>
+                                    </ng-container></div>
                             </div>
                         </div>
                         <div class="data-ele">
                             <div class="data-content">
-                                <p class="title">Solar Radiation</p>
-                                <p class="index">
+                                <div class="title">Solar Radiation</div>
+                                <div class="index">
                                     <ng-container>
                                         {{ variables['Solar Radiation'] || 'N/A'}} <span
                                             class="unit">W/m<sup>2</sup></span>
                                     </ng-container>
                                     <ng-template #noData>N/A</ng-template>
-                                </p>
+                                </div>
                                 <div class="progress-container">
                                     <div class="progress-wrapper">
                                         <div class="progress custom-progress-bar">
@@ -97,9 +97,9 @@
                         </div>
                         <div class="data-ele">
                             <div class="data-content">
-                                <p class="title">Relative Humidity</p>
-                                <p class="index">{{ variables['Relative Humidity'] !== undefined ? variables['Relative
-                                    Humidity']: 'N/A' }}<span class="unit">%</span></p>
+                                <div class="title">Relative Humidity</div>
+                                <div class="index">{{ variables['Relative Humidity'] !== undefined ? variables['Relative
+                                    Humidity']: 'N/A' }}<span class="unit">%</span></div>
 
                                 <div class="progress-container">
                                     <div class="progress-wrapper">

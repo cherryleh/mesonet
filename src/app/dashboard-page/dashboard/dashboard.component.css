@@ -48,11 +48,11 @@
 
 .data-side-grid {
   display: grid;
-  grid-template-columns: 1fr; /* Maintain single-column layout */
-  grid-template-rows: repeat(6, 1fr); /* Ensures equal spacing between elements */
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(auto-fit, minmax(0, 1fr)); /* Adjust height dynamically */
   gap: 8px;
-  height: 100%; /* Ensures it fills the remaining space */
-  overflow-y: auto; /* Allows scrolling when needed */
+  height: 100%;
+  overflow: hidden;
 }
 
 .data-side {
@@ -71,10 +71,16 @@
 
 
 .data-ele {
-  display: block;
+  display: flex;
+  align-items: center; /* Center vertically */
+
+  height: 100%;
 }
 
 .data-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center vertically */
   width: 100%;
 }
 
@@ -87,14 +93,15 @@
 
 .title {
   font-size: 2vh;
-  margin-bottom: 2vh; /* Increase the margin */
-  display: block; /* Ensure it respects block-level spacing */
+  display: block; 
+  padding-bottom: 2vh;
 }
 
 
 .index {
   font-size: 6vh;
   font-weight: 800;
+  display: block;
 }
 
 .progress {
@@ -190,8 +197,6 @@ app-duration-selector {
 .data-side-header {
   padding: 3px 0; 
   border-bottom: 1px solid #edf1f7; 
-  margin-bottom: 15px;
-  
 }
 
 .data-side-header h3 {
