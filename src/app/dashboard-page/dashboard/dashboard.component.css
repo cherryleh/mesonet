@@ -61,7 +61,7 @@
   border: solid #edf1f7 1px;
   border-radius: 8px;
   background-color: white;
-  padding: 5px 15px 15px 15px;
+  padding: 0px 15px 0px 15px;
   display: flex; /* Optional for better alignment */
   flex-direction: column;
   justify-content: space-between; /* Optional for distributing content */
@@ -99,7 +99,7 @@
 
 
 .index {
-  font-size: 6vh;
+  font-size: 5.5vh;
   font-weight: 800;
   display: block;
 }
@@ -123,6 +123,7 @@
 .progress-wrapper {
   position: relative;
   width: 100%;
+  padding-top: 10px;
 }
 
 .progress-label {
