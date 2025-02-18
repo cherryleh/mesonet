@@ -87,9 +87,7 @@ export class DashboardComponent implements AfterViewInit {
   objectKeys = Object.keys;
 
   fetchData(id: string): void {
-    this.dataService.getData(id).pipe(
-      takeUntil(this.destroy$) 
-    ).subscribe({
+    this.dataService.getData(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         if (response.length > 0) {
           this.latestTimestamp = response[0].timestamp;
@@ -99,17 +97,14 @@ export class DashboardComponent implements AfterViewInit {
           const variableData = response.find(
             (item: any) => item.variable === this.variableMapping[key]
           );
+
           console.log(`Key: ${key}, Variable: ${this.variableMapping[key]}, Data:`, variableData);
+
           if (key === 'Temperature' && variableData) {
             const celsius = parseFloat(variableData.value);
             const fahrenheit = (celsius * 1.8) + 32;
             this.variables[key] = `${fahrenheit.toFixed(1)}`;
           } 
-          else if(key === 'Rainfall' && variableData){
-            const mm = parseFloat(variableData.value);
-            const inches = (mm)/25.4;
-            this.variables[key] = `${inches.toFixed(1)}`;
-          }
           else if(key === 'Wind Speed' && variableData){
             const mps = parseFloat(variableData.value);
             const mph = mps * 2.23694;
@@ -140,8 +135,24 @@ export class DashboardComponent implements AfterViewInit {
       },
     });
 
-    
+    this.dataService.get24HourRainfall(id).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (rainfallData: { value: string }[]) => {
+        if (rainfallData.length > 0) {
+          const totalMM = rainfallData.reduce((sum: number, item: { value: string }) => 
+            sum + parseFloat(item.value || '0'), 0);
+          const totalInches = totalMM / 25.4;
+          this.variables['Rainfall'] = `${totalInches.toFixed(2)}`;
+        } else {
+          this.variables['Rainfall'] = '0.00';
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching 24-hour rainfall:', error);
+      }
+    });
+
   }
+
 
   windDirectionToCardinal(degrees: number): string {
     const directions = [
@@ -165,7 +176,7 @@ export class DashboardComponent implements AfterViewInit {
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.id = params['id'];
       if (this.id) {
-        this.fetchData(this.id); // Fetch initial data
+        this.fetchData(this.id);
       }
     });
   }
@@ -207,17 +218,16 @@ export class DashboardComponent implements AfterViewInit {
   updateData(): void {
     if (this.isDestroyed || !this.id) {
       console.log('Component is destroyed or no ID available. Stopping updates.');
-      return; // Exit early if the component is destroyed
+      return; 
     }
 
-    this.queryData(); // Fetch data
+    this.queryData(); 
 
-    clearTimeout(this.refreshTimeout); // Clear any previous timeout
+    clearTimeout(this.refreshTimeout); 
 
-    // Schedule the next update ONLY if the component is still active
     if (!this.isDestroyed) {
       this.refreshTimeout = setTimeout(() => {
-        this.updateData(); // Recursive update
+        this.updateData(); 
       }, this.refreshIntervalMS);
     }
   }
@@ -233,10 +243,10 @@ export class DashboardComponent implements AfterViewInit {
 
   ngOnDestroy(): void {
     console.log('Dashboard component destroyed. Clearing refresh timer and canceling HTTP requests.');
-    this.isDestroyed = true; // Prevent further updates
-    clearTimeout(this.refreshTimeout); // Stop periodic updates
-    this.destroy$.next(); // Cancel HTTP requests
-    this.destroy$.complete(); // Complete the subject
+    this.isDestroyed = true; 
+    clearTimeout(this.refreshTimeout);
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 }
