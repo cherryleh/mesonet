@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, ElementRef, ViewChild, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef, ViewChild, Input, Output, EventEmitter, OnDestroy, AfterViewInit, AfterContentChecked } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -29,7 +29,7 @@ OfflineExporting(Highcharts);
   providers: [DashboardChartService],
 })
 
-export class DashboardChartComponent implements OnInit, OnDestroy {
+export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit {
   previousTemperatureData: [number, number][] = [];
   previousRainfallData: [number, number][] = [];
   previousRadData: [number, number][] = [];
@@ -53,6 +53,18 @@ export class DashboardChartComponent implements OnInit, OnDestroy {
     return false;
   }
 
+  @Input() isCollapsed = false;  // Accept sidebar state
+
+  ngAfterViewInit() {
+    setTimeout(() => this.chartRef.reflow(), 500); // Ensure reflow after view initializes
+  }
+
+  ngOnChanges() {
+    if (this.chartRef) {
+      setTimeout(() => this.chartRef.reflow(), 300); // Allow time for animations
+    }
+  }
+  
   @Output() durationChanged = new EventEmitter<string>();
 
   currentTimeISO!: string;
