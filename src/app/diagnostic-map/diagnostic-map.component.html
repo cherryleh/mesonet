@@ -1,1 +1,24 @@
-<p>diagnostic-map works!</p>
+<app-header></app-header>
+
+<div class="map-container">
+    <div class="controls">
+      <p *ngIf="latestObservationTime" class="observation-time">
+          Latest Observation: <br> {{ latestObservationTime }}
+      </p>
+      <label for="variable-select">Select Variable:</label>
+      <select id="variable-select" (change)="updateVariable($event)">
+        <option *ngFor="let option of variableOptions" [value]="option.id">
+          {{ option.name }}
+        </option>
+      </select>
+    </div>
+  
+    <div id="map"></div>
+  
+    <div *ngIf="selectedStation" class="sidebar">
+      <h3>{{ selectedStation.name }}</h3>
+      <p><strong>Latitude:</strong> {{ selectedStation.lat }}</p>
+      <p><strong>Longitude:</strong> {{ selectedStation.lng }}</p>
+    </div>
+  </div>
+  
