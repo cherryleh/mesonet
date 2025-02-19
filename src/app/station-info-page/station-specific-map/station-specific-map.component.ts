@@ -63,14 +63,14 @@ export class StationSpecificMapComponent {
       this.route.queryParams.subscribe(params => {
         const stationId = params['id']; 
 
-        let selectedCoords: { lat: number; lon: number } | undefined; 
+        let selectedStation: { lat: number; lon: number; name: string } | undefined; 
 
         data.forEach(station => {
           if (station.lat && station.lng && station.name) {
             let coords = this.randomizeLatLon(station.lat, station.lng);
 
             if (stationId && station.station_id === stationId) {
-              selectedCoords = { lat: coords.lat, lon: coords.lon }; 
+              selectedStation = { lat: coords.lat, lon: coords.lon, name: station.name }; 
             }
 
             const circle = L.circleMarker([coords.lat, coords.lon], {
@@ -87,8 +87,8 @@ export class StationSpecificMapComponent {
           }
         });
 
-        if (selectedCoords !== undefined) { 
-          const selectedCircle = L.circleMarker([selectedCoords.lat, selectedCoords.lon], {
+        if (selectedStation !== undefined) { 
+          const selectedCircle = L.circleMarker([selectedStation.lat, selectedStation.lon], {
             radius: 10, 
             color: 'red', 
             fillColor: 'red', 
@@ -97,10 +97,10 @@ export class StationSpecificMapComponent {
           });
 
           const selectedUrl = `/mesonet/#/dashboard?id=${stationId}`;
-          selectedCircle.bindPopup(`<a href="${selectedUrl}" style="font-size: 20px" target="_blank">Selected: ${stationId}</a>`);
+          selectedCircle.bindPopup(`<a href="${selectedUrl}" style="font-size: 20px" target="_blank">${selectedStation.name}</a>`);
           selectedCircle.addTo(this.map);
 
-          this.map.setView([selectedCoords.lat, selectedCoords.lon], 15);
+          this.map.setView([selectedStation.lat, selectedStation.lon], 15);
         } else {
           console.warn('Station not found for ID:', stationId);
         }
@@ -110,7 +110,5 @@ export class StationSpecificMapComponent {
       console.error('Error fetching station data:', error);
     });
   }
-
-
 
 }
