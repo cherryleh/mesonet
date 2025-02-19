@@ -118,4 +118,11 @@ export class StationSelectionMapComponent implements AfterViewInit {
     this.selectedIsland = value;
     this.zoomToIsl(); 
   }
+
+  invalidateMapSize(): void {
+    if (this.map) {
+      this.map.invalidateSize();
+    }
+  }
+
 }

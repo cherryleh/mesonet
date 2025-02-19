@@ -1,148 +1,57 @@
-import { Component, AfterViewInit } from '@angular/core';
-import * as L from 'leaflet';
-import { CommonModule } from '@angular/common';
-import { environment } from "../../environments/environment";  
-import { interpolateViridis } from "d3-scale-chromatic"; 
-
-interface Station {
-  station_id: string;
-  name: string;
-  lat: number;
-  lng: number;
+.container {
+  display: flex;
+  width: 100%;
+  height: 70vh;
+  transition: all 0.5s ease-in-out;
 }
 
-interface Measurement {
-  station_id: string;
-  value: number;
+.left-app, .right-app {
+  padding: 10px;
+  background-color: white;
+  border-radius: 4px;
+  border: solid #edf1f7 1px;
+  transition: width 0.5s ease-in-out;
+  position: relative;
+  cursor: pointer;
 }
 
-@Component({
-  selector: 'app-data-map',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './data-map.component.html',
-  styleUrl: './data-map.component.css'
-})
-export class DataMapComponent implements AfterViewInit {
-  private map!: L.Map;
-  private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?reverse=True';
-  private measurementsUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii';
-  private apiToken = environment.apiToken;
+/* Expanded view takes full width */
+.expanded {
+  width: 95%;
+}
 
-  selectedVariable = "Tair_1_Avg"; 
-  variableOptions = [
-    { id: "Tair_1_Avg", name: "Air Temperature" },
-    { id: "Tsoil_1_Avg", name: "Soil Temperature" }
-  ];
+/* Collapsed view remains as a slim preview */
+.collapsed {
+  width: 5%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f7f7f7;
+  border: solid #ccd6e0 1px;
+  transition: width 0.5s ease-in-out, background-color 0.3s;
+  position: relative;
+}
 
-  selectedStation: any = null;
+/* Button-like appearance */
+.preview-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background-color: #007bff;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transform: rotate(-90deg);
+  text-align: center;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
 
-  async fetchStationData(): Promise<void> {
-    try {
-        console.log("Fetching stations...");
+/* Hover effect */
+.collapsed:hover {
+  background-color: #e2e6ea;
+}
 
-        const stations: Station[] = await fetch(this.apiUrl, {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
-        }).then(res => res.json());
-
-        console.log("Fetched stations:", stations);
-        if (!stations || stations.length === 0) {
-            console.warn("No station data received!");
-            return;
-        }
-
-        const stationIds = stations.map(station => station.station_id).join(",");
-
-        const measurementsApiUrl = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=${stationIds}&local_tz=True&limit=${stationIds.length}`;
-        console.log("Fetching measurements from:", measurementsApiUrl);
-
-        const measurements: Measurement[] = await fetch(measurementsApiUrl, {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
-        }).then(res => res.json());
-
-        console.log("Fetched measurements:", measurements);
-
-        if (!measurements || measurements.length === 0) {
-            console.warn("No measurement data received!");
-            return;
-        }
-
-        const measurementMap: { [key: string]: number } = {};
-        measurements.forEach(measurement => {
-            if (measurement.station_id && measurement.value !== undefined) {
-                measurementMap[measurement.station_id] = measurement.value;
-            }
-        });
-
-        this.map.eachLayer(layer => {
-            if (layer instanceof L.CircleMarker) {
-                this.map.removeLayer(layer);
-            }
-        });
-
-        const values = Object.values(measurementMap).filter(v => v !== null);
-        if (values.length === 0) return;
-
-        const minValue = Math.min(...values);
-        const maxValue = Math.max(...values);
-
-        this.addLegend(minValue, maxValue);
-
-        stations.forEach(station => {
-            if (station.lat && station.lng) {
-                let value = measurementMap[station.station_id] ?? null;
-                let numericValue = value !== null ? Number(value) : null;
-
-                let color = numericValue !== null && !isNaN(numericValue) 
-                    ? this.getColorFromValue(numericValue, minValue, maxValue) 
-                    : "gray";
-
-                const marker = L.circleMarker([station.lat, station.lng], {
-                    radius: 8,
-                    color: color,
-                    fillColor: color,
-                    fillOpacity: 0.8
-                }).addTo(this.map);
-
-                marker.on('click', () => {
-                  this.selectedStation = {
-                      name: station.name,
-                      lat: station.lat,
-                      lng: station.lng,
-                      value: numericValue !== null && !isNaN(numericValue) ? numericValue.toFixed(1) : "No Data",
-                      variable: this.selectedVariable,
-                      url: `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`,
-                      details: null 
-                  };
-                  this.fetchStationDetails(station.station_id);
-              });
-            }
-        });
-
-    } catch (error) {
-        console.error('Error fetching station data:', error);
-    }
-  }
-
-  private getColorFromValue(value: number, min: number, max: number): string {
-    const normalizedValue = (value - min) / (max - min);
-    return interpolateViridis(normalizedValue); 
-  }
-
-  ngAfterViewInit(): void {
-    this.map = L.map('map', {
-      center: [20.493410, -158.064388],
-      zoom: 8,
-      layers: [L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')],
-      zoomControl: false 
-    });
-
-    L.control.zoom({ position: "bottomleft" }).addTo(this.map);
-
-    setTimeout(() => {
-      this.fetchStationData();
-    }, 500);
-  }
+.collapsed:hover .preview-label {
+  background-color: #0056b3;
+  transform: rotate(-90deg) scale(1.1);
 }

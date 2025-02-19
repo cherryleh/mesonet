@@ -4,13 +4,27 @@
 </section>
 
 <div class="container">
-  
-  <div class="left-app">
-    <app-station-map></app-station-map>
-  </div>
-  <div class="right-app">
-    <app-station-table></app-station-table>
+  <!-- Station Map -->
+  <div 
+    class="left-app" 
+    [class.expanded]="selectedView === 'map'" 
+    [class.collapsed]="selectedView === 'table'" 
+    (click)="toggleView('map')"
+  >
+    <h2 class="view-heading" *ngIf="selectedView === 'map'">Map View</h2>
+    <app-station-map *ngIf="selectedView === 'map'"></app-station-map>
+    <div class="preview-label" *ngIf="selectedView === 'table'">Map View</div>
   </div>
 
-  
+  <!-- Station Table -->
+  <div 
+    class="right-app" 
+    [class.expanded]="selectedView === 'table'" 
+    [class.collapsed]="selectedView === 'map'" 
+    (click)="toggleView('table')"
+  >
+    <h2 class="view-heading" *ngIf="selectedView === 'table'">Table View</h2>
+    <app-station-table *ngIf="selectedView === 'table'"></app-station-table>
+    <div class="preview-label" *ngIf="selectedView === 'map'">Table View</div>
+  </div>
 </div>

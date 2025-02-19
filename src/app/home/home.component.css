@@ -1,56 +1,92 @@
 .section {
-  display: flex; /* Use flexbox for alignment */
-  align-items: center; /* Vertically center items */
-  justify-content: center; /* Horizontally center items */
-  gap: 16px; /* Space between the logo and title */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
   background-color: white;
   padding-top: 10px;
   padding-bottom: 10px;
-  height: 25vh
+  height: 25vh;
 }
 
 .section img {
-  height: 20vh; /* Set a consistent height for the logo */
+  height: 20vh;
 }
 
 .section .title {
-  font-size: 46px; /* Adjust title size */
+  font-size: 46px;
   font-weight: bold;
-  margin: 0; /* Remove default margins */
+  margin: 0;
   color: #444444;
 }
 
 .container {
   display: flex;
-  justify-content: space-between; /* Pushes items to the left and right */
   width: 100%;
-  margin-top: 20px;
   height: 70vh;
+  transition: all 0.5s ease-in-out;
 }
 
-.left-app{
-  width: 50%;
+.left-app, .right-app {
   padding: 10px;
   background-color: white;
   border-radius: 4px;
   border: solid #edf1f7 1px;
-  height: 75vh;
+  transition: width 0.5s ease-in-out;
+  position: relative;
+  cursor: pointer;
 }
 
-.right-app{
-  width: 50%;
-  padding: 10px;
-  background-color: white;
-  border-radius: 4px;
-  border: solid #edf1f7 1px;
-  height: 75vh;
+/* Expanded view takes full width */
+.expanded {
+  width: 95%;
 }
 
-.container {
+.collapsed {
+  width: 5%;
   display: flex;
-  justify-content: space-between; /* Pushes items to the left and right */
-  gap: 20px; /* Adds space between left and right */
-  width: 100%;
-  margin-top: 20px;
-  height: 70vh;
+  align-items: center;
+  justify-content: center;
+  background-color: #f7f7f7;
+  border: solid #ccd6e0 1px;
+  transition: width 0.5s ease-in-out, background-color 0.3s;
+  position: relative;
+  cursor: pointer; /* ✅ Ensure entire section is clickable */
+  overflow: visible; /* ✅ Ensure content is clickable */
+}
+
+/* Headings for expanded views */
+.view-heading {
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.preview-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background-color: #007bff;
+  width: 100%;  /* ✅ Ensure it takes the full width */
+  height: 100%; /* ✅ Ensure it takes the full height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  cursor: pointer; /* ✅ Ensure text itself is clickable */
+  pointer-events: all; /* ✅ Ensure it responds to clicks */
+}
+
+.collapsed:hover {
+  background-color: #e2e6ea;
+}
+
+.collapsed:hover .preview-label {
+  background-color: #0056b3;
 }
