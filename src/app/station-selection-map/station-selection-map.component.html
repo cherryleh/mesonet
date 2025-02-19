@@ -3,11 +3,11 @@
     <label for="island-select">Select Island:</label>
     <div class="dropdown">
       <select [ngModel]="selectedIsland" (ngModelChange)="selectIsland($event)">
-        <option value="" disabled selected>Select Island</option>
         <option *ngFor="let island of islandList" [value]="island.value">
           {{ island.label }}
         </option>
       </select>
+
 
     </div>
   </div>

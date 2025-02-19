@@ -14,9 +14,10 @@ import { CommonModule } from '@angular/common';
 
 export class StationSelectionMapComponent implements AfterViewInit {
   map!: L.Map;
-  selectedIsland: string = '';
+  selectedIsland: string = 'All Islands';
 
   islandList = [
+    { value: 'All Islands', label: 'All Islands' },
     { value: 'Hawaii', label: 'Hawaiʻi' },
     { value: 'Kauai', label: 'Kauaʻi' },
     { value: 'Maui', label: 'Maui' },
@@ -25,6 +26,7 @@ export class StationSelectionMapComponent implements AfterViewInit {
   ];
   
   featuremap: { [key: string]: any } = {
+    'All Islands': { lat: 20.389, lon: -157.52275766141424 },
     'Hawaii': { lat: 19.5429, lon: -155.6659 },
     'Kauai': { lat: 22.0974, lon: -159.5261 },
     'Maui': { lat: 20.7984, lon: -156.3319 },
@@ -63,6 +65,8 @@ export class StationSelectionMapComponent implements AfterViewInit {
         zoomLevel = 8.5;
       } else if (this.selectedIsland === 'Lanai') {
         zoomLevel = 11;
+      } else if (this.selectedIsland === 'All Islands') {
+        zoomLevel = 7;
       }
 
       this.map.setView([obj.lat, obj.lon], zoomLevel);
