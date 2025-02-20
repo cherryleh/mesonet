@@ -216,7 +216,7 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
   fetchData(id: string, duration: string): void {
     console.log(`Fetching data for ID: ${id} with duration: ${duration}`);
 
-    const startDate = this.getDateMinusDaysInHST(parseInt(duration));
+    const startDate = this.getDateMinusDaysInHST(parseInt(duration), id);
     console.log(`Start Date Calculated: ${startDate}`);
 
     this.dataService.getData(id, startDate).pipe(takeUntil(this.destroy$)).subscribe(
@@ -233,7 +233,8 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
         let rainfallData: [number, number][] = [];
         let radData: [number, number][] = [];
 
-        let timezoneOffset = id.startsWith('1') ? 660 : 600; // Samoa (UTC -11) or Hawaii (UTC -10)
+        let timezoneOffset = id.startsWith('1') ? 660 : 600; // Samoa (UTC -11), Hawaii (UTC -10)
+        this.chartOptions.time = { timezoneOffset };
 
         data.forEach(item => {
           const timestamp = new Date(item.timestamp).getTime();
@@ -273,12 +274,10 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
           ];
         }
 
-        // 🛑 Sorting should be done AFTER aggregation to ensure timestamps are sequential 🛑
         temperatureData.sort((a, b) => a[0] - b[0]);
         rainfallData.sort((a, b) => a[0] - b[0]);
         radData.sort((a, b) => a[0] - b[0]);
 
-        // ✅ Compute total rainfall, mean temp, min/max temp, and mean solar radiation
         const totalRainfall = rainfallData.length > 0 ? rainfallData.reduce((sum, point) => sum + point[1], 0) : 0;
         this.aggregateService.updateTotalRainfall(totalRainfall);
 
@@ -326,29 +325,33 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
 }
 
 
-  getDateMinusDaysInHST(days: number): string {
-    const currentDate = new Date();
-    const dateMinusHours = new Date(currentDate.getTime() - (days * 24 * 60 * 60 * 1000));
+getDateMinusDaysInHST(days: number, id: string): string {
+  const currentDate = new Date();
+  const dateMinusHours = new Date(currentDate.getTime() - (days * 24 * 60 * 60 * 1000));
 
-    const hawaiiTimeFormat = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Pacific/Honolulu',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
-    });
+  // Determine correct timezone
+  const timeZone = id.startsWith('1') ? 'Pacific/Pago_Pago' : 'Pacific/Honolulu'; // Samoa (-11) or Hawaii (-10)
+  const offset = id.startsWith('1') ? '-11:00' : '-10:00'; // Format UTC offset
 
-    const parts = hawaiiTimeFormat.formatToParts(dateMinusHours).reduce((acc, part) => {
-      acc[part.type] = part.value;
-      return acc;
-    }, {} as Record<string, string>);
+  const timeFormat = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
 
-    return `${parts['year']}-${parts['month']}-${parts['day']}T${parts['hour']}:${parts['minute']}:${parts['second']}-10:00`;
+  const parts = timeFormat.formatToParts(dateMinusHours).reduce((acc, part) => {
+    acc[part.type] = part.value;
+    return acc;
+  }, {} as Record<string, string>);
 
-  }
+  return `${parts['year']}-${parts['month']}-${parts['day']}T${parts['hour']}:${parts['minute']}:${parts['second']}${offset}`;
+}
+
 
   updateData(): void {
     if (this.isDestroyed || !this.id) {
@@ -358,9 +361,8 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
 
     this.fetchData(this.id, this.selectedDuration);
 
-    clearTimeout(this.refreshTimeout); // Clear any existing timeout before setting a new one
+    clearTimeout(this.refreshTimeout); 
 
-    // Schedule the next update ONLY IF the component is still active
     if (!this.isDestroyed) {
       this.refreshTimeout = setTimeout(() => {
         this.updateData(); // Recursive call for periodic updates
