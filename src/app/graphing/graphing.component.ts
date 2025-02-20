@@ -229,31 +229,47 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
   formatData(data: any): Highcharts.SeriesOptionsType[] {
     if (!data || data.length === 0) return [];
+    let nonRainfallIndex = 0;
 
     return this.selectedVariables.map((variable, index) => {
-      const variableData: [number, number | null][] = data
+      const variableData: [number, number | null][] = [];
+      const filteredData = data
         .filter((item: any) => item.variable === variable)
         .map((item: any): [number, number | null] => {
           const timestamp = new Date(item.timestamp).getTime();
           let value: number | null = parseFloat(item?.value || '');
 
           if (item?.flag !== 0 || isNaN(value)) {
-            value = null; // 🔥 Marking invalid/missing values
+            value = null;
           }
-
           return [timestamp, value];
         })
-        .sort((a: [number, number | null], b: [number, number | null]) => a[0] - b[0]);
+        .sort((a: [number, number | null], b: [number, number | null]) => a[0] - b[0])
 
 
-      console.log(`Processed Data for ${variable}:`, variableData); // 🔥 Added Debug Log
+      for (let i = 0; i < filteredData.length - 1; i++) {
+        const [currentTime, currentValue] = filteredData[i];
+        const [nextTime] = filteredData[i + 1];
+        variableData.push([currentTime, currentValue]);
+
+        if (nextTime - currentTime > 5 * 60 * 1000) {
+          variableData.push([currentTime + 1, null]);
+        }
+      }
+
+      if (filteredData.length > 0) {
+        variableData.push(filteredData[filteredData.length - 1]);
+      }
+
+      let assignedColor = variable === 'RF_1_Tot300s' ? '#3498DB' : this.getSelectionColor(nonRainfallIndex++);
 
       return {
         type: variable === 'RF_1_Tot300s' ? 'column' : 'line',
         name: this.getYAxisLabel(variable),
         data: variableData,
         yAxis: index,
-        color: this.getSelectionColor(index),
+        zIndex: variable === 'RF_1_Tot300s' ? 0 : 1,
+        color: assignedColor,
         connectNulls: false,
       };
     });
