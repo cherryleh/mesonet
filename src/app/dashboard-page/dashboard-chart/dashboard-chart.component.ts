@@ -212,6 +212,7 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
     const containerHeight = this.chartContainer.nativeElement.offsetHeight;
     this.chartRef.setSize(null, containerHeight);
   }
+
   fetchData(id: string, duration: string): void {
     console.log(`Fetching data for ID: ${id} with duration: ${duration}`);
 
@@ -251,8 +252,10 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
           }
         });
 
-        // Aggregate data if necessary
+        // 🛑 Perform Aggregation if Duration is 3 or 7 days 🛑
         if (duration === '3' || duration === '7') {
+          console.log("Aggregating data to hourly...");
+
           temperatureData = this.aggregateToHourly(temperatureData);
           rainfallData = this.aggregateToHourly(rainfallData, true); // Sum rainfall
           radData = this.aggregateToHourly(radData);
@@ -270,53 +273,40 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
           ];
         }
 
-        // Compute statistics
-        const totalRainfall = rainfallData.reduce((sum, point) => sum + point[1], 0);
+        // 🛑 Sorting should be done AFTER aggregation to ensure timestamps are sequential 🛑
+        temperatureData.sort((a, b) => a[0] - b[0]);
+        rainfallData.sort((a, b) => a[0] - b[0]);
+        radData.sort((a, b) => a[0] - b[0]);
+
+        // ✅ Compute total rainfall, mean temp, min/max temp, and mean solar radiation
+        const totalRainfall = rainfallData.length > 0 ? rainfallData.reduce((sum, point) => sum + point[1], 0) : 0;
         this.aggregateService.updateTotalRainfall(totalRainfall);
 
-        const meanTemp = temperatureData.reduce((sum, point) => sum + point[1], 0) / (temperatureData.length || 1);
+        const meanTemp = temperatureData.length > 0 ? temperatureData.reduce((sum, point) => sum + point[1], 0) / temperatureData.length : 0;
         this.aggregateService.updateMeanTemp(meanTemp);
 
-        const minTemp = Math.min(...temperatureData.map(point => point[1]));
+        const minTemp = temperatureData.length > 0 ? Math.min(...temperatureData.map(point => point[1])) : 0;
         this.aggregateService.updateMinTemp(minTemp);
 
-        const maxTemp = Math.max(...temperatureData.map(point => point[1]));
+        const maxTemp = temperatureData.length > 0 ? Math.max(...temperatureData.map(point => point[1])) : 0;
         this.aggregateService.updateMaxTemp(maxTemp);
 
-        const meanSolarRad = radData.reduce((sum, point) => sum + point[1], 0) / (radData.length || 1);
+        const meanSolarRad = radData.length > 0 ? radData.reduce((sum, point) => sum + point[1], 0) / radData.length : 0;
         this.aggregateService.updateMeanSolarRad(meanSolarRad);
 
-        // Update duration text
-        const durationLabels: Record<string, string> = { '1': '24-hour', '3': '3-Day', '7': '7-Day' };
-        this.aggregateService.updateDurationText(durationLabels[duration] || 'Custom duration');
+        console.log(`Total Rainfall: ${totalRainfall} in`);
+        console.log(`Mean Temperature: ${meanTemp.toFixed(2)} °F`);
+        console.log(`Min Temperature: ${minTemp.toFixed(2)} °F`);
+        console.log(`Max Temperature: ${maxTemp.toFixed(2)} °F`);
+        console.log(`Mean Solar Radiation: ${meanSolarRad.toFixed(2)} W/m²`);
 
-        console.log("Processed Temperature Data:", temperatureData);
-        console.log("Processed Rainfall Data:", rainfallData);
-        console.log("Processed Radiation Data:", radData);
-
-        // Check if data has changed
-        const temperatureChanged = this.isDataChanged(temperatureData, this.previousTemperatureData);
-        const rainfallChanged = this.isDataChanged(rainfallData, this.previousRainfallData);
-        const radChanged = this.isDataChanged(radData, this.previousRadData);
-
-        if (!temperatureChanged && !rainfallChanged && !radChanged) {
-          console.log("No data changes detected, skipping update.");
-          this.isLoading = false;
-          return;
-        }
-
-        this.previousTemperatureData = temperatureData;
-        this.previousRainfallData = rainfallData;
-        this.previousRadData = radData;
-
-        // Update Highcharts series
-        this.chartOptions.time = { timezoneOffset };
         this.chartOptions.series = [
           { name: 'Temperature (°F)', data: temperatureData, yAxis: 0, type: 'line', color: '#41d68f', zIndex: 3 },
           { name: 'Rainfall (in)', data: rainfallData, yAxis: 1, type: 'column', color: '#769dff', maxPointWidth: 5, groupPadding: 0.05, pointPadding: 0.05 },
           { name: 'Solar Radiation (W/m²)', data: radData, yAxis: 2, type: 'line', color: '#f9b721', visible: false }
         ] as Highcharts.SeriesOptionsType[];
 
+        // Create or update the chart
         if (!this.chartRef) {
           console.log("Creating new chart...");
           this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
@@ -324,10 +314,6 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
           console.log("Updating existing chart...");
           this.chartRef.update(this.chartOptions, true, true);
         }
-
-        // Dynamically adjust y-axis max for rainfall
-        const maxRainfall = Math.max(...rainfallData.map(point => point[1]), 0);
-        this.chartRef.yAxis[1].update({ max: Math.max(0.1, maxRainfall * 1.2) });
 
         this.isLoading = false;
         console.log(`Timezone offset set to: ${timezoneOffset} minutes (ID: ${id})`);
@@ -338,7 +324,6 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
       }
     );
 }
-
 
 
   getDateMinusDaysInHST(days: number): string {
@@ -385,29 +370,31 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
 
 
   aggregateToHourly(data: [number, number][], sum = false): [number, number][] {
+    if (!data || data.length === 0) {
+        console.warn("No data provided for aggregation.");
+        return [];
+    }
+
     const hourlyData: { [hour: string]: { sum: number; count: number } } = {};
 
-    // Step 1: Aggregate data by rounding timestamps to the start of the hour (UTC)
     data.forEach(([timestamp, value]) => {
-      const hourTimestamp = Math.floor(timestamp / (1000 * 60 * 60)) * (1000 * 60 * 60); // Round down to the start of the hour
-      if (!hourlyData[hourTimestamp]) {
-        hourlyData[hourTimestamp] = { sum: 0, count: 0 };
-      }
-      hourlyData[hourTimestamp].sum += value;
-      hourlyData[hourTimestamp].count += 1;
+        const hourTimestamp = Math.floor(timestamp / (1000 * 60 * 60)) * (1000 * 60 * 60);
+        if (!hourlyData[hourTimestamp]) {
+            hourlyData[hourTimestamp] = { sum: 0, count: 0 };
+        }
+        hourlyData[hourTimestamp].sum += value;
+        hourlyData[hourTimestamp].count += 1;
     });
 
-    // Step 2: Calculate the aggregated values for each complete hour
-    return Object.keys(hourlyData)
-      .filter(hour => hourlyData[hour].count === 12) // For 5-minute intervals, expect 12 points per hour
-      .map(hour => {
-        const timestamp = Number(hour); // Keep the start of the hour as the timestamp
+    return Object.keys(hourlyData).map(hour => {
+        const timestamp = Number(hour);
         const { sum: totalSum, count } = hourlyData[hour];
-        const result = sum ? totalSum : totalSum / count; // Sum if sum = true, otherwise average
-        return [timestamp, result];
-      });
-  }
 
+        const result = sum ? totalSum : totalSum / count; // Sum for rainfall, average otherwise
+
+        return [timestamp, isNaN(result) ? 0 : result]; // Avoid NaN values
+    });
+}
 
   onDurationChange(event: Event): void {
     const selectedValue = (event.target as HTMLSelectElement).value;
