@@ -212,7 +212,6 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
     const containerHeight = this.chartContainer.nativeElement.offsetHeight;
     this.chartRef.setSize(null, containerHeight);
   }
-
   fetchData(id: string, duration: string): void {
     console.log(`Fetching data for ID: ${id} with duration: ${duration}`);
 
@@ -236,16 +235,14 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
         let timezoneOffset = id.startsWith('1') ? 660 : 600; // Samoa (UTC -11) or Hawaii (UTC -10)
 
         data.forEach(item => {
-          console.log("Processing item:", item);
-
           const timestamp = new Date(item.timestamp).getTime();
           const value = parseFloat(item.value);
 
           if (!isNaN(timestamp) && !isNaN(value)) {
             if (item.variable === 'Tair_1_Avg') {
-              temperatureData.push([timestamp, (value * 1.8) + 32]);
+              temperatureData.push([timestamp, (value * 1.8) + 32]); // Convert °C to °F
             } else if (item.variable === 'RF_1_Tot300s') {
-              rainfallData.push([timestamp, value / 25.4]);
+              rainfallData.push([timestamp, value / 25.4]); // Convert mm to inches
             } else if (item.variable === 'SWin_1_Avg') {
               radData.push([timestamp, value]);
             }
@@ -254,17 +251,65 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
           }
         });
 
+        // Aggregate data if necessary
+        if (duration === '3' || duration === '7') {
+          temperatureData = this.aggregateToHourly(temperatureData);
+          rainfallData = this.aggregateToHourly(rainfallData, true); // Sum rainfall
+          radData = this.aggregateToHourly(radData);
+
+          this.chartOptions.yAxis = [
+            { title: { text: 'Hourly Temperature (°F)' } },
+            { title: { text: 'Hourly Rainfall (in)' }, opposite: true, min: 0 },
+            { title: { text: 'Hourly Solar Radiation (W/m²)' }, opposite: true, min: 0 },
+          ];
+        } else {
+          this.chartOptions.yAxis = [
+            { title: { text: 'Temperature (°F)' } },
+            { title: { text: '5-min Rainfall (in)' }, opposite: true, min: 0 },
+            { title: { text: 'Solar Radiation (W/m²)' }, opposite: true, min: 0 },
+          ];
+        }
+
+        // Compute statistics
+        const totalRainfall = rainfallData.reduce((sum, point) => sum + point[1], 0);
+        this.aggregateService.updateTotalRainfall(totalRainfall);
+
+        const meanTemp = temperatureData.reduce((sum, point) => sum + point[1], 0) / (temperatureData.length || 1);
+        this.aggregateService.updateMeanTemp(meanTemp);
+
+        const minTemp = Math.min(...temperatureData.map(point => point[1]));
+        this.aggregateService.updateMinTemp(minTemp);
+
+        const maxTemp = Math.max(...temperatureData.map(point => point[1]));
+        this.aggregateService.updateMaxTemp(maxTemp);
+
+        const meanSolarRad = radData.reduce((sum, point) => sum + point[1], 0) / (radData.length || 1);
+        this.aggregateService.updateMeanSolarRad(meanSolarRad);
+
+        // Update duration text
+        const durationLabels: Record<string, string> = { '1': '24-hour', '3': '3-Day', '7': '7-Day' };
+        this.aggregateService.updateDurationText(durationLabels[duration] || 'Custom duration');
+
         console.log("Processed Temperature Data:", temperatureData);
         console.log("Processed Rainfall Data:", rainfallData);
         console.log("Processed Radiation Data:", radData);
 
-        if (temperatureData.length === 0 && rainfallData.length === 0 && radData.length === 0) {
-          console.error("No valid data points found. Cannot update chart.");
+        // Check if data has changed
+        const temperatureChanged = this.isDataChanged(temperatureData, this.previousTemperatureData);
+        const rainfallChanged = this.isDataChanged(rainfallData, this.previousRainfallData);
+        const radChanged = this.isDataChanged(radData, this.previousRadData);
+
+        if (!temperatureChanged && !rainfallChanged && !radChanged) {
+          console.log("No data changes detected, skipping update.");
           this.isLoading = false;
           return;
         }
 
-        // Update Highcharts time settings dynamically
+        this.previousTemperatureData = temperatureData;
+        this.previousRainfallData = rainfallData;
+        this.previousRadData = radData;
+
+        // Update Highcharts series
         this.chartOptions.time = { timezoneOffset };
         this.chartOptions.series = [
           { name: 'Temperature (°F)', data: temperatureData, yAxis: 0, type: 'line', color: '#41d68f', zIndex: 3 },
@@ -280,6 +325,10 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
           this.chartRef.update(this.chartOptions, true, true);
         }
 
+        // Dynamically adjust y-axis max for rainfall
+        const maxRainfall = Math.max(...rainfallData.map(point => point[1]), 0);
+        this.chartRef.yAxis[1].update({ max: Math.max(0.1, maxRainfall * 1.2) });
+
         this.isLoading = false;
         console.log(`Timezone offset set to: ${timezoneOffset} minutes (ID: ${id})`);
       },
@@ -289,6 +338,7 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
       }
     );
 }
+
 
 
   getDateMinusDaysInHST(days: number): string {
