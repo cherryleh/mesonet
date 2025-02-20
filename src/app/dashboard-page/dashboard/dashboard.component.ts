@@ -9,7 +9,7 @@ import { StationTitleComponent } from '../../station-title/station-title.compone
 import { DataService } from '../../services/dashboard-data.service';
 import { DatePipe } from '@angular/common';
 
-import { DashboardChartComponent } from '../dashboard-chart/dashboard-chart.component'; // Import the standalone component
+import { DashboardChartComponent } from '../dashboard-chart/dashboard-chart.component'; 
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { DurationSelectorComponent } from '../duration-selector/duration-selector.component';
