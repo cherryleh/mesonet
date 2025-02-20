@@ -77,9 +77,11 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.stationId = params['id'] || 'default_station_id';
+      console.log(`Initializing graph for station ID: ${this.stationId}`); // 🔥 Added Debug Log
       this.loadData();
     });
   }
+
 
   ngAfterViewInit(): void {
     this.initializeChart();
@@ -155,38 +157,43 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     return duration === '24h' ? 1 : duration === '7d' ? 7 : duration === '30d' ? 30 : 0;
   }
 
-  getDateMinusDaysInHST(days: number): string {
+  getDateMinusDays(days: number): string {
     const currentDate = new Date();
     const dateMinusHours = new Date(currentDate.getTime() - (days * 24 * 60 * 60 * 1000));
 
-    const hawaiiTimeFormat = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Pacific/Honolulu',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
-    });
-
-    const parts = hawaiiTimeFormat.formatToParts(dateMinusHours).reduce((acc, part) => {
-      acc[part.type] = part.value;
-      return acc;
-    }, {} as Record<string, string>);
-
-    return `${parts['year']}-${parts['month']}-${parts['day']}T${parts['hour']}:${parts['minute']}:${parts['second']}-10:00`;
+    return dateMinusHours.toISOString().split('.')[0] + 'Z'; // 🔥 Fixes incorrect formatting
   }
+
+
   loadData(): void {
+    if (!this.stationId) {
+      console.error('No station ID available. Cannot fetch data.'); // 🔥 Added Check
+      return;
+    }
+
     this.isLoading = true;
     const days = this.getDaysFromDuration(this.selectedDuration);
-    const startDate = this.getDateMinusDaysInHST(days);
+    const startDate = this.getDateMinusDays(days);
+
+    console.log(`Fetching data for Station ID: ${this.stationId}, Duration: ${this.selectedDuration}, Start Date: ${startDate}`); // 🔥 Debug Log
 
     this.graphingDataService.getData(this.stationId, this.selectedVariables.join(','), startDate).subscribe(
       data => {
         this.isLoading = false;
-        if (!data || data.length === 0) return;
-        console.log('Fetched Data:', data);
+
+        if (!data || data.length === 0) {
+          console.warn('No data received from API.'); // 🔥 Added Warning
+          return;
+        }
+
+        console.log('Fetched Data:', data); // 🔥 Added Debug Log
+
+        // 🔥 Added Timezone Handling
+        let timezoneOffset = this.stationId.startsWith('1') ? 660 : 600; // 660 = Samoa (UTC -11), 600 = Hawaii (UTC -10)
+        this.chart?.update({ time: { timezoneOffset } });
+
+        console.log(`Applying Timezone Offset: ${timezoneOffset} minutes`);
+
         this.updateChart(this.formatData(data));
       },
       error => {
@@ -195,6 +202,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       }
     );
   }
+
 
   updateChart(seriesData: Highcharts.SeriesOptionsType[]): void {
     if (this.chart) {
@@ -222,62 +230,35 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   formatData(data: any): Highcharts.SeriesOptionsType[] {
     if (!data || data.length === 0) return [];
 
-    let nonRainfallIndex = 0;
-
     return this.selectedVariables.map((variable, index) => {
-        const variableData: [number, number | null][] = [];
+      const variableData: [number, number | null][] = data
+        .filter((item: any) => item.variable === variable)
+        .map((item: any): [number, number | null] => {
+          const timestamp = new Date(item.timestamp).getTime();
+          let value: number | null = parseFloat(item?.value || '');
 
-        const filteredData = data
-            .filter((item: any) => item.variable === variable)
-            .map((item: any): [number, number | null] => {
-                const timestamp = new Date(item.timestamp).getTime();
-                let value: number | null = parseFloat(item?.value || '');
+          if (item?.flag !== 0 || isNaN(value)) {
+            value = null; // 🔥 Marking invalid/missing values
+          }
 
-                if (item?.flag !== 0 || isNaN(value)) {
-                    value = null; // Mark invalid or missing values
-                }
+          return [timestamp, value];
+        })
+        .sort((a: [number, number | null], b: [number, number | null]) => a[0] - b[0]);
 
-                return [timestamp, value];
-            })
-            .sort((a: [number, number | null], b: [number, number | null]) => a[0] - b[0]);
 
-        for (let i = 0; i < filteredData.length - 1; i++) {
-            const [currentTime, currentValue] = filteredData[i];
-            const [nextTime] = filteredData[i + 1];
+      console.log(`Processed Data for ${variable}:`, variableData); // 🔥 Added Debug Log
 
-            variableData.push([currentTime, currentValue]);
-
-            const timeDiff = nextTime - currentTime;
-            if (timeDiff > 5 * 60 * 1000) { 
-                variableData.push([currentTime + 1, null]);
-            }
-        }
-
-        if (filteredData.length > 0) {
-            variableData.push(filteredData[filteredData.length - 1]);
-        }
-
-        console.log(`Processed Data for ${variable}:`, variableData);
-
-        let assignedColor: string;
-        if (variable === 'RF_1_Tot300s') {
-            assignedColor = '#3498DB';
-        } else {
-            assignedColor = this.getSelectionColor(nonRainfallIndex);
-            nonRainfallIndex++;
-        }
-
-        return {
-            type: variable === 'RF_1_Tot300s' ? 'column' : 'line',
-            name: this.getYAxisLabel(variable),
-            data: variableData,
-            yAxis: index,
-            zIndex: variable === 'RF_1_Tot300s' ? 0 : 1,
-            color: assignedColor,
-            connectNulls: false, // Ensures the gaps are visible
-        };
+      return {
+        type: variable === 'RF_1_Tot300s' ? 'column' : 'line',
+        name: this.getYAxisLabel(variable),
+        data: variableData,
+        yAxis: index,
+        color: this.getSelectionColor(index),
+        connectNulls: false,
+      };
     });
-}
+  }
+
 
 
   getSelectionColor(nonRainfallIndex: number): string {

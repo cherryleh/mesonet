@@ -91,6 +91,7 @@ export class DashboardComponent implements AfterViewInit {
       next: (response) => {
         if (response.length > 0) {
           this.latestTimestamp = response[0].timestamp;
+          console.log('Latest Timestamp ',this.latestTimestamp )
         }
 
         Object.keys(this.variableMapping).forEach((key) => {
@@ -167,10 +168,27 @@ export class DashboardComponent implements AfterViewInit {
 
 
   getFormattedTimestamp(): string {
-    return this.latestTimestamp
-      ? this.datePipe.transform(this.latestTimestamp, 'MMM d, y, h:mm a') || ''
-      : 'No timestamp available';
+    if (!this.latestTimestamp) {
+      return 'No timestamp available';
+    }
+
+    // Extract time from timestamp string (HH:MM)
+    const match = this.latestTimestamp.match(/T(\d{2}):(\d{2})/);
+
+    if (!match) {
+      return 'Invalid timestamp format';
+    }
+
+    let hours = parseInt(match[1], 10);
+    let minutes = match[2];
+
+    // Convert 24-hour format to 12-hour AM/PM format
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12; // Convert 0 to 12 for AM case
+
+    return `${displayHours}:${minutes} ${ampm}`;
   }
+
 
   ngAfterViewInit(): void {
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
