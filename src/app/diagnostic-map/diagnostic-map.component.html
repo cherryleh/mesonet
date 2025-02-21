@@ -2,23 +2,75 @@
 
 <div class="map-container">
     <div class="controls">
-      <p *ngIf="latestObservationTime" class="observation-time">
-          Latest Observation: <br> {{ latestObservationTime }}
-      </p>
-      <label for="variable-select">Select Variable:</label>
-      <select id="variable-select" (change)="updateVariable($event)">
-        <option *ngFor="let option of variableOptions" [value]="option.id">
-          {{ option.name }}
-        </option>
-      </select>
+        <p *ngIf="latestObservationTime" class="observation-time">
+            Latest Observation: <br> {{ latestObservationTime }}
+        </p>
+        <label for="variable-select">Select Variable:</label>
+        <select id="variable-select" (change)="updateVariable($event)">
+            <option *ngFor="let option of variableOptions" [value]="option.id">
+                {{ option.name }}
+            </option>
+        </select>
     </div>
-  
+
     <div id="map"></div>
-  
+
     <div *ngIf="selectedStation" class="sidebar">
-      <h3>{{ selectedStation.name }}</h3>
-      <p><strong>Latitude:</strong> {{ selectedStation.lat }}</p>
-      <p><strong>Longitude:</strong> {{ selectedStation.lng }}</p>
+        <h3>{{ selectedStation.name }}</h3>
+        <p><strong>Latitude:</strong> {{ selectedStation.lat }}</p>
+        <p><strong>Longitude:</strong> {{ selectedStation.lng }}</p>
+
+
+
+        <div class="station-details" *ngIf="selectedStation.details; else loadingData">
+            <!-- Battery Voltage Section -->
+            <div class="data-row">
+                <i class="icon bx bxs-thermometer"></i>
+                <span>Battery Voltage (Current):</span>
+                <strong>{{ selectedStation.details.BattVolt }}</strong>
+            </div>
+            <div class="data-row">
+                <i class="icon bx bx-trending-down"></i>
+                <span>Battery Voltage (24h Min):</span>
+                <strong>{{ selectedStation.details.Min24h }}</strong>
+            </div>
+            <div class="data-row">
+                <i class="icon bx bx-trending-up"></i>
+                <span>Battery Voltage (24h Max):</span>
+                <strong>{{ selectedStation.details.Max24h }}</strong>
+            </div>
+
+            <!-- Cellular Signal Strength -->
+            <div class="data-row">
+                <i class="icon bx bx-signal-4"></i>
+                <span>Cellular Signal Strength:</span>
+                <strong>{{ selectedStation.details.CellStr }}</strong>
+            </div>
+
+            <!-- Cellular Signal Quality -->
+            <div class="data-row">
+                <i class="icon bx bx-wifi"></i>
+                <span>Cellular Signal Quality:</span>
+                <strong>{{ selectedStation.details.CellQlt }}</strong>
+            </div>
+
+            <!-- Enclosure Relative Humidity -->
+            <div class="data-row">
+                <i class="icon bx bx-cloud"></i>
+                <span>Enclosure Relative Humidity:</span>
+                <strong>{{ selectedStation.details.RHenc }}</strong>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <ng-template #loadingData>
+            <p>Loading additional data...</p>
+        </ng-template>
+
+
+        <div class="sidebar-buttons">
+            <a [href]="selectedStation.url" target="_blank" class="button">Open Dashboard</a>
+            <button class="close-btn" (click)="selectedStation = null">Close</button>
+        </div>
     </div>
-  </div>
-  
+</div>

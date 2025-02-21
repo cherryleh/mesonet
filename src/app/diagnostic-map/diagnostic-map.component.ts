@@ -15,6 +15,8 @@ interface Station {
 interface Measurement {
   station_id: string;
   value: number;
+  variable: string;
+  timestamp: string;
 }
 
 @Component({
@@ -35,15 +37,15 @@ export class DiagnosticMapComponent implements AfterViewInit {
   selectedVariable = "BattVolt"; 
   variableOptions = [
     { id: "BattVolt", name: "Battery Voltage" },
-    { id: "Tair_1_Avg", name: "Air Temperature" },
-    { id: "Tsoil_1_Avg", name: "Soil Temperature" },
-    { id: "RF_1_Tot300s", name: "Rainfall" }
+    { id: "CellStr", name: "Cellular signal strength" },
+    { id: "CellQlt", name: "Cellular signal quality" },
+    { id: "RHenc", name: "Enclosure relative humidity" }
   ];
 
   selectedStation: any = null;
   latestObservationTime: string | null = null;
 
-  async fetchLatestObservationTime(): Promise<string | null> {
+  async fetchLatestObservationTime(): Promise<void> {
     try {
       const url = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=0115&local_tz=True&limit=1`;
 
@@ -53,15 +55,12 @@ export class DiagnosticMapComponent implements AfterViewInit {
       });
 
       const data: Measurement[] = await response.json();
-      if (data.length > 0 && (data[0] as any).timestamp) {
-        const rawTimestamp = (data[0] as any).timestamp;
-        this.latestObservationTime = this.formatTimestamp(rawTimestamp);
-        return rawTimestamp;
+      if (data.length > 0 && data[0].timestamp) {
+        this.latestObservationTime = this.formatTimestamp(data[0].timestamp);
       }
     } catch (error) {
       console.error("Error fetching latest observation time:", error);
     }
-    return null;
   }
 
   formatTimestamp(timestamp: string): string {
@@ -81,67 +80,126 @@ export class DiagnosticMapComponent implements AfterViewInit {
 
   async fetchStationData(): Promise<void> {
     try {
-      const latestTime = await this.fetchLatestObservationTime();
-      if (!latestTime) return;
+        await this.fetchLatestObservationTime();
 
-      const stations: Station[] = await fetch(this.apiUrl, {
-        method: 'GET',
-        headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
-      }).then(res => res.json());
+        const stations: Station[] = await fetch(this.apiUrl, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+        }).then(res => res.json());
 
-      const stationIds = stations.map((station: Station) => station.station_id).join(",");
-      const measurementsApiUrl = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=${stationIds}&local_tz=True&start_date=${latestTime}`;
-      
-      const measurements: Measurement[] = await fetch(measurementsApiUrl, {
-        method: 'GET',
-        headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
-      }).then(res => res.json());
+        const stationIds = stations.map(station => station.station_id).join(",");
+        const measurementsApiUrl = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=${stationIds}&local_tz=True&limit=${stations.length}`;
+        console.log('Measurements API', measurementsApiUrl);
 
-      const measurementMap: { [key: string]: number } = {};
-      measurements.forEach((measurement: Measurement) => {
-        measurementMap[measurement.station_id] = measurement.value;
+        const measurements: Measurement[] = await fetch(measurementsApiUrl, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+        }).then(res => res.json());
+
+        console.log("Fetched Measurements:", measurements);
+
+
+        const measurementMap = Object.fromEntries(
+            measurements.map(measurement => [measurement.station_id, measurement.value])
+        );
+
+        // Remove old markers before adding new ones
+        this.map.eachLayer(layer => {
+          if (layer instanceof L.CircleMarker) {
+              this.map.removeLayer(layer);
+          }
       });
 
-      this.map.eachLayer(layer => {
-        if (layer instanceof L.CircleMarker) {
-          this.map.removeLayer(layer);
-        }
-      });
+      // Add a delay to ensure old markers are removed before adding new ones
+      setTimeout(() => {
+          stations.forEach(station => {
+              const value = measurementMap[station.station_id] ?? null;
+              const color = value !== null ? this.getColorFromValue(value, minValue, maxValue) : "gray";
 
-      const values = Object.values(measurementMap);
-      if (values.length === 0) return;
+              const marker = L.circleMarker([station.lat, station.lng], {
+                  radius: 8,
+                  color,
+                  fillColor: color,
+                  fillOpacity: 0.8
+              }).addTo(this.map);
 
-      const minValue = Math.min(...values);
-      const maxValue = Math.max(...values);
-      this.addLegend(minValue, maxValue);
+              marker.on('click', async () => {
+                  console.log(`Clicked on station: ${station.name}, Value: ${value}`);
 
-      stations.forEach((station: Station) => {
-        const value = measurementMap[station.station_id] ?? null;
-        const color = value !== null ? this.getColorFromValue(value, minValue, maxValue) : "gray";
+                  const numericValue = value !== null ? parseFloat(value as any) : null; 
+                  console.log(`Converted Numeric Value:`, numericValue);
 
-        const marker = L.circleMarker([station.lat, station.lng], {
-          radius: 8,
-          color: color,
-          fillColor: color,
-          fillOpacity: 0.8
-        }).addTo(this.map);
+                  this.selectedStation = {
+                      name: station.name,
+                      lat: station.lat,
+                      lng: station.lng,
+                      value: numericValue !== null && !isNaN(numericValue) ? numericValue.toFixed(1) : "No Data",
+                      variable: this.selectedVariable
+                  };
 
-        marker.on('click', () => {
-          this.selectedStation = {
-            name: station.name,
-            lat: station.lat,
-            lng: station.lng,
-            value: value !== null ? value.toFixed(1) : "No Data",
-            variable: this.selectedVariable
-          };
-          this.fetchStationDetails(station.station_id);
+                  // Fetch additional details
+                  await this.fetchStationDetails(station.station_id);
+
+                  // Force UI update
+                  this.cdr.detectChanges();
+                  this.cdr.markForCheck();
+              });
+          });
+
+          this.cdr.detectChanges(); // Ensure UI updates
+      }, 100);
+
+
+        const values = Object.values(measurementMap).filter(v => v !== null);
+        if (values.length === 0) return;
+
+        const minValue = Math.min(...values);
+        const maxValue = Math.max(...values);
+        this.addLegend(minValue, maxValue);
+
+        stations.forEach(station => {
+          const value = measurementMap[station.station_id] ?? null;
+          const color = value !== null ? this.getColorFromValue(value, minValue, maxValue) : "gray";
+
+          const marker = L.circleMarker([station.lat, station.lng], {
+              radius: 8,
+              color,
+              fillColor: color,
+              fillOpacity: 0.8
+          }).addTo(this.map);
+
+          marker.on('click', async () => {
+            console.log(`Clicked on station: ${station.name}, Raw Value:`, value);
+
+            const numericValue = value !== null ? parseFloat(value as any) : null; 
+
+            console.log(`Converted Numeric Value:`, numericValue);
+
+            this.selectedStation = {
+                name: station.name,
+                lat: station.lat,
+                lng: station.lng,
+                value: numericValue !== null && !isNaN(numericValue) ? numericValue.toFixed(1) : "No Data",
+                variable: this.selectedVariable
+            };
+
+            // Fetch additional details
+            await this.fetchStationDetails(station.station_id);
+
+            // Ensure UI updates
+            this.cdr.detectChanges();
         });
+
+
+
       });
+
 
     } catch (error) {
-      console.error('Error fetching station data:', error);
+        console.error('Error fetching station data:', error);
     }
-  }
+}
+
 
   private getColorFromValue(value: number, min: number, max: number): string {
     if (min === max) return interpolateViridis(0.5);
@@ -178,29 +236,88 @@ export class DiagnosticMapComponent implements AfterViewInit {
         if (gradientDiv) {
             let gradientColors = [];
 
-            // Generate colors for the legend (5 evenly spaced steps)
             for (let i = 0; i <= 10; i++) {
                 const value = i / 10; // Normalized value between 0 and 1
                 const color = interpolateViridis(value); // Get corresponding Viridis color
                 gradientColors.push(color);
             }
 
-            // Create a linear gradient background
             gradientDiv.style.background = `linear-gradient(to right, ${gradientColors.join(", ")})`;
             gradientDiv.style.border = "1px solid black";
         }
     }, 100);
   }
 
-
   async fetchStationDetails(stationId: string): Promise<void> {
-    console.log("Fetching station details for:", stationId);
-  }
+    try {
+        const battVoltApiUrl = `${this.measurementsUrl}&var_ids=BattVolt&station_ids=${stationId}&local_tz=True&limit=288`;
+        console.log('Batt volt API', battVoltApiUrl);
+        const latestValuesApiUrl = `${this.measurementsUrl}&var_ids=CellStr,CellQlt,RHenc&station_ids=${stationId}&local_tz=True&limit=3`;
+        console.log('Latest values API', latestValuesApiUrl);
 
-  updateVariable(event: Event): void {
-    this.selectedVariable = (event.target as HTMLSelectElement).value;
-    this.fetchStationData(); 
-  }
+        const [battVoltResponse, latestValuesResponse] = await Promise.all([
+            fetch(battVoltApiUrl, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+            }),
+            fetch(latestValuesApiUrl, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+            })
+        ]);
+
+        const battVoltMeasurements: Measurement[] = await battVoltResponse.json();
+        const latestMeasurements: Measurement[] = await latestValuesResponse.json();
+
+        let latestDetails: { [key: string]: string } = {
+            ["BattVolt"]: "No Data",
+            ["Min24h"]: "No Data",
+            ["Max24h"]: "No Data",
+            ["CellStr"]: "No Data",
+            ["CellQlt"]: "No Data",
+            ["RHenc"]: "No Data"
+        };
+
+        // Process BattVolt data (24h history)
+        let battVoltValues: number[] = battVoltMeasurements
+            .map(m => parseFloat(m.value as any))
+            .filter(v => !isNaN(v));
+
+        if (battVoltValues.length > 0) {
+            latestDetails["BattVolt"] = battVoltValues[battVoltValues.length - 1].toFixed(2);
+            latestDetails["Min24h"] = Math.min(...battVoltValues).toFixed(2);
+            latestDetails["Max24h"] = Math.max(...battVoltValues).toFixed(2);
+        }
+
+        // Process latest values for CellStr, CellQlt, RHenc
+        latestMeasurements.forEach(measurement => {
+            const numericValue = parseFloat(measurement.value as any);
+            if (!isNaN(numericValue)) {
+                latestDetails[measurement.variable] = numericValue.toFixed(2);
+            }
+        });
+
+        // Update station details
+        this.selectedStation = {
+            ...this.selectedStation,
+            details: latestDetails,
+            detailsTimestamp: this.formatTimestamp(battVoltMeasurements[battVoltMeasurements.length - 1]?.timestamp || "")
+        };
+
+        // Trigger UI update
+        this.cdr.detectChanges();
+    } catch (error) {
+        console.error("Error fetching station details:", error);
+    }
+}
+
+updateVariable(event: Event): void {
+  this.selectedVariable = (event.target as HTMLSelectElement).value;
+  console.log(`Selected Variable Changed: ${this.selectedVariable}`);
+
+  this.fetchStationData(); // Fetch new data
+}
+
 
   ngAfterViewInit(): void {
     this.map = L.map('map', {

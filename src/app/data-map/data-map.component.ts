@@ -194,7 +194,6 @@ async fetchStationDetails(stationId: string): Promise<void> {
             return;
         }
 
-        // ✅ Reset `selectedStation.details` and `convertedDetails`
         this.selectedStation = {
             ...this.selectedStation,
             details: {
