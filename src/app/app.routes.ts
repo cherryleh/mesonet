@@ -15,8 +15,7 @@ import { AcknowledgementsComponent } from './acknowledgements/acknowledgements.c
 import { ReportsDraftComponent } from './reports-draft/reports-draft.component';
 import { HighchartMapComponent } from './highchart-map/highchart-map.component';
 import { DataMapComponent } from './data-map/data-map.component';
-import { AmericanSamoaComponent } from './american-samoa-map/american-samoa-map.component';
-import { DiagnosticMapComponent } from './diagnostic-map/diagnostic-map.component';
+import { AmericanSamoaComponent } from './american-samoa-page/american-samoa/american-samoa.component'
 
 export const routes: Routes = [
   { path: '', component: HomeComponent }, // Root route displays Home
@@ -35,6 +34,5 @@ export const routes: Routes = [
   { path: 'highchart-map', component: HighchartMapComponent},
   { path: 'data-map', component: DataMapComponent},
   { path: 'american-samoa', component: AmericanSamoaComponent},
-  { path: 'diagnostic-map', component: DiagnosticMapComponent},
   { path: '**', redirectTo: '' } // Wildcard route redirects to Home
 ];
