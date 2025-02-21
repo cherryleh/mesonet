@@ -2,11 +2,15 @@ import { Component, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StationSelectionMapComponent } from '../station-selection-map/station-selection-map.component';
 import { StationTableComponent } from '../station-table/station-table.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, StationSelectionMapComponent, StationTableComponent],
+  imports: [CommonModule, StationSelectionMapComponent, StationTableComponent, MatButtonModule,
+    MatIconModule,RouterModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

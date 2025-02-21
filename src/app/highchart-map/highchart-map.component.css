@@ -1,5 +1,5 @@
 .highcharts-tooltip-container {
-    pointer-events: auto !important; /* ✅ Allows interaction inside the tooltip */
+    pointer-events: auto !important; 
   }
   
   .tooltip-link {
