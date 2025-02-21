@@ -47,12 +47,9 @@ export class StationInfoComponent implements OnInit, OnDestroy {
 
 
   fetchStationData(): void {
-    // Combine multiple API calls using forkJoin
     this.subscription.add(
       forkJoin({
-        // Fetch station start date
         dates: this.stationDatesService.getData(this.stationId),
-        // Fetch station metadata
         metadata: this.stationDataService.getStationData(this.stationId)
       }).subscribe({
         next: (results) => {

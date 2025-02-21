@@ -48,21 +48,26 @@ export class StationSpecificMapComponent {
   }
 
   fetchStationData(): void {
-    const apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations';
-    const apiToken = environment.apiToken;
-
-    fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${apiToken}`,
-        'Content-Type': 'application/json'
+    this.route.queryParams.subscribe(params => {
+      const stationId = params['id']; 
+    
+      // Determine the API URL based on the first character of stationId
+      let apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?location=hawaii'; 
+      if (stationId && stationId.startsWith('1')) {
+        apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?location=american_samoa';
       }
-    })
-    .then(response => response.json())
-    .then((data: Station[]) => {
-      this.route.queryParams.subscribe(params => {
-        const stationId = params['id']; 
 
+      const apiToken = environment.apiToken;
+
+      fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then((data: Station[]) => {
         let selectedStation: { lat: number; lon: number; name: string } | undefined; 
 
         data.forEach(station => {
@@ -104,11 +109,12 @@ export class StationSpecificMapComponent {
         } else {
           console.warn('Station not found for ID:', stationId);
         }
+      })
+      .catch(error => {
+        console.error('Error fetching station data:', error);
       });
-    })
-    .catch(error => {
-      console.error('Error fetching station data:', error);
     });
   }
+
 
 }

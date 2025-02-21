@@ -22,8 +22,8 @@ import { environment } from '../../../environments/environment';
   styleUrl: './as-station-table.component.css'
 })
 export class AsStationTableComponent {
-  displayedColumns: string[] = ['id', 'name', 'lat', 'lng','elevation']; // Define columns to display
-  dataSource = new MatTableDataSource<any>([]); // Initialize data source
+  displayedColumns: string[] = ['id', 'name', 'lat', 'lng','elevation']; 
+  dataSource = new MatTableDataSource<any>([]); 
   searchTerm: string = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -35,7 +35,7 @@ export class AsStationTableComponent {
   }
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator; // Assign paginator after view initialization
+    this.dataSource.paginator = this.paginator;
   }
 
   async fetchStationData(): Promise<void> {

@@ -6,12 +6,12 @@ import { AsStationTableComponent } from '../as-station-table/as-station-table.co
 @Component({
   selector: 'app-american-samoa',
   standalone: true,
-  imports: [CommonModule, AsStationSelectionMapComponent, AsStationTableComponent], // Added CommonModule
+  imports: [CommonModule, AsStationSelectionMapComponent, AsStationTableComponent], 
   templateUrl: './american-samoa.component.html',
   styleUrl: './american-samoa.component.css'
 })
 export class AmericanSamoaComponent implements AfterViewInit {
-  selectedView: 'map' | 'table' = 'map'; // Default to the map view
+  selectedView: 'map' | 'table' = 'map'; 
 
   @ViewChild(AsStationSelectionMapComponent) stationMap!: AsStationSelectionMapComponent;
 
@@ -28,7 +28,7 @@ export class AmericanSamoaComponent implements AfterViewInit {
 
     if (view === 'map') {
       setTimeout(() => {
-        this.stationMap?.invalidateSize(); // Updated method name
+        this.stationMap?.invalidateSize(); 
       }, 600);
     }
   }
