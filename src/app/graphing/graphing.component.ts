@@ -186,9 +186,6 @@ export class GraphingComponent implements OnInit, AfterViewInit {
           return;
         }
 
-        console.log('Fetched Data:', data); // 🔥 Added Debug Log
-
-        // 🔥 Added Timezone Handling
         let timezoneOffset = this.stationId.startsWith('1') ? 660 : 600; // 660 = Samoa (UTC -11), 600 = Hawaii (UTC -10)
         this.chart?.update({ time: { timezoneOffset } });
 

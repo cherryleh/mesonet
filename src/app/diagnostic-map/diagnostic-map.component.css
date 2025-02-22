@@ -232,3 +232,12 @@ app-header {
   z-index: 1100; /* Ensure it's above everything */
 }
 
+.update-header {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #333;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+

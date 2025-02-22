@@ -20,57 +20,32 @@
         <p><strong>Latitude:</strong> {{ selectedStation.lat }}</p>
         <p><strong>Longitude:</strong> {{ selectedStation.lng }}</p>
 
+        <div class="station-details" *ngIf="selectedStation.details && objectKeys(selectedStation.details).length > 0; else loadingData">
+            <h4>Latest Observations</h4>
 
+            <div *ngFor="let key of objectKeys(selectedStation.details)">
+                <!-- ✅ Add "Sensor latest update" text above Rainfall -->
+                <div *ngIf="key === 'RF_1_Tot300s'" class="update-header">
+                    <strong>Sensor latest update</strong>
+                </div>
 
-        <div class="station-details" *ngIf="selectedStation.details; else loadingData">
-            <!-- Battery Voltage Section -->
-            <div class="data-row">
-                <i class="icon bx bxs-thermometer"></i>
-                <span>Battery Voltage (Current):</span>
-                <strong>{{ selectedStation.details.BattVolt }}</strong>
-            </div>
-            <div class="data-row">
-                <i class="icon bx bx-trending-down"></i>
-                <span>Battery Voltage (24h Min):</span>
-                <strong>{{ selectedStation.details.Min24h }}</strong>
-            </div>
-            <div class="data-row">
-                <i class="icon bx bx-trending-up"></i>
-                <span>Battery Voltage (24h Max):</span>
-                <strong>{{ selectedStation.details.Max24h }}</strong>
-            </div>
-
-            <!-- Cellular Signal Strength -->
-            <div class="data-row">
-                <i class="icon bx bx-signal-4"></i>
-                <span>Cellular Signal Strength:</span>
-                <strong>{{ selectedStation.details.CellStr }}</strong>
-            </div>
-
-            <!-- Cellular Signal Quality -->
-            <div class="data-row">
-                <i class="icon bx bx-wifi"></i>
-                <span>Cellular Signal Quality:</span>
-                <strong>{{ selectedStation.details.CellQlt }}</strong>
-            </div>
-
-            <!-- Enclosure Relative Humidity -->
-            <div class="data-row">
-                <i class="icon bx bx-cloud"></i>
-                <span>Enclosure Relative Humidity:</span>
-                <strong>{{ selectedStation.details.RHenc }}</strong>
+                <div class="data-row">
+                    <span><strong>{{ getVariableName(key) }}:</strong> {{ selectedStation.details[key] }}</span>
+                </div>
             </div>
         </div>
 
-        <!-- Loading Indicator -->
-        <ng-template #loadingData>
-            <p>Loading additional data...</p>
-        </ng-template>
 
+        <ng-template #loadingData>
+            <p *ngIf="selectedStation.details && objectKeys(selectedStation.details).length === 0">No recent data available.</p>
+            <p *ngIf="!selectedStation.details">Loading data...</p> 
+        </ng-template>
 
         <div class="sidebar-buttons">
             <a [href]="selectedStation.url" target="_blank" class="button">Open Dashboard</a>
             <button class="close-btn" (click)="selectedStation = null">Close</button>
         </div>
     </div>
+
+
 </div>
