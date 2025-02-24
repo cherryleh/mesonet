@@ -1,0 +1,36 @@
+name: Run Python Script Hourly
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Runs every hour
+  workflow_dispatch:  # Allows manual execution
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt  # Adjust the path if needed
+
+      - name: Run Python script with API Token
+        env:
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+        run: python scripts/latestMeasurements.py
+        
+      - name: Upload JSON files as artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: measurement-data
+        path: |
+          latest_measurements.json
+          earliest_measurements.json
+
