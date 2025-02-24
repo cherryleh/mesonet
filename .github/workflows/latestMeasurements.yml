@@ -57,4 +57,6 @@ jobs:
         run: |
           git add json_data/latest_measurements.json json_data/earliest_measurements.json
           git commit -m "Update JSON data" || echo "No changes to commit"
-          git push origin gh-pages
+          git pull origin gh-pages --rebase || echo "No remote changes to merge"
+          git push origin gh-pages --force
+
