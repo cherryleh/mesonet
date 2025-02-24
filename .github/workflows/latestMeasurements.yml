@@ -19,7 +19,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install -r scripts/requirements.txt  # Adjust the path if needed
+        run: pip install -r scripts/requirements.txt
 
       - name: Run Python script with API Token
         env:
@@ -37,6 +37,11 @@ jobs:
           mkdir -p json_data  # Create a directory to store JSON files
           mv latest_measurements.json json_data/
           mv earliest_measurements.json json_data/
+
+      - name: Set up Git user  
+        run: |
+          git config --local user.email "github-actions@github.com"
+          git config --local user.name "github-actions"
 
       - name: Commit and push JSON files to GitHub Pages branch
         run: |
