@@ -29,24 +29,22 @@ jobs:
           echo "API Token length: ${#API_TOKEN}"
           echo "API Token (masked): ${API_TOKEN:0:4}****${API_TOKEN: -4}"
         env:
-          API_TOKEN: ${{ secrets.API_TOKEN }}
-
+          API_TOKEN: ${{ env.API_TOKEN }}
 
       - name: Run Python script with API Token
         env:
           API_TOKEN: ${{ env.API_TOKEN }}
         run: python scripts/latestMeasurements.py
 
-
-      - name: Ensure gh-pages branch exists
+      - name: Ensure gh-pages branch exists and is up to date
         run: |
           git fetch origin gh-pages || echo "gh-pages branch does not exist, creating it..."
           git checkout gh-pages || git checkout --orphan gh-pages
-          git pull origin gh-pages || echo "No existing gh-pages content"
+          git pull origin gh-pages --rebase || echo "No existing gh-pages content"
 
       - name: Move JSON files to gh-pages branch
         run: |
-          mkdir -p json_data  # Create a directory to store JSON files
+          mkdir -p json_data  # Ensure directory exists
           mv latest_measurements.json json_data/
           mv earliest_measurements.json json_data/
 
