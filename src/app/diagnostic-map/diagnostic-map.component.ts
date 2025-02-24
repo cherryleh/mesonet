@@ -66,7 +66,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
 
   async plotEarliestMeasurements(): Promise<void> {
     try {
-        const response = await fetch('earliest_measurements.json');
+        const response = await fetch('https://cherryleh.github.io/mesonet/earliest_measurements.json');
         const earliestData: Measurement[] = await response.json();
 
         console.log("Earliest Measurements Data:", earliestData);
@@ -305,7 +305,7 @@ async fetchStationDetails(stationId: string): Promise<void> {
       try {
         console.log("🌐 Fetching latest_measurements.json...");
   
-        const latestMeasurementsResponse = await fetch('latest_measurements.json');
+        const latestMeasurementsResponse = await fetch('https://cherryleh.github.io/mesonet/latest_measurements.json');
 
         console.log("🔍 Response Status:", latestMeasurementsResponse.status);
 

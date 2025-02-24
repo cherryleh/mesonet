@@ -26,14 +26,20 @@ jobs:
           API_TOKEN: ${{ secrets.API_TOKEN }}
         run: python scripts/latestMeasurements.py
 
+      - name: Ensure gh-pages branch exists
+        run: |
+          git fetch origin gh-pages || echo "gh-pages branch does not exist, creating it..."
+          git checkout gh-pages || git checkout --orphan gh-pages
+          git pull origin gh-pages || echo "No existing gh-pages content"
+
+      - name: Move JSON files to gh-pages branch
+        run: |
+          mkdir -p json_data  # Create a directory to store JSON files
+          mv latest_measurements.json json_data/
+          mv earliest_measurements.json json_data/
+
       - name: Commit and push JSON files to GitHub Pages branch
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git checkout --orphan gh-pages
-          git rm -rf .
-          git add latest_measurements.json earliest_measurements.json
-          git commit -m "Update JSON data"
-          git push --force origin gh-pages
-
-
+          git add json_data/latest_measurements.json json_data/earliest_measurements.json
+          git commit -m "Update JSON data" || echo "No changes to commit"
+          git push origin gh-pages
