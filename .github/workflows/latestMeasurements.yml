@@ -22,7 +22,7 @@ jobs:
         run: pip install -r scripts/requirements.txt
 
       - name: Decode API Token
-        run: echo "API_TOKEN=$(echo '${{ secrets.API_TOKEN }}' | base64 -d)" >> $GITHUB_ENV
+        run: echo "API_TOKEN=$(echo '${{ secrets.API_CONFIG_JSON }}' | base64 -d)" >> $GITHUB_ENV
 
       - name: Debug API Token
         run: |
