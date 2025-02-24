@@ -25,12 +25,15 @@ jobs:
         env:
           API_TOKEN: ${{ secrets.API_TOKEN }}
         run: python scripts/latestMeasurements.py
-        
-      - name: Upload JSON files as artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: measurement-data
-        path: |
-          latest_measurements.json
-          earliest_measurements.json
+
+      - name: Commit and push JSON files to GitHub Pages branch
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git checkout --orphan gh-pages
+          git rm -rf .
+          git add latest_measurements.json earliest_measurements.json
+          git commit -m "Update JSON data"
+          git push --force origin gh-pages
+
 
