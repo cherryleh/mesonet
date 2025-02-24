@@ -69,7 +69,7 @@ for station in stations:
             continue  # Skip this variable and move to the next one
 
 sorted_data = sorted(latest_measurements, key=lambda x: (x['station_id'], x['variable']))
-
+print(sorted_data)
 json_filename = "latest_measurements.json"
 with open(json_filename, "w") as json_file:
     json.dump(sorted_data, json_file, indent=4)
