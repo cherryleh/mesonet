@@ -35,12 +35,15 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        working-directory: mesonet  # Set the correct directory before running npm install
 
       - name: Install Angular CLI
         run: npm install -g @angular/cli
+        working-directory: mesonet
 
       - name: Build the Angular app
         run: ng build --configuration production --base-href="https://cherryleh.github.io/mesonet/"
+        working-directory: mesonet
 
       - name: Restore JSON data
         run: |
