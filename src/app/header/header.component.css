@@ -1,0 +1,44 @@
+.header {
+  background-color: white;
+  color: black;
+  padding: 0 20px; /* Set top/bottom padding to 0 for perfect centering */
+  border-bottom: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 4.75rem; /* Custom height */
+  display: flex; /* Flex layout on header for better control */
+  align-items: center; /* Centers child elements vertically */
+  width: 100%;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between; /* Pushes content to far edges */
+  align-items: center; /* Ensures vertical centering of children */
+  width: 100%; /* Full width for layout */
+  margin: 0 !important; 
+  max-width: 100% !important;
+}
+
+h1 {
+  margin: 0 !important; /* Removes default margin */
+  font-size: 1.5rem; /* Adjusts text size */
+}
+
+nav {
+  display: flex;
+  margin-left: auto;
+  gap: 15px;
+  align-items: center; /* Ensures nav links are centered vertically */
+}
+
+.nav-link {
+  text-decoration: none;
+  color: black;
+  font-weight: 500;
+  display: flex; /* Allows for vertical alignment on link text */
+  align-items: center; /* Vertically centers link text */
+}
+
+.nav-link:hover {
+  text-decoration: none
+}

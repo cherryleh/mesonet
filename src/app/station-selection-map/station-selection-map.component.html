@@ -1,0 +1,17 @@
+<div class="map-container">
+  <div class="header-container">
+    <h2 class="map-title">Map Search</h2>
+    <div class="dropdown-group">
+      <label for="island-select">Select Island:</label>
+      <div class="dropdown">
+        <select [ngModel]="selectedIsland" (ngModelChange)="selectIsland($event)">
+          <option *ngFor="let island of islandList" [value]="island.value">
+            {{ island.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div id="map"></div>
+</div>

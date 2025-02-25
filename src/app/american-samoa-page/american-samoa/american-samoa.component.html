@@ -1,0 +1,26 @@
+<section class="section">
+    <p class="title">American Samoa Mesonet Live Data Access</p>
+  </section>
+  
+  <div class="container">
+    <div 
+      class="left-app" 
+      [class.expanded]="selectedView === 'map'" 
+      [class.collapsed]="selectedView === 'table'" 
+      (click)="toggleView('map')"
+    >
+      <app-as-station-selection-map *ngIf="selectedView === 'map'"></app-as-station-selection-map>
+      <div class="preview-label" *ngIf="selectedView === 'table'">Map Search</div>
+    </div>
+  
+    <div 
+      class="right-app" 
+      [class.expanded]="selectedView === 'table'" 
+      [class.collapsed]="selectedView === 'map'" 
+      (click)="toggleView('table')"
+    >
+      <app-as-station-table *ngIf="selectedView === 'table'"></app-as-station-table>
+      <div class="preview-label" *ngIf="selectedView === 'map'">Table Search</div>
+    </div>
+  </div>
+  

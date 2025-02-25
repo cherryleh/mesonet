@@ -1,0 +1,5 @@
+<select [ngModel]="selectedDuration" (ngModelChange)="selectDuration($event)">
+  <option *ngFor="let duration of durations" [value]="duration.value">
+    {{ duration.label }}
+  </option>
+</select>
