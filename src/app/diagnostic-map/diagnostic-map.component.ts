@@ -204,8 +204,8 @@ plotStations(stations: Station[], measurementMap: Record<string, any>, isTimesta
 }
 
 private getColorFromValue(value: number, min: number, max: number): string {
-  if (min === max) return interpolateViridis(0.5); // Avoid divide by zero
-  return interpolateViridis((value - min) / (max - min)); // ✅ Normalize for Viridis
+  if (min === max) return interpolateViridis(0.5); 
+  return interpolateViridis((value - min) / (max - min));
 }
 
 
