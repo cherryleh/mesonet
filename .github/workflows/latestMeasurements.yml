@@ -42,18 +42,21 @@ jobs:
           git fetch origin gh-pages || echo "gh-pages branch does not exist, creating it..."
           git checkout gh-pages || git checkout --orphan gh-pages
           git pull origin gh-pages --rebase || echo "No existing gh-pages content"
+          
       - name: Move JSON files to gh-pages branch
         run: |
-          mkdir -p json_data  # Ensure directory exists
-          mv latest_measurements.json json_data/
-          mv earliest_measurements.json json_data/
+          mkdir -p data  # Ensure directory exists
+          mv latest_measurements.json data/
+          mv earliest_measurements.json data/
+
       - name: Set up Git user  
         run: |
           git config --local user.email "github-actions@github.com"
           git config --local user.name "github-actions"
       - name: Commit and push JSON files to GitHub Pages branch
         run: |
-          git add json_data/latest_measurements.json json_data/earliest_measurements.json
+          git add data/latest_measurements.json data/earliest_measurements.json
           git commit -m "Update JSON data" || echo "No changes to commit"
           git pull origin gh-pages --rebase || echo "No remote changes to merge"
           git push origin gh-pages --force
+
