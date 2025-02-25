@@ -232,12 +232,15 @@ app-header {
   z-index: 1100; /* Ensure it's above everything */
 }
 
-.update-header {
-  margin-top: 10px;
+.update-header + ul {
+  list-style-type: none; /* Remove default bullets */
+  padding: 0;
+  margin: 5px 0 10px 0;
+}
+
+.update-header + ul li {
   font-size: 14px;
   color: #333;
-  font-weight: bold;
-  text-transform: uppercase;
 }
 
 

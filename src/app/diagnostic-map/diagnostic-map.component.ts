@@ -66,7 +66,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
 
   async plotEarliestMeasurements(): Promise<void> {
     try {
-        const response = await fetch('https://cherryleh.github.io/mesonet/earliest_measurements.json');
+        const response = await fetch('https://cherryleh.github.io/mesonet/json_data/earliest_measurements.json');
         const earliestData: Measurement[] = await response.json();
 
         console.log("Earliest Measurements Data:", earliestData);
@@ -79,7 +79,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
         }).then(res => res.json());
-
+        console.log('Station info',this.apiUrl);
         this.plotStations(stations, measurementMap, true);
     } catch (error) {
         console.error("Error loading earliest measurements:", error);
@@ -87,31 +87,31 @@ export class DiagnosticMapComponent implements AfterViewInit {
 }
 
 plotStations(stations: Station[], measurementMap: Record<string, any>, isTimestamp: boolean = false): void {
-  console.log(`📌 Running plotStations() for ${stations.length} stations.`);
-
   this.map.eachLayer(layer => {
       if (layer instanceof L.CircleMarker) {
           this.map.removeLayer(layer);
       }
   });
 
-  // ✅ Calculate min/max values for Viridis (only for numeric data)
   const values = Object.values(measurementMap).filter(v => v !== null && !isTimestamp);
   const minValue = values.length > 0 ? Math.min(...values) : 0;
   const maxValue = values.length > 0 ? Math.max(...values) : 1; 
 
   setTimeout(() => {
       stations.forEach(station => {
+        if (!station || !station.lat || !station.lng) {
+            console.warn(`Skipping invalid station:`, station);
+            return; 
+        }
           const rawValue = measurementMap[station.station_id] ?? null;
 
           let displayText: string | null = null;
           let color: string;
 
           if (isTimestamp && rawValue) {
-              const timeData = this.formatTimeAgo(rawValue); // ✅ Get formatted time + hours
+              const timeData = this.formatTimeAgo(rawValue); 
               displayText = timeData.text;
 
-              // ✅ Apply color logic based on hours
               if (timeData.hours > 24) {
                   color = "red"; // > 24 hours
               } else if (timeData.hours >= 5) {
@@ -142,15 +142,13 @@ plotStations(stations: Station[], measurementMap: Record<string, any>, isTimesta
                 variable: this.selectedVariable
             };
 
-            await this.fetchStationDetails(station.station_id); // ✅ Ensure this gets called
+            await this.fetchStationDetails(station.station_id);
 
-            console.log("✅ fetchStationDetails() was called.");
             this.cdr.detectChanges();
         });
 
       });
 
-      // ✅ Update legend based on selected data type
       this.addLegend(minValue, maxValue, isTimestamp);
       this.cdr.detectChanges();
   }, 100);
@@ -173,10 +171,9 @@ plotStations(stations: Station[], measurementMap: Record<string, any>, isTimesta
   }
 
   async fetchStationData(): Promise<void> {
-    console.log("🌍 Fetching station data...");
     try {
         if (this.selectedVariable === "Earliest Measurement") {
-            await this.plotEarliestMeasurements(); // ✅ Calls function to plot from JSON
+            await this.plotEarliestMeasurements(); 
             return;
         }
 
@@ -293,27 +290,16 @@ private formatTimeAgo(timestamp: string): { text: string; hours: number } {
 }
 
 async fetchStationDetails(stationId: string): Promise<void> {
-  console.log(`🚀 Running fetchStationDetails() for station ${stationId}`);
   try {
-      console.log(`Fetching details for station: ${stationId}`);
-
-      // ✅ Fetch Battery Voltage and Latest Measurements API
       const battVoltApiUrl = `${this.measurementsUrl}&var_ids=BattVolt&station_ids=${stationId}&local_tz=True&limit=288`;
       const latestValuesApiUrl = `${this.measurementsUrl}&var_ids=CellStr,CellQlt,RHenc&station_ids=${stationId}&local_tz=True&limit=3`;
 
       let allStationMeasurements: Measurement[] = [];
       try {
-        console.log("🌐 Fetching latest_measurements.json...");
-  
-        const latestMeasurementsResponse = await fetch('https://cherryleh.github.io/mesonet/latest_measurements.json');
-
-        console.log("🔍 Response Status:", latestMeasurementsResponse.status);
-
+        const latestMeasurementsResponse = await fetch('https://cherryleh.github.io/mesonet/json_data/latest_measurements.json');
         if (!latestMeasurementsResponse.ok) throw new Error("❌ Failed to load latest_measurements.json");
 
         allStationMeasurements = await latestMeasurementsResponse.json();
-
-        console.log("✅ Loaded latest_measurements.json:", allStationMeasurements);
 
     } catch (error) {
         console.error("❌ Error loading latest_measurements.json:", error);
@@ -329,11 +315,9 @@ async fetchStationDetails(stationId: string): Promise<void> {
       const battVoltMeasurements: Measurement[] = await battVoltResponse.json();
       const latestMeasurements: Measurement[] = await latestValuesResponse.json();
 
-      // ✅ Filter measurements **only for the selected station**
       const stationMeasurements = allStationMeasurements.filter(m => m.station_id === stationId);
       console.log("Filtered latest observations:", stationMeasurements);
 
-      // ✅ Initialize details object with existing fields
       let latestDetails: { [key: string]: string } = {
           "BattVolt": "No Data",
           "24h BattVolt Min": "No Data",
@@ -342,9 +326,6 @@ async fetchStationDetails(stationId: string): Promise<void> {
           "CellQlt": "No Data",
           "RHenc": "No Data"
       };
-
-      console.log("Final latestDetails object:", latestDetails);
-      console.log("Updated Station Details:", this.selectedStation);
 
       let battVoltValues: number[] = battVoltMeasurements
           .map(m => parseFloat(m.value as any))
@@ -356,7 +337,6 @@ async fetchStationDetails(stationId: string): Promise<void> {
           latestDetails["24h BattVolt Max"] = Math.max(...battVoltValues).toFixed(2);
       }
 
-      // ✅ Process Cellular & RH Data
       latestMeasurements.forEach(measurement => {
           const numericValue = parseFloat(measurement.value as any);
           if (!isNaN(numericValue)) {
@@ -383,16 +363,29 @@ async fetchStationDetails(stationId: string): Promise<void> {
       this.cdr.detectChanges();
   } catch (error) {
       console.error("Error fetching station details:", error);
-      this.selectedStation = { ...this.selectedStation, details: {} }; // ✅ Prevents undefined details
+      this.selectedStation = { ...this.selectedStation, details: {} }; 
       this.cdr.detectChanges();
   }
 }
 
+sensorUpdateVars: string[] = ["RF_1_Tot300s", "RH_1_Avg", "SWin_1_Avg", "Tair_1_Avg", "WS_1_Avg"];
 
+  // ✅ Ensure `objectKeys` always returns an array
+  objectKeys(obj: Record<string, any> | null | undefined): string[] {
+    return obj ? Object.keys(obj) : [];
+  }
 
-objectKeys(obj: any): string[] {
-  return obj ? Object.keys(obj) : [];
-}
+  // ✅ Function to check if any "Sensor latest update" variables exist
+  hasSensorUpdateVariables(): boolean {
+    if (!this.selectedStation || !this.selectedStation.details) return false;
+    return this.sensorUpdateVars.some(key => this.selectedStation.details[key]);
+  }
+
+  // ✅ Handle sidebar close action
+  closeSidebar(): void {
+    this.selectedStation = null;
+  }
+  
 
 getVariableName(variableId: string): string {
   const variableMap: { [key: string]: string } = {
@@ -412,6 +405,7 @@ updateVariable(event: Event): void {
 
   this.fetchStationData(); // Fetch new data
 }
+
 
 ngAfterViewInit(): void {
   console.log("🗺️ Initializing Leaflet map...");

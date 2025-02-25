@@ -19,23 +19,32 @@
         <h3>{{ selectedStation.name }}</h3>
         <p><strong>Latitude:</strong> {{ selectedStation.lat }}</p>
         <p><strong>Longitude:</strong> {{ selectedStation.lng }}</p>
-
         <div class="station-details" *ngIf="selectedStation.details && objectKeys(selectedStation.details).length > 0; else loadingData">
             <h4>Latest Observations</h4>
 
-            <div *ngFor="let key of objectKeys(selectedStation.details)">
-                <!-- ✅ Add "Sensor latest update" text above Rainfall -->
-                <div *ngIf="key === 'RF_1_Tot300s'" class="update-header">
-                    <strong>Sensor latest update</strong>
-                </div>
-
-                <div class="data-row">
+            <!-- ✅ Keep battery, cell signal, RHenc, etc. in separate boxes -->
+            <ng-container *ngFor="let key of objectKeys(selectedStation.details)">
+                <div *ngIf="!sensorUpdateVars.includes(key)" class="data-row">
                     <span><strong>{{ getVariableName(key) }}:</strong> {{ selectedStation.details[key] }}</span>
                 </div>
+            </ng-container>
+
+            <!-- ✅ "Sensor latest update" header (only if needed) -->
+            <div *ngIf="hasSensorUpdateVariables()" class="update-header">
+                <strong>Sensor latest update</strong>
             </div>
+
+            <!-- ✅ List for sensor latest update variables -->
+            <ul *ngIf="hasSensorUpdateVariables()">
+                <ng-container *ngFor="let key of sensorUpdateVars">
+                    <li *ngIf="selectedStation.details[key]">
+                        <span>{{ getVariableName(key) }}: {{ selectedStation.details[key] }}</span>
+                    </li>
+                </ng-container>
+            </ul>
         </div>
 
-
+        <!-- ✅ Add the missing `loadingData` template -->
         <ng-template #loadingData>
             <p *ngIf="selectedStation.details && objectKeys(selectedStation.details).length === 0">No recent data available.</p>
             <p *ngIf="!selectedStation.details">Loading data...</p> 
@@ -43,8 +52,10 @@
 
         <div class="sidebar-buttons">
             <a [href]="selectedStation.url" target="_blank" class="button">Open Dashboard</a>
-            <button class="close-btn" (click)="selectedStation = null">Close</button>
+            <button class="close-btn" (click)="closeSidebar()">Close</button>
         </div>
+
+
     </div>
 
 
