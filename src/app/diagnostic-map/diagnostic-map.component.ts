@@ -301,11 +301,9 @@ async fetchStationDetails(stationId: string): Promise<void> {
 
         allStationMeasurements = await latestMeasurementsResponse.json();
 
-    } catch (error) {
+      } catch (error) {
         console.error("❌ Error loading latest_measurements.json:", error);
-    }
-
-
+      }
 
       const [battVoltResponse, latestValuesResponse] = await Promise.all([
           fetch(battVoltApiUrl, { method: 'GET', headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' } }),
@@ -352,11 +350,15 @@ async fetchStationDetails(stationId: string): Promise<void> {
 
       console.log("Final latestDetails object:", latestDetails);
 
+      // ✅ Extract the latest timestamp and format it
+      let latestTimestamp = battVoltMeasurements[battVoltMeasurements.length - 1]?.timestamp || "";
+      let formattedTimestamp = latestTimestamp ? this.formatTimestamp(latestTimestamp) : "No Data";
+
       // ✅ Always set selectedStation.details (prevents undefined details)
       this.selectedStation = {
           ...this.selectedStation,
           details: latestDetails,
-          detailsTimestamp: this.formatTimestamp(battVoltMeasurements[battVoltMeasurements.length - 1]?.timestamp || "")
+          detailsTimestamp: formattedTimestamp // ✅ Store formatted timestamp
       };
 
       console.log("Updated Station Details:", this.selectedStation);
@@ -367,6 +369,7 @@ async fetchStationDetails(stationId: string): Promise<void> {
       this.cdr.detectChanges();
   }
 }
+
 
 sensorUpdateVars: string[] = ["RF_1_Tot300s", "RH_1_Avg", "SWin_1_Avg", "Tair_1_Avg", "WS_1_Avg"];
 

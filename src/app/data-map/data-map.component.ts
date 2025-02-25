@@ -210,7 +210,8 @@ async fetchStationDetails(stationId: string): Promise<void> {
         this.convertedDetails = { ...this.selectedStation.details }; // ✅ Reset converted values
         this.cdr.detectChanges(); // ✅ Ensure UI updates immediately
 
-        const detailsApiUrl = `https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii&var_ids=Tair_1_Avg,Tsoil_1_Avg,RF_1_Tot300s,SWin_1_Avg,SM_1_Avg&station_ids=${stationId}&local_tz=True&limit=864`;
+        // ✅ Fetch all non-rainfall variables
+        const detailsApiUrl = `https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii&var_ids=Tair_1_Avg,Tsoil_1_Avg,SWin_1_Avg,SM_1_Avg&station_ids=${stationId}&local_tz=True&limit=4`;
 
         console.log("Fetching station details from:", detailsApiUrl);
 
@@ -221,62 +222,101 @@ async fetchStationDetails(stationId: string): Promise<void> {
 
         const measurements: { timestamp?: string; variable?: string; value?: any }[] = await response.json();
 
-        // ✅ If no data, force "No Data" and update UI
         if (!measurements || measurements.length === 0) {
             console.warn("No additional data available for this station.");
             this.selectedStation.detailsTimestamp = null;
-            this.convertedDetails = { ...this.selectedStation.details }; // ✅ Sync converted details with "No Data"
-            this.cdr.detectChanges(); // ✅ Ensure UI updates to show "No Data"
-            return;
+            this.convertedDetails = { ...this.selectedStation.details };
+            this.cdr.detectChanges();
+        } else {
+            let latestTimestamp: string | null = null;
+            const unitMapping: { [key: string]: string } = {
+                "Tair_1_Avg": "°C",
+                "Tsoil_1_Avg": "°C",
+                "SWin_1_Avg": "W/m²",
+                "SM_1_Avg": "%"
+            };
+
+            let updatedDetails = { ...this.selectedStation.details };
+
+            measurements.forEach((measurement) => {
+                if (!measurement.variable || !measurement.timestamp) return;
+
+                let numericValue = Number(measurement.value);
+                if (!isNaN(numericValue)) {
+                    if (measurement.variable === "SM_1_Avg") {
+                        numericValue *= 100;
+                    }
+
+                    const unit = unitMapping[measurement.variable] || "";
+                    updatedDetails[measurement.variable] = `${numericValue.toFixed(1)} ${unit}`;
+
+                    if (!latestTimestamp) {
+                        latestTimestamp = measurement.timestamp;
+                    }
+                }
+            });
+
+            this.selectedStation = {
+                ...this.selectedStation,
+                details: updatedDetails,
+                detailsTimestamp: latestTimestamp ? this.formatTimestamp(latestTimestamp) : null
+            };
+
+            this.convertedDetails = { ...updatedDetails };
+            this.convertUnits();
+            this.cdr.detectChanges();
         }
 
-        let latestTimestamp: string | null = null;
-        const unitMapping: { [key: string]: string } = {
-            "Tair_1_Avg": "°C",
-            "Tsoil_1_Avg": "°C",
-            "RF_1_Tot300s": "mm",
-            "SWin_1_Avg": "W/m²",
-            "SM_1_Avg": "%"
-        };
-
-        let updatedDetails = { ...this.selectedStation.details }; // Keep "No Data" unless updated
-
-        measurements.forEach((measurement) => {
-            if (!measurement.variable || !measurement.timestamp) {
-                console.warn("Skipping measurement with missing data:", measurement);
-                return;
-            }
-
-            let numericValue = Number(measurement.value);
-            if (!isNaN(numericValue)) {
-                if (measurement.variable === "SM_1_Avg") {
-                    numericValue *= 100; // Convert to percentage
-                }
-
-                const unit = unitMapping[measurement.variable] || "";
-                updatedDetails[measurement.variable] = `${numericValue.toFixed(1)} ${unit}`;
-
-                if (!latestTimestamp) {
-                    latestTimestamp = measurement.timestamp;
-                }
-            }
-        });
-
-        // ✅ Update selectedStation and convertedDetails properly
-        this.selectedStation = {
-            ...this.selectedStation,
-            details: updatedDetails,
-            detailsTimestamp: latestTimestamp ? this.formatTimestamp(latestTimestamp) : null
-        };
-
-        this.convertedDetails = { ...updatedDetails }; // ✅ Sync convertedDetails with updated values
-        this.convertUnits();
-        this.cdr.detectChanges(); // ✅ Ensure UI updates with new data
+        await this.fetch24hRainfall(stationId);
 
     } catch (error) {
         console.error("Error fetching station details:", error);
     }
 }
+
+async fetch24hRainfall(stationId: string): Promise<void> {
+    try {
+        // ✅ Set "Loading..." while fetching rainfall data
+        this.selectedStation.details['RF_1_Tot300s'] = "Loading...";
+        this.convertedDetails['RF_1_Tot300s'] = "Loading...";
+        this.cdr.detectChanges(); // Ensure UI updates
+
+        const rainfallApiUrl = `${this.measurementsUrl}&var_ids=RF_1_Tot300s&station_ids=${stationId}&local_tz=True&limit=288`; // 24h of 5-min intervals
+
+        console.log("Fetching 24-hour rainfall data from:", rainfallApiUrl);
+
+        const response = await fetch(rainfallApiUrl, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+        });
+
+        const rainfallData: { value?: any }[] = await response.json();
+
+        if (!rainfallData || rainfallData.length === 0) {
+            console.warn("No 24-hour rainfall data found.");
+            this.selectedStation.details['RF_1_Tot300s'] = "No Data";
+        } else {
+            // ✅ Sum the rainfall values
+            const totalRainfall = rainfallData.reduce((sum, record) => {
+                return sum + (parseFloat(record.value) || 0);
+            }, 0);
+
+            this.selectedStation.details['RF_1_Tot300s'] = `${totalRainfall.toFixed(1)} mm`;
+        }
+
+        this.convertedDetails['RF_1_Tot300s'] = this.selectedStation.details['RF_1_Tot300s'];
+        this.convertUnits();
+        this.cdr.detectChanges();
+
+    } catch (error) {
+        console.error("Error fetching 24-hour rainfall data:", error);
+        this.selectedStation.details['RF_1_Tot300s'] = "Error Loading";
+        this.convertedDetails['RF_1_Tot300s'] = "Error Loading";
+        this.cdr.detectChanges();
+    }
+}
+
+
 
 
 private getColorFromValue(value: number, min: number, max: number): string {

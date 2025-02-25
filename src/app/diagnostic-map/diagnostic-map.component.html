@@ -19,6 +19,9 @@
         <h3>{{ selectedStation.name }}</h3>
         <p><strong>Latitude:</strong> {{ selectedStation.lat }}</p>
         <p><strong>Longitude:</strong> {{ selectedStation.lng }}</p>
+        <p *ngIf="selectedStation.detailsTimestamp">
+            <strong>Latest Measurement:</strong> <br> {{ selectedStation.detailsTimestamp }}
+        </p>
         <div class="station-details" *ngIf="selectedStation.details && objectKeys(selectedStation.details).length > 0; else loadingData">
             <h4>Latest Observations</h4>
 
