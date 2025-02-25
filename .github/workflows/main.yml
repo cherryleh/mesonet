@@ -12,6 +12,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Fetch existing gh-pages branch
+        run: |
+          git fetch origin gh-pages
+          git checkout gh-pages || git checkout --orphan gh-pages
+          mkdir -p json_data  # Ensure JSON data directory exists
+          mv json_data ../json_data_backup || echo "No existing JSON data to back up"
+
       - name: Inject API token into environment.prod.ts
         run: |
           mkdir -p src/environments
@@ -20,6 +27,7 @@ jobs:
       - name: Generate environment.ts
         run: |
           echo "export const environment = { production: false, apiToken: '' };" > src/environments/environment.ts
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -34,9 +42,15 @@ jobs:
       - name: Build the Angular app
         run: ng build --configuration production --base-href="https://cherryleh.github.io/mesonet/"
 
+      - name: Restore JSON data
+        run: |
+          mv ../json_data_backup json_data || echo "No JSON data to restore"
+
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: dist/mesonet/browser  # Corrected the folder path
           branch: gh-pages
-          token: ${{ secrets.GITHUB_TOKEN }}  # Use default GITHUB_TOKEN unless using custom
+          token: ${{ secrets.GITHUB_TOKEN }}
+          clean: false  # Preserve existing files in gh-pages
+
