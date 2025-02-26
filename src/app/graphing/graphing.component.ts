@@ -238,11 +238,13 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
           if (item?.flag !== 0 || isNaN(value)) {
             value = null;
+          } else {
+            value = this.convertValue(variable, value); // ✅ Convert values based on unit
           }
+
           return [timestamp, value];
         })
-        .sort((a: [number, number | null], b: [number, number | null]) => a[0] - b[0])
-
+        .sort((a: [number, number | null], b: [number, number | null]) => a[0] - b[0]);
 
       for (let i = 0; i < filteredData.length - 1; i++) {
         const [currentTime, currentValue] = filteredData[i];
@@ -271,7 +273,6 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       };
     });
   }
-
 
 
   getSelectionColor(nonRainfallIndex: number): string {
