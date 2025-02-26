@@ -1,4 +1,3 @@
-
 name: Run Python Script Hourly
 
 on:
@@ -25,25 +24,18 @@ jobs:
       - name: Decode API Token
         run: echo "API_TOKEN=$(echo '${{ secrets.API_CONFIG_JSON }}' | base64 -d)" >> $GITHUB_ENV
 
-      - name: Debug API Token
-        run: |
-          echo "API Token length: ${#API_TOKEN}"
-          echo "API Token (masked): ${API_TOKEN:0:4}****${API_TOKEN: -4}"
-        env:
-          API_TOKEN: ${{ env.API_TOKEN }}
-
       - name: Run Python script with API Token
         env:
           API_TOKEN: ${{ env.API_TOKEN }}
         run: python scripts/latestMeasurements.py
 
-      - name: Ensure gh-pages branch exists and is up to date
+      - name: Ensure data-branch exists
         run: |
-          git fetch origin gh-pages || echo "gh-pages branch does not exist, creating it..."
-          git checkout gh-pages || git checkout --orphan gh-pages
-          git pull origin gh-pages --rebase || echo "No existing gh-pages content"
+          git fetch origin data-branch || echo "data-branch does not exist, creating it..."
+          git checkout data-branch || git checkout --orphan data-branch
+          git pull origin data-branch --rebase || echo "No existing data-branch content"
           
-      - name: Move JSON files to gh-pages branch
+      - name: Move JSON files to data-branch
         run: |
           mkdir -p data  # Ensure directory exists
           mv latest_measurements.json data/
@@ -53,10 +45,10 @@ jobs:
         run: |
           git config --local user.email "github-actions@github.com"
           git config --local user.name "github-actions"
-      - name: Commit and push JSON files to GitHub Pages branch
+
+      - name: Commit and push JSON files to data-branch
         run: |
           git add data/latest_measurements.json data/earliest_measurements.json
           git commit -m "Update JSON data" || echo "No changes to commit"
-          git pull origin gh-pages --rebase || echo "No remote changes to merge"
-          git push origin gh-pages --force
-
+          git pull origin data-branch --rebase || echo "No remote changes to merge"
+          git push origin data-branch --force
