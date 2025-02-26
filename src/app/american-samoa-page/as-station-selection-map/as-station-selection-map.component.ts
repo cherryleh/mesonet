@@ -15,6 +15,7 @@ export class AsStationSelectionMapComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.initMap();
     this.fetchStationData();
+    this.addLegend();
   }
 
   private initMap(): void {
@@ -39,6 +40,7 @@ export class AsStationSelectionMapComponent implements AfterViewInit {
   fetchStationData(): void {
     const apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?location=american_samoa'; 
     const apiToken = environment.apiToken; 
+
     fetch(apiUrl, {
       method: 'GET',
       headers: {
@@ -49,17 +51,32 @@ export class AsStationSelectionMapComponent implements AfterViewInit {
     .then(response => response.json())
     .then((data: any[]) => {
       data.forEach(station => {
-        if (station.lat && station.lng && station.name) {
+        if (station.lat && station.lng && station.name && station.station_id) {
           const randomizedCoords = this.randomizeLatLon(station.lat, station.lng);
+          const stationId = station.station_id.toString();
 
-          const circle = L.circleMarker([randomizedCoords.lat, randomizedCoords.lon],
-            {radius: 6, 
-              color: 'blue', 
-              fillColor: 'blue', 
-              fillOpacity: 0.2, 
-              weight: 2});
-            const url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`;
-            circle.bindPopup(`<a href="${url}" style="font-size: 20px" target="_blank">${station.name}</a>`);
+          let color = 'blue'; // Default color
+          let stationType = 'Weather station'; // Default type
+
+          if (stationId.startsWith('14')) {
+            color = 'red';
+            stationType = 'Stream gauge';
+          }
+
+          const circle = L.circleMarker([randomizedCoords.lat, randomizedCoords.lon], {
+            radius: 6, 
+            color: color, 
+            fillColor: color, 
+            fillOpacity: 0.5, 
+            weight: 2
+          });
+
+          const url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${stationId}`;
+          circle.bindPopup(`
+            <a href="${url}" style="font-size: 20px" target="_blank">${station.name}</a><br>
+            <b>${stationType}</b>
+          `);
+
           circle.addTo(this.map);
         }
       });
@@ -68,6 +85,26 @@ export class AsStationSelectionMapComponent implements AfterViewInit {
       console.error('Error fetching station data:', error);
     });
   }
+
+  private addLegend(): void {
+    const legend = new (L.Control.extend({
+      options: { position: 'bottomright' },
+
+      onAdd: function () {
+        const div = L.DomUtil.create('div', 'info legend');
+        div.innerHTML = `
+          <strong>Legend</strong><br>
+          <i style="background: red; width: 12px; height: 12px; display: inline-block; margin-right: 5px;"></i> Stream Gauge <br>
+          <i style="background: blue; width: 12px; height: 12px; display: inline-block; margin-right: 5px;"></i> Weather Station
+        `;
+        return div;
+      }
+    }))();
+
+    legend.addTo(this.map);
+  }
+
+
 
   private randomizeLatLon(lat: number, lon: number): { lat: number; lon: number } {
     const latOffset = (Math.random() - 0.5) * 0.0002; 
