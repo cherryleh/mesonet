@@ -1,0 +1,63 @@
+<div class="layout">
+  <div class="parent-container">
+    <app-header></app-header>
+    <app-station-title [isCollapsed]="isCollapsed"></app-station-title>
+    <app-sidebar [class.collapsed]="isCollapsed" (toggle)="onToggleSidebar($event)"></app-sidebar>
+    <div class="main-content" [class.collapsed]="isCollapsed">
+      <div class="menu-container">
+        <div class="select-container">
+          <!-- Variable Selection (Multi-Select) -->
+          <!-- Variable Selection (Multi-Select) -->
+          <div class="input-group">
+            <label for="variableSelect">Variable (Up to 3):</label>
+            <mat-form-field appearance="outline" style="width: 300px;">
+              <mat-select 
+                id="variableSelect" 
+                multiple 
+                [(ngModel)]="selectedVariables" 
+                (selectionChange)="onVariableChange($event)">
+                <mat-option 
+                  *ngFor="let variable of variables" 
+                  [value]="variable.value" 
+                  [disabled]="isOptionDisabled(variable.value)">
+                  {{ variable.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="input-group">
+            <label for="durationSelect">Duration:</label>
+            <mat-form-field appearance="outline">
+              <mat-select id="durationSelect" [(ngModel)]="selectedDuration" (selectionChange)="onDurationChange($event)">
+                <mat-option *ngFor="let duration of durations" [value]="duration.value">
+                  {{ duration.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- Unit Selection -->
+          <div class="input-group">
+            <label for="unitSelect">Units:</label>
+            <mat-form-field appearance="outline">
+              <mat-select id="unitSelect" [(ngModel)]="selectedUnit" (selectionChange)="onUnitChange($event)">
+                <mat-option value="metric">Metric</mat-option>
+                <mat-option value="standard">Standard</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <button class="update-button" (click)="updateChartButtonClick()">Update Chart</button>
+        </div>
+      </div>
+      <div id="graphContainerWrapper">
+        <div *ngIf="isLoading" class="spinner-overlay">
+          <div class="spinner"></div>
+          <div class="spinner-text">Loading...This may take a moment.</div>
+        </div>
+        <div id="graphContainer"></div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,156 @@
+/* Sidebar */
+.sidebar {
+  width: 16rem; /* Expanded width */
+  transition: width 0.3s ease-in-out;
+  height: calc(100vh - 60px); /* Adjust height based on header */
+  position: fixed;
+  top: 4.75rem; /* Position below header */
+  left: 0;
+  background-color: white;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Collapsed Sidebar */
+.sidebar.collapsed {
+  width: 4rem; /* Collapsed width */
+}
+
+/* Sidebar Header (Submenu + Toggle Button) */
+.sidebar-header {
+  display: flex;
+  align-items: center; /* Vertically center items */
+  justify-content: space-between; /* Space between text and button */
+  padding: 0 10px; /* Horizontal padding */
+  height: 50px; /* Fixed height for vertical alignment */
+  border-bottom: 1px solid #edf1f7; /* Divider */
+}
+
+/* Sidebar Submenu (Text) */
+.sidebar-submenu {
+  color: #8f9bb3;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1; /* Prevent extra spacing */
+  margin: 0; /* Remove any margin */
+  display: flex;
+  align-items: center; /* Vertically center the text */
+}
+
+/* Hide Submenu Text When Collapsed */
+.sidebar.collapsed .sidebar-submenu {
+  display: none; /* Hide submenu text */
+}
+
+/* Sidebar Toggle Button */
+.sidebar-toggle {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 24px; /* Icon size */
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  align-items: center; /* Vertically center button */
+}
+
+/* Hover Effect */
+.sidebar-toggle:hover {
+  color: #007bff; /* Highlight color */
+}
+
+/* Navigation Menu */
+.nav-menu {
+  flex-grow: 1;
+}
+
+
+/* Menu Items */
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+li {
+  display: flex;
+  align-items: center; /* Vertically center content */
+  height: 50px;
+  padding: 0;
+  border-bottom: 1px solid #edf1f7; /* Divider lines */
+  transition: padding 0.3s ease-in-out; /* Smooth transition */
+}
+
+/* Collapsed Sidebar: Center Icons and Remove Text Space */
+.sidebar.collapsed li {
+  justify-content: center; /* Center content horizontally */
+  padding: 0; /* Remove padding to eliminate text space */
+}
+
+/* Menu Icons */
+.icon {
+  width: 20px;
+  height: 20px;
+  transition: margin 0.3s ease-in-out; /* Smooth transition */
+  margin-right: 10px
+}
+
+/* Remove Margin for Collapsed Sidebar */
+.sidebar.collapsed .icon {
+  margin-right: 0; /* Remove extra margin */
+}
+
+/* Ensure the entire area is clickable */
+.nav-link {
+  display: flex; /* Flexbox for alignment */
+  align-items: center; /* Vertically center content */
+  width: 100%; /* Full clickable width */
+  height: 50px; /* Full clickable height */
+  text-decoration: none; /* Remove underline */
+  color: inherit; /* Inherit text color */
+  padding: 0 10px; /* Horizontal padding */
+}
+
+/* Hover effect */
+.nav-link:hover {
+  background-color: #f4f6f8; /* Highlight background */
+}
+
+/* Icon Styling */
+.icon {
+  width: 20px; /* Fixed size */
+  height: 20px;
+  margin-right: 10px; /* Space between icon and text */
+  transition: margin 0.3s ease-in-out; /* Smooth margin animation */
+}
+
+/* Collapsed Sidebar: Center icon and hide text */
+.sidebar.collapsed .icon {
+  margin-right: 0; /* Remove margin */
+}
+
+/* Hide only the text, not the icon */
+.sidebar.collapsed .link-text {
+  display: none; /* Hide text */
+}
+
+/* Collapsed Sidebar: Adjust padding for alignment */
+.sidebar.collapsed .nav-link {
+  justify-content: center; /* Center icon */
+  padding: 0; /* Remove padding to align icons perfectly */
+}
+
+
+/* Preserve Icon Positions */
+.sidebar.collapsed ul li {
+  justify-content: center; /* Keep icons centered */
+}
+
+.sidebar-footer{
+  padding: 0 20px;
+  padding-bottom: 2vw;
+  color: inherit
+}
+
+.citation{
+  margin-bottom: 1vw;
+}

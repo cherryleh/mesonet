@@ -1,0 +1,59 @@
+<div class="container">
+  <!-- Sidebar -->
+  <aside [class.collapsed]="isCollapsed" class="sidebar">
+    <!-- Submenu and Toggle Button -->
+    <div class="sidebar-header">
+      <p class="sidebar-submenu">SITE MENU</p>
+      <button class="sidebar-toggle" (click)="toggleSidebar()">
+        <i [class]="isCollapsed ? 'bx bx-arrow-to-right' : 'bx bx-arrow-from-right'"></i>
+      </button>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="nav-menu">
+      <ul>
+        <li>
+          <a [routerLink]="'/dashboard'" [queryParamsHandling]="'merge'" class="nav-link">
+            <img src="dashboard.svg" alt="Dashboard Icon" class="icon">
+            <span class="link-text">Site Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a [routerLink]="'/graphing'" [queryParamsHandling]="'merge'" class="nav-link">
+          <img src="graph.svg" alt="Graph Icon" class="icon">
+          <span class="link-text">Graphing</span>
+        </a>
+        </li>
+        <li>
+          <a [routerLink]="'/reports'" [queryParamsHandling]="'merge'" class="nav-link">
+          <img src="reports.svg" alt="Report Icon" class="icon">
+          <span class="link-text">Reports</span>
+        </a>
+        </li>
+        <li>
+          <a [routerLink]="'/climatology'" [queryParamsHandling]="'merge'" class="nav-link">
+          <img src="climo.svg" alt="Dashboard Icon" class="icon">
+          <span class="link-text">Climatology</span>
+        </a>
+        </li>
+        <li>
+          <a [routerLink]="'/station-info'" [queryParamsHandling]="'merge'" class="nav-link">
+          <img src="info.svg" alt="Dashboard Icon" class="icon">
+          <span class="link-text">Station Information</span>
+        </a>
+        </li>
+      </ul>
+    </nav>
+    <!-- <div class="sidebar-footer">
+      <div class="citation">
+        <a>How to Cite</a>
+      </div>
+      <div class="contact">
+        <p style="margin: 0">CONTACT US</p>
+        <p><a href="mailto:hcdp@hawaii.edu">hcdp&#64;hawaii.edu</a></p>
+      </div>
+    </div> -->
+  </aside>
+</div>
+
+
