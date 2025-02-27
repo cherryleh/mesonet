@@ -32,7 +32,7 @@ for station in stations:
         test_url = f"{measurements_url}?{test_query}"
 
         try:
-            test_response = requests.get(test_url, headers=header, timeout=5)  # Set timeout
+            test_response = requests.get(test_url, headers=header, timeout=10)  # Set timeout
             test_data = test_response.json() if test_response.status_code == 200 else None
 
             if not isinstance(test_data, list) or len(test_data) == 0:
@@ -47,7 +47,7 @@ for station in stations:
         full_url = f"{measurements_url}?{query_string}"
 
         try:
-            response = requests.get(full_url, headers=header, timeout=5)  
+            response = requests.get(full_url, headers=header, timeout=10)  
 
             if response.status_code == 200:
                 data = response.json()
