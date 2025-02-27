@@ -216,12 +216,28 @@ plotStations(stations: Station[], measurementMap: Record<string, any>, isTimesta
     }
 }
 
-
 private getColorFromValue(value: number, min: number, max: number): string {
-  if (min === max) return interpolateViridis(0.5); 
-  return interpolateViridis((value - min) / (max - min));
-}
+  if (this.selectedVariable === "BattVolt") {
+      const fixedMin = 11; // Always start from 11
+      const dynamicMax = max; // Use the actual max
 
+      if (value <= fixedMin) return "#FF0000"; // Red for <= 11
+      if (min === max) return "#0000FF"; // Avoid divide-by-zero errors
+
+      // Normalize value between fixedMin (11) and dynamicMax
+      const normalizedValue = (value - fixedMin) / (dynamicMax - fixedMin);
+
+      // Interpolate between red and blue
+      const red = Math.round(255 * (1 - normalizedValue)); // Decreasing red
+      const blue = Math.round(255 * normalizedValue); // Increasing blue
+
+      return `rgb(${red}, 0, ${blue})`;
+  } else {
+      // Default Viridis scale for other variables
+      if (min === max) return interpolateViridis(0.5);
+      return interpolateViridis((value - min) / (max - min));
+  }
+}
 
 private addLegend(minValue: number, maxValue: number, isTimestamp: boolean): void {
   const existingLegend = document.querySelector(".info.legend");
@@ -253,12 +269,14 @@ private addLegend(minValue: number, maxValue: number, isTimestamp: boolean): voi
               </div>
           `;
       } else {
+          // ✅ Custom BattVolt legend with fixed red min (11) and dynamic blue max
+          const fixedMin = 11;
           div.innerHTML = `
               <h4>${this.selectedVariable}</h4>
               <div id="legend-gradient" style="width: 200px; height: 15px; margin-bottom: 5px;"></div>
               <div style="display: flex; justify-content: space-between;">
-                  <span>${minValue.toFixed(1)}</span>
-                  <span>${maxValue.toFixed(1)}</span>
+                  <span>${fixedMin.toFixed(1)} (Red)</span>
+                  <span>${maxValue.toFixed(1)} (Blue)</span>
               </div>
           `;
       }
@@ -268,15 +286,18 @@ private addLegend(minValue: number, maxValue: number, isTimestamp: boolean): voi
 
   legend.addTo(this.map);
 
+  // ✅ Create red-to-blue gradient for BattVolt legend
   if (!isTimestamp) {
       setTimeout(() => {
           const gradientDiv = document.getElementById("legend-gradient");
           if (gradientDiv) {
               let gradientColors = [];
+              const fixedMin = 11;
+              const dynamicMax = maxValue;
 
               for (let i = 0; i <= 10; i++) {
-                  const value = i / 10;
-                  const color = interpolateViridis(value);
+                  const value = fixedMin + ((dynamicMax - fixedMin) * (i / 10));
+                  const color = this.getColorFromValue(value, fixedMin, dynamicMax);
                   gradientColors.push(color);
               }
 
@@ -286,6 +307,8 @@ private addLegend(minValue: number, maxValue: number, isTimestamp: boolean): voi
       }, 100);
   }
 }
+
+
 
 
 private formatTimeAgo(timestamp: string): { text: string; hours: number } {
