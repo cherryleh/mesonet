@@ -177,31 +177,45 @@ plotStations(stations: Station[], measurementMap: Record<string, any>, isTimesta
             return;
         }
 
+        // ✅ Fetch station data
         const stations: Station[] = await fetch(this.apiUrl, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
         }).then(res => res.json());
 
-        const stationIds = stations.map(station => station.station_id).join(",");
-        const measurementsApiUrl = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=${stationIds}&local_tz=True&limit=${stations.length}`;
-        console.log('Measurements API', measurementsApiUrl);
+        console.log("Fetched Stations:", stations);
 
-        const measurements: Measurement[] = await fetch(measurementsApiUrl, {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
-        }).then(res => res.json());
+        // ✅ Determine correct JSON file based on selected variable
+        let dataUrl = "";
+        if (this.selectedVariable === "BattVolt") {
+            dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/BattVolt.json";
+        } else if (this.selectedVariable === "RHenc") {
+            dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/RHenc.json";
+        } else {
+            console.warn(`❌ No local data available for ${this.selectedVariable}`);
+            return;
+        }
 
-        console.log("Fetched Measurements:", measurements);
+        // ✅ Fetch data from the selected JSON file
+        const response = await fetch(dataUrl);
+        const data: Record<string, { value: string; timestamp: string }> = await response.json();
 
-        const measurementMap = Object.fromEntries(
-            measurements.map(measurement => [measurement.station_id, measurement.value])
-        );
+        console.log(`Fetched ${this.selectedVariable} Data:`, data);
 
+        // ✅ Format data for plotting
+        const measurementMap: Record<string, number> = {};
+        Object.keys(data).forEach(stationId => {
+            measurementMap[stationId] = parseFloat(data[stationId].value);
+        });
+
+        // ✅ Plot the stations using local JSON data
         this.plotStations(stations, measurementMap, false);
+
     } catch (error) {
-        console.error('Error fetching station data:', error);
+        console.error(`Error fetching data for ${this.selectedVariable}:`, error);
     }
 }
+
 
 private getColorFromValue(value: number, min: number, max: number): string {
   if (min === max) return interpolateViridis(0.5); 
