@@ -1,6 +1,6 @@
 import requests
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 import os 
 
 API_TOKEN = os.getenv("API_TOKEN")
