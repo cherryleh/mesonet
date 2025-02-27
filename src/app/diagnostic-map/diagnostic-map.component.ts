@@ -187,13 +187,22 @@ plotStations(stations: Station[], measurementMap: Record<string, any>, isTimesta
 
         // ✅ Determine correct JSON file based on selected variable
         let dataUrl = "";
-        if (this.selectedVariable === "BattVolt") {
-            dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/BattVolt.json";
-        } else if (this.selectedVariable === "RHenc") {
-            dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/RHenc.json";
-        } else {
-            console.warn(`❌ No local data available for ${this.selectedVariable}`);
-            return;
+        switch (this.selectedVariable) {
+            case "BattVolt":
+                dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/BattVolt.json";
+                break;
+            case "RHenc":
+                dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/RHenc.json";
+                break;
+            case "CellStr":
+                dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/CellStr.json";
+                break;
+            case "CellQlt":
+                dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/CellQlt.json";
+                break;
+            default:
+                console.warn(`❌ No local data available for ${this.selectedVariable}`);
+                return;
         }
 
         // ✅ Fetch data from the selected JSON file
@@ -216,28 +225,20 @@ plotStations(stations: Station[], measurementMap: Record<string, any>, isTimesta
     }
 }
 
+
 private getColorFromValue(value: number, min: number, max: number): string {
   if (this.selectedVariable === "BattVolt") {
-      const fixedMin = 11; // Always start from 11
-      const dynamicMax = max; // Use the actual max
-
-      if (value <= fixedMin) return "#FF0000"; // Red for <= 11
-      if (min === max) return "#0000FF"; // Avoid divide-by-zero errors
-
-      // Normalize value between fixedMin (11) and dynamicMax
-      const normalizedValue = (value - fixedMin) / (dynamicMax - fixedMin);
-
-      // Interpolate between red and blue
-      const red = Math.round(255 * (1 - normalizedValue)); // Decreasing red
-      const blue = Math.round(255 * normalizedValue); // Increasing blue
-
-      return `rgb(${red}, 0, ${blue})`;
+      if (value < 11) return "red"; // < 11V
+      if (value <= 13) return "yellow"; // 11-13V
+      return "blue"; // > 13V
   } else {
-      // Default Viridis scale for other variables
       if (min === max) return interpolateViridis(0.5);
       return interpolateViridis((value - min) / (max - min));
   }
 }
+
+
+
 
 private addLegend(minValue: number, maxValue: number, isTimestamp: boolean): void {
   const existingLegend = document.querySelector(".info.legend");
@@ -268,15 +269,32 @@ private addLegend(minValue: number, maxValue: number, isTimestamp: boolean): voi
                   </div>
               </div>
           `;
+      } else if (this.selectedVariable === "BattVolt") {
+          // ✅ Custom legend for Battery Voltage (Red: <11, Yellow: 11-13, Blue: >13)
+          div.innerHTML = `
+              <h4>${this.selectedVariable}</h4>
+              <div style="display: flex; flex-direction: column;">
+                  <div style="display: flex; align-items: center;">
+                      <span style="width: 15px; height: 15px; background: red; display: inline-block; margin-right: 5px;"></span>
+                      <span>< 11V</span>
+                  </div>
+                  <div style="display: flex; align-items: center;">
+                      <span style="width: 15px; height: 15px; background: yellow; display: inline-block; margin-right: 5px;"></span>
+                      <span>11 - 13V</span>
+                  </div>
+                  <div style="display: flex; align-items: center;">
+                      <span style="width: 15px; height: 15px; background: blue; display: inline-block; margin-right: 5px;"></span>
+                      <span>> 13V</span>
+                  </div>
+              </div>
+          `;
       } else {
-          // ✅ Custom BattVolt legend with fixed red min (11) and dynamic blue max
-          const fixedMin = 11;
           div.innerHTML = `
               <h4>${this.selectedVariable}</h4>
               <div id="legend-gradient" style="width: 200px; height: 15px; margin-bottom: 5px;"></div>
               <div style="display: flex; justify-content: space-between;">
-                  <span>${fixedMin.toFixed(1)} (Red)</span>
-                  <span>${maxValue.toFixed(1)} (Blue)</span>
+                  <span>${minValue.toFixed(1)}</span>
+                  <span>${maxValue.toFixed(1)}</span>
               </div>
           `;
       }
@@ -285,28 +303,8 @@ private addLegend(minValue: number, maxValue: number, isTimestamp: boolean): voi
   };
 
   legend.addTo(this.map);
-
-  // ✅ Create red-to-blue gradient for BattVolt legend
-  if (!isTimestamp) {
-      setTimeout(() => {
-          const gradientDiv = document.getElementById("legend-gradient");
-          if (gradientDiv) {
-              let gradientColors = [];
-              const fixedMin = 11;
-              const dynamicMax = maxValue;
-
-              for (let i = 0; i <= 10; i++) {
-                  const value = fixedMin + ((dynamicMax - fixedMin) * (i / 10));
-                  const color = this.getColorFromValue(value, fixedMin, dynamicMax);
-                  gradientColors.push(color);
-              }
-
-              gradientDiv.style.background = `linear-gradient(to right, ${gradientColors.join(", ")})`;
-              gradientDiv.style.border = "1px solid black";
-          }
-      }, 100);
-  }
 }
+
 
 private formatTimeAgo(timestamp: string): { text: string; hours: number } {
   const time = new Date(timestamp).getTime();

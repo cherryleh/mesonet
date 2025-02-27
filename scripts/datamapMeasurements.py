@@ -57,7 +57,7 @@ for station in stations:
 
                     # Check if observation is older than 1 hour
                     if (current_time - observation_time).total_seconds() > 3600:
-                        value = float("nan")
+                        value = None
 
                     measurements_by_variable[variable][station_id] = {
                         "value": value, 
