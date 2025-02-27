@@ -47,8 +47,8 @@ export class ClimatologyComponent implements OnInit {
     const csvUrl = `./climos/${stationId}_climatology.csv`; 
     this.http.get(csvUrl, { responseType: 'text' }).subscribe(
       (data) => {
-        this.parseCSV(data);
-        this.createChart();
+        const hasTemperature = this.parseCSV(data);
+        this.createChart(hasTemperature);
       },
       (error) => {
         console.error('Error loading CSV:', error);
@@ -56,95 +56,88 @@ export class ClimatologyComponent implements OnInit {
     );
   }
 
-  parseCSV(data: string): void {
+  parseCSV(data: string): boolean {
     const rows = data.split('\n');
-    const headers = rows[0].split(','); // Get headers from first row
+    if (rows.length < 2) return false; // Ensure there's at least a header and one row
 
-    // Find column indices dynamically
+    const headers = rows[0].split(',');
+
     const monthIndex = headers.indexOf('Month');
     const rf_in = headers.indexOf('RF_in');
+    const rf_mm = headers.indexOf('RF_mm');
+
     const tmean_f = headers.indexOf('Tmean_f');
     const tmin_f = headers.indexOf('Tmin_f');
     const tmax_f = headers.indexOf('Tmax_f');
-
-    const rf_mm = headers.indexOf('RF_mm');
     const tmean_c = headers.indexOf('Tmean_c');
     const tmin_c = headers.indexOf('Tmin_c');
     const tmax_c = headers.indexOf('Tmax_c');
 
+    const hasTemperature = tmean_f !== -1 && tmin_f !== -1 && tmax_f !== -1 && 
+                           tmean_c !== -1 && tmin_c !== -1 && tmax_c !== -1;
+
+    this.categories = [];
+    this.rfData = [];
+    this.tmeanData = [];
+    this.tminData = [];
+    this.tmaxData = [];
+
     rows.slice(1).forEach((row) => {
       const columns = row.split(',');
+      if (columns.length <= monthIndex) return;
+
       const month = columns[monthIndex];
       const rf = parseFloat(this.isMetric ? columns[rf_mm] : columns[rf_in]);
-      const tmean = parseFloat(this.isMetric ? columns[tmean_c] : columns[tmean_f]);
-      const tmin = parseFloat(this.isMetric ? columns[tmin_c] : columns[tmin_f]);
-      const tmax = parseFloat(this.isMetric ? columns[tmax_c] : columns[tmax_f]);
 
-      if (!isNaN(rf) && !isNaN(tmean) && !isNaN(tmin) && !isNaN(tmax)) {
+      if (!isNaN(rf)) {
         this.categories.push(month);
         this.rfData.push(rf);
-        this.tmeanData.push(tmean);
-        this.tminData.push(tmin);
-        this.tmaxData.push(tmax);
+      }
+
+      if (hasTemperature) {
+        const tmean = parseFloat(this.isMetric ? columns[tmean_c] : columns[tmean_f]);
+        const tmin = parseFloat(this.isMetric ? columns[tmin_c] : columns[tmin_f]);
+        const tmax = parseFloat(this.isMetric ? columns[tmax_c] : columns[tmax_f]);
+
+        if (!isNaN(tmean) && !isNaN(tmin) && !isNaN(tmax)) {
+          this.tmeanData.push(tmean);
+          this.tminData.push(tmin);
+          this.tmaxData.push(tmax);
+        }
       }
     });
 
-
+    return hasTemperature; // Ensure function always returns a boolean
   }
 
-  createChart(): void {
-    const chartOptions: Highcharts.Options = {
-      chart: {
+
+  createChart(hasTemperature: boolean): void {
+    const series: Highcharts.SeriesOptionsType[] = [
+      {
         type: 'column',
-        height: '45%'
-      },
-      title: {
-        text: '',
-      },
-      xAxis: {
-        categories: this.categories,
-        crosshair: true,
-      },
-      yAxis: [
-        {
-          labels: {
-            format: `{value} ${this.isMetric ? 'mm' : 'in'}`,
-          },
-          title: {
-            text: `Rainfall (${this.isMetric ? 'mm' : 'in'})`,
-          },
-          opposite: true,
+        name: `Rainfall (${this.isMetric ? 'mm' : 'in'})`,
+        data: this.rfData,
+        yAxis: 0,
+        tooltip: {
+          valueSuffix: this.isMetric ? ' mm' : ' in',
         },
-        {
-          title: {
-            text: `Temperature (${this.isMetric ? '°C' : '°F'})`,
-          },
-          labels: {
-            format: `{value} ${this.isMetric ? '°C' : '°F'}`,
-          },
-          
-        },
-      ],
-      tooltip: {
-        shared: true,
       },
-      legend: {
-        floating: false, // Set to false to prevent floating
-        verticalAlign: 'top', // Move the legend below the chart
-        align: 'center', // Center-align the legend
-        layout: 'horizontal', // Layout horizontally
-        itemMarginTop: 5, // Adds spacing between legend items
-      },
-      series: [
-        {
-          type: 'column',
-          name: `Rainfall (${this.isMetric ? 'mm' : 'in'})`,
-          data: this.rfData,
-          yAxis: 0,
-          tooltip: {
-            valueSuffix: this.isMetric ? ' mm' : ' in',
-          },
+    ];
+
+    const yAxis: Highcharts.YAxisOptions[] = [
+      {
+        labels: {
+          format: `{value} ${this.isMetric ? 'mm' : 'in'}`,
         },
+        title: {
+          text: `Rainfall (${this.isMetric ? 'mm' : 'in'})`,
+        },
+        opposite: true,
+      },
+    ];
+
+    if (hasTemperature) {
+      series.push(
         {
           type: 'line',
           name: `Mean Temperature (${this.isMetric ? '°C' : '°F'})`,
@@ -172,7 +165,42 @@ export class ClimatologyComponent implements OnInit {
             valueSuffix: this.isMetric ? ' °C' : ' °F',
           },
         }
-      ],
+      );
+
+      yAxis.push({
+        title: {
+          text: `Temperature (${this.isMetric ? '°C' : '°F'})`,
+        },
+        labels: {
+          format: `{value} ${this.isMetric ? '°C' : '°F'}`,
+        },
+      });
+    }
+
+    const chartOptions: Highcharts.Options = {
+      chart: {
+        type: 'column',
+        height: '45%',
+      },
+      title: {
+        text: '',
+      },
+      xAxis: {
+        categories: this.categories,
+        crosshair: true,
+      },
+      yAxis: yAxis,
+      tooltip: {
+        shared: true,
+      },
+      legend: {
+        floating: false,
+        verticalAlign: 'top',
+        align: 'center',
+        layout: 'horizontal',
+        itemMarginTop: 5,
+      },
+      series: series,
     };
 
     const chartContainer = document.getElementById('climatologyChart');
@@ -182,6 +210,7 @@ export class ClimatologyComponent implements OnInit {
       console.error('Chart container not found!');
     }
   }
+
 
   toggleUnits(): void {
     this.isMetric = !this.isMetric;
