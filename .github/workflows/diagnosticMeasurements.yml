@@ -1,4 +1,4 @@
-name: Run Python Script Hourly
+name: Run Diagnostic Measurements
 
 on:
   schedule:
