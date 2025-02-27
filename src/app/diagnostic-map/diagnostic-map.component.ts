@@ -308,9 +308,6 @@ private addLegend(minValue: number, maxValue: number, isTimestamp: boolean): voi
   }
 }
 
-
-
-
 private formatTimeAgo(timestamp: string): { text: string; hours: number } {
   const time = new Date(timestamp).getTime();
   const now = new Date().getTime();

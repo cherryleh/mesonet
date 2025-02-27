@@ -12,7 +12,7 @@ header = {
 
 stations_url = "https://api.hcdp.ikewai.org/mesonet/db/stations"
 measurements_url = "https://api.hcdp.ikewai.org/mesonet/db/measurements"
-variables = ["BattVolt", "RHenc"]  
+variables = ["BattVolt", "RHenc","CellStr","CellQlt"]  
 
 response = requests.get(stations_url, headers=header)
 
