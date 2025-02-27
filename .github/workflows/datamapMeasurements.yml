@@ -1,4 +1,4 @@
-name: Run Diagnostic Measurements
+name: Run Data Map Measurements
 
 on:
   schedule:
