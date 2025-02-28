@@ -91,37 +91,50 @@ formatTimestamp(timestamp: string): string {
     return `${formattedDate} ${formattedTime}`; // No "at"
 }
 
+
+
 async fetchStationData(): Promise<void> {
     try {
-        // ✅ Load stations from JSON instead of API
-        const stations: Station[] = await fetch('https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/stations.json')
-            .then(res => res.json());
+        const latestTime = await this.fetchLatestObservationTime();
+
+        if (!latestTime) {
+            console.warn("Could not determine the latest observation time. Using default limit.");
+            return;
+        }
+
+        const stations: Station[] = await fetch(this.apiUrl, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+        }).then(res => res.json());
 
         if (!stations || stations.length === 0) {
             console.warn("No station data received!");
             return;
         }
 
-        // ✅ Fetch measurements from JSON instead of API
-        const measurementsUrl = `https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/${this.selectedVariable}.json`;
-        console.log("Fetching measurements from:", measurementsUrl);
+        const stationIds = stations.map(station => station.station_id).join(",");
 
-        const measurements: Measurement[] = await fetch(measurementsUrl).then(res => res.json());
+        const measurementsApiUrl = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=${stationIds}&local_tz=True&start_date=${latestTime}`;
+        console.log("Fetching measurements from:", measurementsApiUrl);
+
+        const measurements: Measurement[] = await fetch(measurementsApiUrl, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+        }).then(res => res.json());
 
         if (!measurements || measurements.length === 0) {
             console.warn("No measurement data received!");
             return;
         }
 
-        // ✅ Create a measurement map
         const measurementMap: { [key: string]: number } = {};
+        
         measurements.forEach(measurement => {
             if (measurement.station_id && measurement.value !== undefined) {
                 measurementMap[measurement.station_id] = measurement.value;
             }
         });
 
-        // ✅ Remove existing markers
         this.map.eachLayer(layer => {
             if (layer instanceof L.CircleMarker) {
                 this.map.removeLayer(layer);
@@ -136,7 +149,6 @@ async fetchStationData(): Promise<void> {
 
         this.addLegend(minValue, maxValue);
 
-        // ✅ Add markers to the map
         stations.forEach(station => {
             if (station.lat && station.lng) {
                 let value = measurementMap[station.station_id] ?? null;
@@ -161,12 +173,12 @@ async fetchStationData(): Promise<void> {
                         value: numericValue !== null && !isNaN(numericValue) ? numericValue.toFixed(1) : "No Data",
                         variable: this.selectedVariable,
                         url: `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`,
-                        details: this.selectedStation?.details ?? null
+                        details: null
                     };
 
-                    // ✅ Keep `fetchStationDetails()` unchanged (still uses API)
                     this.fetchStationDetails(station.station_id);
                 });
+
             }
         });
 
@@ -174,8 +186,6 @@ async fetchStationData(): Promise<void> {
         console.error('Error fetching station data:', error);
     }
 }
-
-
 
 async fetchStationDetails(stationId: string): Promise<void> {
     try {
