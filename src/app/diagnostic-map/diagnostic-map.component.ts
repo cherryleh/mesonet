@@ -228,8 +228,8 @@ plotStations(stations: Station[], measurementMap: Record<string, any>, isTimesta
 
 private getColorFromValue(value: number, min: number, max: number): string {
   if (this.selectedVariable === "BattVolt") {
-      if (value < 11) return "red"; // < 11V
-      if (value <= 13) return "yellow"; // 11-13V
+      if (value < 12) return "red"; // < 12V
+      if (value <= 13) return "yellow"; // 12-13V
       return "blue"; // > 13V
   } else {
       if (min === max) return interpolateViridis(0.5);

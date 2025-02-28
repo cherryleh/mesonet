@@ -91,17 +91,9 @@ formatTimestamp(timestamp: string): string {
     return `${formattedDate} ${formattedTime}`; // No "at"
 }
 
-
-
 async fetchStationData(): Promise<void> {
     try {
-        const latestTime = await this.fetchLatestObservationTime();
-
-        if (!latestTime) {
-            console.warn("Could not determine the latest observation time. Using default limit.");
-            return;
-        }
-
+        // Fetch station metadata
         const stations: Station[] = await fetch(this.apiUrl, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
@@ -112,29 +104,32 @@ async fetchStationData(): Promise<void> {
             return;
         }
 
-        const stationIds = stations.map(station => station.station_id).join(",");
+        // Fetch temperature data from GitHub
+        const temperatureDataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/Tair_1_Avg.json";
+        console.log("Fetching air temperature data from:", temperatureDataUrl);
+        
+        const temperatureData = await fetch(temperatureDataUrl)
+            .then(res => res.json())
+            .catch(error => {
+                console.error("Error fetching temperature data:", error);
+                return null;
+            });
 
-        const measurementsApiUrl = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=${stationIds}&local_tz=True&start_date=${latestTime}`;
-        console.log("Fetching measurements from:", measurementsApiUrl);
-
-        const measurements: Measurement[] = await fetch(measurementsApiUrl, {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
-        }).then(res => res.json());
-
-        if (!measurements || measurements.length === 0) {
-            console.warn("No measurement data received!");
+        if (!temperatureData || typeof temperatureData !== "object") {
+            console.warn("Invalid temperature data format!");
             return;
         }
 
+        // Map station IDs to temperature values
         const measurementMap: { [key: string]: number } = {};
         
-        measurements.forEach(measurement => {
-            if (measurement.station_id && measurement.value !== undefined) {
-                measurementMap[measurement.station_id] = measurement.value;
+        Object.keys(temperatureData).forEach(stationId => {
+            if (temperatureData[stationId] && temperatureData[stationId].value !== undefined) {
+                measurementMap[stationId] = temperatureData[stationId].value;
             }
         });
 
+        // Remove existing markers
         this.map.eachLayer(layer => {
             if (layer instanceof L.CircleMarker) {
                 this.map.removeLayer(layer);
@@ -175,10 +170,7 @@ async fetchStationData(): Promise<void> {
                         url: `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`,
                         details: null
                     };
-
-                    this.fetchStationDetails(station.station_id);
                 });
-
             }
         });
 
@@ -186,6 +178,8 @@ async fetchStationData(): Promise<void> {
         console.error('Error fetching station data:', error);
     }
 }
+
+
 
 async fetchStationDetails(stationId: string): Promise<void> {
     try {
