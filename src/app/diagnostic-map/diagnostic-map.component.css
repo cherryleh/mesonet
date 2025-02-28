@@ -4,7 +4,7 @@
 }
 
 #map {
-  height: 800px;
+  height: 100%;
   width: 75%;
 }
 
@@ -17,6 +17,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  height: 100%
 }
 
 .button {
