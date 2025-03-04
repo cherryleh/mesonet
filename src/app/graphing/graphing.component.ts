@@ -280,22 +280,24 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     return colorOrder[nonRainfallIndex] || '#000000'; 
   }
 
-
-
   convertValue(variable: string, value: number): number {
+    if (variable === 'SM_1_Avg') {
+      return value * 100; // Convert soil moisture to 0-100 scale
+    }
+
     if (this.selectedUnit === 'standard') {
-      if (variable === 'Tair_1_Avg'||variable === 'Tsrf_1_Avg'||variable === 'Tsky_1_Avg'||variable === 'Tair_2_Avg'||variable === 'Tsoil_1_Avg'||variable === 'Tsoil_2'||variable === 'Tsoil_3'||variable === 'Tsoil_4') {
+      if (['Tair_1_Avg', 'Tsrf_1_Avg', 'Tsky_1_Avg', 'Tair_2_Avg', 'Tsoil_1_Avg', 'Tsoil_2', 'Tsoil_3', 'Tsoil_4'].includes(variable)) {
         return (value * 9/5) + 32; // Convert °C to °F
       } else if (variable === 'RF_1_Tot300s') {
         return value / 25.4; // Convert mm to inches
       } else if (variable === 'WS_1_Avg') {
         return value * 2.23694; // Convert m/s to mph
-      } else if (variable === 'SM_1_Avg') {
-        return value * 100; // Convert % to 0-100 scale
       }
     }
+
     return value;
   }
+
 
   getYAxisLabel(variable: string): string {
     if (variable === 'Tair_1_Avg') {

@@ -7,7 +7,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class GraphingDataService {
-  private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements?local_tz=True';
+  private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements?local_tz=True&reverse=True';
 
   constructor(private http: HttpClient) {}
 
