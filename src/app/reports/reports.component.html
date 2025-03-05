@@ -60,7 +60,6 @@
               All data is covered under the <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">Attribution-NonCommercial-NoDerivatives 4.0 International</a> licensing agreement. By checking this box, I acknowledge and agree to adhere to the terms of this license in my use of any data provided by this application.
             </mat-checkbox>
 
-            <!-- Show error ONLY if the user has attempted submission -->
             <mat-error *ngIf="hasSubmitted && reportForm.get('confirmSubmission')?.invalid">
               You must agree to the licensing terms before proceeding.
             </mat-error>
@@ -71,7 +70,7 @@
             Create Report
           </button>
         </div>
-      </form> <!-- ✅ Ensure this matches the opening form tag -->
+      </form> 
 
 
       <div class="table-container">
