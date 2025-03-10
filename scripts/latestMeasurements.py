@@ -3,6 +3,8 @@ import json
 from datetime import datetime
 import os 
 
+#Diagnostic script that retrieves the latest measurements for each variable from each station
+
 API_TOKEN = os.getenv("API_TOKEN")
 
 header = {
