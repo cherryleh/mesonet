@@ -378,7 +378,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
             console.log("Filtered latest observations:", stationMeasurements);
 
             let latestDetails: { [key: string]: string } = {
-                "BattVolt": "No Data",
+                "Current BattVolt": "No Data",
                 "24h BattVolt Min": "No Data",
                 "24h BattVolt Max": "No Data",
                 "CellStr": "No Data",
@@ -391,7 +391,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 .filter(v => !isNaN(v));
 
             if (battVoltValues.length > 0) {
-                latestDetails["BattVolt"] = battVoltValues[battVoltValues.length - 1].toFixed(2);
+                latestDetails["Current BattVolt"] = battVoltValues[battVoltValues.length - 1].toFixed(2);
                 latestDetails["24h BattVolt Min"] = Math.min(...battVoltValues).toFixed(2);
                 latestDetails["24h BattVolt Max"] = Math.max(...battVoltValues).toFixed(2);
             }
