@@ -121,7 +121,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
                     }
                 } else {
                     displayText = rawValue !== null ? rawValue.toString() : "No Data";
-                    color = rawValue !== null ? this.getColorFromValue(parseFloat(rawValue as any), minValue, maxValue) : "gray";
+                    color = rawValue !== null ? this.getColorFromValue(parseFloat(rawValue as any), minValue, maxValue) : "blue";
                 }
 
                 const marker = L.circleMarker([station.lat, station.lng], {
@@ -237,8 +237,16 @@ export class DiagnosticMapComponent implements AfterViewInit {
             if (value > 60) return "orange";
             if (value > 50) return "yellow";
             return "green";
-        }
-        else {
+        } else if (this.selectedVariable === "CellStr"){
+            if (value < -115) return "red";
+            if (value < -106) return "orange";
+            if (value < -91) return "yellow";  
+            return "green";
+        } else if (this.selectedVariable === "CellQlt"){
+            if (value < -12) return "red";
+            if (value < -9) return "yellow";
+            return "green";
+        } else {
             if (min === max) return interpolateViridis(0.5);
             return interpolateViridis((value - min) / (max - min));
         }
@@ -283,19 +291,69 @@ export class DiagnosticMapComponent implements AfterViewInit {
                     </div>
                     <div style="display: flex; align-items: center;">
                         <span style="width: 15px; height: 15px; background: yellow; display: inline-block; margin-right: 5px;"></span>
-                        <span>12 - 12.2V</span>
+                        <span>12 to 12.2V</span>
                     </div>
                 <div style="display: flex; align-items: center;">
                         <span style="width: 15px; height: 15px; background: orange; display: inline-block; margin-right: 5px;"></span>
-                        <span>11.8-12</span>
+                        <span>11.8 to 12</span>
                     </div>
                 <div style="display: flex; align-items: center;">
                         <span style="width: 15px; height: 15px; background: red; display: inline-block; margin-right: 5px;"></span>
-                        <span><11.8V</span>
+                        <span><11.8</span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center;">
+                        <span style="width: 15px; height: 15px; background: blue; display: inline-block; margin-right: 5px;"></span>
+                        <span>No Data</span>
                     </div>
                 </div>
           `;
-            } else if (this.selectedVariable === "RHenc") {
+            } else if (this.selectedVariable === "CellStr") {div.innerHTML = `
+                <h4>${this.selectedVariable}</h4>
+                <div style="display: flex; flex-direction: column;">
+                    <div style="display: flex; align-items: center;">
+                        <span style="width: 15px; height: 15px; background: green; display: inline-block; margin-right: 5px;"></span>
+                        <span>>-90</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <span style="width: 15px; height: 15px; background: yellow; display: inline-block; margin-right: 5px;"></span>
+                        <span>-91 to -105</span>
+                    </div>
+                <div style="display: flex; align-items: center;">
+                        <span style="width: 15px; height: 15px; background: orange; display: inline-block; margin-right: 5px;"></span>
+                        <span>-106 to -115</span>
+                    </div>
+                <div style="display: flex; align-items: center;">
+                        <span style="width: 15px; height: 15px; background: red; display: inline-block; margin-right: 5px;"></span>
+                        <span>< -115</span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center;">
+                        <span style="width: 15px; height: 15px; background: blue; display: inline-block; margin-right: 5px;"></span>
+                        <span>No Data</span>
+                    </div>
+                </div>
+                `} else if (this.selectedVariable === "CellQlt") {div.innerHTML = `
+                    <h4>${this.selectedVariable}</h4>
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center;">
+                            <span style="width: 15px; height: 15px; background: green; display: inline-block; margin-right: 5px;"></span>
+                            <span>>-9</span>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <span style="width: 15px; height: 15px; background: yellow; display: inline-block; margin-right: 5px;"></span>
+                            <span>-9 to -12</span>
+                        </div>
+                    <div style="display: flex; align-items: center;">
+                            <span style="width: 15px; height: 15px; background: orange; display: inline-block; margin-right: 5px;"></span>
+                            <span>< -12</span>
+                        </div>
+                    <div style="display: flex; align-items: center;">
+                            <span style="width: 15px; height: 15px; background: blue; display: inline-block; margin-right: 5px;"></span>
+                            <span>No Data</span>
+                        </div>
+                    </div>
+                    `} else if (this.selectedVariable === "RHenc") {
                 div.innerHTML = `
                 <h4>${this.selectedVariable}</h4>
                 <div style="display: flex; flex-direction: column;">
@@ -316,7 +374,11 @@ export class DiagnosticMapComponent implements AfterViewInit {
                         <span>< 50%</span>
                     </div>
                 </div>
-
+                <div style="display: flex; align-items: center;">
+                        <span style="width: 15px; height: 15px; background: blue; display: inline-block; margin-right: 5px;"></span>
+                        <span>No Data</span>
+                    </div>
+                </div>
                 `} else {
                 div.innerHTML = `
               <h4>${this.selectedVariable}</h4>
