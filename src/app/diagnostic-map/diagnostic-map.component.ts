@@ -121,15 +121,24 @@ export class DiagnosticMapComponent implements AfterViewInit {
                     }
                 } else {
                     displayText = rawValue !== null ? rawValue.toString() : "No Data";
-                    color = rawValue !== null ? this.getColorFromValue(parseFloat(rawValue as any), minValue, maxValue) : "gray";
+                    color = rawValue !== null ? this.getColorFromValue(parseFloat(rawValue as any), minValue, maxValue) : "gray"; 
                 }
 
                 const marker = L.circleMarker([station.lat, station.lng], {
                     radius: 8,
                     color,
                     fillColor: color,
-                    fillOpacity: 0.8
+                    fillOpacity: rawValue !== null ? 0.8 : 0.4, // Reduce opacity for No Data
+                    weight: rawValue !== null ? 1 : 0.5 // Thinner border for No Data
                 }).addTo(this.map);
+
+                if (rawValue === null) {
+                    marker.bringToBack(); // Moves "No Data" markers to the back
+                } else {
+                    marker.bringToFront(); // Moves Data markers to the front
+                }
+
+
 
                 marker.on('click', async () => {
                     console.log(`Clicked station: ${station.name} (ID: ${station.station_id})`);
@@ -299,7 +308,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
                     </div>
                 </div>
                 <div style="display: flex; align-items: center;">
-                        <span style="width: 15px; height: 15px; background: blue; display: inline-block; margin-right: 5px;"></span>
+                        <span style="width: 15px; height: 15px; background: gray; display: inline-block; margin-right: 5px;"></span>
                         <span>No Data</span>
                     </div>
                 </div>
@@ -325,7 +334,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
                     </div>
                 </div>
                 <div style="display: flex; align-items: center;">
-                        <span style="width: 15px; height: 15px; background: blue; display: inline-block; margin-right: 5px;"></span>
+                        <span style="width: 15px; height: 15px; background: gray; display: inline-block; margin-right: 5px;"></span>
                         <span>No Data</span>
                     </div>
                 </div>
@@ -345,7 +354,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
                             <span>< -12</span>
                         </div>
                     <div style="display: flex; align-items: center;">
-                            <span style="width: 15px; height: 15px; background: blue; display: inline-block; margin-right: 5px;"></span>
+                            <span style="width: 15px; height: 15px; background: gray; display: inline-block; margin-right: 5px;"></span>
                             <span>No Data</span>
                         </div>
                     </div>
@@ -371,7 +380,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
                     </div>
                 </div>
                 <div style="display: flex; align-items: center;">
-                        <span style="width: 15px; height: 15px; background: blue; display: inline-block; margin-right: 5px;"></span>
+                        <span style="width: 15px; height: 15px; background: gray; display: inline-block; margin-right: 5px;"></span>
                         <span>No Data</span>
                     </div>
                 </div>
@@ -520,13 +529,11 @@ export class DiagnosticMapComponent implements AfterViewInit {
         this.selectedVariable = (event.target as HTMLSelectElement).value;
         console.log(`Selected Variable Changed: ${this.selectedVariable}`);
 
-        this.fetchStationData(); // Fetch new data
+        this.fetchStationData(); 
     }
 
 
     ngAfterViewInit(): void {
-        console.log("🗺️ Initializing Leaflet map...");
-
         this.map = L.map('map', {
             center: [20.493410, -158.064388],
             zoom: 8,
@@ -537,7 +544,6 @@ export class DiagnosticMapComponent implements AfterViewInit {
         L.control.zoom({ position: "bottomleft" }).addTo(this.map);
 
         setTimeout(() => {
-            console.log("🚀 Calling fetchStationData()...");
             this.fetchStationData();
         }, 500);
     }
