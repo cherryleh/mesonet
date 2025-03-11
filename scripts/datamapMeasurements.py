@@ -79,9 +79,19 @@ for station in stations:
             rainfall_data = rainfall_response.json()
             if isinstance(rainfall_data, list) and len(rainfall_data) > 0:
                 total_rainfall = sum(float(entry["value"]) for entry in rainfall_data if isinstance(entry.get("value"), (int, float)) or entry["value"].replace(".", "", 1).isdigit())
-                rainfall_24H[station_id] = {"24H_Rainfall": total_rainfall}
+
+                # Use the most recent timestamp
+                latest_timestamp = rainfall_data[0]["timestamp"] if "timestamp" in rainfall_data[0] else None
+
+                rainfall_24H[station_id] = {
+                    "value": total_rainfall,
+                    "timestamp": latest_timestamp
+                }
             else:
-                rainfall_24H[station_id] = {"24H_Rainfall": None}
+                rainfall_24H[station_id] = {
+                    "value": None,
+                    "timestamp": None
+                }
 
     except requests.exceptions.Timeout:
         print(f"Skipping 24H Rainfall for station {station_id} (request timed out)")
