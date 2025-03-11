@@ -12,7 +12,7 @@ header = {
 
 stations_url = "https://api.hcdp.ikewai.org/mesonet/db/stations"
 measurements_url = "https://api.hcdp.ikewai.org/mesonet/db/measurements"
-variables = ["Tair_1_Avg", "SM_1_Avg", "RH_1_Avg", "SWin_1_Avg"]
+variables = ["Tair_1_Avg", "SM_1_Avg", "RH_1_Avg", "SWin_1_Avg", "WS_1_Avg","WDrs_1_Avg","Tsoil_1_Avg"]
 
 current_time = datetime.now(timezone.utc)
 
@@ -20,6 +20,7 @@ response = requests.get(stations_url, headers=header)
 stations = response.json() if response.status_code == 200 else []
 
 measurements_by_variable = {var: {} for var in variables}
+rainfall_24H = {}
 
 for station in stations:
     station_id = station["station_id"]
@@ -67,6 +68,24 @@ for station in stations:
         except requests.exceptions.Timeout:
             print(f"Skipping {variable} for station {station_id} (request timed out)")
             continue  
+            
+    rainfall_query = f"station_ids={station_id}&var_ids=RF_1_Tot300s&limit=288"
+    rainfall_url = f"{measurements_url}?{rainfall_query}"
+
+    try:
+        rainfall_response = requests.get(rainfall_url, headers=header, timeout=5)
+
+        if rainfall_response.status_code == 200:
+            rainfall_data = rainfall_response.json()
+            if isinstance(rainfall_data, list) and len(rainfall_data) > 0:
+                total_rainfall = sum(float(entry["value"]) for entry in rainfall_data if isinstance(entry.get("value"), (int, float)) or entry["value"].replace(".", "", 1).isdigit())
+                rainfall_24H[station_id] = {"24H_Rainfall": total_rainfall}
+            else:
+                rainfall_24H[station_id] = {"24H_Rainfall": None}
+
+    except requests.exceptions.Timeout:
+        print(f"Skipping 24H Rainfall for station {station_id} (request timed out)")
+        continue
 
 # Save measurements to JSON files
 for variable, measurements in measurements_by_variable.items():
@@ -74,3 +93,8 @@ for variable, measurements in measurements_by_variable.items():
     with open(filename, "w") as json_file:
         json.dump(measurements, json_file, indent=4)
         print(f"Saved {filename}")
+        
+rainfall_filename = "RF_1_Tot300s_24H.json"
+with open(rainfall_filename, "w") as json_file:
+    json.dump(rainfall_24H, json_file, indent=4)
+    print(f"Saved {rainfall_filename}")

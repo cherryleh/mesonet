@@ -42,6 +42,10 @@ jobs:
           mv SM_1_Avg.json data/
           mv RH_1_Avg.json data/
           mv SWin_1_Avg.json data/
+          mv RF_1_Tot300s_24H.json data/
+          mv Tsoil_1_Avg.json data/
+          mv WDrs_1_Avg.json data/
+          mv WS_1_Avg.json data/
 
       - name: Set up Git user  
         run: |
@@ -50,7 +54,7 @@ jobs:
 
       - name: Commit and push JSON files to data-branch
         run: |
-          git add data/Tair_1_Avg.json data/SM_1_Avg.json data/RH_1_Avg.json data/SWin_1_Avg.json
+          git add data/Tair_1_Avg.json data/SM_1_Avg.json data/RH_1_Avg.json data/SWin_1_Avg.json data/RF_1_Tot300s_24H.json data/Tsoil_1_Avg.json data/WDrs_1_Avg.json data/WS_1_Avg.json
           git commit -m "Update JSON data" || echo "No changes to commit"
           git pull origin data-branch --rebase || echo "No remote changes to merge"
           git push origin data-branch --force

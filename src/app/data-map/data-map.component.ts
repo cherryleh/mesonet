@@ -37,7 +37,9 @@ export class DataMapComponent implements AfterViewInit {
   selectedVariable = "Tair_1_Avg"; 
   variableOptions = [
     { id: "Tair_1_Avg", name: "Air Temperature" },
-    { id: "Tsoil_1_Avg", name: "Soil Temperature" }
+    { id: "RH_1_Avg", name: "Relative Humidity" },
+    { id: "SM_1_Avg", name: "Soil Moisture" },
+    { id: "SWin_1_Avg", name: "Solar Radiation" }
   ];
 
   selectedStation: any = null;
@@ -188,7 +190,6 @@ async fetchStationDetails(stationId: string): Promise<void> {
             return;
         }
 
-        // ✅ Reset `selectedStation.details` and `convertedDetails`
         this.selectedStation = {
             ...this.selectedStation,
             details: {
@@ -201,10 +202,9 @@ async fetchStationDetails(stationId: string): Promise<void> {
             detailsTimestamp: null
         };
 
-        this.convertedDetails = { ...this.selectedStation.details }; // ✅ Reset converted values
-        this.cdr.detectChanges(); // ✅ Ensure UI updates immediately
+        this.convertedDetails = { ...this.selectedStation.details }; 
+        this.cdr.detectChanges(); 
 
-        // ✅ Fetch all non-rainfall variables
         const detailsApiUrl = `https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii&var_ids=Tair_1_Avg,Tsoil_1_Avg,SWin_1_Avg,SM_1_Avg&station_ids=${stationId}&local_tz=True&limit=4`;
 
         console.log("Fetching station details from:", detailsApiUrl);
@@ -270,10 +270,9 @@ async fetchStationDetails(stationId: string): Promise<void> {
 
 async fetch24hRainfall(stationId: string): Promise<void> {
     try {
-        // ✅ Set "Loading..." while fetching rainfall data
         this.selectedStation.details['RF_1_Tot300s'] = "Loading...";
         this.convertedDetails['RF_1_Tot300s'] = "Loading...";
-        this.cdr.detectChanges(); // Ensure UI updates
+        this.cdr.detectChanges();
 
         const rainfallApiUrl = `${this.measurementsUrl}&var_ids=RF_1_Tot300s&station_ids=${stationId}&local_tz=True&limit=288`; // 24h of 5-min intervals
 

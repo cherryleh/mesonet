@@ -77,7 +77,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.stationId = params['id'] || 'default_station_id';
-      console.log(`Initializing graph for station ID: ${this.stationId}`); // 🔥 Added Debug Log
+      console.log(`Initializing graph for station ID: ${this.stationId}`); 
       this.loadData();
     });
   }
