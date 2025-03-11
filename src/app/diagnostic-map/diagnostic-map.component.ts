@@ -136,6 +136,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
 
                     this.selectedStation = {
                         name: station.name,
+                        id: station.station_id,
                         lat: station.lat,
                         lng: station.lng,
                         value: displayText ?? "No Data",
