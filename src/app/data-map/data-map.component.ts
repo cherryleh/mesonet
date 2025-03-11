@@ -39,7 +39,8 @@ export class DataMapComponent implements AfterViewInit {
     { id: "Tair_1_Avg", name: "Air Temperature" },
     { id: "RH_1_Avg", name: "Relative Humidity" },
     { id: "SM_1_Avg", name: "Soil Moisture" },
-    { id: "SWin_1_Avg", name: "Solar Radiation" }
+    { id: "SWin_1_Avg", name: "Solar Radiation" },
+    { id: "RF_1_Tot300s_24H", name: "24H Rainfall" }
   ];
 
   selectedStation: any = null;
@@ -90,12 +91,11 @@ formatTimestamp(timestamp: string): string {
         timeZone: 'Pacific/Honolulu' // Ensure HST is displayed
     });
 
-    return `${formattedDate} ${formattedTime}`; // No "at"
+    return `${formattedDate} ${formattedTime}`; 
 }
 
 async fetchStationData(): Promise<void> {
     try {
-        // Fetch station metadata
         const stations: Station[] = await fetch(this.apiUrl, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
@@ -106,32 +106,31 @@ async fetchStationData(): Promise<void> {
             return;
         }
 
-        // Fetch temperature data from GitHub
-        const temperatureDataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/Tair_1_Avg.json";
-        console.log("Fetching air temperature data from:", temperatureDataUrl);
+        // Dynamically construct the URL based on the selected variable
+        const dataUrl = `https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/${this.selectedVariable}.json`;
+
+        console.log("Fetching data from:", dataUrl);
         
-        const temperatureData = await fetch(temperatureDataUrl)
+        const variableData = await fetch(dataUrl)
             .then(res => res.json())
             .catch(error => {
-                console.error("Error fetching temperature data:", error);
+                console.error("Error fetching variable data:", error);
                 return null;
             });
 
-        if (!temperatureData || typeof temperatureData !== "object") {
-            console.warn("Invalid temperature data format!");
+        if (!variableData || typeof variableData !== "object") {
+            console.warn("Invalid variable data format!");
             return;
         }
 
-        // Map station IDs to temperature values
         const measurementMap: { [key: string]: number } = {};
         
-        Object.keys(temperatureData).forEach(stationId => {
-            if (temperatureData[stationId] && temperatureData[stationId].value !== undefined) {
-                measurementMap[stationId] = temperatureData[stationId].value;
+        Object.keys(variableData).forEach(stationId => {
+            if (variableData[stationId] && variableData[stationId].value !== undefined) {
+                measurementMap[stationId] = variableData[stationId].value;
             }
         });
 
-        // Remove existing markers
         this.map.eachLayer(layer => {
             if (layer instanceof L.CircleMarker) {
                 this.map.removeLayer(layer);
@@ -180,7 +179,6 @@ async fetchStationData(): Promise<void> {
         console.error('Error fetching station data:', error);
     }
 }
-
 
 
 async fetchStationDetails(stationId: string): Promise<void> {
@@ -250,15 +248,11 @@ async fetchStationDetails(stationId: string): Promise<void> {
                 }
             });
 
-            this.selectedStation = {
-                ...this.selectedStation,
-                details: updatedDetails,
-                detailsTimestamp: latestTimestamp ? this.formatTimestamp(latestTimestamp) : null
-            };
-
+            this.selectedStation.detailsTimestamp = latestTimestamp ? this.formatTimestamp(latestTimestamp) : null;
             this.convertedDetails = { ...updatedDetails };
             this.convertUnits();
-            this.cdr.detectChanges();
+            this.cdr.detectChanges();  // Ensure UI updates
+
         }
 
         await this.fetch24hRainfall(stationId);
@@ -289,7 +283,6 @@ async fetch24hRainfall(stationId: string): Promise<void> {
             console.warn("No 24-hour rainfall data found.");
             this.selectedStation.details['RF_1_Tot300s'] = "No Data";
         } else {
-            // ✅ Sum the rainfall values
             const totalRainfall = rainfallData.reduce((sum, record) => {
                 return sum + (parseFloat(record.value) || 0);
             }, 0);
@@ -308,9 +301,6 @@ async fetch24hRainfall(stationId: string): Promise<void> {
         this.cdr.detectChanges();
     }
 }
-
-
-
 
 private getColorFromValue(value: number, min: number, max: number): string {
   const normalizedValue = (value - min) / (max - min);
@@ -381,19 +371,17 @@ private getColorFromValue(value: number, min: number, max: number): string {
     }, 100);
 }
 
-
-  updateVariable(event: Event): void {
+updateVariable(event: Event): void {
     this.selectedVariable = (event.target as HTMLSelectElement).value;
 
     this.map.eachLayer(layer => {
-      if (layer instanceof L.CircleMarker) {
-        this.map.removeLayer(layer);
-      }
+        if (layer instanceof L.CircleMarker) {
+            this.map.removeLayer(layer);
+        }
     });
 
     this.fetchStationData(); 
-  }
-
+}
 
   unitSystem: 'metric' | 'imperial' = 'metric';
   convertedDetails: { [key: string]: string } = {};
