@@ -1,218 +1,290 @@
 {
     "0115": {
-        "24H_Rainfall": 12.702
+        "value": 12.203,
+        "timestamp": "2025-03-11T22:30:00.000Z"
     },
     "0116": {
-        "24H_Rainfall": 0.0
+        "value": 0.0,
+        "timestamp": "2025-03-11T22:30:00.000Z"
     },
     "0118": {
-        "24H_Rainfall": 0.0
+        "value": 0.0,
+        "timestamp": "2025-03-11T22:30:00.000Z"
     },
     "0119": {
-        "24H_Rainfall": 1.016
+        "value": 1.016,
+        "timestamp": "2025-03-11T22:30:00.000Z"
     },
     "0121": {
-        "24H_Rainfall": 0.0
+        "value": 0.0,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0131": {
-        "24H_Rainfall": 0.0
+        "value": 0.0,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0132": {
-        "24H_Rainfall": 0.0
+        "value": 0.0,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0133": {
-        "24H_Rainfall": 3.81
+        "value": 3.81,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0134": {
-        "24H_Rainfall": 18.111
+        "value": 18.111,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0141": {
-        "24H_Rainfall": 3.048
+        "value": 3.048,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0143": {
-        "24H_Rainfall": null
+        "value": null,
+        "timestamp": null
     },
     "0144": {
-        "24H_Rainfall": 0.0
+        "value": 0.0,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0145": {
-        "24H_Rainfall": 0.0
+        "value": 0.0,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0151": {
-        "24H_Rainfall": 4.064
+        "value": 4.064,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0152": {
-        "24H_Rainfall": 1.524
+        "value": 1.524,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0153": {
-        "24H_Rainfall": 0.508
+        "value": 0.508,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0154": {
-        "24H_Rainfall": 33.67
+        "value": 32.634,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0155": {
-        "24H_Rainfall": 11.068
+        "value": 11.068,
+        "timestamp": "2025-03-11T22:40:00.000Z"
     },
     "0160": {
-        "24H_Rainfall": null
+        "value": null,
+        "timestamp": null
     },
     "0161": {
-        "24H_Rainfall": 0.0
+        "value": 0.0,
+        "timestamp": "2024-06-16T13:15:00.000Z"
     },
     "0162": {
-        "24H_Rainfall": null
+        "value": null,
+        "timestamp": null
     },
     "0164": {
-        "24H_Rainfall": null
+        "value": null,
+        "timestamp": null
     },
     "0165": {
-        "24H_Rainfall": 3.306
+        "value": 3.306,
+        "timestamp": "2024-05-16T16:30:00.000Z"
     },
     "0166": {
-        "24H_Rainfall": 4.575
+        "value": 4.575,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0201": {
-        "24H_Rainfall": 67.527
+        "value": 66.501,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0202": {
-        "24H_Rainfall": 0.0
+        "value": 0.0,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0203": {
-        "24H_Rainfall": null
+        "value": null,
+        "timestamp": null
     },
     "0204": {
-        "24H_Rainfall": 10.16
+        "value": 10.16,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0211": {
-        "24H_Rainfall": 42.459
+        "value": 41.459,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0212": {
-        "24H_Rainfall": 26.822
+        "value": 17.902,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0213": {
-        "24H_Rainfall": 131.403
+        "value": 130.632,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0214": {
-        "24H_Rainfall": 58.281
+        "value": 56.997,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0221": {
-        "24H_Rainfall": 5.588
+        "value": 5.334,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0222": {
-        "24H_Rainfall": 1.028
+        "value": 1.028,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0231": {
-        "24H_Rainfall": 18.288
+        "value": 17.526,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0241": {
-        "24H_Rainfall": 7.899
+        "value": 7.899,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0242": {
-        "24H_Rainfall": 4.064
+        "value": 4.064,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0243": {
-        "24H_Rainfall": 5.334
+        "value": 5.334,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0244": {
-        "24H_Rainfall": 1.016
+        "value": 1.016,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0245": {
-        "24H_Rainfall": 3.017
+        "value": 3.017,
+        "timestamp": "2025-03-08T11:00:00.000Z"
     },
     "0251": {
-        "24H_Rainfall": 40.132
+        "value": 40.132,
+        "timestamp": "2025-03-11T22:15:00.000Z"
     },
     "0252": {
-        "24H_Rainfall": 5.588
+        "value": 5.588,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0253": {
-        "24H_Rainfall": 2.313
+        "value": 2.313,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0254": {
-        "24H_Rainfall": 0.502
+        "value": 0.502,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0255": {
-        "24H_Rainfall": 75.887
+        "value": 74.592,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0281": {
-        "24H_Rainfall": 53.34
+        "value": 48.514,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0282": {
-        "24H_Rainfall": 69.088
+        "value": 68.834,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0283": {
-        "24H_Rainfall": 116.586
+        "value": 115.062,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0286": {
-        "24H_Rainfall": 2.54
+        "value": 2.54,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0287": {
-        "24H_Rainfall": 0.762
+        "value": 0.762,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0288": {
-        "24H_Rainfall": 0.762
+        "value": 0.762,
+        "timestamp": "2025-02-20T10:00:00.000Z"
     },
     "0411": {
-        "24H_Rainfall": 0.508
+        "value": 0.508,
+        "timestamp": "2024-03-28T18:10:00.000Z"
     },
     "0412": {
-        "24H_Rainfall": 5.391
+        "value": 5.391,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0431": {
-        "24H_Rainfall": 0.257
+        "value": 0.257,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0501": {
-        "24H_Rainfall": 9.144
+        "value": 9.144,
+        "timestamp": "2025-03-11T22:40:00.000Z"
     },
     "0502": {
-        "24H_Rainfall": 2.794
+        "value": 2.794,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0503": {
-        "24H_Rainfall": 6.35
+        "value": 6.35,
+        "timestamp": "2025-03-11T22:40:00.000Z"
     },
     "0504": {
-        "24H_Rainfall": 3.048
+        "value": 3.048,
+        "timestamp": "2025-03-11T22:40:00.000Z"
     },
     "0505": {
-        "24H_Rainfall": 5.334
+        "value": 5.334,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0506": {
-        "24H_Rainfall": 4.8260000000000005
+        "value": 4.8260000000000005,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0520": {
-        "24H_Rainfall": null
+        "value": null,
+        "timestamp": null
     },
     "0521": {
-        "24H_Rainfall": 1.524
+        "value": 1.524,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0531": {
-        "24H_Rainfall": 0.0
+        "value": 0.0,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0541": {
-        "24H_Rainfall": 0.257
+        "value": 0.257,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0551": {
-        "24H_Rainfall": 1.016
+        "value": 1.016,
+        "timestamp": "2025-03-11T22:40:00.000Z"
     },
     "0601": {
-        "24H_Rainfall": 7.1129999999999995
+        "value": 7.1129999999999995,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0602": {
-        "24H_Rainfall": 0.508
+        "value": 0.762,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0603": {
-        "24H_Rainfall": 7.112
+        "value": 7.112,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0604": {
-        "24H_Rainfall": null
+        "value": null,
+        "timestamp": null
     },
     "0605": {
-        "24H_Rainfall": null
+        "value": null,
+        "timestamp": null
     },
     "0621": {
-        "24H_Rainfall": 3.556
+        "value": 3.556,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     },
     "0641": {
-        "24H_Rainfall": 12.215
+        "value": 11.961,
+        "timestamp": "2025-03-11T22:45:00.000Z"
     }
 }
