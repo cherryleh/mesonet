@@ -8,16 +8,13 @@
   width: 75%;
 }
 
+
 .sidebar {
-  width: 25%;
-  background: white;
   padding: 15px;
-  border-left: 2px solid #ccc;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100%
+  background: #fff;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+  width: 25%;
 }
 
 .button {
@@ -57,13 +54,7 @@ button {
   display: flex;
   position: relative;
 }
-.sidebar {
-  width: 300px;
-  padding: 15px;
-  background: #fff;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-  font-family: Arial, sans-serif;
-}
+
 
 h3 {
   text-align: center;
@@ -73,7 +64,6 @@ h3 {
 .station-details {
   display: flex;
   flex-direction: column;
-  gap: 8px;
   padding: 10px 0;
 }
 
@@ -236,7 +226,6 @@ app-header {
 .update-header + ul {
   list-style-type: none; /* Remove default bullets */
   padding: 0;
-  margin: 5px 0 10px 0;
 }
 
 .update-header + ul li {
@@ -245,3 +234,52 @@ app-header {
 }
 
 
+.details-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.details-table th, .details-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.details-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.details-table td {
+  background-color: #fff;
+}
+
+.details-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.details-table td span {
+  display: block;
+  font-size: 13px;
+}
+
+.details-header {
+  margin-top: 15px;
+  font-weight: bold;
+  border-top: 1px solid #ddd;
+  padding-top: 5px;
+}
+
+.sensor-update-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 5px 0 10px 0;
+}
+
+.sensor-update-list li {
+  font-size: 14px;
+  color: #333;
+  padding: 5px 0;
+}

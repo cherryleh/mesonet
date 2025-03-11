@@ -36,10 +36,10 @@ export class DiagnosticMapComponent implements AfterViewInit {
 
     selectedVariable = "BattVolt";
     variableOptions = [
-        { id: "BattVolt", name: "Battery Voltage" },
-        { id: "CellStr", name: "Cellular signal strength" },
-        { id: "CellQlt", name: "Cellular signal quality" },
-        { id: "RHenc", name: "Enclosure relative humidity" },
+        { id: "BattVolt", name: "24H Min Battery Voltage" },
+        { id: "CellQlt", name: "24H Min Cellular signal quality" },
+        { id: "CellStr", name: "24H Min Cellular signal strength" },
+        { id: "RHenc", name: "24H Max Enclosure relative humidity" },
         { id: "Earliest Measurement", name: "Earliest Measurement" }
     ];
 
@@ -121,7 +121,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
                     }
                 } else {
                     displayText = rawValue !== null ? rawValue.toString() : "No Data";
-                    color = rawValue !== null ? this.getColorFromValue(parseFloat(rawValue as any), minValue, maxValue) : "blue";
+                    color = rawValue !== null ? this.getColorFromValue(parseFloat(rawValue as any), minValue, maxValue) : "gray";
                 }
 
                 const marker = L.circleMarker([station.lat, station.lng], {
@@ -132,7 +132,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 }).addTo(this.map);
 
                 marker.on('click', async () => {
-                    console.log(`🟢 Clicked station: ${station.name} (ID: ${station.station_id})`);
+                    console.log(`Clicked station: ${station.name} (ID: ${station.station_id})`);
 
                     this.selectedStation = {
                         name: station.name,
@@ -178,7 +178,6 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 return;
             }
 
-            // ✅ Fetch station data
             const stations: Station[] = await fetch(this.apiUrl, {
                 method: 'GET',
                 headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
@@ -186,7 +185,6 @@ export class DiagnosticMapComponent implements AfterViewInit {
 
             console.log("Fetched Stations:", stations);
 
-            // ✅ Determine correct JSON file based on selected variable
             let dataUrl = "";
             switch (this.selectedVariable) {
                 case "BattVolt":
@@ -202,23 +200,20 @@ export class DiagnosticMapComponent implements AfterViewInit {
                     dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/CellQlt.json";
                     break;
                 default:
-                    console.warn(`❌ No local data available for ${this.selectedVariable}`);
+                    console.warn(`No local data available for ${this.selectedVariable}`);
                     return;
             }
 
-            // ✅ Fetch data from the selected JSON file
             const response = await fetch(dataUrl);
             const data: Record<string, { value: string; timestamp: string }> = await response.json();
 
             console.log(`Fetched ${this.selectedVariable} Data:`, data);
 
-            // ✅ Format data for plotting
             const measurementMap: Record<string, number> = {};
             Object.keys(data).forEach(stationId => {
                 measurementMap[stationId] = parseFloat(data[stationId].value);
             });
 
-            // ✅ Plot the stations using local JSON data
             this.plotStations(stations, measurementMap, false);
 
         } catch (error) {
@@ -288,19 +283,19 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 <div style="display: flex; flex-direction: column;">
                     <div style="display: flex; align-items: center;">
                         <span style="width: 15px; height: 15px; background: green; display: inline-block; margin-right: 5px;"></span>
-                        <span>>12.2V</span>
+                        <span>>12.2 VDC</span>
                     </div>
                     <div style="display: flex; align-items: center;">
                         <span style="width: 15px; height: 15px; background: yellow; display: inline-block; margin-right: 5px;"></span>
-                        <span>12 to 12.2V</span>
+                        <span>12 to 12.2 VDC</span>
                     </div>
                 <div style="display: flex; align-items: center;">
                         <span style="width: 15px; height: 15px; background: orange; display: inline-block; margin-right: 5px;"></span>
-                        <span>11.8 to 12</span>
+                        <span>11.8 to 12 VDC</span>
                     </div>
                 <div style="display: flex; align-items: center;">
                         <span style="width: 15px; height: 15px; background: red; display: inline-block; margin-right: 5px;"></span>
-                        <span><11.8</span>
+                        <span><11.8 VDC</span>
                     </div>
                 </div>
                 <div style="display: flex; align-items: center;">
@@ -314,19 +309,19 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 <div style="display: flex; flex-direction: column;">
                     <div style="display: flex; align-items: center;">
                         <span style="width: 15px; height: 15px; background: green; display: inline-block; margin-right: 5px;"></span>
-                        <span>>-90</span>
+                        <span>>-90 dBm</span>
                     </div>
                     <div style="display: flex; align-items: center;">
                         <span style="width: 15px; height: 15px; background: yellow; display: inline-block; margin-right: 5px;"></span>
-                        <span>-91 to -105</span>
+                        <span>-91 to -105 dBm</span>
                     </div>
                 <div style="display: flex; align-items: center;">
                         <span style="width: 15px; height: 15px; background: orange; display: inline-block; margin-right: 5px;"></span>
-                        <span>-106 to -115</span>
+                        <span>-106 to -115 dBm</span>
                     </div>
                 <div style="display: flex; align-items: center;">
                         <span style="width: 15px; height: 15px; background: red; display: inline-block; margin-right: 5px;"></span>
-                        <span>< -115</span>
+                        <span>< -115 dBm</span>
                     </div>
                 </div>
                 <div style="display: flex; align-items: center;">
@@ -346,7 +341,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
                             <span>-9 to -12</span>
                         </div>
                     <div style="display: flex; align-items: center;">
-                            <span style="width: 15px; height: 15px; background: orange; display: inline-block; margin-right: 5px;"></span>
+                            <span style="width: 15px; height: 15px; background: red; display: inline-block; margin-right: 5px;"></span>
                             <span>< -12</span>
                         </div>
                     <div style="display: flex; align-items: center;">
@@ -415,66 +410,66 @@ export class DiagnosticMapComponent implements AfterViewInit {
 
     async fetchStationDetails(stationId: string): Promise<void> {
         try {
-            const battVoltApiUrl = `${this.measurementsUrl}&var_ids=BattVolt&station_ids=${stationId}&local_tz=True&limit=288`;
-            const latestValuesApiUrl = `${this.measurementsUrl}&var_ids=CellStr,CellQlt,RHenc&station_ids=${stationId}&local_tz=True&limit=3`;
-
-            let allStationMeasurements: Measurement[] = [];
-            try {
-                const latestMeasurementsResponse = await fetch('https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/latest_measurements.json');
-                if (!latestMeasurementsResponse.ok) throw new Error("❌ Failed to load latest_measurements.json");
-
-                allStationMeasurements = await latestMeasurementsResponse.json();
-
-            } catch (error) {
-                console.error("❌ Error loading latest_measurements.json:", error);
-            }
-
-            const [battVoltResponse, latestValuesResponse] = await Promise.all([
-                fetch(battVoltApiUrl, { method: 'GET', headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' } }),
-                fetch(latestValuesApiUrl, { method: 'GET', headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' } })
-            ]);
-
-            const battVoltMeasurements: Measurement[] = await battVoltResponse.json();
-            const latestMeasurements: Measurement[] = await latestValuesResponse.json();
-
-            const stationMeasurements = allStationMeasurements.filter(m => m.station_id === stationId);
-            console.log("Filtered latest observations:", stationMeasurements);
-
-            let latestDetails: { [key: string]: string } = {
-                "Current BattVolt": "No Data",
-                "24h BattVolt Min": "No Data",
-                "24h BattVolt Max": "No Data",
-                "CellStr": "No Data",
-                "CellQlt": "No Data",
-                "RHenc": "No Data"
+            const variableJsonUrls: { [key: string]: string } = {
+                "BattVolt": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/BattVolt.json",
+                "CellStr": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/CellStr.json",
+                "CellQlt": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/CellQlt.json",
+                "RHenc": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RHenc.json"
             };
 
-            let battVoltValues: number[] = battVoltMeasurements
-                .map(m => parseFloat(m.value as any))
-                .filter(v => !isNaN(v));
+            const latestValuesApiUrl = `${this.measurementsUrl}&var_ids=BattVolt,CellStr,CellQlt,RHenc&station_ids=${stationId}&local_tz=True&limit=4`;
+            const sensorUpdateUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/latest_measurements.json";
 
-            if (battVoltValues.length > 0) {
-                latestDetails["Current BattVolt"] = battVoltValues[battVoltValues.length - 1].toFixed(2);
-                latestDetails["24h BattVolt Min"] = Math.min(...battVoltValues).toFixed(2);
-                latestDetails["24h BattVolt Max"] = Math.max(...battVoltValues).toFixed(2);
-            }
+            let latestDetails: { [key: string]: string } = {};
 
-            latestMeasurements.forEach(measurement => {
-                const numericValue = parseFloat(measurement.value as any);
-                if (!isNaN(numericValue)) {
-                    latestDetails[measurement.variable] = numericValue.toFixed(2);
+            const jsonRequests = Object.keys(variableJsonUrls).map(async (variable) => {
+                const response = await fetch(variableJsonUrls[variable]);
+                const data: Record<string, { value: string; timestamp: string }> = await response.json();
+                return { variable, data };
+            });
+
+            const [latestValuesResponse, sensorUpdateResponse, ...jsonResponses] = await Promise.all([
+                fetch(latestValuesApiUrl, { method: 'GET', headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' } }),
+                fetch(sensorUpdateUrl)
+                    .then(response => response.json())
+                    .catch(error => {
+                        console.error("Error fetching sensor update data:", error);
+                        return [];
+                    }),
+                ...jsonRequests
+            ]);
+
+            const latestMeasurements: Measurement[] = await latestValuesResponse.json();
+            const sensorUpdates: Measurement[] = sensorUpdateResponse;
+        
+            jsonResponses.forEach(({ variable, data }) => {
+                const measurement = data[stationId];
+                if (measurement) {
+                    const formattedValue = measurement.value.toString();
+                    const variableName = this.getVariableName(variable); // Ensure correct name mapping
+        
+                    if (variable === "RHenc") {
+                        latestDetails[`24H Max ${variableName}`] = formattedValue; // Ensure "Max" label is used
+                    } else {
+                        latestDetails[`24H Min ${variableName}`] = formattedValue;
+                    }
                 }
             });
 
-            // ✅ Process Latest Observations for All Variables
-            stationMeasurements.forEach(measurement => {
-                const timeData = this.formatTimeAgo(measurement.timestamp);
-                latestDetails[measurement.variable] = timeData.text; // ✅ Store as "X hours ago"
+            latestMeasurements.forEach(measurement => {
+                if (measurement && measurement.value !== undefined && measurement.value !== null) {
+                    latestDetails[`Current ${this.getVariableName(measurement.variable)}`] = measurement.value.toString();
+                }
             });
 
-            console.log("Final latestDetails object:", latestDetails);
+            sensorUpdates.forEach(measurement => {
+                if (measurement.station_id === stationId && measurement.timestamp) {
+                    const timeAgo = this.formatTimeAgo(measurement.timestamp);
+                    latestDetails[measurement.variable] = timeAgo.text;
+                }
+            });
 
-            let latestTimestamp = battVoltMeasurements[battVoltMeasurements.length - 1]?.timestamp || "";
+            let latestTimestamp = latestMeasurements.length > 0 ? latestMeasurements[0].timestamp : "";
             let formattedTimestamp = latestTimestamp ? this.formatTimestamp(latestTimestamp) : "No Data";
 
             this.selectedStation = {
@@ -509,13 +504,16 @@ export class DiagnosticMapComponent implements AfterViewInit {
     getVariableName(variableId: string): string {
         const variableMap: { [key: string]: string } = {
             "RF_1_Tot300s": "Rainfall",
+            "WS_1_Avg": "Wind Speed",
+            "SWin_1_Avg": "Solar Radiation",
             "RH_1_Avg": "Relative Humidity",
             "Tair_1_Avg": "Temperature",
             "BattVolt": "Battery Voltage",
             "CellStr": "Cellular Signal Strength",
-            "CellQlt": "Cellular Signal Quality"
+            "CellQlt": "Cellular Signal Quality",
+            "RHenc": "Enclosure Relative Humidity"
         };
-        return variableMap[variableId] || variableId; // ✅ Returns readable name or fallback to original ID
+        return variableMap[variableId] || variableId; 
     }
 
     updateVariable(event: Event): void {
