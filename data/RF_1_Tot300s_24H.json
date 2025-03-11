@@ -69,10 +69,10 @@
         "24H_Rainfall": 3.306
     },
     "0166": {
-        "24H_Rainfall": 5.337
+        "24H_Rainfall": 5.083
     },
     "0201": {
-        "24H_Rainfall": 68.297
+        "24H_Rainfall": 67.527
     },
     "0202": {
         "24H_Rainfall": 0.0
@@ -81,19 +81,19 @@
         "24H_Rainfall": null
     },
     "0204": {
-        "24H_Rainfall": 11.431000000000001
+        "24H_Rainfall": 11.177
     },
     "0211": {
-        "24H_Rainfall": 44.206
+        "24H_Rainfall": 43.207
     },
     "0212": {
-        "24H_Rainfall": 28.078
+        "24H_Rainfall": 27.325
     },
     "0213": {
-        "24H_Rainfall": 134.74
+        "24H_Rainfall": 133.969
     },
     "0214": {
-        "24H_Rainfall": 61.104
+        "24H_Rainfall": 60.077
     },
     "0221": {
         "24H_Rainfall": 5.588
@@ -102,7 +102,7 @@
         "24H_Rainfall": 1.028
     },
     "0231": {
-        "24H_Rainfall": 18.542
+        "24H_Rainfall": 18.288
     },
     "0241": {
         "24H_Rainfall": 7.899
@@ -120,7 +120,7 @@
         "24H_Rainfall": 3.017
     },
     "0251": {
-        "24H_Rainfall": 43.18
+        "24H_Rainfall": 40.64
     },
     "0252": {
         "24H_Rainfall": 5.8420000000000005
@@ -132,16 +132,16 @@
         "24H_Rainfall": 0.502
     },
     "0255": {
-        "24H_Rainfall": 78.995
+        "24H_Rainfall": 77.959
     },
     "0281": {
-        "24H_Rainfall": 53.848
+        "24H_Rainfall": 53.594
     },
     "0282": {
-        "24H_Rainfall": 69.85
+        "24H_Rainfall": 69.088
     },
     "0283": {
-        "24H_Rainfall": 125.73
+        "24H_Rainfall": 124.46000000000001
     },
     "0286": {
         "24H_Rainfall": 2.286
@@ -198,7 +198,7 @@
         "24H_Rainfall": 7.1129999999999995
     },
     "0602": {
-        "24H_Rainfall": 0.254
+        "24H_Rainfall": 0.508
     },
     "0603": {
         "24H_Rainfall": 7.112
@@ -213,6 +213,6 @@
         "24H_Rainfall": 3.556
     },
     "0641": {
-        "24H_Rainfall": 12.469
+        "24H_Rainfall": 12.215
     }
 }
