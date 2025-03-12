@@ -15,7 +15,7 @@ header = {
 stations_url = "https://api.hcdp.ikewai.org/mesonet/db/stations"
 measurements_url = "https://api.hcdp.ikewai.org/mesonet/db/measurements"
 
-variables = ["RF_1_Tot300s", "Tair_1_Avg", "RH_1_Avg","SWin_1_Avg","WS_1_Avg"]
+variables = ["RF_1_Tot300s", "Tair_1_Avg", "Tair_2_Avg", "RH_1_Avg","RH_2_Avg", "SWin_1_Avg","WS_1_Avg","SM_1_Avg", "Tsoil_1_Avg", "P_1"]
 
 # Get all stations
 response = requests.get(stations_url, headers=header)

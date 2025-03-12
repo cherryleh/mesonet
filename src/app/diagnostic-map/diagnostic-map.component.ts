@@ -556,7 +556,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
     }
 
 
-    sensorUpdateVars: string[] = ["RF_1_Tot300s", "RH_1_Avg", "SWin_1_Avg", "Tair_1_Avg", "WS_1_Avg"];
+    sensorUpdateVars: string[] = ["RF_1_Tot300s", "Tair_1_Avg", "Tair_2_Avg", "RH_1_Avg","RH_2_Avg", "SWin_1_Avg","WS_1_Avg","SM_1_Avg", "Tsoil_1_Avg", "P_1"];
     objectKeys(obj: Record<string, any> | null | undefined): string[] {
         return obj ? Object.keys(obj) : [];
     }
@@ -574,8 +574,13 @@ export class DiagnosticMapComponent implements AfterViewInit {
             "RF_1_Tot300s": "Rainfall",
             "WS_1_Avg": "Wind Speed",
             "SWin_1_Avg": "Solar Radiation",
-            "RH_1_Avg": "Relative Humidity",
-            "Tair_1_Avg": "Temperature",
+            "RH_1_Avg": "Relative Humidity Sensor 1",
+            "RH_2_Avg": "Relative Humidity Sensor 2",
+            "Tair_1_Avg": "Temperature Sensor 1",
+            "Tair_2_Avg": "Temperature Sensor 2",
+            "SM_1_Avg": "Soil Moisture",
+            "Tsoil_1_Avg": "Soil Temperature",
+            "P_1": "Pressure",
             "BattVolt": "Battery Voltage",
             "CellStr": "Cellular Signal Strength",
             "CellQlt": "Cellular Signal Quality",

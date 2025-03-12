@@ -18,7 +18,7 @@
     <div *ngIf="selectedStation" class="sidebar">
         <h3>{{ selectedStation.name }} ID #{{ selectedStation.id }}</h3>
         <p *ngIf="selectedStation?.id === '0521'">
-            Diagnostic data applies to stations ID #0520 and #0521
+            Diagnostic data applies to stations ID #0520 and #0521.
         </p>
         <p><strong>Latitude:</strong> {{ selectedStation.lat }}</p>
         <p><strong>Longitude:</strong> {{ selectedStation.lng }}</p>
@@ -40,66 +40,32 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <ng-container *ngIf="selectedStation.id === '0521'; else normalStationData">
-                        <ng-container *ngFor="let stationId of ['0520', '0521']">
-                            <ng-container *ngFor="let key of objectKeys(selectedStation.details[stationId])">
-                                <tr *ngIf="key.startsWith('Current ')">
-                                    <td>{{ stationId }} {{ getVariableName(key.replace('Current ', '')) }}</td>
-                                    <td>{{ selectedStation.details[stationId][key] }}</td>
-                                    <td>
-                                        <span *ngIf="selectedStation.details[stationId]['24H Min ' + key.replace('Current ', '')]">
-                                            Min: {{ selectedStation.details[stationId]['24H Min ' + key.replace('Current ', '')] }}
-                                        </span>
-                                        <span *ngIf="selectedStation.details[stationId]['24H Max ' + key.replace('Current ', '')]">
-                                            Max: {{ selectedStation.details[stationId]['24H Max ' + key.replace('Current ', '')] }}
-                                        </span>
-                                    </td>
-                                    <td [ngClass]="getStatusClass(
-                                            getVariableName(key.replace('Current ', '')),
-                                            selectedStation.details[stationId]['24H Min ' + key.replace('Current ', '')] || 
-                                            selectedStation.details[stationId]['24H Max ' + key.replace('Current ', '')]
-                                        )">
-                                        {{ getStatus(
-                                            getVariableName(key.replace('Current ', '')),
-                                            selectedStation.details[stationId]['24H Min ' + key.replace('Current ', '')] || 
-                                            selectedStation.details[stationId]['24H Max ' + key.replace('Current ', '')]
-                                        ) }}
-                                    </td>
-                                </tr>
-                            </ng-container>
-                        </ng-container>
+                    <ng-container *ngFor="let key of objectKeys(selectedStation.details)">
+                        <tr *ngIf="key.startsWith('Current ')">
+                            <td>{{ getVariableName(key.replace('Current ', '')) }}</td>
+                            <td>{{ selectedStation.details[key] }}</td>
+                            <td>
+                                <span *ngIf="selectedStation.details['24H Min ' + key.replace('Current ', '')]">
+                                    Min: {{ selectedStation.details['24H Min ' + key.replace('Current ', '')] }}
+                                </span>
+                                <span *ngIf="selectedStation.details['24H Max ' + key.replace('Current ', '')]">
+                                    Max: {{ selectedStation.details['24H Max ' + key.replace('Current ', '')] }}
+                                </span>
+                            </td>
+                            <td [ngClass]="getStatusClass(
+                                    getVariableName(key.replace('Current ', '')),
+                                    selectedStation.details['24H Min ' + key.replace('Current ', '')] || 
+                                    selectedStation.details['24H Max ' + key.replace('Current ', '')]
+                                )">
+                                {{ getStatus(
+                                    getVariableName(key.replace('Current ', '')),
+                                    selectedStation.details['24H Min ' + key.replace('Current ', '')] || 
+                                    selectedStation.details['24H Max ' + key.replace('Current ', '')]
+                                ) }}
+                            </td>
+                        </tr>
                     </ng-container>
-
-                    <ng-template #normalStationData>
-                        <ng-container *ngFor="let key of objectKeys(selectedStation.details)">
-                            <tr *ngIf="key.startsWith('Current ')">
-                                <td>{{ getVariableName(key.replace('Current ', '')) }}</td>
-                                <td>{{ selectedStation.details[key] }}</td>
-                                <td>
-                                    <span *ngIf="selectedStation.details['24H Min ' + key.replace('Current ', '')]">
-                                        Min: {{ selectedStation.details['24H Min ' + key.replace('Current ', '')] }}
-                                    </span>
-                                    <span *ngIf="selectedStation.details['24H Max ' + key.replace('Current ', '')]">
-                                        Max: {{ selectedStation.details['24H Max ' + key.replace('Current ', '')] }}
-                                    </span>
-                                </td>
-                                <td [ngClass]="getStatusClass(
-                                        getVariableName(key.replace('Current ', '')),
-                                        selectedStation.details['24H Min ' + key.replace('Current ', '')] || 
-                                        selectedStation.details['24H Max ' + key.replace('Current ', '')]
-                                    )">
-                                    {{ getStatus(
-                                        getVariableName(key.replace('Current ', '')),
-                                        selectedStation.details['24H Min ' + key.replace('Current ', '')] || 
-                                        selectedStation.details['24H Max ' + key.replace('Current ', '')]
-                                    ) }}
-                                </td>
-                            </tr>
-                        </ng-container>
-                    </ng-template>
                 </tbody>
-
-
             </table>
 
 
