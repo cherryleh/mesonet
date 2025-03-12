@@ -73,24 +73,25 @@
             <div *ngIf="hasSensorUpdateVariables()" class="details-header">
                 <h4 style="margin-bottom: 0;">Sensor Latest Update</h4>
             </div>
-            <ul *ngIf="hasSensorUpdateVariables()" class="sensor-update-list">
-                <ng-container *ngFor="let key of sensorUpdateVars">
-                    <li *ngIf="selectedStation.details[key]">
-                        <strong>{{ getVariableName(key) }}:</strong> {{ selectedStation.details[key] }}
-                    </li>
-                </ng-container>
-            </ul>
+            <table *ngIf="hasSensorUpdateVariables()" class="sensor-update-table">
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Latest Update</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-container *ngFor="let key of sensorUpdateVars">
+                        <tr *ngIf="selectedStation.details[key]">
+                            <td>{{ getVariableName(key) }}</td>
+                            <td>{{ selectedStation.details[key] }}</td>
+                        </tr>
+                    </ng-container>
+                </tbody>
+            </table>
 
         </div>
 
-        <!-- Show a message if no recent data is available -->
-        <ng-template #noData>
-            <p *ngIf="selectedStation.details && objectKeys(selectedStation.details).length === 0">No recent data available.</p>
-            <p *ngIf="!selectedStation.details">Loading data...</p> 
-        </ng-template>
-
-
-        <!-- Show a message if no recent data is available -->
         <ng-template #noData>
             <p *ngIf="selectedStation.details && objectKeys(selectedStation.details).length === 0">No recent data available.</p>
             <p *ngIf="!selectedStation.details">Loading data...</p> 
