@@ -17,6 +17,9 @@
 
     <div *ngIf="selectedStation" class="sidebar">
         <h3>{{ selectedStation.name }} ID #{{ selectedStation.id }}</h3>
+        <p *ngIf="selectedStation?.id === '0521'">
+            Diagnostic data applies to stations ID #0520 and #0521
+        </p>
         <p><strong>Latitude:</strong> {{ selectedStation.lat }}</p>
         <p><strong>Longitude:</strong> {{ selectedStation.lng }}</p>
         <p *ngIf="selectedStation.detailsTimestamp">

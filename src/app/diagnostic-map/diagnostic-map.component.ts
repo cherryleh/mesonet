@@ -227,12 +227,23 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 measurementMap[stationId] = parseFloat(data[stationId].value);
             });
 
-            this.plotStations(stations, measurementMap, false);
+            // Apply special rule for station 0521
+            if (measurementMap["0520"] !== undefined && measurementMap["0521"] !== undefined) {
+                if (this.selectedVariable === "BattVolt") {
+                    measurementMap["0521"] = Math.min(measurementMap["0520"], measurementMap["0521"]);
+                } else if (this.selectedVariable === "RHenc") {
+                    measurementMap["0521"] = Math.max(measurementMap["0520"], measurementMap["0521"]);
+                } else if (this.selectedVariable === "CellStr" || this.selectedVariable === "CellQlt") {
+                    measurementMap["0521"] = measurementMap["0520"];
+                }
+            }
 
+            this.plotStations(stations, measurementMap, false);
         } catch (error) {
             console.error(`Error fetching data for ${this.selectedVariable}:`, error);
         }
     }
+
 
     private getColorFromValue(value: number, min: number, max: number): string {
         if (value === 0) return "gray"; // Treat 0 as No Data
@@ -422,7 +433,6 @@ export class DiagnosticMapComponent implements AfterViewInit {
             };
 
             const latestValuesApiUrl = `${this.measurementsUrl}&var_ids=BattVolt,CellStr,CellQlt,RHenc&station_ids=${stationId}&local_tz=True&limit=4`;
-            const sensorUpdateUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/latest_measurements.json";
 
             let latestDetails: { [key: string]: string } = {};
 
@@ -432,36 +442,22 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 return { variable, data };
             });
 
-            const [latestValuesResponse, sensorUpdateResponse, ...jsonResponses] = await Promise.all([
+            const [latestValuesResponse, ...jsonResponses] = await Promise.all([
                 fetch(latestValuesApiUrl, { method: 'GET', headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' } }),
-                fetch(sensorUpdateUrl)
-                    .then(response => response.json())
-                    .catch(error => {
-                        console.error("Error fetching sensor update data:", error);
-                        return [];
-                    }),
                 ...jsonRequests
             ]);
 
             const latestMeasurements: Measurement[] = await latestValuesResponse.json();
-            const sensorUpdates: Measurement[] = sensorUpdateResponse;
 
             jsonResponses.forEach(({ variable, data }) => {
                 const measurement = data[stationId];
                 if (measurement) {
                     let formattedValue = parseFloat(measurement.value);
-
                     if (formattedValue === 0) {
-                        formattedValue = NaN; // Will be handled as "No Data"
+                        formattedValue = NaN;
                     }
 
-                    const variableName = this.getVariableName(variable);
-
-                    if (variable === "RHenc") {
-                        latestDetails[`24H Max ${variableName}`] = isNaN(formattedValue) ? "No Data" : formattedValue.toString();
-                    } else {
-                        latestDetails[`24H Min ${variableName}`] = isNaN(formattedValue) ? "No Data" : formattedValue.toString();
-                    }
+                    latestDetails[`24H Min ${this.getVariableName(variable)}`] = isNaN(formattedValue) ? "No Data" : formattedValue.toString();
                 }
             });
 
@@ -477,12 +473,32 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 }
             });
 
-            sensorUpdates.forEach(measurement => {
-                if (measurement.station_id === stationId && measurement.timestamp) {
-                    const timeAgo = this.formatTimeAgo(measurement.timestamp);
-                    latestDetails[measurement.variable] = timeAgo.text;
+            // **Apply Special Rule for 0521**
+            if (stationId === "0521") {
+                console.log("Applying special rule for 0521...");
+                const value0520 = await this.fetchValueForStation("0520");
+
+                if (value0520) {
+                    if (latestDetails["24H Min Battery Voltage"] && value0520["BattVolt"] !== undefined) {
+                        latestDetails["24H Min Battery Voltage"] = Math.min(
+                            parseFloat(latestDetails["24H Min Battery Voltage"]),
+                            value0520["BattVolt"]
+                        ).toString();
+                    }
+                    if (latestDetails["24H Max Enclosure Relative Humidity"] && value0520["RHenc"] !== undefined) {
+                        latestDetails["24H Max Enclosure Relative Humidity"] = Math.max(
+                            parseFloat(latestDetails["24H Max Enclosure Relative Humidity"]),
+                            value0520["RHenc"]
+                        ).toString();
+                    }
+                    if (value0520["CellStr"] !== undefined) {
+                        latestDetails["24H Min Cellular Signal Strength"] = value0520["CellStr"].toString();
+                    }
+                    if (value0520["CellQlt"] !== undefined) {
+                        latestDetails["24H Min Cellular Signal Quality"] = value0520["CellQlt"].toString();
+                    }
                 }
-            });
+            }
 
             let latestTimestamp = latestMeasurements.length > 0 ? latestMeasurements[0].timestamp : "";
             let formattedTimestamp = latestTimestamp ? this.formatTimestamp(latestTimestamp) : "No Data";
@@ -501,6 +517,26 @@ export class DiagnosticMapComponent implements AfterViewInit {
             this.cdr.detectChanges();
         }
     }
+
+
+    // Helper function to fetch values for 0520
+    async fetchValueForStation(stationId: string): Promise<Record<string, number>> {
+        const valueMap: Record<string, number> = {};
+        try {
+            const response = await fetch(`${this.measurementsUrl}&var_ids=BattVolt,CellStr,CellQlt,RHenc&station_ids=${stationId}&local_tz=True&limit=1`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+            });
+            const data: Measurement[] = await response.json();
+            data.forEach(measurement => {
+                valueMap[measurement.variable] = parseFloat(String(measurement.value));
+            });
+        } catch (error) {
+            console.error(`Error fetching data for station ${stationId}:`, error);
+        }
+        return valueMap;
+    }
+
 
     getStatus(variable: string, value: number | string | null): string {
         if (value === null || value === "No Data" || isNaN(parseFloat(value as any)) || parseFloat(value as any) === 0) {
