@@ -93,7 +93,9 @@ export class DiagnosticMapComponent implements AfterViewInit {
             }
         });
 
-        const values = Object.values(measurementMap).filter(v => v !== null && !isTimestamp);
+        const values = Object.values(measurementMap)
+            .filter(v => v !== null && v !== 0 && !isTimestamp); // Treat 0 as No Data
+
         const minValue = values.length > 0 ? Math.min(...values) : 0;
         const maxValue = values.length > 0 ? Math.max(...values) : 1;
 
@@ -103,7 +105,12 @@ export class DiagnosticMapComponent implements AfterViewInit {
                     console.warn(`Skipping invalid station:`, station);
                     return;
                 }
-                const rawValue = measurementMap[station.station_id] ?? null;
+                let rawValue = measurementMap[station.station_id] ?? null;
+
+                // Treat 0 as No Data
+                if (rawValue === 0) {
+                    rawValue = null;
+                }
 
                 let displayText: string | null = null;
                 let color: string;
@@ -121,15 +128,15 @@ export class DiagnosticMapComponent implements AfterViewInit {
                     }
                 } else {
                     displayText = rawValue !== null ? rawValue.toString() : "No Data";
-                    color = rawValue !== null ? this.getColorFromValue(parseFloat(rawValue as any), minValue, maxValue) : "gray"; 
+                    color = rawValue !== null ? this.getColorFromValue(parseFloat(rawValue as any), minValue, maxValue) : "gray";
                 }
 
                 const marker = L.circleMarker([station.lat, station.lng], {
                     radius: 8,
                     color,
                     fillColor: color,
-                    fillOpacity: rawValue !== null ? 0.8 : 0.4, // Reduce opacity for No Data
-                    weight: rawValue !== null ? 1 : 0.5 // Thinner border for No Data
+                    fillOpacity: rawValue !== null ? 0.8 : 0.4,
+                    weight: rawValue !== null ? 1 : 0.5
                 }).addTo(this.map);
 
                 if (rawValue === null) {
@@ -137,8 +144,6 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 } else {
                     marker.bringToFront(); // Moves Data markers to the front
                 }
-
-
 
                 marker.on('click', async () => {
                     console.log(`Clicked station: ${station.name} (ID: ${station.station_id})`);
@@ -153,7 +158,6 @@ export class DiagnosticMapComponent implements AfterViewInit {
                     };
 
                     await this.fetchStationDetails(station.station_id);
-
                     this.cdr.detectChanges();
                 });
 
@@ -230,23 +234,24 @@ export class DiagnosticMapComponent implements AfterViewInit {
         }
     }
 
-
     private getColorFromValue(value: number, min: number, max: number): string {
+        if (value === 0) return "gray"; // Treat 0 as No Data
+
         if (this.selectedVariable === "BattVolt") {
             if (value < 11.8) return "red";
             if (value < 12) return "orange";
             if (value < 12.2) return "yellow";
-            return "green"; // > 13V
+            return "green";
         } else if (this.selectedVariable === "RHenc") {
             if (value >= 75) return "red";
             if (value > 60) return "orange";
             if (value > 50) return "yellow";
             return "green";
-        } else if (this.selectedVariable === "CellStr"){
+        } else if (this.selectedVariable === "CellStr") {
             if (value < -115) return "red";
             if (value < -106) return "yellow";
             return "green";
-        } else if (this.selectedVariable === "CellQlt"){
+        } else if (this.selectedVariable === "CellQlt") {
             if (value < -12) return "red";
             return "green";
         } else {
@@ -440,24 +445,35 @@ export class DiagnosticMapComponent implements AfterViewInit {
 
             const latestMeasurements: Measurement[] = await latestValuesResponse.json();
             const sensorUpdates: Measurement[] = sensorUpdateResponse;
-        
+
             jsonResponses.forEach(({ variable, data }) => {
                 const measurement = data[stationId];
                 if (measurement) {
-                    const formattedValue = measurement.value.toString();
-                    const variableName = this.getVariableName(variable); // Ensure correct name mapping
-        
+                    let formattedValue = parseFloat(measurement.value);
+
+                    if (formattedValue === 0) {
+                        formattedValue = NaN; // Will be handled as "No Data"
+                    }
+
+                    const variableName = this.getVariableName(variable);
+
                     if (variable === "RHenc") {
-                        latestDetails[`24H Max ${variableName}`] = formattedValue; // Ensure "Max" label is used
+                        latestDetails[`24H Max ${variableName}`] = isNaN(formattedValue) ? "No Data" : formattedValue.toString();
                     } else {
-                        latestDetails[`24H Min ${variableName}`] = formattedValue;
+                        latestDetails[`24H Min ${variableName}`] = isNaN(formattedValue) ? "No Data" : formattedValue.toString();
                     }
                 }
             });
 
             latestMeasurements.forEach(measurement => {
                 if (measurement && measurement.value !== undefined && measurement.value !== null) {
-                    latestDetails[`Current ${this.getVariableName(measurement.variable)}`] = measurement.value.toString();
+                    let formattedValue = parseFloat(String(measurement.value));
+
+                    if (formattedValue === 0) {
+                        formattedValue = NaN;
+                    }
+
+                    latestDetails[`Current ${this.getVariableName(measurement.variable)}`] = isNaN(formattedValue) ? "No Data" : formattedValue.toString();
                 }
             });
 
@@ -484,6 +500,40 @@ export class DiagnosticMapComponent implements AfterViewInit {
             this.selectedStation = { ...this.selectedStation, details: {} };
             this.cdr.detectChanges();
         }
+    }
+
+    getStatus(variable: string, value: number | string | null): string {
+        if (value === null || value === "No Data" || isNaN(parseFloat(value as any)) || parseFloat(value as any) === 0) {
+            return "No Data";
+        }
+
+        const numValue = parseFloat(value as any);
+
+        if (variable === "Battery Voltage") {
+            if (numValue < 11.8) return "Critical";
+            if (numValue < 12) return "Warning";
+            if (numValue < 12.2) return "Caution";
+            return "Good";
+        } else if (variable === "Enclosure Relative Humidity") {
+            if (numValue >= 75) return "Critical";
+            if (numValue > 60) return "Warning";
+            if (numValue > 50) return "Caution";
+            return "Good";
+        } else if (variable === "Cellular Signal Strength") {
+            if (numValue < -115) return "Critical";
+            if (numValue < -106) return "Warning";
+            return "Good";
+        } else if (variable === "Cellular Signal Quality") {
+            if (numValue < -12) return "Warning";
+            return "Good";
+        }
+
+        return "No Data";
+    }
+
+    getStatusClass(variable: string, value: number | string | null): string {
+        const status = this.getStatus(variable, value);
+        return status === "No Data" ? "no-data" : status.replace(" ", ""); // Converts "No Data" -> "no-data" for CSS
     }
 
 

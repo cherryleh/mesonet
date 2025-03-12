@@ -15,6 +15,7 @@
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
   font-family: Arial, sans-serif;
   width: 25%;
+  overflow-y: scroll;
 }
 
 .button {

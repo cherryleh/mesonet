@@ -163,116 +163,137 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
     return dateMinusHours.toISOString().split('.')[0] + 'Z'; // 🔥 Fixes incorrect formatting
   }
-
-
   loadData(): void {
     if (!this.stationId) {
-      console.error('No station ID available. Cannot fetch data.'); // 🔥 Added Check
-      return;
+        console.error('No station ID available. Cannot fetch data.');
+        return;
     }
 
     this.isLoading = true;
     const days = this.getDaysFromDuration(this.selectedDuration);
     const startDate = this.getDateMinusDays(days);
 
-    console.log(`Fetching data for Station ID: ${this.stationId}, Duration: ${this.selectedDuration}, Start Date: ${startDate}`); // 🔥 Debug Log
+    console.log(`Fetching data for Station ID: ${this.stationId}, Duration: ${this.selectedDuration}, Start Date: ${startDate}`);
 
     this.graphingDataService.getData(this.stationId, this.selectedVariables.join(','), startDate).subscribe(
-      data => {
-        this.isLoading = false;
+        data => {
+            this.isLoading = false;
 
-        if (!data || data.length === 0) {
-          console.warn('No data received from API.'); // 🔥 Added Warning
-          return;
+            if (!data || data.length === 0) {
+                console.warn('No data received from API.');
+            }
+
+            let timezoneOffset = this.stationId.startsWith('1') ? 660 : 600; 
+            this.chart?.update({ time: { timezoneOffset } });
+
+            console.log(`Applying Timezone Offset: ${timezoneOffset} minutes`);
+
+            let formattedData = this.formatData(data);
+
+            // 🔥 Ensure the chart updates completely
+            this.updateChart(formattedData);
+        },
+        error => {
+            console.error('Error fetching data:', error);
+            this.isLoading = false;
         }
-
-        let timezoneOffset = this.stationId.startsWith('1') ? 660 : 600; // 660 = Samoa (UTC -11), 600 = Hawaii (UTC -10)
-        this.chart?.update({ time: { timezoneOffset } });
-
-        console.log(`Applying Timezone Offset: ${timezoneOffset} minutes`);
-
-        this.updateChart(this.formatData(data));
-      },
-      error => {
-        console.error('Error fetching data:', error);
-        this.isLoading = false;
-      }
     );
-  }
+}
 
 
   updateChart(seriesData: Highcharts.SeriesOptionsType[]): void {
-    if (this.chart) {
-      while (this.chart.series.length) {
+    if (!this.chart) return;
+
+    // 🔥 Forcefully remove all series before updating
+    while (this.chart.series.length > 0) {
         this.chart.series[0].remove(false);
-      }
-
-      const yAxisLabels = this.selectedVariables.map(variable => this.getYAxisLabel(variable));
-
-      if (this.chart.yAxis[0]) {
-        this.chart.yAxis[0].setTitle({ text: yAxisLabels[0] || 'Primary Axis' });
-      }
-      if (this.chart.yAxis[1]) {
-        this.chart.yAxis[1].setTitle({ text: this.selectedVariables.length > 1 ? yAxisLabels[1] : '' });
-      }
-      if (this.chart.yAxis[2]) {
-        this.chart.yAxis[2].setTitle({ text: this.selectedVariables.length > 2 ? yAxisLabels[2] : '' });
-      }
-
-      seriesData.forEach(series => this.chart?.addSeries(series, false));
-      this.chart?.redraw();
     }
-  }
 
-  formatData(data: any): Highcharts.SeriesOptionsType[] {
-    if (!data || data.length === 0) return [];
-    let nonRainfallIndex = 0;
+    // 🔥 Ensure Y-axis is reset properly
+    this.chart.yAxis.forEach(yAxis => {
+        yAxis.setTitle({ text: '' });
+    });
 
-    return this.selectedVariables.map((variable, index) => {
+    // 🔥 Handle "No Data" case properly
+    if (seriesData.length === 0) {
+        this.chart.showLoading('No Data Available');
+    } else {
+        this.chart.hideLoading();
+        seriesData.forEach(series => this.chart?.addSeries(series, false));
+    }
+
+    // 🔥 Force redraw to apply updates
+    setTimeout(() => this.chart?.redraw(), 10);
+}
+
+formatData(data: any): Highcharts.SeriesOptionsType[] {
+  if (!data || data.length === 0) return [];
+
+  let nonRainfallIndex = 0;
+  let formattedData: Highcharts.SeriesOptionsType[] = [];
+
+  this.selectedVariables.forEach((variable, index) => {
       const variableData: [number, number | null][] = [];
-      const filteredData = data
-        .filter((item: any) => item.variable === variable)
-        .map((item: any): [number, number | null] => {
-          const timestamp = new Date(item.timestamp).getTime();
-          let value: number | null = parseFloat(item?.value || '');
 
-          if (item?.flag !== 0 || isNaN(value)) {
-            value = null;
-          } else {
-            value = this.convertValue(variable, value); // ✅ Convert values based on unit
+      const filteredData = data
+          .filter((item: any) => item.variable === variable)
+          .map((item: any): [number, number | null] => {
+              const timestamp = new Date(item.timestamp).getTime();
+              let value: number | null = parseFloat(item?.value || '');
+
+              if (item?.flag !== 0 || isNaN(value)) {
+                  value = null;
+              } else {
+                  value = this.convertValue(variable, value);
+              }
+
+              return [timestamp, value];
+          })
+          .sort((a: [number, number | null], b: [number, number | null]) => a[0] - b[0]);
+
+      if (filteredData.length === 0) {
+          // 🔥 Add "No Data" series with empty points
+          formattedData.push({
+              type: 'line',
+              name: `No Data (${this.getYAxisLabel(variable)})`,
+              data: [[Date.now(), null]], // Ensures the chart renders
+              color: '#808080',
+              dashStyle: 'Dash',
+              marker: { enabled: false },
+              showInLegend: true
+          });
+      } else {
+          for (let i = 0; i < filteredData.length - 1; i++) {
+              const [currentTime, currentValue] = filteredData[i];
+              const [nextTime] = filteredData[i + 1];
+              variableData.push([currentTime, currentValue]);
+
+              if (nextTime - currentTime > 5 * 60 * 1000) {
+                  variableData.push([currentTime + 1, null]);
+              }
           }
 
-          return [timestamp, value];
-        })
-        .sort((a: [number, number | null], b: [number, number | null]) => a[0] - b[0]);
+          if (filteredData.length > 0) {
+              variableData.push(filteredData[filteredData.length - 1]);
+          }
 
-      for (let i = 0; i < filteredData.length - 1; i++) {
-        const [currentTime, currentValue] = filteredData[i];
-        const [nextTime] = filteredData[i + 1];
-        variableData.push([currentTime, currentValue]);
+          let assignedColor = variable === 'RF_1_Tot300s' ? '#3498DB' : this.getSelectionColor(nonRainfallIndex++);
 
-        if (nextTime - currentTime > 5 * 60 * 1000) {
-          variableData.push([currentTime + 1, null]);
-        }
+          formattedData.push({
+              type: variable === 'RF_1_Tot300s' ? 'column' : 'line',
+              name: this.getYAxisLabel(variable),
+              data: variableData,
+              yAxis: index,
+              zIndex: variable === 'RF_1_Tot300s' ? 0 : 1,
+              color: assignedColor,
+              connectNulls: false
+          });
       }
+  });
 
-      if (filteredData.length > 0) {
-        variableData.push(filteredData[filteredData.length - 1]);
-      }
+  return formattedData;
+}
 
-      let assignedColor = variable === 'RF_1_Tot300s' ? '#3498DB' : this.getSelectionColor(nonRainfallIndex++);
-
-      return {
-        type: variable === 'RF_1_Tot300s' ? 'column' : 'line',
-        name: this.getYAxisLabel(variable),
-        data: variableData,
-        yAxis: index,
-        zIndex: variable === 'RF_1_Tot300s' ? 0 : 1,
-        color: assignedColor,
-        connectNulls: false,
-      };
-    });
-  }
 
 
   getSelectionColor(nonRainfallIndex: number): string {

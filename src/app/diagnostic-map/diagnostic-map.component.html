@@ -27,13 +27,13 @@
                 <h4 style="margin-bottom: 0;">Diagnostic Observations</h4>
             </div>
     
-            <!-- Latest Observations Table -->
             <table class="details-table">
                 <thead>
                     <tr>
                         <th>Variable</th>
                         <th>Latest</th>
                         <th>24H Min/Max</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -49,10 +49,22 @@
                                     Max: {{ selectedStation.details['24H Max ' + key.replace('Current ', '')] }}
                                 </span>
                             </td>
+                            <td [ngClass]="getStatusClass(
+                                    getVariableName(key.replace('Current ', '')),
+                                    selectedStation.details['24H Min ' + key.replace('Current ', '')] || 
+                                    selectedStation.details['24H Max ' + key.replace('Current ', '')]
+                                )">
+                                {{ getStatus(
+                                    getVariableName(key.replace('Current ', '')),
+                                    selectedStation.details['24H Min ' + key.replace('Current ', '')] || 
+                                    selectedStation.details['24H Max ' + key.replace('Current ', '')]
+                                ) }}
+                            </td>
                         </tr>
                     </ng-container>
                 </tbody>
             </table>
+
 
             <!-- Sensor Latest Update Section -->
             <div *ngIf="hasSensorUpdateVariables()" class="details-header">
