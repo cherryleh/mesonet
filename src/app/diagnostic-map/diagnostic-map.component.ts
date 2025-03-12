@@ -244,12 +244,10 @@ export class DiagnosticMapComponent implements AfterViewInit {
             return "green";
         } else if (this.selectedVariable === "CellStr"){
             if (value < -115) return "red";
-            if (value < -106) return "orange";
-            if (value < -91) return "yellow";  
+            if (value < -106) return "yellow";
             return "green";
         } else if (this.selectedVariable === "CellQlt"){
             if (value < -12) return "red";
-            if (value < -9) return "yellow";
             return "green";
         } else {
             if (min === max) return interpolateViridis(0.5);
@@ -318,14 +316,10 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 <div style="display: flex; flex-direction: column;">
                     <div style="display: flex; align-items: center;">
                         <span style="width: 15px; height: 15px; background: green; display: inline-block; margin-right: 5px;"></span>
-                        <span>>-90 dBm</span>
-                    </div>
-                    <div style="display: flex; align-items: center;">
-                        <span style="width: 15px; height: 15px; background: yellow; display: inline-block; margin-right: 5px;"></span>
-                        <span>-91 to -105 dBm</span>
+                        <span>>-105 dBm</span>
                     </div>
                 <div style="display: flex; align-items: center;">
-                        <span style="width: 15px; height: 15px; background: orange; display: inline-block; margin-right: 5px;"></span>
+                        <span style="width: 15px; height: 15px; background: yellow; display: inline-block; margin-right: 5px;"></span>
                         <span>-106 to -115 dBm</span>
                     </div>
                 <div style="display: flex; align-items: center;">
@@ -343,11 +337,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
                     <div style="display: flex; flex-direction: column;">
                         <div style="display: flex; align-items: center;">
                             <span style="width: 15px; height: 15px; background: green; display: inline-block; margin-right: 5px;"></span>
-                            <span>>-9</span>
-                        </div>
-                        <div style="display: flex; align-items: center;">
-                            <span style="width: 15px; height: 15px; background: yellow; display: inline-block; margin-right: 5px;"></span>
-                            <span>-9 to -12</span>
+                            <span>>-12</span>
                         </div>
                     <div style="display: flex; align-items: center;">
                             <span style="width: 15px; height: 15px; background: red; display: inline-block; margin-right: 5px;"></span>
@@ -364,19 +354,19 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 <div style="display: flex; flex-direction: column;">
                     <div style="display: flex; align-items: center;">
                         <span style="width: 15px; height: 15px; background: green; display: inline-block; margin-right: 5px;"></span>
-                        <span>> 75%</span>
+                        <span>< 50%</span>
                     </div>
                     <div style="display: flex; align-items: center;">
                         <span style="width: 15px; height: 15px; background: yellow; display: inline-block; margin-right: 5px;"></span>
-                        <span>60-75%</span>
-                    </div>
-                <div style="display: flex; align-items: center;">
-                        <span style="width: 15px; height: 15px; background: orange; display: inline-block; margin-right: 5px;"></span>
                         <span>50-60%</span>
                     </div>
                 <div style="display: flex; align-items: center;">
+                        <span style="width: 15px; height: 15px; background: orange; display: inline-block; margin-right: 5px;"></span>
+                        <span>60-75%</span>
+                    </div>
+                <div style="display: flex; align-items: center;">
                         <span style="width: 15px; height: 15px; background: red; display: inline-block; margin-right: 5px;"></span>
-                        <span>< 50%</span>
+                        <span>> 75%</span>
                     </div>
                 </div>
                 <div style="display: flex; align-items: center;">
