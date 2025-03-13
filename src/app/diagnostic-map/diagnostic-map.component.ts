@@ -477,6 +477,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 });
             });
 
+            // Process the API measurement response
             latestMeasurements.forEach((measurement: Measurement) => {
                 if (measurement && measurement.value !== undefined && measurement.value !== null) {
                     let formattedValue = parseFloat(String(measurement.value));
@@ -488,6 +489,13 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 }
             });
 
+            // 🚀 **Remove 0521's "CellStr" and "CellQlt" since they always have no data**
+            if (stationId === "0521") {
+                delete latestDetails["0521 Cellular Signal Strength"];
+                delete latestDetails["24H Min 0521 Cellular Signal Strength"];
+                delete latestDetails["0521 Cellular Signal Quality"];
+                delete latestDetails["24H Min 0521 Cellular Signal Quality"];
+            }
 
             // Get the latest timestamp
             let latestTimestamp = latestMeasurements.length > 0 ? latestMeasurements[0].timestamp : "";
@@ -507,6 +515,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
             this.cdr.detectChanges();
         }
     }
+
 
 
     getStatus(variable: string, value: number | string | null): string {
