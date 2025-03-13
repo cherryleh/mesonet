@@ -37,27 +37,22 @@
 
         <div class="station-details" *ngIf="selectedStation.details; else loadingData">
             <div class="data-row">
-                <i class="icon bx bxs-thermometer"></i>
                 <span>Air Temperature:</span>
                 <strong>{{ convertedDetails['Tair_1_Avg'] || 'No Data' }}</strong>
             </div>
             <div class="data-row">
-                <i class="icon bx bx-droplet"></i>
                 <span>Soil Temperature:</span>
                 <strong>{{ convertedDetails['Tsoil_1_Avg'] || 'No Data' }}</strong>
             </div>
             <div class="data-row">
-                <i class="icon bx bx-cloud-rain"></i>
                 <span>24-Hour Rainfall:</span>
                 <strong>{{ convertedDetails['RF_1_Tot300s'] || 'No Data' }}</strong>
             </div>
             <div class="data-row">
-                <i class="icon bx bx-sun"></i>
                 <span>Shortwave Radiation:</span>
                 <strong>{{ selectedStation.details['SWin_1_Avg'] || 'No Data' }}</strong>
             </div>
             <div class="data-row">
-                <i class="icon bx bx-leaf"></i>
                 <span>Soil Moisture:</span>
                 <strong>{{ selectedStation.details['SM_1_Avg'] || 'No Data' }}</strong>
             </div>
