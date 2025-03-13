@@ -168,4 +168,6 @@
   }
 </style>
 
+<app-user-agreement *ngIf="showModal" (agreementAccepted)="hideModal()"></app-user-agreement>
 <router-outlet></router-outlet>
+

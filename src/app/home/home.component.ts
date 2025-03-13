@@ -5,13 +5,12 @@ import { StationTableComponent } from '../station-table/station-table.component'
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
-import { UserAgreementComponent } from '../user-agreement/user-agreement.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule, StationSelectionMapComponent, StationTableComponent, MatButtonModule,
-    MatIconModule,RouterModule, UserAgreementComponent],
+    MatIconModule,RouterModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
