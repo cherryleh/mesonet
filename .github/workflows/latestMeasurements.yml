@@ -21,17 +21,14 @@ jobs:
       - name: Install dependencies
         run: pip install -r scripts/requirements.txt
 
-      - name: Decode and Mask API Token
-        run: |
-          API_SECRET=$(echo '${{ secrets.API_CONFIG_JSON }}' | base64 -d | tr -d '\n')
-          echo "::add-mask::$API_SECRET"
-          echo "API_TOKEN=$API_SECRET" >> $GITHUB_ENV
-
+      - name: Decode API Token
+        run: echo "API_TOKEN=$(echo '${{ secrets.API_CONFIG_JSON }}' | base64 -d)" >> $GITHUB_ENV
 
       - name: Run Python script with API Token
         run: python scripts/latestMeasurements.py
         env:
           API_TOKEN: ${{ secrets.API_CONFIG_JSON }}
+
 
       - name: Ensure data-branch exists
         run: |
