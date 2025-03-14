@@ -69,18 +69,21 @@ export class DashboardComponent implements AfterViewInit {
 
   selectedUnit: 'imperial' | 'metric' = 'imperial';
 
-  constructor(private route: ActivatedRoute,
+  constructor(
+    private route: ActivatedRoute,
     private dataService: DataService,
     private datePipe: DatePipe,
     private aggregateService: aggregateService,
-    private unitService: UnitService ) {
+    private unitService: UnitService
+  ) {
     Chart.register(...registerables);
-    this.unitService.selectedUnit$.subscribe((unit: 'imperial' | 'metric') => {
-      this.selectedUnit = unit;
-      this.convertUnits();
-    });
 
+    this.unitService.selectedUnit$.subscribe((unit) => {
+      this.selectedUnit = unit;
+      this.convertUnits(); // Convert ALL data-side variables dynamically
+    });
   }
+
 
   toggleUnit() {
     const newUnit = this.selectedUnit === 'imperial' ? 'metric' : 'imperial';
@@ -90,14 +93,42 @@ export class DashboardComponent implements AfterViewInit {
   convertUnits() {
     const getValue = (val: string | null): number => (val ? parseFloat(val) : 0);
 
+    Object.keys(this.variables).forEach((key) => {
+      if (this.variables[key] !== 'N/A' && this.variables[key] !== null) {
+        let value = getValue(this.variables[key]);
+
+        if (this.selectedUnit === 'metric') {
+          if (key === 'Temperature') value = ((value - 32) * 5) / 9; // °F to °C
+          if (key === 'Rainfall') value = value * 25.4; // in to mm
+          if (key === 'Wind Speed') value = value * 0.44704; // mph to m/s
+        } else {
+          if (key === 'Temperature') value = (value * 9) / 5 + 32; // °C to °F
+          if (key === 'Rainfall') value = value / 25.4; // mm to in
+          if (key === 'Wind Speed') value = value * 2.23694; // m/s to mph
+        }
+
+        this.variables[key] = value.toFixed(1); // Update the value
+      }
+    });
+  }
+
+
+  convertedTotalRainfall: string = '0.00';
+  convertedMeanTemp: string = '0';
+  convertedMinTemp: string = '0';
+  convertedMaxTemp: string = '0';
+
+  convertCumulativeValues() {
     if (this.selectedUnit === 'metric') {
-      this.variables['Temperature'] = (((getValue(this.variables['Temperature']) - 32) * 5) / 9).toFixed(1);
-      this.variables['Rainfall'] = (getValue(this.variables['Rainfall']) * 25.4).toFixed(2);
-      this.variables['Wind Speed'] = (getValue(this.variables['Wind Speed']) * 0.44704).toFixed(1);
+      this.convertedTotalRainfall = (this.totalRainfall * 25.4).toFixed(2); // Convert inches to mm
+      this.convertedMeanTemp = (((this.meanTemp - 32) * 5) / 9).toFixed(0); // Convert °F to °C
+      this.convertedMinTemp = (((this.minTemp - 32) * 5) / 9).toFixed(0);
+      this.convertedMaxTemp = (((this.maxTemp - 32) * 5) / 9).toFixed(0);
     } else {
-      this.variables['Temperature'] = ((getValue(this.variables['Temperature']) * 1.8) + 32).toFixed(1);
-      this.variables['Rainfall'] = (getValue(this.variables['Rainfall']) / 25.4).toFixed(2);
-      this.variables['Wind Speed'] = (getValue(this.variables['Wind Speed']) * 2.23694).toFixed(1);
+      this.convertedTotalRainfall = this.totalRainfall.toFixed(2); // Keep in inches
+      this.convertedMeanTemp = this.meanTemp.toFixed(0); // Keep in °F
+      this.convertedMinTemp = this.minTemp.toFixed(0);
+      this.convertedMaxTemp = this.maxTemp.toFixed(0);
     }
   }
 
@@ -231,26 +262,35 @@ export class DashboardComponent implements AfterViewInit {
   ngOnInit(): void {
     this.aggregateService.totalRainfall$.subscribe((totalRain: number) => {
       this.totalRainfall = totalRain;
+      this.convertCumulativeValues(); // Convert after receiving new data
     });
+
     this.aggregateService.meanTemp$.subscribe((meanTemp: number) => {
       this.meanTemp = meanTemp;
+      this.convertCumulativeValues();
     });
+
     this.aggregateService.minTemp$.subscribe((minTemp: number) => {
       this.minTemp = minTemp;
+      this.convertCumulativeValues();
     });
+
     this.aggregateService.maxTemp$.subscribe((maxTemp: number) => {
       this.maxTemp = maxTemp;
-    });
-    this.aggregateService.meanSolarRad$.subscribe((meanSolarRad: number) => {
-      this.meanSolarRad = meanSolarRad;
+      this.convertCumulativeValues();
     });
 
     this.aggregateService.durationText$.subscribe((durationText: string) => {
       this.duration = durationText;
     });
 
-    this.updateData();
+    // Listen for unit changes and update values accordingly
+    this.unitService.selectedUnit$.subscribe((unit) => {
+      this.selectedUnit = unit;
+      this.convertCumulativeValues();
+    });
   }
+
 
   queryData(): void {
     if (this.id) {
