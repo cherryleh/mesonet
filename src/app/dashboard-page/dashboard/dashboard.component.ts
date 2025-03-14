@@ -83,9 +83,39 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   toggleUnit() {
-    const newUnit = this.selectedUnit === 'standard' ? 'metric' : 'standard';
-    this.unitService.setUnit(newUnit);
-  }
+    this.selectedUnit = this.selectedUnit === 'standard' ? 'metric' : 'standard';
+    this.unitService.setUnit(this.selectedUnit); // Ensure this updates globally
+
+    // Convert values for cumulative-info section
+    if (this.selectedUnit === 'metric') {
+        this.totalRainfall = this.convertInchesToMm(this.totalRainfall);
+        this.meanTemp = this.convertFtoC(this.meanTemp);
+        this.minTemp = this.convertFtoC(this.minTemp);
+        this.maxTemp = this.convertFtoC(this.maxTemp);
+    } else {
+        this.totalRainfall = this.convertMmToInches(this.totalRainfall);
+        this.meanTemp = this.convertCtoF(this.meanTemp);
+        this.minTemp = this.convertCtoF(this.minTemp);
+        this.maxTemp = this.convertCtoF(this.maxTemp);
+    }
+}
+
+  // Conversion functions
+  convertInchesToMm(value: number): number {
+    return value * 25.4; // 1 inch = 25.4 mm
+}
+
+convertMmToInches(value: number): number {
+    return value / 25.4;
+}
+
+convertFtoC(value: number): number {
+    return (value - 32) * 5 / 9;
+}
+
+convertCtoF(value: number): number {
+    return (value * 9 / 5) + 32;
+}
 
   convertUnits() {
     const getValue = (val: string | null): number => (val ? parseFloat(val) : 0);
