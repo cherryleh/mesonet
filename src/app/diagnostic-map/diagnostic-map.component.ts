@@ -440,35 +440,47 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 "RHenc": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RHenc.json"
             };
 
-            // Fetch both 0520 and 0521 if the selected station is 0521
+            // API for fetching latest variable values
             const stationIds = stationId === "0521" ? "0520,0521" : stationId;
             const latestValuesApiUrl = `${this.measurementsUrl}&var_ids=BattVolt,CellStr,CellQlt,RHenc&station_ids=${stationIds}&local_tz=True&limit=4`;
 
-            let latestDetails: { [key: string]: string } = {};
+            // API for sensor updates (Sensor Latest Update table)
+            const sensorUpdateUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/latest_measurements.json";
 
-            // Fetch all JSON data in parallel
+            let latestDetails: { [key: string]: string } = {};
+            let sensorUpdateDetails: { [key: string]: string } = {}; // Separate object for sensor updates
+
+            // Fetch JSON data for diagnostic observations
             const jsonRequests = Object.keys(variableJsonUrls).map(async (variable) => {
                 const response = await fetch(variableJsonUrls[variable]);
                 const data: Record<string, { value: string; timestamp: string }> = await response.json();
                 return { variable, data };
             });
 
-            const latestValuesResponse = await fetch(latestValuesApiUrl, {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
-            });
-
-            // Resolve all the API responses
-            const [resolvedJsonResponses, latestMeasurements] = await Promise.all([
-                Promise.all(jsonRequests),
-                latestValuesResponse.json()
+            // Fetch both latest variable measurements & sensor updates
+            const [latestValuesResponse, sensorUpdateResponse, ...resolvedJsonResponses] = await Promise.all([
+                fetch(latestValuesApiUrl, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+                }),
+                fetch(sensorUpdateUrl).then(response => response.json()).catch(error => {
+                    console.error("Error fetching sensor update data:", error);
+                    return [];
+                }),
+                ...jsonRequests
             ]);
 
-            // Process the JSON responses
+            const latestMeasurements: Measurement[] = await latestValuesResponse.json();
+            const sensorUpdates: Measurement[] = sensorUpdateResponse;
+
+            console.log("Fetched Latest Measurements:", latestMeasurements);
+            console.log("Fetched Sensor Updates:", sensorUpdates);
+
+            // Process JSON responses for diagnostic observations
             resolvedJsonResponses.forEach(({ variable, data }) => {
                 Object.keys(data).forEach(stationKey => {
                     latestDetails[`${stationKey} ${this.getVariableName(variable)}`] = data[stationKey].value;
-                
+
                     if (variable === "RHenc") {
                         latestDetails[`24H Max ${stationKey} ${this.getVariableName(variable)}`] = data[stationKey].value;
                     } else {
@@ -477,19 +489,29 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 });
             });
 
-            // Process the API measurement response
+            // Process API measurement response for latest values
             latestMeasurements.forEach((measurement: Measurement) => {
                 if (measurement && measurement.value !== undefined && measurement.value !== null) {
                     let formattedValue = parseFloat(String(measurement.value));
+
                     if (formattedValue === 0) {
                         formattedValue = NaN;
                     }
+
                     latestDetails[`${measurement.station_id} ${this.getVariableName(measurement.variable)}`] =
                         isNaN(formattedValue) ? "No Data" : formattedValue.toString();
                 }
             });
 
-            // 🚀 **Remove 0521's "CellStr" and "CellQlt" since they always have no data**
+            // Process sensor updates separately for "Sensor Latest Update" table
+            sensorUpdates.forEach(measurement => {
+                if (measurement.station_id === stationId && measurement.timestamp) {
+                    const timeAgo = this.formatTimeAgo(measurement.timestamp);
+                    sensorUpdateDetails[measurement.variable] = timeAgo.text;
+                }
+            });
+
+            // Remove 0521's "CellStr" and "CellQlt" since they always have no data
             if (stationId === "0521") {
                 delete latestDetails["0521 Cellular Signal Strength"];
                 delete latestDetails["24H Min 0521 Cellular Signal Strength"];
@@ -501,9 +523,11 @@ export class DiagnosticMapComponent implements AfterViewInit {
             let latestTimestamp = latestMeasurements.length > 0 ? latestMeasurements[0].timestamp : "";
             let formattedTimestamp = latestTimestamp ? this.formatTimestamp(latestTimestamp) : "No Data";
 
+            // Ensure both tables are included
             this.selectedStation = {
                 ...this.selectedStation,
-                details: latestDetails,
+                details: latestDetails, // Diagnostic observations
+                sensorUpdates: sensorUpdateDetails, // Sensor updates table
                 detailsTimestamp: formattedTimestamp
             };
 
@@ -511,10 +535,11 @@ export class DiagnosticMapComponent implements AfterViewInit {
             this.cdr.detectChanges();
         } catch (error) {
             console.error("Error fetching station details:", error);
-            this.selectedStation = { ...this.selectedStation, details: {} };
+            this.selectedStation = { ...this.selectedStation, details: {}, sensorUpdates: {} };
             this.cdr.detectChanges();
         }
     }
+
 
 
 

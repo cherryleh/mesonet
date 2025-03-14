@@ -1,6 +1,5 @@
 async fetchStationDetails(stationId: string): Promise<void> {
     try {
-        // URLs for 24-hour statistics (from local JSONs)
         const variableJsonUrls: { [key: string]: string } = {
             "BattVolt": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/BattVolt.json",
             "CellStr": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/CellStr.json",
@@ -8,46 +7,87 @@ async fetchStationDetails(stationId: string): Promise<void> {
             "RHenc": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RHenc.json"
         };
 
-        // API URL for current values
-        const latestValuesApiUrl = `${this.measurementsUrl}&var_ids=BattVolt,CellStr,CellQlt,RHenc&station_ids=${stationId}&local_tz=True&limit=1`;
+        // API for latest measurements
+        const latestValuesApiUrl = `${this.measurementsUrl}&var_ids=BattVolt,CellStr,CellQlt,RHenc&station_ids=${stationId}&local_tz=True&limit=4`;
 
-        // Fetch the 24-hour statistics from JSON files
+        // API for sensor updates (to display "Sensor Latest Update" section)
+        const sensorUpdateUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/latest_measurements.json";
+
+        let latestDetails: { [key: string]: string } = {};
+
+        // Fetch latest variable data from JSON files
         const jsonRequests = Object.keys(variableJsonUrls).map(async (variable) => {
             const response = await fetch(variableJsonUrls[variable]);
             const data: Record<string, { value: string; timestamp: string }> = await response.json();
             return { variable, data };
         });
 
-        // Fetch current value from the API
-        const [latestValuesResponse, ...jsonResponses] = await Promise.all([
-            fetch(latestValuesApiUrl, { method: 'GET', headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' } }),
+        // Fetch latest values and sensor updates in parallel
+        const [latestValuesResponse, sensorUpdateResponse, ...jsonResponses] = await Promise.all([
+            fetch(latestValuesApiUrl, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
+            }),
+            fetch(sensorUpdateUrl).then(response => response.json()).catch(error => {
+                console.error("Error fetching sensor update data:", error);
+                return [];
+            }),
             ...jsonRequests
         ]);
 
+        // Parse responses
         const latestMeasurements: Measurement[] = await latestValuesResponse.json();
+        const sensorUpdates: Measurement[] = sensorUpdateResponse;
 
-        // Extract 24-hour statistics
-        const latestDetails: { [key: string]: string } = {};
+        console.log("Fetched Sensor Updates:", sensorUpdates);
+        console.log("Fetched Latest Measurements:", latestMeasurements);
+
+        // Process variable data from JSON responses
         jsonResponses.forEach(({ variable, data }) => {
             const measurement = data[stationId];
             if (measurement) {
-                latestDetails[`24H ${this.getVariableName(variable)}`] = measurement.value;
-            } else {
-                latestDetails[`24H ${this.getVariableName(variable)}`] = "No Data";
+                let formattedValue = parseFloat(measurement.value);
+
+                if (formattedValue === 0) {
+                    formattedValue = NaN; // Will be handled as "No Data"
+                }
+
+                const variableName = this.getVariableName(variable);
+
+                if (variable === "RHenc") {
+                    latestDetails[`24H Max ${variableName}`] = isNaN(formattedValue) ? "No Data" : formattedValue.toString();
+                } else {
+                    latestDetails[`24H Min ${variableName}`] = isNaN(formattedValue) ? "No Data" : formattedValue.toString();
+                }
             }
         });
 
-        // Extract current values from the API
+        // Process latest API measurements
         latestMeasurements.forEach(measurement => {
-            latestDetails[`Current ${this.getVariableName(measurement.variable)}`] = measurement.value;
+            if (measurement && measurement.value !== undefined && measurement.value !== null) {
+                let formattedValue = parseFloat(String(measurement.value));
+
+                if (formattedValue === 0) {
+                    formattedValue = NaN;
+                }
+
+                latestDetails[`Current ${this.getVariableName(measurement.variable)}`] = isNaN(formattedValue) ? "No Data" : formattedValue.toString();
+            }
         });
 
-        console.log("Final latestDetails object:", latestDetails);
+        // Process sensor update data
+        sensorUpdates.forEach(measurement => {
+            if (measurement.station_id === stationId && measurement.timestamp) {
+                const timeAgo = this.formatTimeAgo(measurement.timestamp);
+                latestDetails[measurement.variable] = timeAgo.text;
+            }
+        });
 
-        // Format latest timestamp for display
+        // Get the latest timestamp
         let latestTimestamp = latestMeasurements.length > 0 ? latestMeasurements[0].timestamp : "";
         let formattedTimestamp = latestTimestamp ? this.formatTimestamp(latestTimestamp) : "No Data";
 
+        // Update selected station details
         this.selectedStation = {
             ...this.selectedStation,
             details: latestDetails,

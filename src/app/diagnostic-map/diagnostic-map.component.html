@@ -92,10 +92,12 @@
 
 
             <!-- Sensor Latest Update Section -->
-            <div *ngIf="hasSensorUpdateVariables()" class="details-header">
+            <!-- Sensor Latest Update Table -->
+            <div *ngIf="selectedStation.sensorUpdates && objectKeys(selectedStation.sensorUpdates).length > 0" class="details-header">
                 <h4 style="margin-bottom: 0;">Sensor Latest Update</h4>
             </div>
-            <table *ngIf="hasSensorUpdateVariables()" class="sensor-update-table">
+
+            <table *ngIf="selectedStation.sensorUpdates && objectKeys(selectedStation.sensorUpdates).length > 0" class="sensor-update-table">
                 <thead>
                     <tr>
                         <th>Variable</th>
@@ -103,14 +105,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <ng-container *ngFor="let key of sensorUpdateVars">
-                        <tr *ngIf="selectedStation.details[key]">
+                    <ng-container *ngFor="let key of objectKeys(selectedStation.sensorUpdates)">
+                        <tr>
                             <td>{{ getVariableName(key) }}</td>
-                            <td>{{ selectedStation.details[key] }}</td>
+                            <td>{{ selectedStation.sensorUpdates[key] }}</td>
                         </tr>
                     </ng-container>
                 </tbody>
             </table>
+
 
         </div>
 
