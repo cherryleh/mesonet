@@ -5,10 +5,10 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root',
 })
 export class UnitService {
-  private unitSubject = new BehaviorSubject<'imperial' | 'metric'>('imperial');
+  private unitSubject = new BehaviorSubject<'standard' | 'metric'>('standard');
   selectedUnit$ = this.unitSubject.asObservable(); // Observable for components
 
-  setUnit(unit: 'imperial' | 'metric') {
+  setUnit(unit: 'standard' | 'metric') {
     this.unitSubject.next(unit);
   }
 

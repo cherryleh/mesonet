@@ -15,27 +15,22 @@
                             <app-duration-selector></app-duration-selector>
                             <div class="unit-toggle">
                                 <button (click)="toggleUnit()">
-                                    Switch to {{ selectedUnit === 'imperial' ? 'Metric' : 'Imperial' }}
+                                    Switch to {{ selectedUnit === 'standard' ? 'Metric' : 'Standard' }}
                                 </button>
                             </div>
 
                             <div class="cumulative-info">
                                 <div id="borderLeft"></div>
                                 <p class="cumulative-label">{{ duration }} Total Rainfall</p>
-                                <p class="cumulative-value">
-                                    <span>{{ convertedTotalRainfall }} {{ selectedUnit === 'imperial' ? 'in' : 'mm' }}</span>
-                                </p>
+                                <p class="cumulative-value"> <span>{{ totalRainfall.toFixed(2)}} in</span></p>
                             </div>
-
                             <div class="cumulative-info">
                                 <p class="cumulative-label">{{ duration }} Temperature</p>
-                                <p class="cumulative-value">
-                                    Mean: <span>{{ convertedMeanTemp }}&deg;{{ selectedUnit === 'imperial' ? 'F' : 'C' }}</span> 
-                                    Min: <span>{{ convertedMinTemp }}&deg;{{ selectedUnit === 'imperial' ? 'F' : 'C' }}</span> 
-                                    Max: <span>{{ convertedMaxTemp }}&deg;{{ selectedUnit === 'imperial' ? 'F' : 'C' }}</span>
+                                <p class="cumulative-value">Mean: <span>{{ meanTemp.toFixed(0) }}&deg;F </span> Min:
+                                    <span>{{ minTemp.toFixed(0) }}&deg;F</span> Max: <span>{{ maxTemp.toFixed(0)
+                                        }}&deg;F</span>
                                 </p>
                             </div>
-
                             <div class="cumulative-info">
                                 <p class="cumulative-label">{{ duration }} Average Solar Radiation</p>
                                 <p class="cumulative-value"><span>{{ meanSolarRad.toFixed(0) }} W/m</span><sup>2</sup>
@@ -57,7 +52,7 @@
                             <div class="data-content">
                                 <div class="title">24-Hour Rainfall</div>
                                 <div class="index">{{ variables['Rainfall'] || 'N/A' }}
-                                    <span class="unit"> {{ selectedUnit === 'imperial' ? 'in' : 'mm' }}</span>
+                                    <span class="unit"> {{ selectedUnit === 'standard' ? 'in' : 'mm' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -65,7 +60,7 @@
                             <div class="data-content">
                                 <div class="title">Temperature</div>
                                 <div class="index">{{ variables['Temperature'] || 'N/A' }}
-                                    <span class="unit"> &deg;{{ selectedUnit === 'imperial' ? 'F' : 'C' }}</span>
+                                    <span class="unit"> &deg;{{ selectedUnit === 'standard' ? 'F' : 'C' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -75,7 +70,7 @@
                                 <div class="index">
                                     <span class="unit">{{ variables['Wind Direction'] || 'N/A' }}</span>
                                     {{ variables['Wind Speed'] || 'N/A' }}
-                                    <span class="unit"> {{ selectedUnit === 'imperial' ? 'mph' : 'm/s' }}</span>
+                                    <span class="unit"> {{ selectedUnit === 'standard' ? 'mph' : 'm/s' }}</span>
                                 </div>
                             </div>
                         </div>
