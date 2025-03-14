@@ -15,6 +15,9 @@ import ExportData from 'highcharts/modules/export-data';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
+import { UnitService } from '../../services/unit.service';
+import { Subscription } from 'rxjs';
+
 Exporting(Highcharts);
 ExportData(Highcharts);
 OfflineExporting(Highcharts);
@@ -33,6 +36,9 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
   previousTemperatureData: [number, number][] = [];
   previousRainfallData: [number, number][] = [];
   previousRadData: [number, number][] = [];
+
+  selectedUnit: string = 'standard';
+  private unitSubscription!: Subscription;
 
   private refreshTimeout: any;
   private destroy$ = new Subject<void>();
@@ -158,6 +164,7 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
     private dataService: DashboardChartService,
     private aggregateService: aggregateService,
     private durationService: DurationService,
+    private unitService: UnitService
   ) { }
 
   async ngOnInit(): Promise<void> {
@@ -180,12 +187,69 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
 
             console.log('Dashboard chart initialized...');
             this.updateData(); // Start data fetch
+            this.unitSubscription = this.unitService.selectedUnit$.subscribe(unit => {
+              this.selectedUnit = unit;
+              this.updateChartUnits();
+          });
         });
     } catch (error) {
         console.error('Error during ngOnInit:', error);
         this.isLoading = false;
     }
 }
+
+updateChartUnits() {
+  console.log(`Updating chart to ${this.selectedUnit} units`);
+
+  if (this.chartRef && this.chartRef.series.length > 0) {
+      const convertedDataArray = this.getConvertedData();
+
+      this.chartRef.series.forEach((series, index) => {
+          if (convertedDataArray[index]) {
+              series.setData(convertedDataArray[index], true);
+          }
+      });
+
+      // Update Y-Axis labels dynamically
+      this.chartRef.yAxis[0].setTitle({ text: this.selectedUnit === 'metric' ? 'Temperature (°C)' : 'Temperature (°F)' });
+      this.chartRef.yAxis[1].setTitle({ text: this.selectedUnit === 'metric' ? 'Rainfall (mm)' : 'Rainfall (in)' });
+
+      this.chartRef.redraw();
+  }
+}
+
+
+
+
+getConvertedData(): [number, number][][] {
+  return this.chartRef.series.map((series, index) => {
+      let currentData: [number, number][] = series.data.map(point => [point.x as number, point.y as number]);
+
+      if (this.selectedUnit === 'metric') {
+          // Convert temperature (F → C) and rainfall (in → mm)
+          return currentData.map(([timestamp, value]) => {
+              if (index === 0) { // Temperature series (Assuming it's first)
+                  return [timestamp, ((value - 32) * 5) / 9]; // Convert °F → °C
+              } else if (index === 1) { // Rainfall series (Assuming it's second)
+                  return [timestamp, value * 25.4]; // Convert inches → mm
+              }
+              return [timestamp, value]; // Other series remain unchanged
+          });
+      } else {
+          // Convert temperature (C → F) and rainfall (mm → in)
+          return currentData.map(([timestamp, value]) => {
+              if (index === 0) { // Temperature series
+                  return [timestamp, (value * 9) / 5 + 32]; // Convert °C → °F
+              } else if (index === 1) { // Rainfall series
+                  return [timestamp, value / 25.4]; // Convert mm → inches
+              }
+              return [timestamp, value]; // Other series remain unchanged
+          });
+      }
+  });
+}
+
+
 
 
 
@@ -405,11 +469,11 @@ getDateMinusDaysInHST(days: number, id: string): string {
   }
 
   ngOnDestroy(): void {
-    console.log('Dashboard chart component destroyed. Clearing refresh timer and canceling HTTP requests.');
     this.isDestroyed = true; // Prevent further updates
     clearTimeout(this.refreshTimeout); // Stop the periodic updates
     this.destroy$.next(); // Emit value to cancel HTTP requests
     this.destroy$.complete(); // Complete the Subject
+    this.unitSubscription.unsubscribe();
   }
 
 
