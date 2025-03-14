@@ -13,6 +13,12 @@
                     <div class="graph-content">
                         <div class="graph-header">
                             <app-duration-selector></app-duration-selector>
+                            <div class="unit-toggle">
+                                <button (click)="toggleUnit()">
+                                    Switch to {{ selectedUnit === 'imperial' ? 'Metric' : 'Imperial' }}
+                                </button>
+                            </div>
+
                             <div class="cumulative-info">
                                 <div id="borderLeft"></div>
                                 <p class="cumulative-label">{{ duration }} Total Rainfall</p>
@@ -45,30 +51,37 @@
                         <div class="data-ele">
                             <div class="data-content">
                                 <div class="title">24-Hour Rainfall</div>
-                                <div class="index">{{ variables['Rainfall'] || 'N/A' }}<span class="unit"> in</span></div>
-                            </div>
-                        </div>
-                        <div class="data-ele">
-                            <div class="data-content">
-                                <div class="title">Temperature</div>
-                                <div class="index">{{ variables['Temperature'] || 'N/A' }}<span class="unit">&deg;F</span>
+                                <div class="index">{{ variables['Rainfall'] || 'N/A' }}
+                                    <span class="unit"> {{ selectedUnit === 'imperial' ? 'in' : 'mm' }}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="data-ele">
                             <div class="data-content">
+                                <div class="title">Temperature</div>
+                                <div class="index">{{ variables['Temperature'] || 'N/A' }}
+                                    <span class="unit"> &deg;{{ selectedUnit === 'imperial' ? 'F' : 'C' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="data-ele"> <!-- Moved inside .data-side-grid -->
+                            <div class="data-content">
                                 <div class="title">Wind Speed</div>
-                                <div class="index"> <span class="unit">{{ variables['Wind Direction'] || 'N/A' }}
-                                    </span>{{ variables['Wind Speed'] || 'N/A' }}<span class="unit"> mph</span>
+                                <div class="index">
+                                    <span class="unit">{{ variables['Wind Direction'] || 'N/A' }}</span>
+                                    {{ variables['Wind Speed'] || 'N/A' }}
+                                    <span class="unit"> {{ selectedUnit === 'imperial' ? 'mph' : 'm/s' }}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="data-ele">
                             <div class="data-content">
                                 <div class="title">Soil Moisture</div>
-                                <div class="index"><ng-container>
+                                <div class="index">
+                                    <ng-container>
                                         {{ variables['Soil Moisture'] || 'N/A'}}<span class="unit">%</span>
-                                    </ng-container></div>
+                                    </ng-container>
+                                </div>
                             </div>
                         </div>
                         <div class="data-ele">
@@ -76,8 +89,7 @@
                                 <div class="title">Solar Radiation</div>
                                 <div class="index-pbar">
                                     <ng-container>
-                                        {{ variables['Solar Radiation'] || 'N/A'}} <span
-                                            class="unit">W/m<sup>2</sup></span>
+                                        {{ variables['Solar Radiation'] || 'N/A'}} <span class="unit">W/m<sup>2</sup></span>
                                     </ng-container>
                                     <ng-template #noData>N/A</ng-template>
                                 </div>
@@ -92,15 +104,15 @@
                                         <p class="progress-label">1200 W/m²</p>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                         <div class="data-ele">
                             <div class="data-content">
                                 <div class="title">Relative Humidity</div>
-                                <div class="index-pbar">{{ variables['Relative Humidity'] !== undefined ? variables['Relative
-                                    Humidity']: 'N/A' }}<span class="unit">%</span></div>
-
+                                <div class="index-pbar">
+                                    {{ variables['Relative Humidity'] !== undefined ? variables['Relative Humidity']: 'N/A' }}
+                                    <span class="unit">%</span>
+                                </div>
                                 <div class="progress-container">
                                     <div class="progress-wrapper">
                                         <div class="progress custom-progress-bar">
@@ -111,14 +123,11 @@
                                         </div>
                                         <p class="progress-label">Max: 100%</p>
                                     </div>
-
                                 </div>
-
                             </div>
                         </div>
-                    </div>
-
-                </div>
+                    </div> <!-- Correctly closing .data-side-grid -->
+                </div> 
             </div>
         </div>
     </div>

@@ -17,7 +17,7 @@ import { DurationSelectorComponent } from '../duration-selector/duration-selecto
 import { aggregateService } from '../../services/aggregate.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-
+import { UnitService } from '../../services/unit.service';
 
 
 @Component({
@@ -67,12 +67,40 @@ export class DashboardComponent implements AfterViewInit {
 
   stationName: string = ''; 
 
+  selectedUnit: 'imperial' | 'metric' = 'imperial';
+
   constructor(private route: ActivatedRoute,
     private dataService: DataService,
     private datePipe: DatePipe,
-    private aggregateService: aggregateService ) {
+    private aggregateService: aggregateService,
+    private unitService: UnitService ) {
     Chart.register(...registerables);
+    this.unitService.selectedUnit$.subscribe((unit: 'imperial' | 'metric') => {
+      this.selectedUnit = unit;
+      this.convertUnits();
+    });
+
   }
+
+  toggleUnit() {
+    const newUnit = this.selectedUnit === 'imperial' ? 'metric' : 'imperial';
+    this.unitService.setUnit(newUnit);
+  }
+
+  convertUnits() {
+    const getValue = (val: string | null): number => (val ? parseFloat(val) : 0);
+
+    if (this.selectedUnit === 'metric') {
+      this.variables['Temperature'] = (((getValue(this.variables['Temperature']) - 32) * 5) / 9).toFixed(1);
+      this.variables['Rainfall'] = (getValue(this.variables['Rainfall']) * 25.4).toFixed(2);
+      this.variables['Wind Speed'] = (getValue(this.variables['Wind Speed']) * 0.44704).toFixed(1);
+    } else {
+      this.variables['Temperature'] = ((getValue(this.variables['Temperature']) * 1.8) + 32).toFixed(1);
+      this.variables['Rainfall'] = (getValue(this.variables['Rainfall']) / 25.4).toFixed(2);
+      this.variables['Wind Speed'] = (getValue(this.variables['Wind Speed']) * 2.23694).toFixed(1);
+    }
+  }
+
 
   private variableMapping: { [key: string]: string } = {
     Rainfall: 'RF_1_Tot300s',
