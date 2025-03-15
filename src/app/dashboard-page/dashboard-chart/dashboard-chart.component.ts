@@ -106,8 +106,7 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
         step: 1,
         rotation: 0 //315
       },
-      tickInterval: this.selectedDuration === '3d' || this.selectedDuration === '7d' ? 24 * 3600 * 1000 : 6 * 3600 * 1000, // Adjust interval dynamically (6 hours for 3d/7d, 1 hour otherwise)
-
+      tickInterval: this.selectedDuration === '1' ? 6 * 3600 * 1000 : 24 * 3600 * 1000,
     },
     yAxis: [
       {
@@ -265,12 +264,25 @@ getConvertedData(): [number, number][][] {
 
   subscribeToDurationChanges(): void {
     this.durationService.selectedDuration$.subscribe((duration) => {
-      console.log('Duration changed to:', duration);
       this.isLoading = true; 
       this.selectedDuration = duration;
       if (this.id) {
         this.fetchData(this.id, duration);
       }
+      if (this.chartOptions && this.chartOptions.xAxis) {
+        // If xAxis is an array, modify the first element
+        if (Array.isArray(this.chartOptions.xAxis)) {
+           this.chartOptions.xAxis[0].tickInterval =
+              this.selectedDuration === '1' ? 6 * 3600 * 1000 : 24 * 3600 * 1000;
+        } else {
+           // Otherwise, modify it directly
+           (this.chartOptions.xAxis as Highcharts.XAxisOptions).tickInterval =
+              this.selectedDuration === '1' ? 6 * 3600 * 1000 : 24 * 3600 * 1000;
+        }
+     }
+     if (this.chartRef) {
+      this.chartRef.update({ xAxis: this.chartOptions.xAxis });
+   }
     });
   }
 
