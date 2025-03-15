@@ -12,11 +12,19 @@
                 <div class="graph-grid">
                     <div class="graph-content">
                         <div class="graph-header">
-                            <app-duration-selector></app-duration-selector>
-                            <div class="unit-toggle">
-                                <button (click)="toggleUnit()">
-                                    Switch to {{ selectedUnit === 'standard' ? 'Metric' : 'Standard' }}
-                                </button>
+                            <div class="graph-controls">
+                                <!-- Duration Selector -->
+                                <app-duration-selector></app-duration-selector>
+
+                                <!-- Unit Toggle (Now correctly below the duration selector) -->
+                                <div class="unit-toggle">
+                                    <span class="unit-option" [class.active]="selectedUnit === 'metric'">Metric</span>
+                                    <label class="switch">
+                                        <input type="checkbox" (change)="toggleUnit()">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="unit-option" [class.active]="selectedUnit === 'standard'">Standard</span>
+                                </div>
                             </div>
 
                             <div class="cumulative-info">
