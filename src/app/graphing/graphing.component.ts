@@ -13,6 +13,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatSelectChange } from '@angular/material/select';
 
+import { UnitService } from '../services/unit.service';
+import { Subscription } from 'rxjs';
+
 @Component({
   selector: 'app-graphing',
   standalone: true,
@@ -20,6 +23,7 @@ import { MatSelectChange } from '@angular/material/select';
   templateUrl: './graphing.component.html',
   styleUrl: './graphing.component.css'
 })
+
 export class GraphingComponent implements OnInit, AfterViewInit {
   stationId = '';
   selectedVariables: string[] = ['Tair_1_Avg'];
@@ -28,6 +32,8 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   isCollapsed = false;
   chart: Highcharts.Chart | null = null;
   isLoading = false;
+
+  private unitSubscription!: Subscription;
 
   variables = [
     { label: 'Air Temperature, Sensor 1', value: 'Tair_1_Avg', yAxisTitle: 'Temperature (°C)' },
@@ -71,7 +77,8 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   constructor(
     private route: ActivatedRoute,
     private graphingDataService: GraphingDataService,
-    private graphingMenuService: GraphingMenuService
+    private graphingMenuService: GraphingMenuService,
+    private unitService: UnitService
   ) {}
 
   ngOnInit(): void {
@@ -80,6 +87,16 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       console.log(`Initializing graph for station ID: ${this.stationId}`); 
       this.loadData();
     });
+    this.unitSubscription = this.unitService.selectedUnit$.subscribe(unit => {
+      this.selectedUnit = unit;
+    });
+  }
+
+  
+  ngOnDestroy(): void {
+    if (this.unitSubscription) {
+      this.unitSubscription.unsubscribe();
+    }
   }
 
 
@@ -114,8 +131,8 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   }
 
 
-  onUnitChange(event: MatSelectChange): void {
-    this.selectedUnit = event.value as 'metric' | 'standard'; 
+  onUnitChange(event: any): void {
+    this.unitService.setUnit(event.value);
   }
 
   updateChartButtonClick(): void {
@@ -328,6 +345,7 @@ formatData(data: any): Highcharts.SeriesOptionsType[] {
     } else {
       return this.variables.find(v => v.value === variable)?.yAxisTitle || variable;
     }
+    
   }
 
 
