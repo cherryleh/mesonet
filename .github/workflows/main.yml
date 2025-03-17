@@ -15,6 +15,7 @@ jobs:
       - name: Inject API token into environment.prod.ts
         run: |
           mkdir -p src/environments
+          API_TOKEN=$(echo '${{ secrets.API_CONFIG_JSON }}' | base64 -d)
           FIRST_TWO=${API_TOKEN:0:2}  # Get first 2 characters
           LAST_TWO=${API_TOKEN: -2}   # Get last 2 characters
           echo "API Token starts with: $FIRST_TWO****$LAST_TWO"
