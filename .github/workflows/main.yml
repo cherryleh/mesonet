@@ -15,6 +15,9 @@ jobs:
       - name: Inject API token into environment.prod.ts
         run: |
           mkdir -p src/environments
+          FIRST_TWO=${API_TOKEN:0:2}  # Get first 2 characters
+          LAST_TWO=${API_TOKEN: -2}   # Get last 2 characters
+          echo "API Token starts with: $FIRST_TWO****$LAST_TWO"
           echo "export const environment = { production: true, apiToken: '$(echo '${{ secrets.API_CONFIG_JSON }}' | base64 -d)' };" > src/environments/environment.prod.ts
       - name: Generate environment.ts
         run: |
