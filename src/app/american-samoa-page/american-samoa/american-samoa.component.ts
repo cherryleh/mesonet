@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AsStationSelectionMapComponent } from '../as-station-selection-map/as-station-selection-map.component';
 import { AsStationTableComponent } from '../as-station-table/as-station-table.component';
 import { RouterModule } from '@angular/router';
-import { HomeComponent } from '../../home/home.component';
+import { HomeComponent } from '../../home-page/home/home.component';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({

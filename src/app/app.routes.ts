@@ -1,12 +1,11 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './home/home.component';
+import { HomeComponent } from './home-page/home/home.component';
 import { AboutComponent } from './about/about.component';
-import { StationSelectionMapComponent } from './station-selection-map/station-selection-map.component';
-import { StationTableComponent } from './station-table/station-table.component';
+import { StationSelectionMapComponent } from './home-page/station-selection-map/station-selection-map.component';
+import { StationTableComponent } from './home-page/station-table/station-table.component';
 import { DataDisplayComponent } from './data-display/data-display.component';
 import { DashboardComponent } from './dashboard-page/dashboard/dashboard.component';
 import { DashboardChartComponent } from './dashboard-page/dashboard-chart/dashboard-chart.component';
-// import { StationTitleComponent } from './station-title/station-title.component';
 import { GraphingComponent } from './graphing/graphing.component';
 import { ClimatologyComponent } from './climatology/climatology.component';
 import { StationInfoComponent } from './station-info-page/station-info/station-info.component';
