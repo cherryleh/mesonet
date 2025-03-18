@@ -15,6 +15,7 @@ import { DataMapComponent } from './data-map/data-map.component';
 import { AmericanSamoaComponent } from './american-samoa-page/american-samoa/american-samoa.component'
 import { DiagnosticMapComponent } from './diagnostic-map/diagnostic-map.component';
 import { AcknowledgementsComponent } from './acknowledgements/acknowledgements.component';
+import { HowToCiteComponent } from './how-to-cite/how-to-cite.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent }, // Root route displays Home
@@ -34,5 +35,6 @@ export const routes: Routes = [
   { path: 'american-samoa', component: AmericanSamoaComponent},
   { path: 'diagnostic-map', component: DiagnosticMapComponent},
   { path: 'acknowledgements', component: AcknowledgementsComponent},
+  { path: 'how-to-cite', component: HowToCiteComponent},
   { path: '**', redirectTo: '' } // Wildcard route redirects to Home
 ];
