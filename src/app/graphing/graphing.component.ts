@@ -13,6 +13,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatSelectChange } from '@angular/material/select';
 
+import { UnitService } from '../services/unit.service'; // Adjust the path if necessary
+import { Subscription } from 'rxjs';
+
 @Component({
   selector: 'app-graphing',
   standalone: true,
@@ -24,10 +27,12 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   stationId = '';
   selectedVariables: string[] = ['Tair_1_Avg'];
   selectedDuration = '24h';
-  selectedUnit: 'metric' | 'standard' = 'metric';
   isCollapsed = false;
   chart: Highcharts.Chart | null = null;
   isLoading = false;
+
+  selectedUnit: string = 'metric'; 
+  private unitSubscription!: Subscription;
 
   variables = [
     { label: 'Air Temperature, Sensor 1', value: 'Tair_1_Avg', yAxisTitle: 'Temperature (°C)' },
@@ -71,7 +76,8 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   constructor(
     private route: ActivatedRoute,
     private graphingDataService: GraphingDataService,
-    private graphingMenuService: GraphingMenuService
+    private graphingMenuService: GraphingMenuService,
+    private unitService: UnitService
   ) {}
 
   ngOnInit(): void {
@@ -79,6 +85,10 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       this.stationId = params['id'] || 'default_station_id';
       console.log(`Initializing graph for station ID: ${this.stationId}`); 
       this.loadData();
+    });
+
+    this.unitSubscription = this.unitService.getUnit().subscribe(unit => {
+      this.selectedUnit = unit; // Update dropdown selection when unit changes
     });
   }
 
@@ -114,8 +124,15 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   }
 
 
-  onUnitChange(event: MatSelectChange): void {
-    this.selectedUnit = event.value as 'metric' | 'standard'; 
+  onUnitChange(event: any): void {
+    const newUnit = event.value;
+    this.unitService.setUnit(newUnit); // Update the unit in the service
+  }
+
+  ngOnDestroy(): void {
+    if (this.unitSubscription) {
+      this.unitSubscription.unsubscribe();
+    }
   }
 
   updateChartButtonClick(): void {

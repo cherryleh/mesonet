@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +12,8 @@ export class UnitService {
     this.unitSubject.next(unit);
   }
 
-  getUnit() {
-    return this.unitSubject.getValue();
+  getUnit(): Observable<string> { 
+    return this.unitSubject.asObservable(); // Ensure it returns an observable
   }
+
 }
