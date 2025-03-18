@@ -213,10 +213,10 @@ async fetchStationDetails(stationId: string): Promise<void> {
         const unitMapping: { [key: string]: string } = {
             "Tair_1_Avg": "°C",
             "Tsoil_1_Avg": "°C",
-            "SWin_1_Avg": "W/m²",
+            "SWin_1_Avg": " W/m²",
             "SM_1_Avg": "%",
-            "RF_1_Tot300s_24H": "mm",
-            "WS_1_Avg": "m/s",
+            "RF_1_Tot300s_24H": " mm",
+            "WS_1_Avg": " m/s",
             "WDrs_1_Avg": "°"
         };
 
@@ -241,11 +241,11 @@ async fetchStationDetails(stationId: string): Promise<void> {
                     const timestamp = variableData[stationId].timestamp;
 
                     if (!isNaN(numericValue)) {
-                        let formattedValue = `${numericValue.toFixed(1)} ${unitMapping[variable]}`;
+                        let formattedValue = `${numericValue.toFixed(1)}${unitMapping[variable]}`;
 
                         // Convert Soil Moisture to percentage
                         if (variable === "SM_1_Avg") {
-                            formattedValue = `${(numericValue * 100).toFixed(1)} ${unitMapping[variable]}`;
+                            formattedValue = `${(numericValue * 100).toFixed(1)}${unitMapping[variable]}`;
                         }
 
                         updatedDetails[variable.replace("_24H", "")] = formattedValue;
@@ -363,11 +363,11 @@ updateVariable(event: Event): void {
     this.fetchStationData(); 
 }
 
-  unitSystem: 'metric' | 'imperial' = 'metric';
+  unitSystem: 'metric' | 'standard' = 'metric';
   convertedDetails: { [key: string]: string } = {};
 
   toggleUnits(event: Event): void {
-      this.unitSystem = (event.target as HTMLInputElement).checked ? 'imperial' : 'metric';
+      this.unitSystem = (event.target as HTMLInputElement).checked ? 'standard' : 'metric';
       this.convertUnits();
   }
 
@@ -379,24 +379,31 @@ updateVariable(event: Event): void {
       // Convert temperature (°C ↔ °F)
       if (this.selectedStation.details['Tair_1_Avg']) {
           const tempC = parseFloat(this.selectedStation.details['Tair_1_Avg']);
-          this.convertedDetails['Tair_1_Avg'] = this.unitSystem === 'imperial' 
-              ? `${((tempC * 9/5) + 32).toFixed(1)} °F` 
-              : `${tempC.toFixed(1)} °C`;
+          this.convertedDetails['Tair_1_Avg'] = this.unitSystem === 'standard' 
+              ? `${((tempC * 9/5) + 32).toFixed(1)}°F` 
+              : `${tempC.toFixed(1)}°C`;
       }
 
       if (this.selectedStation.details['Tsoil_1_Avg']) {
           const tempC = parseFloat(this.selectedStation.details['Tsoil_1_Avg']);
-          this.convertedDetails['Tsoil_1_Avg'] = this.unitSystem === 'imperial' 
-              ? `${((tempC * 9/5) + 32).toFixed(1)} °F` 
-              : `${tempC.toFixed(1)} °C`;
+          this.convertedDetails['Tsoil_1_Avg'] = this.unitSystem === 'standard' 
+              ? `${((tempC * 9/5) + 32).toFixed(1)}°F` 
+              : `${tempC.toFixed(1)}°C`;
       }
 
       // Convert rainfall (mm ↔ inches)
       if (this.selectedStation.details['RF_1_Tot300s']) {
           const rainMM = parseFloat(this.selectedStation.details['RF_1_Tot300s']);
-          this.convertedDetails['RF_1_Tot300s'] = this.unitSystem === 'imperial' 
+          this.convertedDetails['RF_1_Tot300s'] = this.unitSystem === 'standard'
               ? `${(rainMM / 25.4).toFixed(2)} in` 
               : `${rainMM.toFixed(1)} mm`;
+      }
+
+      if (this.selectedStation.details['WS_1_Avg']) {
+          const windMS = parseFloat(this.selectedStation.details['WS_1_Avg']);
+          this.convertedDetails['WS_1_Avg'] = this.unitSystem === 'standard' 
+              ? `${(windMS * 2.23694).toFixed(2)} mph` 
+              : `${windMS.toFixed(1)} m/s`;
       }
   }
 

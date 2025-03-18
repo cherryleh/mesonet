@@ -32,7 +32,7 @@
                 <input type="checkbox" (change)="toggleUnits($event)">
                 <span class="slider"></span>
             </label>
-            <span class="unit-option" [class.active]="unitSystem === 'imperial'">Standard</span>
+            <span class="unit-option" [class.active]="unitSystem === 'standard'">Standard</span>
         </div>
 
         <div class="station-details" *ngIf="selectedStation.details; else loadingData">
@@ -58,7 +58,7 @@
             </div>
             <div class="data-row">
                 <span>Wind Speed:</span>
-                <strong>{{ selectedStation.details['WS_1_Avg'] || 'No Data' }}</strong>
+                <strong>{{ convertedDetails['WS_1_Avg'] || 'No Data' }}</strong>
             </div>
             <div class="data-row">
                 <span>Wind Direction:</span>
