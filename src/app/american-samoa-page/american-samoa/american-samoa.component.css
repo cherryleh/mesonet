@@ -90,3 +90,23 @@
   .collapsed:hover .preview-label {
     background-color: #0056b3;
   }
+
+  .nav-button {
+    display: flex;
+    justify-content: center; /* Centers buttons horizontally */
+    align-items: center; /* Aligns buttons vertically */
+    gap: 10px; /* Adds spacing between buttons */
+    margin: 15px;
+  }
+  
+  
+  
+  .custom-blue-button {
+    background-color: #1E88E5 !important; /* Custom blue */
+    color: white !important;
+    font-size: 20px;
+  }
+  
+  .custom-blue-button:hover {
+    background-color: #1565C0 !important; /* Darker blue */
+  }

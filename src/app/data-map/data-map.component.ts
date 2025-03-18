@@ -281,7 +281,11 @@ async fetchStationDetails(stationId: string): Promise<void> {
 
 private getColorFromValue(value: number, min: number, max: number): string {
   const normalizedValue = (value - min) / (max - min);
-  return interpolateViridis(normalizedValue); 
+  return this.selectedVariable === "RF_1_Tot300s" || this.selectedVariable === "SM_1_Avg"
+  ? interpolateViridis(normalizedValue) // Keep normal for Rainfall
+  : interpolateViridis(1 - normalizedValue); // Reverse for other variables
+
+
 }
 
   ngAfterViewInit(): void {
@@ -341,7 +345,7 @@ private getColorFromValue(value: number, min: number, max: number): string {
         const gradientDiv = document.getElementById("legend-gradient");
         if (gradientDiv) {
             gradientDiv.style.background = `linear-gradient(to right, 
-                ${this.selectedVariable === "RF_1_Tot300s_24H"
+                ${this.selectedVariable === "RF_1_Tot300s_24H" || this.selectedVariable === "SM_1_Avg"
                     ? `${interpolateViridis(1)}, ${interpolateViridis(0.75)}, ${interpolateViridis(0.5)}, ${interpolateViridis(0.25)}, ${interpolateViridis(0)}`
                     : `${interpolateViridis(0)}, ${interpolateViridis(0.25)}, ${interpolateViridis(0.5)}, ${interpolateViridis(0.75)}, ${interpolateViridis(1)}`
                 })`;
