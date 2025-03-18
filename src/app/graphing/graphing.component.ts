@@ -13,9 +13,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatSelectChange } from '@angular/material/select';
 
-import { UnitService } from '../services/unit.service';
-import { Subscription } from 'rxjs';
-
 @Component({
   selector: 'app-graphing',
   standalone: true,
@@ -23,7 +20,6 @@ import { Subscription } from 'rxjs';
   templateUrl: './graphing.component.html',
   styleUrl: './graphing.component.css'
 })
-
 export class GraphingComponent implements OnInit, AfterViewInit {
   stationId = '';
   selectedVariables: string[] = ['Tair_1_Avg'];
@@ -32,8 +28,6 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   isCollapsed = false;
   chart: Highcharts.Chart | null = null;
   isLoading = false;
-
-  private unitSubscription!: Subscription;
 
   variables = [
     { label: 'Air Temperature, Sensor 1', value: 'Tair_1_Avg', yAxisTitle: 'Temperature (°C)' },
@@ -77,8 +71,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   constructor(
     private route: ActivatedRoute,
     private graphingDataService: GraphingDataService,
-    private graphingMenuService: GraphingMenuService,
-    private unitService: UnitService
+    private graphingMenuService: GraphingMenuService
   ) {}
 
   ngOnInit(): void {
@@ -87,16 +80,6 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       console.log(`Initializing graph for station ID: ${this.stationId}`); 
       this.loadData();
     });
-    this.unitSubscription = this.unitService.selectedUnit$.subscribe(unit => {
-      this.selectedUnit = unit;
-    });
-  }
-
-  
-  ngOnDestroy(): void {
-    if (this.unitSubscription) {
-      this.unitSubscription.unsubscribe();
-    }
   }
 
 
@@ -131,8 +114,8 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   }
 
 
-  onUnitChange(event: any): void {
-    this.unitService.setUnit(event.value);
+  onUnitChange(event: MatSelectChange): void {
+    this.selectedUnit = event.value as 'metric' | 'standard'; 
   }
 
   updateChartButtonClick(): void {
@@ -180,137 +163,133 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
     return dateMinusHours.toISOString().split('.')[0] + 'Z'; // 🔥 Fixes incorrect formatting
   }
+
+
   loadData(): void {
     if (!this.stationId) {
-        console.error('No station ID available. Cannot fetch data.');
-        return;
+      console.error('No station ID available. Cannot fetch data.'); // 🔥 Added Check
+      return;
     }
 
     this.isLoading = true;
     const days = this.getDaysFromDuration(this.selectedDuration);
     const startDate = this.getDateMinusDays(days);
 
-    console.log(`Fetching data for Station ID: ${this.stationId}, Duration: ${this.selectedDuration}, Start Date: ${startDate}`);
+    console.log(`Fetching data for Station ID: ${this.stationId}, Duration: ${this.selectedDuration}, Start Date: ${startDate}`); // 🔥 Debug Log
 
     this.graphingDataService.getData(this.stationId, this.selectedVariables.join(','), startDate).subscribe(
-        data => {
-            this.isLoading = false;
+      data => {
+        this.isLoading = false;
 
-            if (!data || data.length === 0) {
-                console.warn('No data received from API.');
+        if (!data || data.length === 0) {
+          console.warn('No data received from API. Clearing chart.');
+      
+          // Clear the chart if no data is available
+          if (this.chart) {
+            while (this.chart.series.length) {
+              this.chart.series[0].remove(false);
             }
-
-            let timezoneOffset = this.stationId.startsWith('1') ? 660 : 600; 
-            this.chart?.update({ time: { timezoneOffset } });
-
-            console.log(`Applying Timezone Offset: ${timezoneOffset} minutes`);
-
-            let formattedData = this.formatData(data);
-
-            // 🔥 Ensure the chart updates completely
-            this.updateChart(formattedData);
-        },
-        error => {
-            console.error('Error fetching data:', error);
-            this.isLoading = false;
+            this.chart.redraw();
+          }
+          return;
         }
+
+        let timezoneOffset = this.stationId.startsWith('1') ? 660 : 600;
+        this.chart?.update({ time: { timezoneOffset } });
+
+        console.log(`Applying Timezone Offset: ${timezoneOffset} minutes`);
+
+        this.updateChart(this.formatData(data));
+      },
+      error => {
+        console.error('Error fetching data:', error);
+        this.isLoading = false;
+    
+        // Clear the chart in case of an error
+        if (this.chart) {
+          while (this.chart.series.length) {
+            this.chart.series[0].remove(false);
+          }
+          this.chart.redraw();
+        }
+      }
     );
-}
+
+  }
 
 
   updateChart(seriesData: Highcharts.SeriesOptionsType[]): void {
-    if (!this.chart) return;
-
-    // 🔥 Forcefully remove all series before updating
-    while (this.chart.series.length > 0) {
+    if (this.chart) {
+      while (this.chart.series.length) {
         this.chart.series[0].remove(false);
-    }
-
-    // 🔥 Ensure Y-axis is reset properly
-    this.chart.yAxis.forEach(yAxis => {
-        yAxis.setTitle({ text: '' });
-    });
-
-    // 🔥 Handle "No Data" case properly
-    if (seriesData.length === 0) {
-        this.chart.showLoading('No Data Available');
-    } else {
-        this.chart.hideLoading();
-        seriesData.forEach(series => this.chart?.addSeries(series, false));
-    }
-
-    // 🔥 Force redraw to apply updates
-    setTimeout(() => this.chart?.redraw(), 10);
-}
-
-formatData(data: any): Highcharts.SeriesOptionsType[] {
-  if (!data || data.length === 0) return [];
-
-  let nonRainfallIndex = 0;
-  let formattedData: Highcharts.SeriesOptionsType[] = [];
-
-  this.selectedVariables.forEach((variable, index) => {
-      const variableData: [number, number | null][] = [];
-
-      const filteredData = data
-          .filter((item: any) => item.variable === variable)
-          .map((item: any): [number, number | null] => {
-              const timestamp = new Date(item.timestamp).getTime();
-              let value: number | null = parseFloat(item?.value || '');
-
-              if (item?.flag !== 0 || isNaN(value)) {
-                  value = null;
-              } else {
-                  value = this.convertValue(variable, value);
-              }
-
-              return [timestamp, value];
-          })
-          .sort((a: [number, number | null], b: [number, number | null]) => a[0] - b[0]);
-
-      if (filteredData.length === 0) {
-          // 🔥 Add "No Data" series with empty points
-          formattedData.push({
-              type: 'line',
-              name: `No Data (${this.getYAxisLabel(variable)})`,
-              data: [[Date.now(), null]], // Ensures the chart renders
-              color: '#808080',
-              dashStyle: 'Dash',
-              marker: { enabled: false },
-              showInLegend: true
-          });
-      } else {
-          for (let i = 0; i < filteredData.length - 1; i++) {
-              const [currentTime, currentValue] = filteredData[i];
-              const [nextTime] = filteredData[i + 1];
-              variableData.push([currentTime, currentValue]);
-
-              if (nextTime - currentTime > 5 * 60 * 1000) {
-                  variableData.push([currentTime + 1, null]);
-              }
-          }
-
-          if (filteredData.length > 0) {
-              variableData.push(filteredData[filteredData.length - 1]);
-          }
-
-          let assignedColor = variable === 'RF_1_Tot300s' ? '#3498DB' : this.getSelectionColor(nonRainfallIndex++);
-
-          formattedData.push({
-              type: variable === 'RF_1_Tot300s' ? 'column' : 'line',
-              name: this.getYAxisLabel(variable),
-              data: variableData,
-              yAxis: index,
-              zIndex: variable === 'RF_1_Tot300s' ? 0 : 1,
-              color: assignedColor,
-              connectNulls: false
-          });
       }
-  });
 
-  return formattedData;
-}
+      const yAxisLabels = this.selectedVariables.map(variable => this.getYAxisLabel(variable));
 
+      if (this.chart.yAxis[0]) {
+        this.chart.yAxis[0].setTitle({ text: yAxisLabels[0] || 'Primary Axis' });
+      }
+      if (this.chart.yAxis[1]) {
+        this.chart.yAxis[1].setTitle({ text: this.selectedVariables.length > 1 ? yAxisLabels[1] : '' });
+      }
+      if (this.chart.yAxis[2]) {
+        this.chart.yAxis[2].setTitle({ text: this.selectedVariables.length > 2 ? yAxisLabels[2] : '' });
+      }
+
+      seriesData.forEach(series => this.chart?.addSeries(series, false));
+      this.chart?.redraw();
+    }
+  }
+
+  formatData(data: any): Highcharts.SeriesOptionsType[] {
+    if (!data || data.length === 0) return [];
+    let nonRainfallIndex = 0;
+
+    return this.selectedVariables.map((variable, index) => {
+      const variableData: [number, number | null][] = [];
+      const filteredData = data
+        .filter((item: any) => item.variable === variable)
+        .map((item: any): [number, number | null] => {
+          const timestamp = new Date(item.timestamp).getTime();
+          let value: number | null = parseFloat(item?.value || '');
+
+          if (item?.flag !== 0 || isNaN(value)) {
+            value = null;
+          } else {
+            value = this.convertValue(variable, value); // ✅ Convert values based on unit
+          }
+
+          return [timestamp, value];
+        })
+        .sort((a: [number, number | null], b: [number, number | null]) => a[0] - b[0]);
+
+      for (let i = 0; i < filteredData.length - 1; i++) {
+        const [currentTime, currentValue] = filteredData[i];
+        const [nextTime] = filteredData[i + 1];
+        variableData.push([currentTime, currentValue]);
+
+        if (nextTime - currentTime > 5 * 60 * 1000) {
+          variableData.push([currentTime + 1, null]);
+        }
+      }
+
+      if (filteredData.length > 0) {
+        variableData.push(filteredData[filteredData.length - 1]);
+      }
+
+      let assignedColor = variable === 'RF_1_Tot300s' ? '#3498DB' : this.getSelectionColor(nonRainfallIndex++);
+
+      return {
+        type: variable === 'RF_1_Tot300s' ? 'column' : 'line',
+        name: this.getYAxisLabel(variable),
+        data: variableData,
+        yAxis: index,
+        zIndex: variable === 'RF_1_Tot300s' ? 0 : 1,
+        color: assignedColor,
+        connectNulls: false,
+      };
+    });
+  }
 
 
   getSelectionColor(nonRainfallIndex: number): string {
@@ -345,7 +324,6 @@ formatData(data: any): Highcharts.SeriesOptionsType[] {
     } else {
       return this.variables.find(v => v.value === variable)?.yAxisTitle || variable;
     }
-    
   }
 
 
