@@ -10,11 +10,11 @@ import { GraphingComponent } from './graphing/graphing.component';
 import { ClimatologyComponent } from './climatology/climatology.component';
 import { StationInfoComponent } from './station-info-page/station-info/station-info.component';
 import { ReportsComponent } from './reports/reports.component';
-import { AcknowledgementsComponent } from './acknowledgements/acknowledgements.component';
 import { ReportsDraftComponent } from './reports-draft/reports-draft.component';
 import { DataMapComponent } from './data-map/data-map.component';
 import { AmericanSamoaComponent } from './american-samoa-page/american-samoa/american-samoa.component'
 import { DiagnosticMapComponent } from './diagnostic-map/diagnostic-map.component';
+import { AcknowledgementsComponent } from './acknowledgements/acknowledgements.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent }, // Root route displays Home
@@ -33,5 +33,6 @@ export const routes: Routes = [
   { path: 'data-map', component: DataMapComponent},
   { path: 'american-samoa', component: AmericanSamoaComponent},
   { path: 'diagnostic-map', component: DiagnosticMapComponent},
+  { path: 'acknowledgements', component: AcknowledgementsComponent},
   { path: '**', redirectTo: '' } // Wildcard route redirects to Home
 ];
