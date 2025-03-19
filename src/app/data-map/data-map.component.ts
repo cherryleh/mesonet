@@ -217,7 +217,7 @@ async fetchStationDetails(stationId: string): Promise<void> {
             "SM_1_Avg": "%",
             "RF_1_Tot300s_24H": " mm",
             "WS_1_Avg": " m/s",
-            "WDrs_1_Avg": "°"
+            "WDrs_1_Avg": ""
         };
 
         let updatedDetails: { [key: string]: string } = { ...this.selectedStation.details };
@@ -270,6 +270,7 @@ async fetchStationDetails(stationId: string): Promise<void> {
         this.selectedStation.details = { ...updatedDetails };
         this.selectedStation.detailsTimestamp = latestTimestamp ? this.formatTimestamp(latestTimestamp) : "No Timestamp";
         this.convertedDetails = { ...updatedDetails };
+        console.log("Updated station details:", this.selectedStation.details);
 
         this.convertUnits(); // Convert to selected units
         this.cdr.detectChanges(); // Ensure UI refresh
@@ -375,6 +376,17 @@ updateVariable(event: Event): void {
       this.convertUnits();
   }
 
+  windDirectionToCardinal(degrees: number): string {
+    const directions = [
+      "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+      "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW", "N"
+    ];
+  
+    const index = Math.round(degrees / 22.5) % 16;
+    console.log('Wind direction index:', index);
+    return directions[index];
+  }
+
   convertUnits(): void {
       if (!this.selectedStation?.details) return;
 
@@ -409,6 +421,10 @@ updateVariable(event: Event): void {
               ? `${(windMS * 2.23694).toFixed(2)} mph` 
               : `${windMS.toFixed(1)} m/s`;
       }
+      if (this.selectedStation.details['WDrs_1_Avg']) {
+        const windDegrees = parseFloat(this.selectedStation.details['WDrs_1_Avg']);
+        this.convertedDetails['WDrs_1_Avg'] = this.windDirectionToCardinal(windDegrees);
+    }
   }
 
 

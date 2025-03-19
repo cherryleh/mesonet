@@ -27,7 +27,7 @@ h1 {
 nav {
   display: flex;
   margin-left: auto;
-  gap: 15px;
+  gap: 20px;
   align-items: center; /* Ensures nav links are centered vertically */
 }
 

@@ -5,11 +5,11 @@
 
 #map {
   height: 800px;
-  width: 75%;
+  width: 80%;
 }
 
 .sidebar {
-  width: 25%;
+  width: 20% !important;
   background: white;
   padding: 15px;
   border-left: 2px solid #ccc;
