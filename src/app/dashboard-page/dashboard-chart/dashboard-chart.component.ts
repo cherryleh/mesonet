@@ -178,15 +178,11 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
                 return;
             }
 
-            console.log(`Initializing chart for ID: ${this.id}`);
-
             this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
             this.subscribeToDurationChanges();
             this.adjustChartHeight();
           
             this.isLoading = false; // Stop loading spinner
-
-            console.log('Dashboard chart initialized...');
             this.updateData(); // Start data fetch
             this.unitSubscription = this.unitService.selectedUnit$.subscribe(unit => {
               this.selectedUnit = unit;
@@ -200,8 +196,6 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
 }
 
 updateChartUnits() {
-  console.log(`Updating chart to ${this.selectedUnit} units`);
-
   if (this.chartRef && this.chartRef.series.length > 0) {
       const convertedDataArray = this.getConvertedData();
 
@@ -211,7 +205,6 @@ updateChartUnits() {
           }
       });
 
-      // Update Y-Axis labels dynamically
       this.chartRef.yAxis[0].setTitle({ text: this.selectedUnit === 'metric' ? 'Temperature (°C)' : 'Temperature (°F)' });
       this.chartRef.yAxis[1].setTitle({ text: this.selectedUnit === 'metric' ? 'Rainfall (mm)' : 'Rainfall (in)' });
 
@@ -292,15 +285,10 @@ getConvertedData(): [number, number][][] {
   }
 
   fetchData(id: string, duration: string): void {
-    console.log(`Fetching data for ID: ${id} with duration: ${duration}`);
-
     const startDate = this.getDateMinusDaysInHST(parseInt(duration), id);
-    console.log(`Start Date Calculated: ${startDate}`);
 
     this.dataService.getData(id, startDate).pipe(takeUntil(this.destroy$)).subscribe(
       (data: any[]) => {
-        console.log("Data received:", data);
-
         if (!data || data.length === 0) {
           console.error("No data received. Possible API issue.");
           this.isLoading = false;
@@ -331,10 +319,7 @@ getConvertedData(): [number, number][][] {
           }
         });
 
-        // 🛑 Perform Aggregation if Duration is 3 or 7 days 🛑
         if (duration === '3' || duration === '7') {
-          console.log("Aggregating data to hourly...");
-
           temperatureData = this.aggregateToHourly(temperatureData);
           rainfallData = this.aggregateToHourly(rainfallData, true); // Sum rainfall
           radData = this.aggregateToHourly(radData);
@@ -371,29 +356,19 @@ getConvertedData(): [number, number][][] {
         const meanSolarRad = radData.length > 0 ? radData.reduce((sum, point) => sum + point[1], 0) / radData.length : 0;
         this.aggregateService.updateMeanSolarRad(meanSolarRad);
 
-        console.log(`Total Rainfall: ${totalRainfall} in`);
-        console.log(`Mean Temperature: ${meanTemp.toFixed(2)} °F`);
-        console.log(`Min Temperature: ${minTemp.toFixed(2)} °F`);
-        console.log(`Max Temperature: ${maxTemp.toFixed(2)} °F`);
-        console.log(`Mean Solar Radiation: ${meanSolarRad.toFixed(2)} W/m²`);
-
         this.chartOptions.series = [
           { name: 'Temperature (°F)', data: temperatureData, yAxis: 0, type: 'line', color: '#41d68f', zIndex: 3 },
           { name: 'Rainfall (in)', data: rainfallData, yAxis: 1, type: 'column', color: '#769dff', maxPointWidth: 5, groupPadding: 0.05, pointPadding: 0.05 },
           { name: 'Solar Radiation (W/m²)', data: radData, yAxis: 2, type: 'line', color: '#f9b721', visible: false }
         ] as Highcharts.SeriesOptionsType[];
 
-        // Create or update the chart
         if (!this.chartRef) {
-          console.log("Creating new chart...");
           this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
         } else {
-          console.log("Updating existing chart...");
           this.chartRef.update(this.chartOptions, true, true);
         }
 
         this.isLoading = false;
-        console.log(`Timezone offset set to: ${timezoneOffset} minutes (ID: ${id})`);
       },
       error => {
         console.error('Error fetching data:', error);
@@ -433,7 +408,6 @@ getDateMinusDaysInHST(days: number, id: string): string {
 
   updateData(): void {
     if (this.isDestroyed || !this.id) {
-      console.log('Component is destroyed or no ID available. Stopping update.');
       return; // Exit if component is destroyed
     }
 

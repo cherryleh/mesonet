@@ -157,8 +157,6 @@ convertCtoF(value: number): number {
             (item: any) => item.variable === this.variableMapping[key]
           );
 
-          console.log(`Key: ${key}, Variable: ${this.variableMapping[key]}, Data:`, variableData);
-
           if (key === 'Temperature' && variableData) {
             const celsius = parseFloat(variableData.value);
             const fahrenheit = (celsius * 1.8) + 32;
@@ -220,7 +218,6 @@ convertCtoF(value: number): number {
     ];
   
     const index = Math.round(degrees / 22.5) % 16;
-    console.log('Wind direction index:', index);
     return directions[index];
   }
 
@@ -230,7 +227,6 @@ convertCtoF(value: number): number {
       return 'No timestamp available';
     }
 
-    // Extract time from timestamp string (HH:MM)
     const match = this.latestTimestamp.match(/T(\d{2}):(\d{2})/);
 
     if (!match) {
@@ -240,9 +236,8 @@ convertCtoF(value: number): number {
     let hours = parseInt(match[1], 10);
     let minutes = match[2];
 
-    // Convert 24-hour format to 12-hour AM/PM format
     const ampm = hours >= 12 ? 'PM' : 'AM';
-    const displayHours = hours % 12 || 12; // Convert 0 to 12 for AM case
+    const displayHours = hours % 12 || 12; 
 
     return `${displayHours}:${minutes} ${ampm}`;
   }
@@ -284,7 +279,6 @@ convertCtoF(value: number): number {
 
   queryData(): void {
     if (this.id) {
-      console.log('Fetching data for ID:', this.id);
       this.fetchData(this.id);
     } else {
       console.error('ID is not available to query data.');
@@ -293,17 +287,16 @@ convertCtoF(value: number): number {
 
   updateData(): void {
     if (this.isDestroyed || !this.id) {
-      console.log('Component is destroyed or no ID available. Stopping updates.');
       return; 
     }
 
-    this.queryData(); 
+    this.fetchData(this.id);  // Fetch new data and update latestTimestamp
 
-    clearTimeout(this.refreshTimeout); 
+    clearTimeout(this.refreshTimeout); // Clear previous timeout
 
     if (!this.isDestroyed) {
       this.refreshTimeout = setTimeout(() => {
-        this.updateData(); 
+        this.updateData();  // Recursive update
       }, this.refreshIntervalMS);
     }
   }
@@ -318,7 +311,6 @@ convertCtoF(value: number): number {
   }
 
   ngOnDestroy(): void {
-    console.log('Dashboard component destroyed. Clearing refresh timer and canceling HTTP requests.');
     this.isDestroyed = true; 
     clearTimeout(this.refreshTimeout);
     this.destroy$.next();
