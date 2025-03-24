@@ -51,6 +51,7 @@ export class DashboardComponent implements AfterViewInit {
   refreshIntervalMS = 300000;
   dataVariables: string[] = ['Rainfall', 'Temperature', 'Wind Speed', 'Wind Direction', 'Soil Moisture', 'Solar Radiation', 'Relative Humidity'];
 
+  lastUpdated: string = '';
 
   isCollapsed = false;
 
@@ -149,8 +150,10 @@ convertCtoF(value: number): number {
       next: (response) => {
         if (response.length > 0) {
           this.latestTimestamp = response[0].timestamp;
-          console.log('Latest Timestamp ',this.latestTimestamp )
+          console.log('Latest Timestamp ', this.latestTimestamp);
         }
+        this.lastUpdated = this.getFormattedTimestamp();
+        console.log('Formatted Timestamp ', this.lastUpdated);
 
         Object.keys(this.variableMapping).forEach((key) => {
           const variableData = response.find(
@@ -248,6 +251,7 @@ convertCtoF(value: number): number {
       this.id = params['id'];
       if (this.id) {
         this.fetchData(this.id);
+        this.updateData();
       }
     });
   }
@@ -291,14 +295,15 @@ convertCtoF(value: number): number {
     }
 
     this.fetchData(this.id);  // Fetch new data and update latestTimestamp
-
+    
     clearTimeout(this.refreshTimeout); // Clear previous timeout
 
-    if (!this.isDestroyed) {
-      this.refreshTimeout = setTimeout(() => {
-        this.updateData();  // Recursive update
-      }, this.refreshIntervalMS);
-    }
+    console.log('Setting refresh timer...');
+    this.refreshTimeout = setTimeout(() => {
+      console.log('Refresh'); 
+      this.updateData();
+    }, this.refreshIntervalMS);
+
   }
 
 
