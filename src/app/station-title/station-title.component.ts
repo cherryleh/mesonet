@@ -11,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class StationTitleComponent implements OnInit {
   stationName: string = ''; 
+  stationID: string = ''; 
   timestamp: string = '';
   id: string | null = null; 
 
@@ -35,7 +36,7 @@ export class StationTitleComponent implements OnInit {
       next: (response) => {
         if (response.length > 0) {
           this.stationName = response[0].name;
-          console.log('Station Name:', this.stationName);
+          this.stationID = response[0].station_id;
         }
       },
       error: (error) => {
