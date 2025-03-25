@@ -5,6 +5,10 @@
       <h1>Acknowledgements</h1>
       <p>The Hawai&#699;i Mesonet is grateful to the institutions, funding agencies, and individuals who have contributed to the success of
         this project.</p>
+        <div class="acknowledgement-section" *ngFor="let section of acknowledgements">
+          <h2>{{ section.title }}</h2>
+          <p>{{ section.content }}</p>
+        </div>
     </div>
   </div>
 </div>

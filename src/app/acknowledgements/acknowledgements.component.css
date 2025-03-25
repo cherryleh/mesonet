@@ -1,5 +1,5 @@
 .acknowledgements-container {
-  max-width: 1100px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 40px 20px;
   text-align: center;
@@ -15,4 +15,31 @@
     color: #333;
   }
 
+  .acknowledgement-section {
+    margin: 30px 0;
+    padding: 20px;
+    border-left: 5px solid #006699;
+    background: #f9f9f9;
+    text-align: left;
+
+    h2 {
+      color: #006699;
+      margin-bottom: 10px;
+    }
+  }
+
+  .footer {
+    margin-top: 40px;
+    font-size: 0.9rem;
+
+    a {
+      color: #006699;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  }
 }
