@@ -13,7 +13,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatSelectChange } from '@angular/material/select';
 
-import { UnitService } from '../services/unit.service'; // Adjust the path if necessary
+import { UnitService } from '../services/unit.service'; 
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -175,16 +175,27 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   }
 
   getDateMinusDays(days: number): string {
-    const currentDate = new Date();
-    const dateMinusHours = new Date(currentDate.getTime() - (days * 24 * 60 * 60 * 1000));
+    const now = new Date();
 
-    return dateMinusHours.toISOString().split('.')[0] + 'Z'; // 🔥 Fixes incorrect formatting
+    const dateMinusDays = new Date(now.getTime() - (days * 24 * 60 * 60 * 1000));
+
+    const year = dateMinusDays.getFullYear();
+    const month = String(dateMinusDays.getMonth() + 1).padStart(2, '0');
+    const day = String(dateMinusDays.getDate()).padStart(2, '0');
+    const hour = String(dateMinusDays.getHours()).padStart(2, '0');
+    const minute = String(dateMinusDays.getMinutes()).padStart(2, '0');
+    const second = String(dateMinusDays.getSeconds()).padStart(2, '0');
+
+    const result = `${year}-${month}-${day}T${hour}:${minute}:${second}-10:00`;
+    return result;
   }
+
+
 
 
   loadData(): void {
     if (!this.stationId) {
-      console.error('No station ID available. Cannot fetch data.'); // 🔥 Added Check
+      console.error('No station ID available. Cannot fetch data.'); 
       return;
     }
 
@@ -200,8 +211,6 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
         if (!data || data.length === 0) {
           console.warn('No data received from API. Clearing chart.');
-      
-          // Clear the chart if no data is available
           if (this.chart) {
             while (this.chart.series.length) {
               this.chart.series[0].remove(false);
@@ -221,8 +230,6 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       error => {
         console.error('Error fetching data:', error);
         this.isLoading = false;
-    
-        // Clear the chart in case of an error
         if (this.chart) {
           while (this.chart.series.length) {
             this.chart.series[0].remove(false);
@@ -273,7 +280,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
           if (item?.flag !== 0 || isNaN(value)) {
             value = null;
           } else {
-            value = this.convertValue(variable, value); // ✅ Convert values based on unit
+            value = this.convertValue(variable, value); 
           }
 
           return [timestamp, value];
