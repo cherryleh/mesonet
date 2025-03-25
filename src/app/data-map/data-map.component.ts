@@ -201,6 +201,7 @@ async fetchStationDetails(stationId: string): Promise<void> {
             "Tsoil_1_Avg": "Loading...",
             "RF_1_Tot300s": "Loading...",
             "SWin_1_Avg": "Loading...",
+            "RH_1_Avg": "Loading...",
             "SM_1_Avg": "Loading...",
             "WS_1_Avg": "Loading...",
             "WDrs_1_Avg": "Loading..."
@@ -208,12 +209,13 @@ async fetchStationDetails(stationId: string): Promise<void> {
         this.convertedDetails = { ...this.selectedStation.details };
         this.cdr.detectChanges(); // Ensure UI updates
 
-        const variableList = ["Tair_1_Avg", "Tsoil_1_Avg", "SWin_1_Avg", "SM_1_Avg", "RF_1_Tot300s_24H", "WS_1_Avg", "WDrs_1_Avg"];
+        const variableList = ["Tair_1_Avg", "Tsoil_1_Avg", "SWin_1_Avg", "RH_1_Avg", "SM_1_Avg", "RF_1_Tot300s_24H", "WS_1_Avg", "WDrs_1_Avg"];
         let latestTimestamp: string | null = null;
         const unitMapping: { [key: string]: string } = {
             "Tair_1_Avg": "°C",
             "Tsoil_1_Avg": "°C",
             "SWin_1_Avg": " W/m²",
+            "RH_1_Avg": "%",
             "SM_1_Avg": "%",
             "RF_1_Tot300s_24H": " mm",
             "WS_1_Avg": " m/s",
