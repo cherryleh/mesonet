@@ -283,13 +283,18 @@ async fetchStationDetails(stationId: string): Promise<void> {
 }
 
 private getColorFromValue(value: number, min: number, max: number): string {
-  const normalizedValue = (value - min) / (max - min);
-  return this.selectedVariable === "RF_1_Tot300s" || this.selectedVariable === "SM_1_Avg"
-  ? interpolateViridis(normalizedValue) // Keep normal for Rainfall
-  : interpolateViridis(1 - normalizedValue); // Reverse for other variables
-
-
-}
+    const normalizedValue = (value - min) / (max - min);
+  
+    // These variables are reversed (yellow for low, blue for high)
+    const reversedVariables = ["RF_1_Tot300s_24H", "RH_1_Avg", "SM_1_Avg"];
+  
+    const isReversed = reversedVariables.includes(this.selectedVariable);
+  
+    return isReversed
+      ? interpolateViridis(1 - normalizedValue)
+      : interpolateViridis(normalizedValue);
+  }
+  
 
   ngAfterViewInit(): void {
     this.map = L.map('map', {
@@ -348,7 +353,7 @@ private getColorFromValue(value: number, min: number, max: number): string {
         const gradientDiv = document.getElementById("legend-gradient");
         if (gradientDiv) {
             gradientDiv.style.background = `linear-gradient(to right, 
-                ${this.selectedVariable === "RF_1_Tot300s_24H" || this.selectedVariable === "SM_1_Avg"
+                ${this.selectedVariable === "RF_1_Tot300s_24H" || this.selectedVariable === "SM_1_Avg" || this.selectedVariable === "RH_1_Avg"
                     ? `${interpolateViridis(1)}, ${interpolateViridis(0.75)}, ${interpolateViridis(0.5)}, ${interpolateViridis(0.25)}, ${interpolateViridis(0)}`
                     : `${interpolateViridis(0)}, ${interpolateViridis(0.25)}, ${interpolateViridis(0.5)}, ${interpolateViridis(0.75)}, ${interpolateViridis(1)}`
                 })`;
