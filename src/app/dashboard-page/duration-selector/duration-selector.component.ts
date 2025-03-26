@@ -26,7 +26,6 @@ export class DurationSelectorComponent {
   };
 
   constructor(private durationService: DurationService) {
-    // Subscribe to changes in the service to update selectedDuration
     this.durationService.selectedDuration$.subscribe((duration) => {
       this.selectedDuration = duration;
     });

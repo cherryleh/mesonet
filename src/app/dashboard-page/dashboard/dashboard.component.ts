@@ -258,8 +258,8 @@ convertCtoF(value: number): number {
 
 
   ngOnInit(): void {
-    this.aggregateService.totalRainfall$.subscribe((totalRain: number) => {
-      this.totalRainfall = totalRain;
+    this.aggregateService.totalRainfall$.subscribe((totalRainfall: number) => {
+      this.totalRainfall = totalRainfall;
     });
     this.aggregateService.meanTemp$.subscribe((meanTemp: number) => {
       this.meanTemp = meanTemp;
