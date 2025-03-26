@@ -7,10 +7,17 @@ import { StationTitleComponent } from '../station-title/station-title.component'
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
+import { MatSelectModule } from '@angular/material/select';
+
+import { UnitService } from '../services/unit.service'; 
+import { Subscription } from 'rxjs';
+
 @Component({
   selector: 'app-climatology',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, SidebarComponent, StationTitleComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent, SidebarComponent, StationTitleComponent, MatFormFieldModule, FormsModule, MatSelectModule],
   templateUrl: './climatology.component.html',
   styleUrls: ['./climatology.component.css'],
 })
@@ -25,8 +32,9 @@ export class ClimatologyComponent implements OnInit {
   tminData: number[] = [];
   tmaxData: number[] = [];
   categories: string[] = []; // X-axis categories for months
-  isMetric: boolean = false;
 
+  selectedUnit: 'metric' | 'standard' = 'standard';
+  private unitSubscription!: Subscription;
 
   isCollapsed = false;
 
@@ -34,9 +42,13 @@ export class ClimatologyComponent implements OnInit {
     this.isCollapsed = collapsed;
   }
   
-  constructor(private http: HttpClient,private route: ActivatedRoute) {}
+  constructor(private http: HttpClient,private route: ActivatedRoute, private unitService: UnitService) {}
 
   ngOnInit(): void {
+    this.unitSubscription = this.unitService.getUnit().subscribe(unit => {
+      this.selectedUnit = unit as 'metric' | 'standard';
+    });
+
     this.route.queryParams.subscribe(params => {
       this.stationId = params['id'] || 'default_station_id';
       this.loadCSVData(this.stationId);
@@ -87,7 +99,7 @@ export class ClimatologyComponent implements OnInit {
       if (columns.length <= monthIndex) return;
 
       const month = columns[monthIndex];
-      const rf = parseFloat(this.isMetric ? columns[rf_mm] : columns[rf_in]);
+      const rf = parseFloat(this.selectedUnit === 'metric' ? columns[rf_mm] : columns[rf_in]);
 
       if (!isNaN(rf)) {
         this.categories.push(month);
@@ -95,9 +107,9 @@ export class ClimatologyComponent implements OnInit {
       }
 
       if (hasTemperature) {
-        const tmean = parseFloat(this.isMetric ? columns[tmean_c] : columns[tmean_f]);
-        const tmin = parseFloat(this.isMetric ? columns[tmin_c] : columns[tmin_f]);
-        const tmax = parseFloat(this.isMetric ? columns[tmax_c] : columns[tmax_f]);
+        const tmean = parseFloat(this.selectedUnit === 'metric'  ? columns[tmean_c] : columns[tmean_f]);
+        const tmin = parseFloat(this.selectedUnit === 'metric'  ? columns[tmin_c] : columns[tmin_f]);
+        const tmax = parseFloat(this.selectedUnit === 'metric' ? columns[tmax_c] : columns[tmax_f]);
 
         if (!isNaN(tmean) && !isNaN(tmin) && !isNaN(tmax)) {
           this.tmeanData.push(tmean);
@@ -115,11 +127,11 @@ export class ClimatologyComponent implements OnInit {
     const series: Highcharts.SeriesOptionsType[] = [
       {
         type: 'column',
-        name: `Rainfall (${this.isMetric ? 'mm' : 'in'})`,
+        name: `Rainfall (${this.selectedUnit === 'metric' ? 'mm' : 'in'})`,
         data: this.rfData,
         yAxis: 0,
         tooltip: {
-          valueSuffix: this.isMetric ? ' mm' : ' in',
+          valueSuffix: this.selectedUnit === 'metric'  ? ' mm' : ' in',
         },
       },
     ];
@@ -127,10 +139,10 @@ export class ClimatologyComponent implements OnInit {
     const yAxis: Highcharts.YAxisOptions[] = [
       {
         labels: {
-          format: `{value} ${this.isMetric ? 'mm' : 'in'}`,
+          format: `{value} ${this.selectedUnit === 'metric'  ? 'mm' : 'in'}`,
         },
         title: {
-          text: `Rainfall (${this.isMetric ? 'mm' : 'in'})`,
+          text: `Rainfall (${this.selectedUnit === 'metric'  ? 'mm' : 'in'})`,
         },
         opposite: true,
       },
@@ -140,39 +152,39 @@ export class ClimatologyComponent implements OnInit {
       series.push(
         {
           type: 'line',
-          name: `Mean Temperature (${this.isMetric ? '°C' : '°F'})`,
+          name: `Mean Temperature (${this.selectedUnit === 'metric' ? '°C' : '°F'})`,
           data: this.tmeanData,
           yAxis: 1,
           tooltip: {
-            valueSuffix: this.isMetric ? ' °C' : ' °F',
+            valueSuffix: this.selectedUnit === 'metric' ? ' °C' : ' °F',
           },
         },
         {
           type: 'line',
-          name: `Minimum Temperature (${this.isMetric ? '°C' : '°F'})`,
+          name: `Minimum Temperature (${this.selectedUnit === 'metric' ? '°C' : '°F'})`,
           data: this.tminData,
           yAxis: 1,
           tooltip: {
-            valueSuffix: this.isMetric ? ' °C' : ' °F',
+            valueSuffix: this.selectedUnit === 'metric' ? ' °C' : ' °F',
           },
         },
         {
           type: 'line',
-          name: `Maximum Temperature (${this.isMetric ? '°C' : '°F'})`,
+          name: `Maximum Temperature (${this.selectedUnit === 'metric' ? '°C' : '°F'})`,
           data: this.tmaxData,
           yAxis: 1,
           tooltip: {
-            valueSuffix: this.isMetric ? ' °C' : ' °F',
+            valueSuffix: this.selectedUnit === 'metric' ? ' °C' : ' °F',
           },
         }
       );
 
       yAxis.push({
         title: {
-          text: `Temperature (${this.isMetric ? '°C' : '°F'})`,
+          text: `Temperature (${this.selectedUnit === 'metric' ? '°C' : '°F'})`,
         },
         labels: {
-          format: `{value} ${this.isMetric ? '°C' : '°F'}`,
+          format: `{value} ${this.selectedUnit === 'metric' ? '°C' : '°F'}`,
         },
       });
     }
@@ -212,8 +224,7 @@ export class ClimatologyComponent implements OnInit {
   }
 
 
-  toggleUnits(): void {
-    this.isMetric = !this.isMetric;
+  onUnitChange(): void {
     this.rfData = [];
     this.tmeanData = [];
     this.tminData = [];
@@ -221,4 +232,5 @@ export class ClimatologyComponent implements OnInit {
     this.categories = [];
     this.loadCSVData(this.stationId);
   }
+
 }
