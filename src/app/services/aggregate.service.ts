@@ -8,8 +8,26 @@ export class aggregateService {
   private totalRainfallSubject = new BehaviorSubject<number>(0);
   totalRainfall$ = this.totalRainfallSubject.asObservable();
 
-  private durationTextSubject = new BehaviorSubject<string>('');
+  private durationTextSubject = new BehaviorSubject<string>('24-hour');
   durationText$ = this.durationTextSubject.asObservable();
+
+  setDurationText(duration: string) {
+    let displayText = '';
+    switch (duration) {
+      case '24-hour':
+        displayText = '24-hour';
+        break;
+      case '3-day':
+        displayText = '3-day';
+        break;
+      case '7-day':
+        displayText = '7-day';
+        break;
+      default:
+        displayText = duration;
+    }
+    this.durationTextSubject.next(displayText);
+  }
 
   private meanTempSubject = new BehaviorSubject<number>(0);
   meanTemp$ = this.meanTempSubject.asObservable();

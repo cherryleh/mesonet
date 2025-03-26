@@ -276,6 +276,7 @@ convertCtoF(value: number): number {
 
     this.aggregateService.durationText$.subscribe((durationText: string) => {
       this.duration = durationText;
+      console.log('Duration Text: ', this.duration);
     });
 
     this.updateData();
