@@ -337,6 +337,40 @@ getConvertedData(): [number, number][][] {
           ];
         }
 
+        const maxRainfall = rainfallData.length > 0 ? Math.max(...rainfallData.map(point => point[1])) : 0;
+
+        const rainfallAxis: Highcharts.YAxisOptions = {
+          title: {
+            text: duration === '3' || duration === '7'
+              ? 'Hourly Rainfall (in)'
+              : '5-min Rainfall (in)'
+          },
+          opposite: true,
+          min: 0,
+          max: maxRainfall <= 0.02 ? 0.1 : undefined // 👈 this line stays
+        };
+
+        // Apply the full yAxis config
+        this.chartOptions.yAxis = [
+          {
+            title: {
+              text: duration === '3' || duration === '7'
+                ? 'Hourly Temperature (°F)'
+                : 'Temperature (°F)'
+            }
+          },
+          rainfallAxis,
+          {
+            title: {
+              text: duration === '3' || duration === '7'
+                ? 'Hourly Solar Radiation (W/m²)'
+                : 'Solar Radiation (W/m²)'
+            },
+            opposite: true,
+            min: 0
+          }
+        ];
+
         temperatureData.sort((a, b) => a[0] - b[0]);
         rainfallData.sort((a, b) => a[0] - b[0]);
         radData.sort((a, b) => a[0] - b[0]);
