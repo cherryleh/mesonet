@@ -35,12 +35,14 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   private unitSubscription!: Subscription;
 
   variables = [
-    { label: 'Air Temperature, Sensor 1', value: 'Tair_1_Avg', yAxisTitle: 'Temperature (°C)' },
-    { label: 'Air Temperature, Sensor 2', value: 'Tair_2_Avg', yAxisTitle: 'Temperature (°C)' },
+    { label: 'Air Temperature, Sensor 1', value: 'Tair_1_Avg', yAxisTitle: 'Temperature Sensor 1 (°C)' },
+    { label: 'Air Temperature, Sensor 2', value: 'Tair_2_Avg', yAxisTitle: 'Temperature Sensor 2 (°C)' },
     { label: 'Rainfall', value: 'RF_1_Tot300s', yAxisTitle: 'Rainfall (mm)' },
-    { label: 'Soil Moisture', value: 'SM_1_Avg', yAxisTitle: 'Soil Moisture (%)' },
-    { label: 'Relative Humidity, sensor 1', value: 'RH_1_Avg', yAxisTitle: 'Relative Humidity (%)' },
-    { label: 'Relative Humidity, sensor 2', value: 'RH_2_Avg', yAxisTitle: 'Relative Humidity (%)' },
+    { label: 'Soil Moisture, Sensor 1', value: 'SM_1_Avg', yAxisTitle: 'Soil Moisture Sensor 1 (%)' },
+    { label: 'Soil Moisture, Sensor 2', value: 'SM_2_Avg', yAxisTitle: 'Soil Moisture Sensor 2 (%)' },
+    { label: 'Soil Moisture, Sensor 3', value: 'SM_3_Avg', yAxisTitle: 'Soil Moisture Sensor 3 (%)' },
+    { label: 'Relative Humidity, Sensor 1', value: 'RH_1_Avg', yAxisTitle: 'Relative Humidity Sensor 1 (%)' },
+    { label: 'Relative Humidity, Sensor 2', value: 'RH_2_Avg', yAxisTitle: 'Relative Humidity Sensor 2 (%)' },
     { label: 'Incoming Shortwave Radiation', value: 'SWin_1_Avg', yAxisTitle: 'Incoming Shortwave Radiation (W/m²)' },
     { label: 'Outgoing Shortwave Radiation', value: 'SWout_1_Avg', yAxisTitle: 'Outgoing Shortwave Radiation (W/m²)' },
     { label: 'Incoming Longwave Radiation', value: 'LWin_1_Avg', yAxisTitle: 'Incoming Longwave Radiation (W/m²)' },
@@ -51,18 +53,18 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     { label: 'Albedo', value: 'Albedo_1_Avg', yAxisTitle: 'Albedo' },
     { label: 'Surface Temperature', value: 'Tsrf_1_Avg', yAxisTitle: 'Surface Temperature (°C)' },
     { label: 'Sky Temperature', value: 'Tsky_1_Avg', yAxisTitle: 'Sky Temperature (°C)' },
-    { label: 'Vapor Pressure', value: 'VP_1_Avg', yAxisTitle: 'Vapor Pressure (kPa)' },
-    { label: 'Vapor Pressure', value: 'VP_2_Avg', yAxisTitle: 'Vapor Pressure (kPa)' },
-    { label: 'Vapor pressure deficit, sensor 1', value: 'VPD_1_Avg', yAxisTitle: 'Vapor Pressure Deficit (kPa)' },
-    { label: 'Vapor pressure deficit, sensor 2', value: 'VPD_2_Avg', yAxisTitle: 'Vapor Pressure Deficit (kPa)' },
+    { label: 'Vapor Pressure, Sensor 1', value: 'VP_1_Avg', yAxisTitle: 'Vapor Pressure Sensor 1 (kPa)' },
+    { label: 'Vapor Pressure, Sensor 2', value: 'VP_2_Avg', yAxisTitle: 'Vapor Pressure Sensor 2 (kPa)' },
+    { label: 'Vapor pressure deficit, Sensor 1', value: 'VPD_1_Avg', yAxisTitle: 'Vapor Pressure Deficit Sensor 1 (kPa)' },
+    { label: 'Vapor pressure deficit, Sensor 2', value: 'VPD_2_Avg', yAxisTitle: 'Vapor Pressure Deficit Sensor 2 (kPa)' },
     { label: 'Wind Speed', value: 'WS_1_Avg', yAxisTitle: 'Wind Speed (m/s)' },
     { label: 'Wind Direction', value: 'WDrs_1_Avg', yAxisTitle: 'Wind Direction (°)' },
     { label: 'Pressure', value: 'P_1', yAxisTitle: 'Pressure (kPa)' },
     { label: 'Sea level pressure', value: 'Psl_1', yAxisTitle: 'Pressure (kPa)' },
-    { label: 'Soil Temperature, Sensor 1', value: 'Tsoil_1_Avg', yAxisTitle: 'Soil Temperature (°C)' },
-    { label: 'Soil Temperature, Sensor 2', value: 'Tsoil_2', yAxisTitle: 'Soil Temperature (°C)' },
-    { label: 'Soil Temperature, Sensor 3', value: 'Tsoil_3', yAxisTitle: 'Soil Temperature (°C)' },
-    { label: 'Soil Temperature, Sensor 4', value: 'Tsoil_4', yAxisTitle: 'Soil Temperature (°C)' },
+    { label: 'Soil Temperature, Sensor 1', value: 'Tsoil_1_Avg', yAxisTitle: 'Soil Temperature Sensor 1 (°C)' },
+    { label: 'Soil Temperature, Sensor 2', value: 'Tsoil_2', yAxisTitle: 'Soil Temperature Sensor 2 (°C)' },
+    { label: 'Soil Temperature, Sensor 3', value: 'Tsoil_3', yAxisTitle: 'Soil Temperature Sensor 3 (°C)' },
+    { label: 'Soil Temperature, Sensor 4', value: 'Tsoil_4', yAxisTitle: 'Soil Temperature Sensor 4 (°C)' },
     { label: 'Surface soil heat flux', value: 'SHFsrf_1_Avg', yAxisTitle: 'Surface Soil Heat Flux (W/m²)' },
     { label: 'Maximum Rainfall Intensity', value: 'RFint_1_Max', yAxisTitle: 'Maximum Rainfall Intensity (mm/hr)' },
   ];
@@ -70,7 +72,9 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   durations = [
     { label: 'Last 24 Hours', value: '24h' },
     { label: 'Last 7 Days', value: '7d' },
-    { label: 'Last 30 Days', value: '30d' }
+    { label: 'Last 30 Days', value: '30d' },
+    { label: 'Last 60 Days', value: '60d' },
+    { label: 'Last 90 Days', value: '90d' }
   ];
 
   constructor(
@@ -165,13 +169,19 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   }
 
   getTickInterval(): number {
-    return this.selectedDuration === '30d' ? 24 * 3600 * 1000 : 6 * 3600 * 1000;
+    if (this.selectedDuration === '90d') {
+      return 7 * 24 * 3600 * 1000; // 7 days in milliseconds
+    } else if (this.selectedDuration === '60d') {
+      return 5 * 24 * 3600 * 1000; // 5 days in milliseconds
+    } else if (this.selectedDuration === '30d') {
+      return 1 * 24 * 3600 * 1000; // 1 day
+    } else {
+      return 6 * 3600 * 1000; // 6 hours
+    }
   }
 
-
-
   getDaysFromDuration(duration: string): number {
-    return duration === '24h' ? 1 : duration === '7d' ? 7 : duration === '30d' ? 30 : 0;
+    return duration === '24h' ? 1 : duration === '7d' ? 7 : duration === '30d' ? 30 : duration === '60d' ? 60 : duration === '90d' ? 90 : 0;
   }
 
   getDateMinusDays(days: number): string {
@@ -322,7 +332,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   }
 
   convertValue(variable: string, value: number): number {
-    if (variable === 'SM_1_Avg') {
+    if (variable === 'SM_1_Avg'|| variable === 'SM_2_Avg' || variable === 'SM_3_Avg') {
       return value * 100; // Convert soil moisture to 0-100 scale
     }
 
