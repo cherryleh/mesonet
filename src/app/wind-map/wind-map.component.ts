@@ -50,22 +50,44 @@ export class WindMapComponent implements AfterViewInit {
   }
 
   private plotWindBarbs(data: any): void {
+    Object.entries(data).forEach(([id, entry]: [string, any]) => {
+      if (
+        entry == null ||
+        entry.lat == null ||
+        entry.lon == null ||
+        entry.value_WDrs == null
+      ) {
+        console.warn(`⚠️ Skipping entry ${id}:`, entry);
+      }
+    });
+
     Object.values(data).forEach((entry: any) => {
+      if (
+        entry == null ||
+        entry.lat == null ||
+        entry.lon == null ||
+        entry.value_WDrs == null
+      ) {
+        return;
+      }
+
       const lat = entry.lat;
       const lon = entry.lon;
       const direction = parseFloat(entry.value_WDrs);
-      const speed = entry.value_WS !== null ? parseFloat(entry.value_WS) : 0;
+      const speedMS = entry.value_WS !== null ? parseFloat(entry.value_WS) : 0;
+      const speedKnots = speedMS * 1.94384;
 
       if (!isNaN(lat) && !isNaN(lon) && !isNaN(direction)) {
-        const icon = L.WindBarb.icon({ deg: direction, speed: speed });
+        const icon = L.WindBarb.icon({ deg: direction, speed: speedKnots });
         L.marker([lat, lon], { icon: icon })
           .addTo(this.map)
           .bindPopup(`
             <p><strong>Wind Direction:</strong> ${direction}°</p>
-            <p><strong>Wind Speed:</strong> ${speed ?? 'N/A'}</p>
+            <p><strong>Wind Speed:</strong> ${speedMS.toFixed(2)} m/s (${speedKnots.toFixed(2)} knots)</p>
             <p><strong>Timestamp:</strong> ${entry.timestamp}</p>
           `);
       }
+
     });
   }
 
