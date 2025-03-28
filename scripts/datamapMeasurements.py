@@ -111,9 +111,7 @@ with open(rainfall_filename, "w") as json_file:
 
 stations_url = "https://api.hcdp.ikewai.org/mesonet/db/stations"
 measurements_url = "https://api.hcdp.ikewai.org/mesonet/db/measurements"
-header = {
-  "Authorization": "Bearer d61f6a26c81eae110839a7d91514c"
-}
+
 wind_data = {}
 
 # Get all stations
