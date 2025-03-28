@@ -12,15 +12,16 @@ declare var L: any;
 })
 export class WindMapComponent implements AfterViewInit {
   private map: any;
+  private windDataUrl = 'https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/wind.json';
 
   ngAfterViewInit(): void {
     this.waitForWindBarb().then(() => {
       this.initMap();
+      this.loadWindData();
     }).catch((err) => {
       console.error('WindBarb plugin did not load properly:', err);
     });
   }
-
 
   private initMap(): void {
     this.map = L.map('map', {
@@ -30,27 +31,48 @@ export class WindMapComponent implements AfterViewInit {
     });
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
-
-    const meteoPoints = [
-      [20.8415, -156.2948, 5, 190],
-      [21.905295, -159.510395, 30, 90],
-      [19.834341, -155.122435, 47, 170]
-    ];
-
-    meteoPoints.forEach(p => {
-      const icon = L.WindBarb.icon({ deg: p[3], speed: p[2] });
-      L.marker([p[0], p[1]], { icon: icon })
-        .addTo(this.map)
-        .bindPopup(`<p>Wind Speed: ${p[2]}</p><p>Wind Direction: ${p[3]}</p>`);
-    });
   }
 
+  private loadWindData(): void {
+    fetch(this.windDataUrl)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        this.plotWindBarbs(data);
+      })
+      .catch(error => {
+        console.error('Error loading wind data:', error);
+      });
+  }
+
+  private plotWindBarbs(data: any): void {
+    Object.values(data).forEach((entry: any) => {
+      const lat = entry.lat;
+      const lon = entry.lon;
+      const direction = parseFloat(entry.value_WDrs);
+      const speed = entry.value_WS !== null ? parseFloat(entry.value_WS) : 0;
+
+      if (!isNaN(lat) && !isNaN(lon) && !isNaN(direction)) {
+        const icon = L.WindBarb.icon({ deg: direction, speed: speed });
+        L.marker([lat, lon], { icon: icon })
+          .addTo(this.map)
+          .bindPopup(`
+            <p><strong>Wind Direction:</strong> ${direction}°</p>
+            <p><strong>Wind Speed:</strong> ${speed ?? 'N/A'}</p>
+            <p><strong>Timestamp:</strong> ${entry.timestamp}</p>
+          `);
+      }
+    });
+  }
 
   private waitForWindBarb(): Promise<void> {
     return new Promise((resolve, reject) => {
       const scriptId = 'leaflet-windbarb-js';
 
-      // If already loaded, just wait for it
       if ((window as any).L?.WindBarb) {
         console.log('✅ WindBarb already loaded');
         resolve();
@@ -72,5 +94,4 @@ export class WindMapComponent implements AfterViewInit {
       document.body.appendChild(script);
     });
   }
-
 }

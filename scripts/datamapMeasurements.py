@@ -126,7 +126,7 @@ for station in stations:
     lon = station.get("lng")
 
     # Query for wind direction and speed
-    wind_query = f"station_ids={station_id}&var_ids=WDrs_1_Avg,WS_1_Avg&limit=1"
+    wind_query = f"station_ids={station_id}&var_ids=WDrs_1_Avg,WS_1_Avg&limit=2"
     wind_url = f"{measurements_url}?{wind_query}"
 
     try:
