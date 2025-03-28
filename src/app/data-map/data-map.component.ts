@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, AfterViewInit, ChangeDetectorRef,ViewEncapsulation } from '@angular/core';
 import * as L from 'leaflet';
 import { CommonModule } from '@angular/common';
 import { environment } from "../../environments/environment";  
@@ -22,7 +22,8 @@ interface Measurement {
   standalone: true,
   imports: [CommonModule, HeaderComponent],
   templateUrl: './data-map.component.html',
-  styleUrl: './data-map.component.css'
+  styleUrl: './data-map.component.css',
+  encapsulation: ViewEncapsulation.None
 })
 
 export class DataMapComponent implements AfterViewInit {
@@ -34,6 +35,40 @@ export class DataMapComponent implements AfterViewInit {
   private measurementsUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii';
   private apiToken = environment.apiToken;
 
+  private async loadWindBarbPlugin(): Promise<void> {
+    if ((window as any).L?.WindBarb) {
+      console.log('✅ WindBarb already available on window.L');
+      return;
+    }
+  
+    return new Promise((resolve, reject) => {
+      const scriptId = 'leaflet-windbarb-js';
+  
+      if (document.getElementById(scriptId)) {
+        console.log('⚠️ WindBarb script already being loaded');
+        resolve();
+        return;
+      }
+  
+      const script = document.createElement('script');
+      script.id = scriptId;
+      script.src = 'assets/libs/leaflet-windbarb.js';
+      script.onload = () => {
+        console.log('✅ leaflet-windbarb.js loaded');
+        console.log('L.WindBarb:', (window as any).L?.WindBarb);  // 🔍 inspect this in console
+        if ((window as any).L?.WindBarb?.icon) {
+          resolve();
+        } else {
+          reject('⚠️ WindBarb script loaded but did not attach correctly to window.L');
+        }
+      };
+      script.onerror = () => reject('❌ Failed to load leaflet-windbarb.js');
+      document.body.appendChild(script);
+    });
+  }
+  
+
+  
   selectedVariable = "Tair_1_Avg"; 
   variableOptions = [
     { id: "Tair_1_Avg", name: "Air Temperature" },
@@ -42,8 +77,7 @@ export class DataMapComponent implements AfterViewInit {
     { id: "SM_1_Avg", name: "Soil Moisture" },
     { id: "SWin_1_Avg", name: "Solar Radiation" },
     { id: "Tsoil_1_Avg", name: "Soil Temperature" },
-    { id: "WS_1_Avg", name: "Wind Speed" },
-    { id: "WDrs_1_Avg", name: "Wind Direction" }
+    { id: "wind", name: "Wind" }
   ];
 
   selectedStation: any = null;
@@ -109,11 +143,18 @@ async fetchStationData(): Promise<void> {
             return;
         }
 
-        // Dynamically construct the URL based on the selected variable
         const dataUrl = `https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/${this.selectedVariable}.json`;
 
         console.log("Fetching data from:", dataUrl);
         
+        if (this.selectedVariable === 'wind') {
+            await this.loadWindBarbPlugin();  // Wait until script fully loads
+            await this.plotWindBarbs();       // Then safely use L.WindBarb
+            return;
+          }
+  
+
+          
         const variableData = await fetch(dataUrl)
             .then(res => res.json())
             .catch(error => {
@@ -188,6 +229,53 @@ async fetchStationData(): Promise<void> {
         console.error('Error fetching station data:', error);
     }
 }
+
+private async plotWindBarbs(): Promise<void> {
+    const windDataUrl = 'https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/wind.json';
+  
+    if (!(window as any).L?.WindBarb || typeof (window as any).L.WindBarb.icon !== 'function') {
+        console.error('❌ WindBarb plugin is not available or icon method is undefined.');
+        return;
+      }
+  
+  
+    try {
+      const response = await fetch(windDataUrl);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+  
+      this.map.eachLayer(layer => {
+        if (layer instanceof L.CircleMarker || layer instanceof L.Marker) {
+          this.map.removeLayer(layer);
+        }
+      });
+  
+      Object.values(data).forEach((entry: any) => {
+        if (!entry || entry.lat == null || entry.lon == null || entry.value_WDrs == null) return;
+  
+        const lat = entry.lat;
+        const lon = entry.lon;
+        const direction = parseFloat(entry.value_WDrs);
+        const speedMS = entry.value_WS !== null ? parseFloat(entry.value_WS) : 0;
+        const speedKnots = speedMS * 1.94384;
+  
+        if (!isNaN(lat) && !isNaN(lon) && !isNaN(direction)) {
+            const icon = (window as any).L.WindBarb.icon({ deg: direction, speed: speedKnots });
+          L.marker([lat, lon], { icon: icon })
+            .addTo(this.map)
+            .bindPopup(`
+              <p><strong>Wind Direction:</strong> ${direction}°</p>
+              <p><strong>Wind Speed:</strong> ${speedMS.toFixed(2)} m/s (${speedKnots.toFixed(2)} knots)</p>
+              <p><strong>Timestamp:</strong> ${entry.timestamp}</p>
+            `);
+        }
+      });
+    } catch (error) {
+      console.error('Error loading wind data:', error);
+    }
+  }
+  
+  
 
 async fetchStationDetails(stationId: string): Promise<void> {
     try {
