@@ -250,24 +250,38 @@ private async plotWindBarbs(): Promise<void> {
         }
       });
   
-      Object.values(data).forEach((entry: any) => {
+      Object.entries(data).forEach(([stationId, entry]: [string, any]) => {
         if (!entry || entry.lat == null || entry.lon == null || entry.value_WDrs == null) return;
   
         const lat = entry.lat;
         const lon = entry.lon;
         const direction = parseFloat(entry.value_WDrs);
         const speedMS = entry.value_WS !== null ? parseFloat(entry.value_WS) : 0;
-        const speedKnots = speedMS * 1.94384;
+        const speedKMH = speedMS * 3.6;
+
   
         if (!isNaN(lat) && !isNaN(lon) && !isNaN(direction)) {
-            const icon = (window as any).L.WindBarb.icon({ deg: direction, speed: speedKnots });
-          L.marker([lat, lon], { icon: icon })
-            .addTo(this.map)
-            .bindPopup(`
-              <p><strong>Wind Direction:</strong> ${direction}°</p>
-              <p><strong>Wind Speed:</strong> ${speedMS.toFixed(2)} m/s (${speedKnots.toFixed(2)} knots)</p>
-              <p><strong>Timestamp:</strong> ${entry.timestamp}</p>
-            `);
+            const icon = (window as any).L.WindBarb.icon({ deg: direction, speed: speedKMH });
+            const marker = L.marker([lat, lon], { icon: icon }).addTo(this.map);
+
+            marker.on('click', () => {
+              console.log("Clicked on wind station:", entry.station_id); // For debugging
+
+              this.selectedStation = {
+                name: entry.name || stationId || 'Unknown Station',
+                id: stationId,
+                lat: lat,
+                lng: lon,
+                value: `${speedKMH.toFixed(1)} km/h`,
+                variable: 'wind',
+                url: `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${stationId}`,
+                details: null
+              };
+
+              this.fetchStationDetails(stationId);
+
+            });
+
         }
       });
     } catch (error) {
@@ -400,6 +414,10 @@ private getColorFromValue(value: number, min: number, max: number): string {
   }
 
   private addLegend(minValue: number, maxValue: number): void {
+    if (this.selectedVariable === 'wind') {
+        return; // Skip legend for wind
+    }
+
     const existingLegend = document.querySelector(".info.legend");
     if (existingLegend) {
         existingLegend.remove();
@@ -454,14 +472,22 @@ private getColorFromValue(value: number, min: number, max: number): string {
 updateVariable(event: Event): void {
     this.selectedVariable = (event.target as HTMLSelectElement).value;
 
+    // Clear existing markers
     this.map.eachLayer(layer => {
-        if (layer instanceof L.CircleMarker) {
+        if (layer instanceof L.CircleMarker || layer instanceof L.Marker) {
             this.map.removeLayer(layer);
         }
     });
 
-    this.fetchStationData(); 
+    // Clear legend
+    const existingLegend = document.querySelector(".info.legend");
+    if (existingLegend) {
+        existingLegend.remove();
+    }
+
+    this.fetchStationData();
 }
+
 
   unitSystem: 'metric' | 'standard' = 'metric';
   convertedDetails: { [key: string]: string } = {};
