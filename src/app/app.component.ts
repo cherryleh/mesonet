@@ -2,6 +2,9 @@ import { Component, HostListener } from '@angular/core';
 import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import { UserAgreementComponent } from './user-agreement/user-agreement.component';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router'; // ✅ Import this
+
+declare let gtag: Function; // ✅ Needed for GA4 tracking if using gtag.js
 
 @Component({
   selector: 'app-root',
@@ -15,8 +18,20 @@ export class AppComponent {
   title = 'mesonet';
   showModal: boolean = false; 
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private route: ActivatedRoute) {
     this.showModal = localStorage.getItem('userAgreed') !== 'true';
+
+    this.route.queryParams.subscribe(params => {
+      const source = params['source'];
+      if (source === 'iframe') {
+        if (typeof gtag === 'function') {
+          gtag('event', 'iframe_view', {
+            event_category: 'Engagement',
+            event_label: 'App loaded in iframe',
+          });
+        }
+      }
+    });
 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
