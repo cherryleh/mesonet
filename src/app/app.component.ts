@@ -24,12 +24,20 @@ export class AppComponent {
     this.route.queryParams.subscribe(params => {
       const source = params['source'];
       if (source === 'iframe') {
-        if (typeof gtag === 'function') {
-          gtag('event', 'iframe_view', {
-            event_category: 'Engagement',
-            event_label: 'App loaded in iframe',
-          });
+        const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
+        if (source === 'iframe') {
+          console.log('App loaded via iframe');
+
+          if (typeof gtag === 'function') {
+            gtag('event', 'iframe_view', {
+              event_category: 'Engagement',
+              event_label: 'App loaded in iframe',
+              environment: isLocal ? 'development' : 'production', // 🔥 Custom param
+            });
+          }
         }
+
       }
     });
 
