@@ -12,10 +12,14 @@ export class StationDatesService {
   constructor(private http: HttpClient) {}
 
   getData(id: string): Observable<any> {
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${environment.apiToken}`); // Your API token here
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${environment.apiToken}`,
+      'X-Skip-Logging': 'true'  
+    });
     const locationParam = id.startsWith('1') ? '&location=american_samoa' : '&location=hawaii';
     const url = `${this.apiUrl}&station_ids=${id}${locationParam}`;
     console.log(url);
     return this.http.get<any>(url, { headers });
   }
+
 }

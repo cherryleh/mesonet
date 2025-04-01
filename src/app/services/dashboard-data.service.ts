@@ -22,11 +22,15 @@ export class DataService {
   }
 
   get24HourRainfall(id: string): Observable<any> {
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${environment.apiToken}`);
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${environment.apiToken}`,
+      'X-Skip-Logging': 'true' 
+    });
     const locationParam = id.startsWith('1') ? '&location=american_samoa' : '';
     const url = `${this.baseUrl}${this.rainfallUrl}&station_ids=${id}${locationParam}`;
     console.log('API request for 24-hour rainfall: ', url);
     return this.http.get<any>(url, { headers });
   }
+
 
 }
