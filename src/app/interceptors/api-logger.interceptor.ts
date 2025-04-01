@@ -12,7 +12,7 @@ export const apiLoggerInterceptor: HttpInterceptorFn = (
   const timestamp = new Date().toISOString();
 
   const logEntry = {
-    url: encodeURIComponent(req.urlWithParams),
+    url: req.urlWithParams,
     method: req.method,
     time: new Date().toISOString()
   };
