@@ -7,7 +7,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class ReportsService {
-  private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii&reverse=true&local_tz=True&var_ids=RF_1_Tot300s,Tair_1_Avg,SWin_1_Avg,SM_1_Avg,WS_1_Avg,RH_1_Avg&limit=1000000';
+  private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii&source=reports&reverse=true&local_tz=True&var_ids=RF_1_Tot300s,Tair_1_Avg,SWin_1_Avg,SM_1_Avg,WS_1_Avg,RH_1_Avg&limit=1000000';
 
   constructor(private http: HttpClient) {}
 

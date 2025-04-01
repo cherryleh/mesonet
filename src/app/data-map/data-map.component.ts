@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { environment } from "../../environments/environment";  
 import { interpolateViridis } from "d3-scale-chromatic";
 import { HeaderComponent } from '../header/header.component';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 interface Station {
   station_id: string;
@@ -28,16 +30,15 @@ interface Measurement {
 
 export class DataMapComponent implements AfterViewInit {
 
-    constructor(private cdr: ChangeDetectorRef) {}
+    constructor(private http: HttpClient,private cdr: ChangeDetectorRef) {}
 
   private map!: L.Map;
-  private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?reverse=True';
+  private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?reverse=True&source=data_map';
   private measurementsUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii';
   private apiToken = environment.apiToken;
 
   private async loadWindBarbPlugin(): Promise<void> {
     if ((window as any).L?.WindBarb) {
-      console.log('✅ WindBarb already available on window.L');
       return;
     }
   
@@ -133,10 +134,14 @@ formatTimestamp(timestamp: string): string {
 
 async fetchStationData(): Promise<void> {
     try {
-        const stations: Station[] = await fetch(this.apiUrl, {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
-        }).then(res => res.json());
+        const stations: Station[] = await firstValueFrom(
+            this.http.get<Station[]>(this.apiUrl, {
+              headers: {
+                Authorization: `Bearer ${this.apiToken}`,
+                'Content-Type': 'application/json'
+              }
+            })
+          );
 
         if (!stations || stations.length === 0) {
             console.warn("No station data received!");

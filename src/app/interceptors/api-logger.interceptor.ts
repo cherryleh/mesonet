@@ -18,7 +18,6 @@ export const apiLoggerInterceptor: HttpInterceptorFn = (
   };
 
   const excludedPatterns = [
-    '/db/stations', // exclude station metadata API
     '/climos'
   ];
 

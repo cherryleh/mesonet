@@ -12,7 +12,10 @@ export class DashboardChartService {
   constructor(private http: HttpClient) {}
 
   getData(id: string,start_date: string): Observable<any> {
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${environment.apiToken}`); // Your API token here
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${environment.apiToken}`,
+      'X-Skip-Logging': 'true' 
+    });
     const locationParam = id.startsWith('1') ? '&location=american_samoa' : '&location=hawaii';
     const url = `${this.apiUrl}&station_ids=${id}&start_date=${start_date}${locationParam}`;
     console.log('API request for dashboard chart: ',url);
