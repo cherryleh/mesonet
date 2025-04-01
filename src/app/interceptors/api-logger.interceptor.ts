@@ -3,7 +3,7 @@ import { HttpInterceptorFn } from '@angular/common/http';
 import { HttpRequest, HttpHandlerFn, HttpEvent } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
-const SHEETS_LOGGING_URL = 'https://script.google.com/a/macros/hawaii.edu/s/AKfycbxgMD73ajk1EicL3W5pVZD2CPxirquVvEq6GcV5HLls7j_weYLtymMsZ_wwH4Euso-9Lg/exec';
+const SHEETS_LOGGING_URL = 'https://script.google.com/macros/s/AKfycbxgMD73ajk1EicL3W5pVZD2CPxirquVvEq6GcV5HLls7j_weYLtymMsZ_wwH4Euso-9Lg/exec';
 
 export const apiLoggerInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
