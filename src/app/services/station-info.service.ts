@@ -12,7 +12,10 @@ export class StationDataService {
   constructor(private http: HttpClient) {}
 
   getStationData(id: string): Observable<any> {
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${environment.apiToken}`); // Your API token here
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${environment.apiToken}`,
+      'X-Skip-Logging': 'true' 
+    });
     const locationParam = id.startsWith('1') ? '&location=american_samoa' : '&location=hawaii';
     const url = `${this.apiUrl}&station_ids=${id}${locationParam}`;
     console.log('API request for station metadata: ',url);
