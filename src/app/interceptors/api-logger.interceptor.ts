@@ -17,9 +17,6 @@ export const apiLoggerInterceptor: HttpInterceptorFn = (
     time: new Date().toISOString()
   };
 
-  console.log('[API LOGGER] Intercepted request:', logEntry); // <-- now it will run
-
-
   const excludedPatterns = [
     '/db/stations', // exclude station metadata API
     '/climos'
@@ -28,7 +25,6 @@ export const apiLoggerInterceptor: HttpInterceptorFn = (
   const skipLogging = req.headers.has('X-Skip-Logging');
 
   const shouldLog = !skipLogging && !excludedPatterns.some(pattern => req.url.includes(pattern));
-  console.log('[API LOGGER] Final logEntry sent to Google Sheets:', logEntry);
   if (shouldLog) {
     fetch(SHEETS_LOGGING_URL, {
       method: 'POST',

@@ -183,7 +183,7 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
             this.adjustChartHeight();
           
             this.isLoading = false; // Stop loading spinner
-            this.updateData(); // Start data fetch
+            // this.updateData(); // Start data fetch
             this.unitSubscription = this.unitService.selectedUnit$.subscribe(unit => {
               this.selectedUnit = unit;
               this.updateChartUnits();

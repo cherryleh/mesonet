@@ -7,7 +7,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class DataService {
-  private baseUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements?local_tz=True';
+  private baseUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements?local_tz=True&source=dashboard';
   private defaultVars = '&var_ids=Tair_1_Avg,SWin_1_Avg,SM_1_Avg,WS_1_Avg,WDrs_1_Avg,RH_1_Avg&limit=7';
   private rainfallUrl = '&var_ids=RF_1_Tot300s&limit=288'; // 24-hour rainfall data (5 min intervals * 288 = 24 hours)
 

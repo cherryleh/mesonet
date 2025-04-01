@@ -249,7 +249,6 @@ convertCtoF(value: number): number {
       this.id = params['id'];
       if (this.id) {
         this.fetchData(this.id);
-        this.updateData();
       }
     });
   }
