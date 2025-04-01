@@ -9,12 +9,22 @@ export const apiLoggerInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
   next: HttpHandlerFn
 ): Observable<HttpEvent<any>> => {
-  const timestamp = new Date().toISOString();
+  
+  const formatToHST = () => {
+    return new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Pacific/Honolulu',
+      dateStyle: 'short',
+      timeStyle: 'medium',
+      hour12: false
+    }).format(new Date());
+  };
+
+  const timestamp = formatToHST();
 
   const logEntry = {
     url: req.urlWithParams,
     method: req.method,
-    time: new Date().toISOString()
+    time: timestamp
   };
 
   const excludedPatterns = [
