@@ -150,10 +150,8 @@ convertCtoF(value: number): number {
       next: (response) => {
         if (response.length > 0) {
           this.latestTimestamp = response[0].timestamp;
-          console.log('Latest Timestamp ', this.latestTimestamp);
         }
         this.lastUpdated = this.getFormattedTimestamp();
-        console.log('Formatted Timestamp ', this.lastUpdated);
 
         Object.keys(this.variableMapping).forEach((key) => {
           const variableData = response.find(
@@ -276,7 +274,6 @@ convertCtoF(value: number): number {
 
     this.aggregateService.durationText$.subscribe((durationText: string) => {
       this.duration = durationText;
-      console.log('Duration Text: ', this.duration);
     });
 
     this.updateData();
@@ -299,9 +296,7 @@ convertCtoF(value: number): number {
     
     clearTimeout(this.refreshTimeout); // Clear previous timeout
 
-    console.log('Setting refresh timer...');
     this.refreshTimeout = setTimeout(() => {
-      console.log('Refresh'); 
       this.updateData();
     }, this.refreshIntervalMS);
 

@@ -17,14 +17,17 @@ export const apiLoggerInterceptor: HttpInterceptorFn = (
     body: req.body
   };
 
-  // Send to Google Sheets Web App
+  console.log('[API LOGGER] Intercepted request:', logEntry); // <-- now it will run
+
   fetch(SHEETS_LOGGING_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(logEntry)
-  }).catch(err => console.error('Failed to log to Google Sheets:', err));
+    body: JSON.stringify(logEntry),
+    mode: 'no-cors' // 🛡️ Bypass browser CORS checks
+  })
+  .catch(err => console.error('[API LOGGER] Failed to log to Google Sheets:', err));
 
   return next(req).pipe(
     tap({
