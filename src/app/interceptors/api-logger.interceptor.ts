@@ -32,8 +32,12 @@ export const apiLoggerInterceptor: HttpInterceptorFn = (
   ];
 
   const skipLogging = req.headers.has('X-Skip-Logging');
+  const isLocalhost = window.location.hostname === 'localhost' ||
+                      window.location.hostname === '127.0.0.1' ||
+                      window.location.hostname === '';
 
-  const shouldLog = !skipLogging && !excludedPatterns.some(pattern => req.url.includes(pattern));
+  const shouldLog = !isLocalhost && !skipLogging && !excludedPatterns.some(pattern => req.url.includes(pattern));
+
   if (shouldLog) {
     fetch(SHEETS_LOGGING_URL, {
       method: 'POST',
@@ -41,7 +45,7 @@ export const apiLoggerInterceptor: HttpInterceptorFn = (
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(logEntry),
-      mode: 'no-cors'  // keep this for now
+      mode: 'no-cors'
     }).catch(err => console.error('[API LOGGER] Failed to log to Google Sheets:', err));
 
     console.log('[API LOGGER] Sent log to Google Sheets:', logEntry);
@@ -49,11 +53,10 @@ export const apiLoggerInterceptor: HttpInterceptorFn = (
     console.log('[API LOGGER] Skipped logging for:', req.url);
   }
 
-  
-
   return next(req).pipe(
     tap({
       error: err => console.error('API error:', err)
     })
   );
 };
+

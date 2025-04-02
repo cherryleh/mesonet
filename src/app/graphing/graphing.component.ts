@@ -213,9 +213,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     const days = this.getDaysFromDuration(this.selectedDuration);
     const startDate = this.getDateMinusDays(days);
 
-    console.log(`Fetching data for Station ID: ${this.stationId}, Duration: ${this.selectedDuration}, Start Date: ${startDate}`); // 🔥 Debug Log
-
-    this.graphingDataService.getData(this.stationId, this.selectedVariables.join(','), startDate).subscribe(
+    this.graphingDataService.getData(this.stationId, this.selectedVariables.join(','), startDate,this.selectedDuration).subscribe(
       data => {
         this.isLoading = false;
 
