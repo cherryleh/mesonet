@@ -11,11 +11,20 @@ export class GraphingDataService {
 
   constructor(private http: HttpClient) {}
 
-  getData(id: string, vars: string, start_date: string, duration: string): Observable<any> {
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${environment.apiToken}`); // Your API token here
+  getData(id: string, vars: string, start_date: string, duration: string, end_date?: string): Observable<any> {
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${environment.apiToken}`);
     const locationParam = id.startsWith('1') ? '&location=american_samoa' : '&location=hawaii';
-    const url = `${this.apiUrl}&station_ids=${id}&var_ids=${vars}&start_date=${start_date}${locationParam}&duration=${duration}`;
-    console.log('API request for graphing: ',url);
+
+    let url = `${this.apiUrl}&station_ids=${id}&var_ids=${vars}&start_date=${start_date}${locationParam}`;
+
+    if (end_date) {
+      url += `&end_date=${end_date}`;
+    } else {
+      url += `&duration=${duration}`;
+    }
+
+    console.log('API request for graphing: ', url);
     return this.http.get<any>(url, { headers });
   }
+
 }

@@ -12,7 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatSelectChange } from '@angular/material/select';
-import { MatDatepickerModule, MatDateRangeInput, MatDateRangePicker, MatDatepickerToggle } from '@angular/material/datepicker';
+import { MatDatepickerModule, MatDateRangeInput, MatDateRangePicker, MatDatepickerToggle, MatDatepickerInput } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { UnitService } from '../services/unit.service'; 
@@ -21,7 +21,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-graphing',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, SidebarComponent, StationTitleComponent, MatSelectModule,MatFormFieldModule, FormsModule,MatDateRangeInput, MatDateRangePicker,MatDatepickerToggle, MatDatepickerModule, MatNativeDateModule, MatInputModule],
+  imports: [CommonModule, RouterModule, HeaderComponent, SidebarComponent, StationTitleComponent, MatSelectModule,MatFormFieldModule, FormsModule,MatDateRangeInput, MatDateRangePicker,MatDatepickerToggle, MatDatepickerModule, MatNativeDateModule, MatInputModule,MatDatepickerInput],
   templateUrl: './graphing.component.html',
   styleUrl: './graphing.component.css'
 })
@@ -202,54 +202,103 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     return result;
   }
 
-
-
-
   loadData(): void {
     if (!this.stationId) {
-      console.error('No station ID available. Cannot fetch data.'); 
+      console.error('No station ID available. Cannot fetch data.');
       return;
     }
 
     this.isLoading = true;
-    const days = this.getDaysFromDuration(this.selectedDuration);
-    const startDate = this.getDateMinusDays(days);
 
-    this.graphingDataService.getData(this.stationId, this.selectedVariables.join(','), startDate,this.selectedDuration).subscribe(
+    let startDate: string;
+    let endDate: string;
+
+    if (this.isCustomRange && this.dateRange.start && this.dateRange.end) {
+      startDate = this.convertToApiTimestamp(this.dateRange.start);
+      endDate = this.convertToApiTimestamp(this.dateRange.end);
+      console.log('Using custom range:', { startDate, endDate });
+    } else {
+      const days = this.getDaysFromDuration(this.selectedDuration);
+      startDate = this.getDateMinusDays(days);
+      endDate = this.convertToApiTimestamp(new Date()); // use "now" as fallback end
+      console.log('Using duration range:', { startDate, endDate });
+    }
+
+    this.graphingDataService.getData(
+      this.stationId,
+      this.selectedVariables.join(','),
+      startDate,
+      this.selectedDuration,
+      endDate // ✅ Now always safely assigned
+    ).subscribe(
       data => {
         this.isLoading = false;
-
         if (!data || data.length === 0) {
-          console.warn('No data received from API. Clearing chart.');
-          if (this.chart) {
-            while (this.chart.series.length) {
-              this.chart.series[0].remove(false);
-            }
-            this.chart.redraw();
-          }
           return;
         }
 
-        let timezoneOffset = this.stationId.startsWith('1') ? 660 : 600;
+        const timezoneOffset = this.stationId.startsWith('1') ? 660 : 600;
         this.chart?.update({ time: { timezoneOffset } });
 
         console.log(`Applying Timezone Offset: ${timezoneOffset} minutes`);
-
         this.updateChart(this.formatData(data));
       },
       error => {
         console.error('Error fetching data:', error);
         this.isLoading = false;
-        if (this.chart) {
-          while (this.chart.series.length) {
-            this.chart.series[0].remove(false);
-          }
-          this.chart.redraw();
-        }
       }
     );
-
   }
+
+  maxEndDate: Date = new Date();
+  maxStartDate: Date = new Date(new Date().getTime() - 90 * 24 * 60 * 60 * 1000); // 90 days ago
+  onStartDateChange(): void {
+    if (this.dateRange.start && this.dateRange.end) {
+      const diff = (this.dateRange.end.getTime() - this.dateRange.start.getTime()) / (1000 * 60 * 60 * 24);
+      if (diff > 90) {
+        this.dateRange.end = null; // Clear invalid end date
+      }
+    }
+  }
+
+  get dateRangeTooLong(): boolean {
+    if (this.dateRange.start && this.dateRange.end) {
+      const diffInMs = this.dateRange.end.getTime() - this.dateRange.start.getTime();
+      const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+      return diffInDays > 90;
+    }
+    return false;
+  }
+
+  
+  getMaxEndDate(): Date | null {
+    if (!this.dateRange.start) return null;
+
+    const max = new Date(this.dateRange.start);
+    max.setDate(max.getDate() + 90); // add 90 days
+    return max;
+  }
+
+  endDateFilter = (date: Date | null): boolean => {
+    if (!this.dateRange.start || !date) return true;
+
+    const maxDate = new Date(this.dateRange.start);
+    maxDate.setDate(maxDate.getDate() + 90);
+
+    return date >= this.dateRange.start && date <= maxDate;
+  };
+
+  convertToApiTimestamp(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+    const second = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day}T${hour}:${minute}:${second}-10:00`;
+  }
+
 
 
   updateChart(seriesData: Highcharts.SeriesOptionsType[]): void {
@@ -362,8 +411,6 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
 
   isCustomRange = false;
-  startDate: string = '';
-  endDate: string = '';
   dateRange: { start: Date | null; end: Date | null } = { start: null, end: null };
 
 }

@@ -280,3 +280,10 @@ html {
   width: 100%;
   max-width: 260px;
 }
+
+.date-error {
+  color: #d32f2f;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  font-weight: 500;
+}

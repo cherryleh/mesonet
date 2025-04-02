@@ -51,14 +51,33 @@
               </mat-form-field>
 
               <mat-form-field appearance="outline" *ngIf="isCustomRange" class="date-range-wrapper">
-                <mat-label>Date range</mat-label>
-                <mat-date-range-input [rangePicker]="picker" [(ngModel)]="dateRange">
-                  <input matStartDate placeholder="Start date" />
-                  <input matEndDate placeholder="End date" />
+                <mat-date-range-input
+                  [rangePicker]="picker"
+                  [dateFilter]="endDateFilter"
+                >
+                  <input
+                    matStartDate
+                    placeholder="Start date"
+                    [(ngModel)]="dateRange.start"
+                    name="start"
+                    (dateChange)="onStartDateChange()"
+                />
+                <input
+                  matEndDate
+                  placeholder="End date"
+                  [(ngModel)]="dateRange.end"
+                  name="end"
+                />
                 </mat-date-range-input>
+
+
+
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-date-range-picker #picker></mat-date-range-picker>
               </mat-form-field>
+
+
+
 
             </div>
 
@@ -75,7 +94,13 @@
             </div>
           </div>
 
-          <button class="update-button" (click)="updateChartButtonClick()">Update Chart</button>
+          <button
+            class="update-button"
+            (click)="updateChartButtonClick()"
+            [disabled]="dateRangeTooLong">
+            Update Chart
+          </button>
+
         </div>
       </div>
       <div id="graphContainerWrapper">
