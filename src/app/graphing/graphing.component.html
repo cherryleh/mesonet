@@ -27,17 +27,6 @@
           </div>
 
           <div class="input-group">
-            <label for="durationSelect">Duration:</label>
-            <mat-form-field appearance="outline">
-              <mat-select id="durationSelect" [(ngModel)]="selectedDuration" (selectionChange)="onDurationChange($event)">
-                <mat-option *ngFor="let duration of durations" [value]="duration.value">
-                  {{ duration.label }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-
-          <div class="input-group">
             <label for="unitSelect">Units:</label>
             <mat-form-field appearance="outline">
               <mat-select id="unitSelect" [(ngModel)]="selectedUnit" (selectionChange)="onUnitChange($event)">
@@ -45,6 +34,45 @@
                 <mat-option value="standard">Standard</mat-option>
               </mat-select>
             </mat-form-field>
+          </div>
+
+          <!-- Time Range (in one line with other selects) -->
+          <div class="input-group time-range-group">
+            <label for="duration">Time Range:</label>
+
+            <div class="time-range-inputs">
+              <!-- Either dropdown or date range -->
+              <mat-form-field appearance="outline" *ngIf="!isCustomRange">
+                <mat-select [(ngModel)]="selectedDuration">
+                  <mat-option *ngFor="let duration of durations" [value]="duration.value">
+                    {{ duration.label }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" *ngIf="isCustomRange" class="date-range-wrapper">
+                <mat-label>Date range</mat-label>
+                <mat-date-range-input [rangePicker]="picker" [(ngModel)]="dateRange">
+                  <input matStartDate placeholder="Start date" />
+                  <input matEndDate placeholder="End date" />
+                </mat-date-range-input>
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+              </mat-form-field>
+
+            </div>
+
+            <!-- Keep this below everything else -->
+            <div class="radio-toggle">
+              <label class="radio-option">
+                <input type="radio" name="timeRange" [value]="false" [(ngModel)]="isCustomRange">
+                Last X Hours
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="timeRange" [value]="true" [(ngModel)]="isCustomRange">
+                Custom Date Range
+              </label>
+            </div>
           </div>
 
           <button class="update-button" (click)="updateChartButtonClick()">Update Chart</button>

@@ -12,14 +12,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatSelectChange } from '@angular/material/select';
-
+import { MatDatepickerModule, MatDateRangeInput, MatDateRangePicker, MatDatepickerToggle } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatInputModule } from '@angular/material/input';
 import { UnitService } from '../services/unit.service'; 
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-graphing',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, SidebarComponent, StationTitleComponent, MatSelectModule,MatFormFieldModule, FormsModule],
+  imports: [CommonModule, RouterModule, HeaderComponent, SidebarComponent, StationTitleComponent, MatSelectModule,MatFormFieldModule, FormsModule,MatDateRangeInput, MatDateRangePicker,MatDatepickerToggle, MatDatepickerModule, MatNativeDateModule, MatInputModule],
   templateUrl: './graphing.component.html',
   styleUrl: './graphing.component.css'
 })
@@ -359,5 +361,9 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   }
 
 
-  
+  isCustomRange = false;
+  startDate: string = '';
+  endDate: string = '';
+  dateRange: { start: Date | null; end: Date | null } = { start: null, end: null };
+
 }

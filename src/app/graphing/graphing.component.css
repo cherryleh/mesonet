@@ -26,23 +26,25 @@ html {
   .select-container {
     display: flex;
     justify-content: flex-start;
-    align-items: center;
+    align-items: flex-start;
     gap: 20px; 
     background-color: #ffffff;
     border-radius: 8px;
     border: 1px solid #d0d7de;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 15px 15px 15px 20px;
+    padding: 15px 15px 30px 20px;
     flex-wrap: wrap; 
+    row-gap: 20px;
   }
 
-  /* Make sure each input group has enough space */
   .input-group {
     display: flex;
     flex-direction: column;
-    width: 100%;
-    max-width: 260px; /* ✅ Increased from 200px to prevent overlap */
+    flex: 1 1 260px; /* allow flex shrink/grow and define a base width */
+    max-width: 280px;
+    
   }
+
 
   /* Specifically make the variable dropdown wider */
   .input-group:nth-child(1) mat-form-field {
@@ -98,6 +100,8 @@ html {
     transition: background-color 0.2s ease-in-out;
     height: 46px; 
     align-self: center; 
+    min-width: 160px;
+    flex-shrink: 0;
   }
   
   button.update-button:hover {
@@ -177,4 +181,102 @@ html {
   to {
     transform: rotate(360deg);
   }
+}
+.input-group.time-range-group {
+  position: relative; /* needed to anchor absolute radio buttons */
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 260px;
+  justify-content: flex-start;
+}
+
+.time-range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0; 
+}
+
+
+/* Mat dropdown */
+.time-range-inputs mat-form-field {
+  width: 100%;
+  max-width: 250px;
+  margin: 0;
+  padding: 0;
+}
+
+.date-range {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 260px;
+  flex-wrap: nowrap;
+}
+
+.date-range input[type="date"] {
+  height: 56px;
+  flex: 1;
+}
+
+
+.date-range input[type="date"] {
+  height: 56px;                 /* ✅ Match Angular Material default */
+  padding: 0 12px;              /* Same left/right padding as mat-select */
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.date-range input[type="date"]:focus {
+  border-color: #3f51b5; /* Material blue */
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2); /* Similar to mat focus ring */
+}
+
+
+.to-label {
+  font-weight: bold;
+  color: #333;
+}
+
+/* ⬇️ The key fix */
+.radio-toggle {
+  position: absolute;
+  bottom: -24px; /* move it just below the input */
+  left: 0;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #333;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap; /* ⬅️ Prevents text from wrapping to the next line */
+}
+
+.input-group.time-range-group .mat-mdc-form-field-subscript-wrapper {
+  position: absolute !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.date-range-wrapper {
+  width: 100%;
+  max-width: 260px;
 }
