@@ -8,34 +8,40 @@ html {
   }
   
   .layout {
-    display: flex;
-    flex-direction: column;
     height: 100vh;
   }
-  
-  .content {
+
+  .parent-container {
+    height: 100%;
     display: flex;
-    flex: 1;
+    flex-direction: column;
   }
 
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
 
   .menu-container {
     margin-bottom: 20px; 
+    height: 20%;
   }
   
   .select-container {
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
-    gap: 20px; 
+    padding: 20px 20px; /* ⬅️ Balanced padding top/bottom/left/right */
+    flex-wrap: wrap;
+    row-gap: 20px;
+    height: 100%;
     background-color: #ffffff;
     border-radius: 8px;
     border: 1px solid #d0d7de;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 15px 15px 30px 20px;
-    flex-wrap: wrap; 
-    row-gap: 20px;
   }
+
 
   .input-group {
     display: flex;
@@ -89,7 +95,8 @@ html {
   }
   
   button.update-button {
-    padding: 12px 20px;
+    height: 56px;
+    padding: 0 20px;
     font-size: 1rem;
     font-weight: bold;
     background-color: #007bff;
@@ -98,11 +105,15 @@ html {
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
-    height: 46px; 
-    align-self: center; 
     min-width: 160px;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
+
+
+
   
   button.update-button:hover {
     background-color: #0056b3;
@@ -286,4 +297,28 @@ html {
   font-size: 0.85rem;
   margin-top: 4px;
   font-weight: 500;
+}
+.update-button-wrapper {
+  display: flex;
+  align-items: center; /* ✅ Vertical centering */
+  justify-content: flex-start;
+  gap: 12px;
+  margin-top: 12px;
+  height: 56px; /* match the mat-form-field height */
+}
+
+
+.error-message {
+  color: #d32f2f;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.date-error.mat-form-field-appearance-outline .mat-form-field-outline {
+  color: #d32f2f;
+  stroke: #d32f2f;
+}
+
+.date-error .mat-form-field-outline-thick {
+  stroke: #d32f2f;
 }
