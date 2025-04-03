@@ -51,24 +51,12 @@
               </mat-form-field>
 
               <mat-form-field appearance="outline" *ngIf="isCustomRange" class="date-range-wrapper">
-                <mat-date-range-input
-                  [rangePicker]="picker"
-                  [dateFilter]="endDateFilter"
-                >
-                  <input
-                    matStartDate
-                    placeholder="Start date"
-                    [(ngModel)]="dateRange.start"
-                    name="start"
-                    (dateChange)="onStartDateChange()"
-                />
-                <input
-                  matEndDate
-                  placeholder="End date"
-                  [(ngModel)]="dateRange.end"
-                  name="end"
-                />
+                <mat-date-range-input [rangePicker]="picker" [dateFilter]="dateFilter">
+                  <input matStartDate placeholder="Start date" [(ngModel)]="dateRange.start">
+                  <input matEndDate placeholder="End date" [(ngModel)]="dateRange.end">
                 </mat-date-range-input>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+
 
 
 

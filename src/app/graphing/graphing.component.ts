@@ -17,6 +17,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { UnitService } from '../services/unit.service'; 
 import { Subscription } from 'rxjs';
+import { StationDatesService } from '../services/station-dates.service';
 
 @Component({
   selector: 'app-graphing',
@@ -83,18 +84,40 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     private route: ActivatedRoute,
     private graphingDataService: GraphingDataService,
     private graphingMenuService: GraphingMenuService,
-    private unitService: UnitService
+    private unitService: UnitService,
+    private stationDatesService: StationDatesService
   ) {}
+
+  minAvailableDate: Date = new Date();
+  maxAvailableDate: Date = new Date();
+
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.stationId = params['id'] || 'default_station_id';
       console.log(`Initializing graph for station ID: ${this.stationId}`); 
+      this.fetchStationDateRange(this.stationId);
       this.loadData();
     });
 
     this.unitSubscription = this.unitService.getUnit().subscribe(unit => {
       this.selectedUnit = unit; // Update dropdown selection when unit changes
+    });
+  }
+
+  fetchStationDateRange(id: string): void {
+    this.stationDatesService.getData(id).subscribe({
+      next: (response) => {
+        const date = response[0]?.timestamp ? new Date(response[0].timestamp) : null;
+        if (date && !isNaN(date.getTime())) {
+          this.minAvailableDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+          this.maxAvailableDate = new Date(); // Assume max is today
+          console.log('Station date range:', this.minAvailableDate, 'to', this.maxAvailableDate);
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching station date range:', error);
+      }
     });
   }
 
@@ -279,14 +302,11 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     return max;
   }
 
-  endDateFilter = (date: Date | null): boolean => {
-    if (!this.dateRange.start || !date) return true;
-
-    const maxDate = new Date(this.dateRange.start);
-    maxDate.setDate(maxDate.getDate() + 90);
-
-    return date >= this.dateRange.start && date <= maxDate;
+  dateFilter = (date: Date | null): boolean => {
+    if (!date) return false;
+    return date >= this.minAvailableDate && date <= this.maxAvailableDate;
   };
+
 
   convertToApiTimestamp(date: Date): string {
     const year = date.getFullYear();
