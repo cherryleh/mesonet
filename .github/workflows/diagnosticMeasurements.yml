@@ -45,6 +45,8 @@ jobs:
           mv RHenc.json data/
           mv CellStr.json data/
           mv CellQlt.json data/
+          mv Tair_diff.json data/
+          mv RH_diff.json data/
 
       - name: Set up Git user  
         run: |
@@ -53,7 +55,7 @@ jobs:
 
       - name: Commit and push JSON files to data-branch
         run: |
-          git add data/RHenc.json data/BattVolt.json data/CellStr.json data/CellQlt.json
+          git add data/RHenc.json data/BattVolt.json data/CellStr.json data/CellQlt.json data/Tair_diff.json data/RH_diff.json
           git commit -m "Update JSON data" || echo "No changes to commit"
           git pull origin data-branch --rebase || echo "No remote changes to merge"
           git push origin data-branch --force
