@@ -39,7 +39,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
         { id: "BattVolt", name: "24H Min Battery Voltage" },
         { id: "CellQlt", name: "24H Min Cellular signal quality" },
         { id: "CellStr", name: "24H Min Cellular signal strength" },
-        { id: "RHenc", name: "24H Max Enclosure relative humidity" },
+        { id: "RHenc", name: "Enclosure relative humidity" },
         { id: "Tair_diff", name: "Temperature Sensor Difference" },
         { id: "RH_diff", name: "Relative Humidity Sensor Difference"},
         { id: "Earliest Measurement", name: "Earliest Measurement" }
@@ -409,7 +409,51 @@ export class DiagnosticMapComponent implements AfterViewInit {
                             <span>No Data</span>
                         </div>
                     </div>
-                `} else {
+                `} else if (this.selectedVariable === "Tair_diff") {
+                    div.innerHTML = `
+                    <h4>${this.selectedVariable}</h4>
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center;">
+                            <span style="width: 15px; height: 15px; background: green; display: inline-block; margin-right: 5px;"></span>
+                            <span>< 0.1</span>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <span style="width: 15px; height: 15px; background: yellow; display: inline-block; margin-right: 5px;"></span>
+                            <span>0.1-0.2</span>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                                <span style="width: 15px; height: 15px; background: red; display: inline-block; margin-right: 5px;"></span>
+                                <span>>0.2</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                                <span style="width: 15px; height: 15px; background: gray; display: inline-block; margin-right: 5px;"></span>
+                                <span>No Data</span>
+                            </div>
+                        </div>
+                    `}else if (this.selectedVariable === "RH_diff") {
+                        div.innerHTML = `
+                        <h4>${this.selectedVariable}</h4>
+                        <div style="display: flex; flex-direction: column;">
+                            <div style="display: flex; align-items: center;">
+                                <span style="width: 15px; height: 15px; background: green; display: inline-block; margin-right: 5px;"></span>
+                                <span>< 1.5%</span>
+                            </div>
+                            <div style="display: flex; align-items: center;">
+                                <span style="width: 15px; height: 15px; background: yellow; display: inline-block; margin-right: 5px;"></span>
+                                <span>1.5-2%</span>
+                            </div>
+                            <div style="display: flex; align-items: center;">
+                                    <span style="width: 15px; height: 15px; background: red; display: inline-block; margin-right: 5px;"></span>
+                                    <span>> 2%</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center;">
+                                    <span style="width: 15px; height: 15px; background: gray; display: inline-block; margin-right: 5px;"></span>
+                                    <span>No Data</span>
+                                </div>
+                            </div>
+                        `} else {
                 div.innerHTML = `
               <h4>${this.selectedVariable}</h4>
               <div id="legend-gradient" style="width: 200px; height: 15px; margin-bottom: 5px;"></div>
