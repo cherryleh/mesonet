@@ -262,9 +262,8 @@ export class DiagnosticMapComponent implements AfterViewInit {
             if (value < 12.2) return "yellow";
             return "green";
         } else if (this.selectedVariable === "RHenc") {
-            if (value >= 75) return "red";
-            if (value > 60) return "orange";
-            if (value > 50) return "yellow";
+            if (value >= 30) return "red";
+            if (value >= 10) return "yellow";
             return "green";
         } else if (this.selectedVariable === "CellStr") {
             if (value < -115) return "red";
