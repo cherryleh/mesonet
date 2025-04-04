@@ -56,11 +56,11 @@ for station in stations:
     station_id = station.get("station_id")
     
     for variable in variables:
-        query = f"station_ids={station_id}&var_ids={variable}&start_date={start_time_str}&limit=288"
+        query = f"station_ids={station_id}&var_ids={variable}&start_date={start_time_str}"
         url = f"{measurements_url}?{query}"
 
         try:
-            response = requests.get(url, headers=headers, timeout=10)
+            response = requests.get(url, headers=header, timeout=10)
             data = response.json()
             values = [entry["value"] for entry in data if entry.get("value") is not None]
 
