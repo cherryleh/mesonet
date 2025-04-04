@@ -11,6 +11,11 @@
                 {{ option.name }}
             </option>
         </select>
+        
+        <p *ngIf="selectedVariable === 'RHenc'" class="note">
+            Percent of last 24 hours where RHenc is above 80%.
+        </p>
+
     </div>
 
     <div id="map"></div>

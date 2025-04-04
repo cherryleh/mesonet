@@ -61,10 +61,27 @@ export class DiagnosticMapComponent implements AfterViewInit {
             if (data.length > 0 && data[0].timestamp) {
                 this.latestObservationTime = this.formatTimestamp(data[0].timestamp);
             }
+            
         } catch (error) {
             console.error("Error fetching latest observation time:", error);
         }
     }
+
+    async fetchMapObservationTime(): Promise<void> {
+        try {
+            const response = await fetch("https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/BattVolt.json");
+            const data: Record<string, { value: string; timestamp: string }> = await response.json();
+
+            const firstEntry = Object.values(data)[0];
+            if (firstEntry && firstEntry.timestamp) {
+                this.latestObservationTime = this.formatTimestamp(firstEntry.timestamp);
+            }
+        } catch (error) {
+            console.error("Error fetching map observation time:", error);
+            this.latestObservationTime = null;
+        }
+    }
+
 
     async plotEarliestMeasurements(): Promise<void> {
         try {
@@ -188,6 +205,8 @@ export class DiagnosticMapComponent implements AfterViewInit {
 
     async fetchStationData(): Promise<void> {
         try {
+            await this.fetchMapObservationTime();
+
             if (this.selectedVariable === "Earliest Measurement") {
                 await this.plotEarliestMeasurements();
                 return;
