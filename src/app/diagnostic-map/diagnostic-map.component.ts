@@ -126,10 +126,10 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 }
                 let rawValue = measurementMap[station.station_id] ?? null;
 
-                // Treat 0 as No Data
-                if (rawValue === 0) {
-                    rawValue = null;
-                }
+                // // Treat 0 as No Data
+                // if (rawValue === 0) {
+                //     rawValue = null;
+                // }
 
                 let displayText: string | null = null;
                 let color: string;
@@ -281,8 +281,6 @@ export class DiagnosticMapComponent implements AfterViewInit {
 
 
     private getColorFromValue(value: number, min: number, max: number): string {
-        if (value === 0) return "gray"; // Treat 0 as No Data
-
         if (this.selectedVariable === "BattVolt") {
             if (value < 11.8) return "red";
             if (value < 12) return "orange";

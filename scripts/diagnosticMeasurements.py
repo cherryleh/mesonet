@@ -113,7 +113,7 @@ for station in stations:
         if var1 not in pivot_df.columns or var2 not in pivot_df.columns:
             continue
 
-        pivot_df[f'{var_name}_diff'] = pivot_df[f'{var1}'] - pivot_df[f'{var2}']
+        pivot_df[f'{var_name}_diff'] = (pivot_df[f'{var1}'] - pivot_df[f'{var2}']).abs()
         diff_mean = pivot_df[f'{var_name}_diff'].mean()
 
         measurements_by_vardiff[var_name][station_id] = {
