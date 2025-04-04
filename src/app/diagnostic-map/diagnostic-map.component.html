@@ -47,7 +47,7 @@
                 <tbody>
                     <ng-container *ngFor="let key of objectKeys(selectedStation.details)">
                         <!-- Normal case: Show only this station's values -->
-                        <tr *ngIf="selectedStation.id !== '0521' && key.startsWith(selectedStation.id)">
+                        <tr *ngIf="selectedStation.id !== '0521' && key.startsWith(selectedStation.id) && !key.includes('Enclosure Relative Humidity') && !key.includes('Tair Sensor Difference') && !key.includes('RH Sensor Difference')">
                             <td>{{ key.replace(selectedStation.id + ' ', '') }}</td>
                             <td>{{ selectedStation.details[key] }}</td>
                             <td>
@@ -76,7 +76,8 @@
                                 </td>
                                 <td>{{ getStatus(key.replace('0520 ', ''), selectedStation.details[key]) }}</td>
                             </tr>
-                            <tr *ngIf="key.startsWith('0521') && !key.includes('Cellular Signal Strength') && !key.includes('Cellular Signal Quality')">
+                            <tr *ngIf="key.startsWith('0521') && !key.includes('Cellular Signal Strength') && !key.includes('Cellular Signal Quality') && !key.includes('RHenc')  && !key.includes('RH_diff')">
+
                                 <td>0521 {{ key.replace('0521 ', '') }}</td>
                                 <td>{{ selectedStation.details[key] }}</td>
                                 <td>
@@ -89,15 +90,42 @@
                                 </td>
                                 <td>{{ getStatus(key.replace('0521 ', ''), selectedStation.details[key]) }}</td>
                             </tr>
+                            
+
                         </ng-container>
                     </ng-container>
                 </tbody>
 
             </table>
+            <div *ngIf="selectedStation.details && selectedStation.details[selectedStation.id + ' Enclosure Relative Humidity']">
+                <p>
+                    <strong>Enclosure Relative Humidity:</strong>
+                    {{ selectedStation.details[selectedStation.id + ' Enclosure Relative Humidity'] }}% 
+                    <span class="{{ getStatusClass('Enclosure Relative Humidity', selectedStation.details[selectedStation.id + ' Enclosure Relative Humidity']) }}">
+                        ({{ getStatus('Enclosure Relative Humidity', selectedStation.details[selectedStation.id + ' Enclosure Relative Humidity']) }})
+                    </span>
+                </p>
+            </div>
+            <div *ngIf="selectedStation.details && selectedStation.details[selectedStation.id + ' Tair Sensor Difference']"> 
+                <p>
+                    <strong>Temperature Sensor Difference:</strong>
+                    {{ selectedStation.details[selectedStation.id + ' Tair Sensor Difference'] | number:'1.2-2' }}&#176;C
+                    <span class="{{ getStatusClass('Tair_diff', selectedStation.details[selectedStation.id + ' Tair Sensor Difference']) }}">
+                        ({{ getStatus('Tair Sensor Difference', selectedStation.details[selectedStation.id + ' Tair Sensor Difference']) }})
+                    </span>
+                </p>
+            </div>
+            <div *ngIf="selectedStation.details && selectedStation.details[selectedStation.id + ' RH Sensor Difference']"> 
+                <p>
+                    <strong>RH Sensor Difference:</strong>
+                    {{ selectedStation.details[selectedStation.id + ' RH Sensor Difference'] | number:'1.2-2' }}%
+                    <span class="{{ getStatusClass('RH_diff', selectedStation.details[selectedStation.id + ' RH Sensor Difference']) }}">
+                        ({{ getStatus('RH Sensor Difference', selectedStation.details[selectedStation.id + ' RH Sensor Difference']) }})
+                    </span>
+                </p>
+            </div>
 
 
-            <!-- Sensor Latest Update Section -->
-            <!-- Sensor Latest Update Table -->
             <div *ngIf="selectedStation.sensorUpdates && objectKeys(selectedStation.sensorUpdates).length > 0" class="details-header">
                 <h4 style="margin-bottom: 0;">Sensor Latest Update</h4>
             </div>

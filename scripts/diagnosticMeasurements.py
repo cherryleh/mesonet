@@ -13,26 +13,6 @@ header = {
 
 stations_url = "https://api.hcdp.ikewai.org/mesonet/db/stations"
 measurements_url = "https://api.hcdp.ikewai.org/mesonet/db/measurements"
-variables = ["BattVolt", "RHenc","CellStr","CellQlt"]  
-
-now = datetime.utcnow()
-start_time = now - timedelta(hours=24)
-start_time_str = start_time.strftime("%Y-%m-%dT%H:%M:%SZ")  # Convert to API format
-
-# Fetch station data
-try:
-    response = requests.get(stations_url, headers=header, timeout=10)
-    response.raise_for_status()  # Raises an HTTPError for bad responses
-    stations = response.json()
-except requests.exceptions.RequestException as e:
-    print(f"Error fetching stations: {e}")
-    stations = []
-
-# Dictionary to store results
-measurements_by_variable = {var: {} for var in variables}
-
-stations_url = "https://api.hcdp.ikewai.org/mesonet/db/stations"
-measurements_url = "https://api.hcdp.ikewai.org/mesonet/db/measurements"
 variables = ["BattVolt", "RHenc", "CellStr", "CellQlt"]
 
 now = datetime.utcnow()
@@ -69,9 +49,9 @@ for station in stations:
             if values:
                 if variable == "BattVolt":
                     result_value = min(values)  # Get min for BattVolt
-                elif variable == "RH":
-                    above_80 = [v for v in values if v > 80]
-                    percentage_above_80 = (len(above_80) / len(values)) * 100 if values else 0
+                elif variable == "RHenc":
+                    above_80 = [float(v) for v in values if float(v) > 80]
+                    result_value = (len(above_80) / len(values)) * 100 if values else 0
                 else:
                     result_value = max(values)  # Get max for other variables
 
@@ -98,13 +78,6 @@ for variable in variables:
             val_0520 = float(measurements_by_variable[variable][station_0520]["value"])
             val_0521 = float(measurements_by_variable[variable][station_0521]["value"])
             measurements_by_variable[variable][station_0521]["value"] = min(val_0520, val_0521)
-
-        elif variable == "RHenc":
-            # Take the highest value between 0520 and 0521
-            val_0520 = float(measurements_by_variable[variable][station_0520]["value"])
-            val_0521 = float(measurements_by_variable[variable][station_0521]["value"])
-            measurements_by_variable[variable][station_0521]["value"] = max(val_0520, val_0521)
-
         elif variable in ["CellStr", "CellQlt"]:
             # Copy values from 0520 to 0521
             measurements_by_variable[variable][station_0521] = measurements_by_variable[variable][station_0520].copy()

@@ -511,27 +511,25 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 "BattVolt": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/BattVolt.json",
                 "CellStr": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/CellStr.json",
                 "CellQlt": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/CellQlt.json",
-                "RHenc": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RHenc.json"
+                "RHenc": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RHenc.json",
+                "Tair_diff": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/Tair_diff.json",
+                "RH_diff": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RH_diff.json",
             };
 
-            // API for fetching latest variable values
             const stationIds = stationId === "0521" ? "0520,0521" : stationId;
             const latestValuesApiUrl = `${this.measurementsUrl}&var_ids=BattVolt,CellStr,CellQlt,RHenc&station_ids=${stationIds}&local_tz=True&limit=4`;
 
-            // API for sensor updates (Sensor Latest Update table)
             const sensorUpdateUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/latest_measurements.json";
 
             let latestDetails: { [key: string]: string } = {};
             let sensorUpdateDetails: { [key: string]: string } = {}; // Separate object for sensor updates
 
-            // Fetch JSON data for diagnostic observations
             const jsonRequests = Object.keys(variableJsonUrls).map(async (variable) => {
                 const response = await fetch(variableJsonUrls[variable]);
                 const data: Record<string, { value: string; timestamp: string }> = await response.json();
                 return { variable, data };
             });
 
-            // Fetch both latest variable measurements & sensor updates
             const [latestValuesResponse, sensorUpdateResponse, ...resolvedJsonResponses] = await Promise.all([
                 fetch(latestValuesApiUrl, {
                     method: 'GET',
@@ -630,9 +628,8 @@ export class DiagnosticMapComponent implements AfterViewInit {
             if (numValue < 12.2) return "Caution";
             return "Good";
         } else if (variable === "Enclosure Relative Humidity") {
-            if (numValue >= 75) return "Critical";
-            if (numValue > 60) return "Warning";
-            if (numValue > 50) return "Caution";
+            if (numValue >= 30) return "Critical";
+            if (numValue > 10) return "Caution";
             return "Good";
         } else if (variable === "Cellular Signal Strength") {
             if (numValue < -115) return "Critical";
@@ -641,7 +638,16 @@ export class DiagnosticMapComponent implements AfterViewInit {
         } else if (variable === "Cellular Signal Quality") {
             if (numValue < -12) return "Warning";
             return "Good";
+        } else if (variable === "Tair Sensor Difference") {
+            if (numValue > 0.2) return "Critical";
+            if (numValue > 0.1) return "Warning";
+            return "Good";
+        } else if (variable === "RH Sensor Difference") {
+            if (numValue > 0.2) return "Critical";
+            if (numValue > 0.1) return "Warning";
+            return "Good";
         }
+        
 
         return "No Data";
     }
@@ -680,7 +686,9 @@ export class DiagnosticMapComponent implements AfterViewInit {
             "BattVolt": "Battery Voltage",
             "CellStr": "Cellular Signal Strength",
             "CellQlt": "Cellular Signal Quality",
-            "RHenc": "Enclosure Relative Humidity"
+            "RHenc": "Enclosure Relative Humidity",
+            "Tair_diff": "Tair Sensor Difference",
+            "RH_diff": "RH Sensor Difference",
         };
         return variableMap[variableId] || variableId; 
     }

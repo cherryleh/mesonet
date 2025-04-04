@@ -239,6 +239,7 @@ app-header {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
+  margin-bottom: 10px;
   font-size: 14px;
 }
 
@@ -286,7 +287,7 @@ app-header {
 }
 
 .note {
-  margin-top: 5px;
+  margin-top: 12px;
   font-size: 0.9rem;
   color: #555;
   font-style: italic;
