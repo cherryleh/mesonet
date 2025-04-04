@@ -62,6 +62,8 @@ for station in stations:
         try:
             response = requests.get(url, headers=header, timeout=10)
             data = response.json()
+            if not data:
+                continue
             values = [entry["value"] for entry in data if entry.get("value") is not None]
 
             if values:
@@ -122,7 +124,7 @@ measurements_by_vardiff = {var: {} for var in diff_vars}
 for station in stations:
     station_id = station.get("station_id")
     for var1, var2, var_name in var_pairs:
-        url = f"https://api.hcdp.ikewai.org/mesonet/db/measurements?station_ids=0119&var_ids={var1},{var2}&start_date={start_time_str}"
+        url = f"https://api.hcdp.ikewai.org/mesonet/db/measurements?station_ids={station_id}&var_ids={var1},{var2}&start_date={start_time_str}"
 
         response = requests.get(url, headers=header, timeout=10)
         data = response.json()

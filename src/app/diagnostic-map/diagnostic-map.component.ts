@@ -40,6 +40,8 @@ export class DiagnosticMapComponent implements AfterViewInit {
         { id: "CellQlt", name: "24H Min Cellular signal quality" },
         { id: "CellStr", name: "24H Min Cellular signal strength" },
         { id: "RHenc", name: "24H Max Enclosure relative humidity" },
+        { id: "Tair_diff", name: "Temperature Sensor Difference" },
+        { id: "RH_diff", name: "Relative Humidity Sensor Difference"},
         { id: "Earliest Measurement", name: "Earliest Measurement" }
     ];
 
@@ -212,6 +214,12 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 case "CellQlt":
                     dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/CellQlt.json";
                     break;
+                case "Tair_diff":
+                    dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/Tair_diff.json";
+                    break;
+                case "RH_diff":
+                    dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/RH_diff.json";
+                    break;
                 default:
                     console.warn(`No local data available for ${this.selectedVariable}`);
                     return;
@@ -272,7 +280,15 @@ export class DiagnosticMapComponent implements AfterViewInit {
         } else if (this.selectedVariable === "CellQlt") {
             if (value < -12) return "red";
             return "green";
-        } else {
+        } else if (this.selectedVariable === "Tair_diff") {
+            if (value > 0.2) return "red";
+            if ( value >0.1) return "yellow";
+            return "green";
+        } else if (this.selectedVariable === "RH_diff") {
+            if (value > 2) return "red";
+            if ( value > 1.5) return "yellow";
+            return "green";
+        }else {
             if (min === max) return interpolateViridis(0.5);
             return interpolateViridis((value - min) / (max - min));
         }
@@ -377,26 +393,22 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 <div style="display: flex; flex-direction: column;">
                     <div style="display: flex; align-items: center;">
                         <span style="width: 15px; height: 15px; background: green; display: inline-block; margin-right: 5px;"></span>
-                        <span>< 50%</span>
+                        <span>< 10%</span>
                     </div>
                     <div style="display: flex; align-items: center;">
                         <span style="width: 15px; height: 15px; background: yellow; display: inline-block; margin-right: 5px;"></span>
-                        <span>50-60%</span>
+                        <span>10-30%</span>
                     </div>
-                <div style="display: flex; align-items: center;">
-                        <span style="width: 15px; height: 15px; background: orange; display: inline-block; margin-right: 5px;"></span>
-                        <span>60-75%</span>
+                    <div style="display: flex; align-items: center;">
+                            <span style="width: 15px; height: 15px; background: red; display: inline-block; margin-right: 5px;"></span>
+                            <span>> 30%</span>
+                        </div>
                     </div>
-                <div style="display: flex; align-items: center;">
-                        <span style="width: 15px; height: 15px; background: red; display: inline-block; margin-right: 5px;"></span>
-                        <span>> 75%</span>
+                    <div style="display: flex; align-items: center;">
+                            <span style="width: 15px; height: 15px; background: gray; display: inline-block; margin-right: 5px;"></span>
+                            <span>No Data</span>
+                        </div>
                     </div>
-                </div>
-                <div style="display: flex; align-items: center;">
-                        <span style="width: 15px; height: 15px; background: gray; display: inline-block; margin-right: 5px;"></span>
-                        <span>No Data</span>
-                    </div>
-                </div>
                 `} else {
                 div.innerHTML = `
               <h4>${this.selectedVariable}</h4>
