@@ -41,7 +41,7 @@ start_time_str = start_time.strftime("%Y-%m-%dT%H:%M:%SZ")  # Convert to API for
 
 # Fetch station data
 try:
-    response = requests.get(stations_url, headers=headers, timeout=10)
+    response = requests.get(stations_url, headers=header, timeout=10)
     response.raise_for_status()  # Raises an HTTPError for bad responses
     stations = response.json()
 except requests.exceptions.RequestException as e:
