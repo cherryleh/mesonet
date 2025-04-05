@@ -515,43 +515,64 @@ export class DiagnosticMapComponent implements AfterViewInit {
             };
 
             let latestDetails: { [key: string]: string } = {};
+            let sensorUpdateDetails: { [key: string]: string } = {};
 
+            // Fetch local JSON files for diagnostics
             const jsonRequests = Object.keys(variableJsonUrls).map(async (variable) => {
                 const response = await fetch(variableJsonUrls[variable]);
                 const data: Record<string, { value: string; timestamp: string }> = await response.json();
                 return { variable, data };
             });
 
-            const resolvedJsonResponses = await Promise.all(jsonRequests);
+            // Fetch sensor update JSON (for "Sensor Latest Update")
+            const sensorUpdateUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/latest_measurements.json";
+            const [sensorUpdateResponse, ...resolvedJsonResponses] = await Promise.all([
+                fetch(sensorUpdateUrl).then(res => res.json()).catch(err => {
+                    console.warn("Sensor update fetch failed:", err);
+                    return [];
+                }),
+                ...jsonRequests
+            ]);
 
+            // Process diagnostic JSON values
             resolvedJsonResponses.forEach(({ variable, data }) => {
                 Object.keys(data).forEach(stationKey => {
                     if (stationKey === stationId || (stationId === '0521' && ['0520', '0521'].includes(stationKey))) {
                         const rawValue = parseFloat(data[stationKey].value);
                         const key = `${stationKey} ${this.getVariableName(variable)}`;
-                        if (isNaN(rawValue)) {
-                            latestDetails[`${stationKey} ${this.getVariableName(variable)}`] = "No Data";
-                        } else {
-                            latestDetails[`${stationKey} ${this.getVariableName(variable)}`] = rawValue.toString();
-                        }
-
+                        latestDetails[key] = isNaN(rawValue) ? "No Data" : rawValue.toString();
                     }
                 });
             });
 
+            // Process sensor updates (like in your old code)
+            sensorUpdateResponse.forEach((measurement: Measurement) => {
+                if (measurement.station_id === stationId && measurement.timestamp) {
+                    const timeAgo = this.formatTimeAgo(measurement.timestamp);
+                    sensorUpdateDetails[measurement.variable] = timeAgo.text;
+                }
+            });
+
+            // Optional: Remove bad data for 0521
+            if (stationId === "0521") {
+                delete latestDetails["0521 Cellular Signal Strength"];
+                delete latestDetails["0521 Cellular Signal Quality"];
+            }
+
             this.selectedStation = {
                 ...this.selectedStation,
-                details: latestDetails
+                details: latestDetails,
+                sensorUpdates: sensorUpdateDetails
             };
 
             this.cdr.detectChanges();
+
         } catch (error) {
             console.error("Error fetching station details:", error);
-            this.selectedStation = { ...this.selectedStation, details: {} };
+            this.selectedStation = { ...this.selectedStation, details: {}, sensorUpdates: {} };
             this.cdr.detectChanges();
         }
     }
-
 
 
     isDifferenceVariable(key: string): boolean {
