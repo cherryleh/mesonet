@@ -514,13 +514,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 "RH_diff": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RH_diff.json",
             };
 
-            const stationIds = stationId === "0521" ? "0520,0521" : stationId;
-            const latestValuesApiUrl = `${this.measurementsUrl}&var_ids=BattVolt,CellStr,CellQlt,RHenc&station_ids=${stationIds}&local_tz=True&limit=4`;
-
-            const sensorUpdateUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/latest_measurements.json";
-
             let latestDetails: { [key: string]: string } = {};
-            let sensorUpdateDetails: { [key: string]: string } = {}; // Separate object for sensor updates
 
             const jsonRequests = Object.keys(variableJsonUrls).map(async (variable) => {
                 const response = await fetch(variableJsonUrls[variable]);
@@ -528,90 +522,47 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 return { variable, data };
             });
 
-            const [latestValuesResponse, sensorUpdateResponse, ...resolvedJsonResponses] = await Promise.all([
-                fetch(latestValuesApiUrl, {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
-                }),
-                fetch(sensorUpdateUrl).then(response => response.json()).catch(error => {
-                    console.error("Error fetching sensor update data:", error);
-                    return [];
-                }),
-                ...jsonRequests
-            ]);
+            const resolvedJsonResponses = await Promise.all(jsonRequests);
 
-            const latestMeasurements: Measurement[] = await latestValuesResponse.json();
-            const sensorUpdates: Measurement[] = sensorUpdateResponse;
-
-            console.log("Fetched Latest Measurements:", latestMeasurements);
-            console.log("Fetched Sensor Updates:", sensorUpdates);
-
-            // Process JSON responses for diagnostic observations
             resolvedJsonResponses.forEach(({ variable, data }) => {
                 Object.keys(data).forEach(stationKey => {
-                    latestDetails[`${stationKey} ${this.getVariableName(variable)}`] = data[stationKey].value;
+                    if (stationKey === stationId || (stationId === '0521' && ['0520', '0521'].includes(stationKey))) {
+                        const rawValue = parseFloat(data[stationKey].value);
+                        const key = `${stationKey} ${this.getVariableName(variable)}`;
+                        if (isNaN(rawValue)) {
+                            latestDetails[`${stationKey} ${this.getVariableName(variable)}`] = "No Data";
+                        } else {
+                            latestDetails[`${stationKey} ${this.getVariableName(variable)}`] = rawValue.toString();
+                        }
 
-                    if (variable === "RHenc") {
-                        latestDetails[`24H Max ${stationKey} ${this.getVariableName(variable)}`] = data[stationKey].value;
-                    } else {
-                        latestDetails[`24H Min ${stationKey} ${this.getVariableName(variable)}`] = data[stationKey].value;
                     }
                 });
             });
 
-            // Process API measurement response for latest values
-            latestMeasurements.forEach((measurement: Measurement) => {
-                if (measurement && measurement.value !== undefined && measurement.value !== null) {
-                    let formattedValue = parseFloat(String(measurement.value));
-
-                    if (formattedValue === 0) {
-                        formattedValue = NaN;
-                    }
-
-                    latestDetails[`${measurement.station_id} ${this.getVariableName(measurement.variable)}`] =
-                        isNaN(formattedValue) ? "No Data" : formattedValue.toString();
-                }
-            });
-
-            // Process sensor updates separately for "Sensor Latest Update" table
-            sensorUpdates.forEach(measurement => {
-                if (measurement.station_id === stationId && measurement.timestamp) {
-                    const timeAgo = this.formatTimeAgo(measurement.timestamp);
-                    sensorUpdateDetails[measurement.variable] = timeAgo.text;
-                }
-            });
-
-            // Remove 0521's "CellStr" and "CellQlt" since they always have no data
-            if (stationId === "0521") {
-                delete latestDetails["0521 Cellular Signal Strength"];
-                delete latestDetails["24H Min 0521 Cellular Signal Strength"];
-                delete latestDetails["0521 Cellular Signal Quality"];
-                delete latestDetails["24H Min 0521 Cellular Signal Quality"];
-            }
-
-            // Get the latest timestamp
-            let latestTimestamp = latestMeasurements.length > 0 ? latestMeasurements[0].timestamp : "";
-            let formattedTimestamp = latestTimestamp ? this.formatTimestamp(latestTimestamp) : "No Data";
-
-            // Ensure both tables are included
             this.selectedStation = {
                 ...this.selectedStation,
-                details: latestDetails, // Diagnostic observations
-                sensorUpdates: sensorUpdateDetails, // Sensor updates table
-                detailsTimestamp: formattedTimestamp
+                details: latestDetails
             };
 
-            console.log("Updated Station Details:", this.selectedStation);
             this.cdr.detectChanges();
         } catch (error) {
             console.error("Error fetching station details:", error);
-            this.selectedStation = { ...this.selectedStation, details: {}, sensorUpdates: {} };
+            this.selectedStation = { ...this.selectedStation, details: {} };
             this.cdr.detectChanges();
         }
     }
 
 
 
+    isDifferenceVariable(key: string): boolean {
+        const name = key.toLowerCase();
+        return name.includes('sensor difference') || name.includes('diff');
+      }
+      parseValue(val: any): number {
+        const num = parseFloat(val);
+        return isNaN(num) ? 0 : num;
+      }
+    
 
     getStatus(variable: string, value: number | string | null): string {
         if (value === null || value === "No Data" || isNaN(parseFloat(value as any)) || parseFloat(value as any) === 0) {
@@ -641,8 +592,8 @@ export class DiagnosticMapComponent implements AfterViewInit {
             if (numValue > 0.1) return "Warning";
             return "Good";
         } else if (variable === "RH Sensor Difference") {
-            if (numValue > 0.2) return "Critical";
-            if (numValue > 0.1) return "Warning";
+            if (numValue > 30) return "Critical";
+            if (numValue > 10) return "Warning";
             return "Good";
         }
         

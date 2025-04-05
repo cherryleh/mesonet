@@ -35,95 +35,58 @@
                 <h4 style="margin-bottom: 0;">Diagnostic Observations</h4>
             </div>
     
-            <table class="details-table">
-                <thead>
-                    <tr>
-                        <th>Variable</th>
-                        <th>Latest</th>
-                        <th>24H Min/Max</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <ng-container *ngFor="let key of objectKeys(selectedStation.details)">
-                        <!-- Normal case: Show only this station's values -->
-                        <tr *ngIf="selectedStation.id !== '0521' && key.startsWith(selectedStation.id) && !key.includes('Enclosure Relative Humidity') && !key.includes('Tair Sensor Difference') && !key.includes('RH Sensor Difference')">
-                            <td>{{ key.replace(selectedStation.id + ' ', '') }}</td>
-                            <td>{{ selectedStation.details[key] }}</td>
-                            <td>
-                                <span *ngIf="selectedStation.details['24H Min ' + key]">
-                                    Min: {{ selectedStation.details['24H Min ' + key] }}
-                                </span>
-                                <span *ngIf="selectedStation.details['24H Max ' + key]">
-                                    Max: {{ selectedStation.details['24H Max ' + key] }}
-                                </span>
-                            </td>
-                            <td>{{ getStatus(key.replace(selectedStation.id + ' ', ''), selectedStation.details[key]) }}</td>
-                        </tr>
-
-                        <!-- Special case: Show both 0520 & 0521 when 0521 is selected -->
-                        <ng-container *ngIf="selectedStation.id === '0521'">
-                            <tr *ngIf="key.startsWith('0520')">
-                                <td>0520 {{ key.replace('0520 ', '') }}</td>
-                                <td>{{ selectedStation.details[key] }}</td>
-                                <td>
-                                    <span *ngIf="selectedStation.details['24H Min ' + key]">
-                                        Min: {{ selectedStation.details['24H Min ' + key] }}
-                                    </span>
-                                    <span *ngIf="selectedStation.details['24H Max ' + key]">
-                                        Max: {{ selectedStation.details['24H Max ' + key] }}
-                                    </span>
-                                </td>
-                                <td>{{ getStatus(key.replace('0520 ', ''), selectedStation.details[key]) }}</td>
-                            </tr>
-                            <tr *ngIf="key.startsWith('0521') && !key.includes('Cellular Signal Strength') && !key.includes('Cellular Signal Quality') && !key.includes('RHenc')  && !key.includes('RH_diff')">
-
-                                <td>0521 {{ key.replace('0521 ', '') }}</td>
-                                <td>{{ selectedStation.details[key] }}</td>
-                                <td>
-                                    <span *ngIf="selectedStation.details['24H Min ' + key]">
-                                        Min: {{ selectedStation.details['24H Min ' + key] }}
-                                    </span>
-                                    <span *ngIf="selectedStation.details['24H Max ' + key]">
-                                        Max: {{ selectedStation.details['24H Max ' + key] }}
-                                    </span>
-                                </td>
-                                <td>{{ getStatus(key.replace('0521 ', ''), selectedStation.details[key]) }}</td>
-                            </tr>
-                            
-
-                        </ng-container>
-                    </ng-container>
-                </tbody>
-
-            </table>
-            <div *ngIf="selectedStation.details && selectedStation.details[selectedStation.id + ' Enclosure Relative Humidity']">
-                <p>
-                    <strong>Enclosure Relative Humidity:</strong>
-                    {{ selectedStation.details[selectedStation.id + ' Enclosure Relative Humidity'] }}% 
-                    <span class="{{ getStatusClass('Enclosure Relative Humidity', selectedStation.details[selectedStation.id + ' Enclosure Relative Humidity']) }}">
-                        ({{ getStatus('Enclosure Relative Humidity', selectedStation.details[selectedStation.id + ' Enclosure Relative Humidity']) }})
-                    </span>
-                </p>
-            </div>
-            <div *ngIf="selectedStation.details && selectedStation.details[selectedStation.id + ' Tair Sensor Difference']"> 
-                <p>
-                    <strong>Temperature Sensor Difference:</strong>
-                    {{ selectedStation.details[selectedStation.id + ' Tair Sensor Difference'] | number:'1.2-2' }}&#176;C
-                    <span class="{{ getStatusClass('Tair_diff', selectedStation.details[selectedStation.id + ' Tair Sensor Difference']) }}">
-                        ({{ getStatus('Tair Sensor Difference', selectedStation.details[selectedStation.id + ' Tair Sensor Difference']) }})
-                    </span>
-                </p>
-            </div>
-            <div *ngIf="selectedStation.details && selectedStation.details[selectedStation.id + ' RH Sensor Difference']"> 
-                <p>
-                    <strong>RH Sensor Difference:</strong>
-                    {{ selectedStation.details[selectedStation.id + ' RH Sensor Difference'] | number:'1.2-2' }}%
-                    <span class="{{ getStatusClass('RH_diff', selectedStation.details[selectedStation.id + ' RH Sensor Difference']) }}">
-                        ({{ getStatus('RH Sensor Difference', selectedStation.details[selectedStation.id + ' RH Sensor Difference']) }})
-                    </span>
-                </p>
-            </div>
+            <div class="station-details" *ngIf="selectedStation.details && objectKeys(selectedStation.details).length > 0; else noData">
+                <div class="details-header">
+                  <h4 style="margin-bottom: 0;">Diagnostic Observations</h4>
+                </div>
+  
+                <div class="value-list">
+                    <div *ngFor="let key of objectKeys(selectedStation.details)">
+                      <p>
+                        <strong>{{ key.replace(selectedStation.id + ' ', '') }}:</strong>
+        
+                        <span *ngIf="isDifferenceVariable(key)">
+                            {{ parseValue(selectedStation.details[key]) | number:'1.2-2' }}
+                          </span>
+  
+                        <span *ngIf="!isDifferenceVariable(key)">
+                          {{ selectedStation.details[key] }}
+                        </span>
+  
+                        <span class="{{ getStatusClass(key.replace(selectedStation.id + ' ', ''), selectedStation.details[key]) }}">
+                          ({{ getStatus(key.replace(selectedStation.id + ' ', ''), selectedStation.details[key]) }})
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+  
+              </div>
+  
+              <div class="station-details" *ngIf="selectedStation.details && objectKeys(selectedStation.details).length > 0; else noData">
+                <div class="details-header">
+                  <h4 style="margin-bottom: 0;">Diagnostic Observations</h4>
+                </div>
+  
+                <div class="value-list">
+                  <div *ngFor="let key of objectKeys(selectedStation.details)">
+                    <p>
+                      <strong>{{ key.replace(selectedStation.id + ' ', '') }}:</strong>
+                      <span *ngIf="isDifferenceVariable(key)">
+                        {{ selectedStation.details[key] | number:'1.2-2' }}
+                      </span>
+                      <span *ngIf="!isDifferenceVariable(key)">
+                        {{ selectedStation.details[key] }}
+                      </span>
+  
+                      <span class="{{ getStatusClass(key.replace(selectedStation.id + ' ', ''), selectedStation.details[key]) }}">
+                        ({{ getStatus(key.replace(selectedStation.id + ' ', ''), selectedStation.details[key]) }})
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+  
+  
 
 
             <div *ngIf="selectedStation.sensorUpdates && objectKeys(selectedStation.sensorUpdates).length > 0" class="details-header">
