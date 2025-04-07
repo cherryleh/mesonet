@@ -40,7 +40,7 @@
                 <div class="value-list">
                     <div *ngFor="let key of objectKeys(selectedStation.details)">
                         <p>
-                            <strong>{{ key.replace(selectedStation.id + ' ', '') }}:</strong>
+                            <strong>{{ key }}:</strong>
                             <span *ngIf="isDifferenceVariable(key)">
                                 {{ selectedStation.details[key] | number:'1.2-2' }}
                             </span>

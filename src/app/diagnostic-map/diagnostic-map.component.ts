@@ -537,11 +537,16 @@ export class DiagnosticMapComponent implements AfterViewInit {
             // Process diagnostic JSON values
             resolvedJsonResponses.forEach(({ variable, data }) => {
                 Object.keys(data).forEach(stationKey => {
-                    if (stationKey === stationId || (stationId === '0521' && ['0520', '0521'].includes(stationKey))) {
+                    const shouldInclude = (stationId === '0521' && (stationKey === '0520' || stationKey === '0521')) ||
+                                          stationKey === stationId;
+
+                    if (shouldInclude) {
                         const rawValue = parseFloat(data[stationKey].value);
                         const key = `${stationKey} ${this.getVariableName(variable)}`;
                         latestDetails[key] = isNaN(rawValue) ? "No Data" : rawValue.toString();
                     }
+
+  
                 });
             });
 
