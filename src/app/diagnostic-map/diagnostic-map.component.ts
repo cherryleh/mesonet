@@ -591,13 +591,14 @@ export class DiagnosticMapComponent implements AfterViewInit {
     
 
     getStatus(variable: string, value: number | string | null): string {
-        if (value === null || value === "No Data" || isNaN(parseFloat(value as any)) || parseFloat(value as any) === 0) {
+        if (value === null || value === "No Data" || isNaN(parseFloat(value as any))) {
             return "No Data";
         }
 
         const numValue = parseFloat(value as any);
 
         if (variable === "Battery Voltage") {
+            if (numValue === 0) return "No Data"; // Specific check if 0 should be treated as No Data for this variable
             if (numValue < 11.8) return "Critical";
             if (numValue < 12) return "Warning";
             if (numValue < 12.2) return "Caution";
@@ -605,12 +606,14 @@ export class DiagnosticMapComponent implements AfterViewInit {
         } else if (variable === "Enclosure Relative Humidity") {
             if (numValue >= 30) return "Critical";
             if (numValue > 10) return "Caution";
-            return "Good";
+            return "Good"; // 0 is valid here
         } else if (variable === "Cellular Signal Strength") {
+            if (numValue === 0) return "No Data";
             if (numValue < -115) return "Critical";
             if (numValue < -106) return "Warning";
             return "Good";
         } else if (variable === "Cellular Signal Quality") {
+            if (numValue === 0) return "No Data";
             if (numValue < -12) return "Warning";
             return "Good";
         } else if (variable === "Tair Sensor Difference") {
@@ -622,10 +625,10 @@ export class DiagnosticMapComponent implements AfterViewInit {
             if (numValue > 10) return "Warning";
             return "Good";
         }
-        
 
         return "No Data";
     }
+
 
     getStatusClass(variable: string, value: number | string | null): string {
         const status = this.getStatus(variable, value);

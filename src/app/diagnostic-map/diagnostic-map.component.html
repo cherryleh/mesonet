@@ -37,33 +37,37 @@
                     <h4 style="margin-bottom: 0;">Diagnostic Observations</h4>
                 </div>
 
-                <div class="value-list">
-                    <div *ngFor="let key of objectKeys(selectedStation.details)">
-                        <p>
-                            <strong>
-                                {{ selectedStation.id === '0521' ? key : key.replace(selectedStation.id + ' ', '') }}:
-                              </strong>
-  
-                            <span *ngIf="isDifferenceVariable(key)">
-                                {{ selectedStation.details[key] | number:'1.2-2' }}
-                            </span>
-                            <span *ngIf="!isDifferenceVariable(key)">
-                                {{ selectedStation.details[key] }}
-                            </span>
-
-                            <span
-                                class="{{ getStatusClass(key.replace(selectedStation.id + ' ', ''), selectedStation.details[key]) }}">
-                                ({{ getStatus(key.replace(selectedStation.id + ' ', ''), selectedStation.details[key])
-                                }})
-                            </span>
-                        </p>
-                    </div>
-                </div>
-
-
-
-
-
+                <table class="diagnostic-table">
+                    <thead>
+                      <tr>
+                        <th>Variable</th>
+                        <th>Value</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let key of objectKeys(selectedStation.details)">
+                        <td>
+                          {{ selectedStation.id === '0521' ? key : key.replace(selectedStation.id + ' ', '') }}
+                        </td>
+                        <td>
+                          <span *ngIf="isDifferenceVariable(key)">
+                            {{ selectedStation.details[key] | number:'1.2-2' }}
+                          </span>
+                          <span *ngIf="!isDifferenceVariable(key)">
+                            {{ selectedStation.details[key] }}
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            class="{{ getStatusClass(key.replace(selectedStation.id + ' ', ''), selectedStation.details[key]) }}">
+                            {{ getStatus(key.replace(selectedStation.id + ' ', ''), selectedStation.details[key]) }}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+      
             <div *ngIf="selectedStation.sensorUpdates && objectKeys(selectedStation.sensorUpdates).length > 0"
                 class="details-header">
                 <h4 style="margin-bottom: 0;">Sensor Latest Update</h4>
@@ -86,8 +90,6 @@
                     </ng-container>
                 </tbody>
             </table>
-
-
         </div>
 
         <ng-template #noData>
