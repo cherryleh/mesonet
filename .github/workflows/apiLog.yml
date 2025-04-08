@@ -13,11 +13,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fetch or create data-branch
+      - name: Checkout main to get script
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      
+      - name: Copy scripts before switching branch
+        run: cp -r scripts/ scripts_backup/
+      
+      - name: Checkout data-branch
         run: |
           git fetch origin data-branch || echo "data-branch does not exist"
           git checkout data-branch || git checkout --orphan data-branch
           git pull origin data-branch --rebase || echo "No remote data-branch content"
+      
+      - name: Restore scripts
+        run: cp -r scripts_backup/ scripts/
+
 
       - name: Download Google Sheet tab as CSV
         run: |
