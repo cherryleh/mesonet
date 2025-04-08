@@ -13,7 +13,6 @@ header = {
 
 stations_url = "https://api.hcdp.ikewai.org/mesonet/db/stations"
 measurements_url = "https://api.hcdp.ikewai.org/mesonet/db/measurements"
-variables = ["BattVolt", "RHenc", "CellStr", "CellQlt"]
 
 now = datetime.utcnow()
 start_time = now - timedelta(hours=24)
@@ -28,8 +27,15 @@ except requests.exceptions.RequestException as e:
     print(f"Error fetching stations: {e}")
     stations = []
 
-# Dictionary to store results
-measurements_by_variable = {var: {} for var in variables}
+variables = ["BattVolt", "RHenc", "CellStr", "CellQlt"]
+measurements_by_variable = {
+    "BattVolt": {},
+    "RHenc_80": {},   # % time RHenc > 80
+    "RHenc_max": {},  # max RHenc
+    "CellStr": {},
+    "CellQlt": {}
+}
+
 
 # Fetch measurements
 for station in stations:
@@ -51,7 +57,23 @@ for station in stations:
                     result_value = min(values)  # Get min for BattVolt
                 elif variable == "RHenc":
                     above_80 = [float(v) for v in values if float(v) > 80]
-                    result_value = (len(above_80) / len(values)) * 100 if values else 0
+                    percent_above_80 = (len(above_80) / len(values)) * 100 if values else 0
+
+                    max_rh = max([float(v) for v in values])
+                    latest_timestamp = max(entry["timestamp"] for entry in data if "timestamp" in entry)
+
+                    measurements_by_variable["RHenc_80"][station_id] = {
+                        "value": percent_above_80,
+                        "timestamp": latest_timestamp
+                    }
+
+                    measurements_by_variable["RHenc_max"][station_id] = {
+                        "value": max_rh,
+                        "timestamp": latest_timestamp
+                    }
+
+                    continue
+
                 else:
                     result_value = max(values)  # Get max for other variables
 
@@ -121,7 +143,8 @@ for station in stations:
         }
 
         
-for variable, measurements in measurements_by_vardiff.items():
-    filename = f"{variable}_diff.json"
+for variable, measurements in measurements_by_variable.items():
+    filename = f"{variable}.json"
     with open(filename, "w") as json_file:
         json.dump(measurements, json_file, indent=4)
+    print(f"Saved {filename}")
