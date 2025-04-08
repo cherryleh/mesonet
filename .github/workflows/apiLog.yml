@@ -13,11 +13,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fetch or create data-branch
+      - name: Checkout main to get script
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      
+      - name: Copy scripts before switching branch
+        run: cp -r scripts/ scripts_backup/
+      
+      - name: Checkout data-branch
         run: |
           git fetch origin data-branch || echo "data-branch does not exist"
           git checkout data-branch || git checkout --orphan data-branch
           git pull origin data-branch --rebase || echo "No remote data-branch content"
+      
+      - name: Restore scripts
+        run: cp -r scripts_backup/ scripts/
+
 
       - name: Download Google Sheet tab as CSV
         run: |
@@ -38,14 +50,18 @@ jobs:
           git push origin data-branch --force
 
       - name: Install Python dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r scripts/requirements.txt
+
+
+      - name: Debug – list scripts folder
+        run: ls -al scripts/
+
 
       - name: Decode Google Credentials
         run: |
           echo '${{ secrets.GSHEET_CREDENTIALS_B64 }}' | base64 -d > gsheet_creds.json
-          echo "GSHEET_CREDS=$(jq -c . gsheet_creds.json)" >> $GITHUB_ENV
 
       - name: Clear Google Sheet tab
         env:
-          GSHEET_CREDS: ${{ env.GSHEET_CREDS }}
+          GOOGLE_APPLICATION_CREDENTIALS: gsheet_creds.json
         run: python scripts/clear_google_sheet.py
