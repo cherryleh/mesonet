@@ -39,7 +39,8 @@ export class DiagnosticMapComponent implements AfterViewInit {
         { id: "BattVolt", name: "24H Min Battery Voltage" },
         { id: "CellQlt", name: "24H Min Cellular signal quality" },
         { id: "CellStr", name: "24H Min Cellular signal strength" },
-        { id: "RHenc", name: "Enclosure relative humidity" },
+        { id: "RHenc_max", name: "24H Max Enclosure relative humidity" },
+        { id: "RHenc_80", name: ">50% Enclosure relative humidity" },
         { id: "Tair_diff", name: "Temperature Sensor Difference" },
         { id: "RH_diff", name: "Relative Humidity Sensor Difference"},
         { id: "Earliest Measurement", name: "Earliest Measurement" }
@@ -125,11 +126,6 @@ export class DiagnosticMapComponent implements AfterViewInit {
                     return;
                 }
                 let rawValue = measurementMap[station.station_id] ?? null;
-
-                // // Treat 0 as No Data
-                // if (rawValue === 0) {
-                //     rawValue = null;
-                // }
 
                 let displayText: string | null = null;
                 let color: string;
@@ -224,8 +220,11 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 case "BattVolt":
                     dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/BattVolt.json";
                     break;
-                case "RHenc":
-                    dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/RHenc.json";
+                case "RHenc_max":
+                    dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/RHenc_max.json";
+                    break;
+                case "RHenc_80":
+                    dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/RHenc_80.json";
                     break;
                 case "CellStr":
                     dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/CellStr.json";
@@ -261,7 +260,13 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 if (value0520 !== null && value0521 !== null) {
                     measurementMap["0521"] = Math.min(value0520, value0521);
                 }
-            } else if (this.selectedVariable === "RHenc") {
+            } else if (this.selectedVariable === "RHenc_max") {
+                const value0520 = measurementMap["0520"] ?? null;
+                const value0521 = measurementMap["0521"] ?? null;
+                if (value0520 !== null && value0521 !== null) {
+                    measurementMap["0521"] = Math.max(value0520, value0521);
+                }
+            } else if (this.selectedVariable === "RHenc_80") {
                 const value0520 = measurementMap["0520"] ?? null;
                 const value0521 = measurementMap["0521"] ?? null;
                 if (value0520 !== null && value0521 !== null) {
@@ -286,7 +291,11 @@ export class DiagnosticMapComponent implements AfterViewInit {
             if (value < 12) return "orange";
             if (value < 12.2) return "yellow";
             return "green";
-        } else if (this.selectedVariable === "RHenc") {
+        } else if (this.selectedVariable === "RHenc_max") {
+            if (value >= 75) return "red";
+            if (value >= 50) return "yellow";
+            return "green";
+        } else if (this.selectedVariable === "RHenc_80") {
             if (value >= 30) return "red";
             if (value >= 10) return "yellow";
             return "green";
@@ -404,28 +413,50 @@ export class DiagnosticMapComponent implements AfterViewInit {
                             <span>No Data</span>
                         </div>
                     </div>
-                    `} else if (this.selectedVariable === "RHenc") {
-                div.innerHTML = `
-                <h4>${this.selectedVariable}</h4>
-                <div style="display: flex; flex-direction: column;">
-                    <div style="display: flex; align-items: center;">
-                        <span style="width: 15px; height: 15px; background: green; display: inline-block; margin-right: 5px;"></span>
-                        <span>< 10%</span>
-                    </div>
-                    <div style="display: flex; align-items: center;">
-                        <span style="width: 15px; height: 15px; background: yellow; display: inline-block; margin-right: 5px;"></span>
-                        <span>10-30%</span>
-                    </div>
-                    <div style="display: flex; align-items: center;">
-                            <span style="width: 15px; height: 15px; background: red; display: inline-block; margin-right: 5px;"></span>
-                            <span>> 30%</span>
+                `} else if (this.selectedVariable === "RHenc_max") {
+                    div.innerHTML = `
+                    <h4>${this.selectedVariable}</h4>
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center;">
+                            <span style="width: 15px; height: 15px; background: green; display: inline-block; margin-right: 5px;"></span>
+                            <span>< 50%</span>
                         </div>
-                    </div>
-                    <div style="display: flex; align-items: center;">
-                            <span style="width: 15px; height: 15px; background: gray; display: inline-block; margin-right: 5px;"></span>
-                            <span>No Data</span>
+                        <div style="display: flex; align-items: center;">
+                            <span style="width: 15px; height: 15px; background: yellow; display: inline-block; margin-right: 5px;"></span>
+                            <span>50-75%</span>
                         </div>
-                    </div>
+                        <div style="display: flex; align-items: center;">
+                                <span style="width: 15px; height: 15px; background: red; display: inline-block; margin-right: 5px;"></span>
+                                <span>> 75%</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                                <span style="width: 15px; height: 15px; background: gray; display: inline-block; margin-right: 5px;"></span>
+                                <span>No Data</span>
+                            </div>
+                        </div>
+                `} else if (this.selectedVariable === "RHenc_80") {
+                    div.innerHTML = `
+                    <h4>${this.selectedVariable}</h4>
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center;">
+                            <span style="width: 15px; height: 15px; background: green; display: inline-block; margin-right: 5px;"></span>
+                            <span>< 10%</span>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <span style="width: 15px; height: 15px; background: yellow; display: inline-block; margin-right: 5px;"></span>
+                            <span>10-30%</span>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                                <span style="width: 15px; height: 15px; background: red; display: inline-block; margin-right: 5px;"></span>
+                                <span>> 30%</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                                <span style="width: 15px; height: 15px; background: gray; display: inline-block; margin-right: 5px;"></span>
+                                <span>No Data</span>
+                            </div>
+                        </div>
                 `} else if (this.selectedVariable === "Tair_diff") {
                     div.innerHTML = `
                     <h4>${this.selectedVariable}</h4>
@@ -509,7 +540,8 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 "BattVolt": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/BattVolt.json",
                 "CellStr": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/CellStr.json",
                 "CellQlt": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/CellQlt.json",
-                "RHenc": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RHenc.json",
+                "RHenc_max": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RHenc_max.json",
+                "RHenc_80": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RHenc_80.json",
                 "Tair_diff": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/Tair_diff.json",
                 "RH_diff": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RH_diff.json",
             };
@@ -603,7 +635,11 @@ export class DiagnosticMapComponent implements AfterViewInit {
             if (numValue < 12) return "Warning";
             if (numValue < 12.2) return "Caution";
             return "Good";
-        } else if (variable === "Enclosure Relative Humidity") {
+        } else if (variable === "24H Max Enclosure Relative Humidity") {
+            if (numValue >= 75) return "Critical";
+            if (numValue >= 50) return "Caution";
+            return "Good"; // 0 is valid here
+        } else if (variable === ">50% Enclosure Relative Humidity") {
             if (numValue >= 30) return "Critical";
             if (numValue > 10) return "Caution";
             return "Good"; // 0 is valid here
@@ -664,7 +700,8 @@ export class DiagnosticMapComponent implements AfterViewInit {
             "BattVolt": "Battery Voltage",
             "CellStr": "Cellular Signal Strength",
             "CellQlt": "Cellular Signal Quality",
-            "RHenc": "Enclosure Relative Humidity",
+            "RHenc_max":"24H Max Enclosure Relative Humidity",
+            "RHenc_80": ">50% Enclosure Relative Humidity",
             "Tair_diff": "Tair Sensor Difference",
             "RH_diff": "RH Sensor Difference",
         };
