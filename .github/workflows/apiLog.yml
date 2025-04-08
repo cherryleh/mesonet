@@ -43,9 +43,8 @@ jobs:
       - name: Decode Google Credentials
         run: |
           echo '${{ secrets.GSHEET_CREDENTIALS_B64 }}' | base64 -d > gsheet_creds.json
-          echo "GSHEET_CREDS=$(jq -c . gsheet_creds.json)" >> $GITHUB_ENV
 
       - name: Clear Google Sheet tab
         env:
-          GSHEET_CREDS: ${{ env.GSHEET_CREDS }}
+          GOOGLE_APPLICATION_CREDENTIALS: gsheet_creds.json
         run: python scripts/clear_google_sheet.py
