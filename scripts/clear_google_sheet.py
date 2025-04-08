@@ -4,8 +4,11 @@ from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
 # Load credentials from env
-creds_json = os.environ['GSHEET_CREDS']
-creds = Credentials.from_service_account_info(json.loads(creds_json), scopes=["https://www.googleapis.com/auth/spreadsheets"])
+creds_path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+if not creds_path or not os.path.exists(creds_path):
+    raise RuntimeError("GOOGLE_APPLICATION_CREDENTIALS is not set or file does not exist")
+
+creds = Credentials.from_service_account_file(creds_path, scopes=["https://www.googleapis.com/auth/spreadsheets"])
 
 # Setup Sheet info
 SPREADSHEET_ID = '1yovub3qO0T1MQCC-KXGicq8BlzkAEE9IcCFTdEWW3tQ'
