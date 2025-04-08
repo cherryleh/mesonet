@@ -56,8 +56,8 @@ for station in stations:
                 if variable == "BattVolt":
                     result_value = min(values)  # Get min for BattVolt
                 elif variable == "RHenc":
-                    above_80 = [float(v) for v in values if float(v) > 80]
-                    percent_above_80 = (len(above_80) / len(values)) * 100 if values else 0
+                    above_50 = [float(v) for v in values if float(v) > 50]
+                    percent_above_80 = (len(above_50) / len(values)) * 100 if values else 0
 
                     max_rh = max([float(v) for v in values])
                     latest_timestamp = max(entry["timestamp"] for entry in data if "timestamp" in entry)
@@ -93,23 +93,20 @@ for station in stations:
 station_0520 = "0520"
 station_0521 = "0521"
 
-for variable in variables:
+for variable in ["BattVolt", "CellStr", "CellQlt"]:
     if station_0520 in measurements_by_variable[variable] and station_0521 in measurements_by_variable[variable]:
         if variable == "BattVolt":
-            # Take the lowest value between 0520 and 0521
             val_0520 = float(measurements_by_variable[variable][station_0520]["value"])
             val_0521 = float(measurements_by_variable[variable][station_0521]["value"])
             measurements_by_variable[variable][station_0521]["value"] = min(val_0520, val_0521)
-        elif variable in ["CellStr", "CellQlt"]:
-            # Copy values from 0520 to 0521
+        else:  # CellStr and CellQlt
             measurements_by_variable[variable][station_0521] = measurements_by_variable[variable][station_0520].copy()
 
-# Save results to JSON files
-for variable, measurements in measurements_by_variable.items():
-    filename = f"{variable}.json"
-    with open(filename, "w") as json_file:
-        json.dump(measurements, json_file, indent=4)
-    print(f"Saved {filename}")
+# Also copy RHenc_80 and RHenc_max from 0520 to 0521
+for variable in ["RHenc_80", "RHenc_max"]:
+    if station_0520 in measurements_by_variable[variable]:
+        measurements_by_variable[variable][station_0521] = measurements_by_variable[variable][station_0520].copy()
+
     
 var_pairs = [('Tair_1_Avg', 'Tair_2_Avg', 'Tair'), ('RH_1_Avg', 'RH_2_Avg','RH')]
 diff_vars = ["Tair","RH"]
