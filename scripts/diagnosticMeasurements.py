@@ -145,3 +145,10 @@ for variable, measurements in measurements_by_variable.items():
     with open(filename, "w") as json_file:
         json.dump(measurements, json_file, indent=4)
     print(f"Saved {filename}")
+
+# Save sensor difference files: Tair_diff.json and RH_diff.json
+for variable, measurements in measurements_by_vardiff.items():
+    filename = f"{variable}_diff.json"
+    with open(filename, "w") as json_file:
+        json.dump(measurements, json_file, indent=4)
+    print(f"Saved {filename}")
