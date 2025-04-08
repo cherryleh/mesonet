@@ -83,23 +83,25 @@ export class DashboardComponent implements AfterViewInit {
 
   }
 
-  toggleUnit() {
-    this.selectedUnit = this.selectedUnit === 'standard' ? 'metric' : 'standard';
-    this.unitService.setUnit(this.selectedUnit); // Ensure this updates globally
+  setUnit(unit: 'standard' | 'metric') {
+    if (this.selectedUnit === unit) return;
 
-    // Convert values for cumulative-info section
+    this.selectedUnit = unit;
+    this.unitService.setUnit(this.selectedUnit);
+
     if (this.selectedUnit === 'metric') {
-        this.totalRainfall = this.convertInchesToMm(this.totalRainfall);
-        this.meanTemp = this.convertFtoC(this.meanTemp);
-        this.minTemp = this.convertFtoC(this.minTemp);
-        this.maxTemp = this.convertFtoC(this.maxTemp);
+      this.totalRainfall = this.convertInchesToMm(this.totalRainfall);
+      this.meanTemp = this.convertFtoC(this.meanTemp);
+      this.minTemp = this.convertFtoC(this.minTemp);
+      this.maxTemp = this.convertFtoC(this.maxTemp);
     } else {
-        this.totalRainfall = this.convertMmToInches(this.totalRainfall);
-        this.meanTemp = this.convertCtoF(this.meanTemp);
-        this.minTemp = this.convertCtoF(this.minTemp);
-        this.maxTemp = this.convertCtoF(this.maxTemp);
+      this.totalRainfall = this.convertMmToInches(this.totalRainfall);
+      this.meanTemp = this.convertCtoF(this.meanTemp);
+      this.minTemp = this.convertCtoF(this.minTemp);
+      this.maxTemp = this.convertCtoF(this.maxTemp);
     }
-}
+  }
+
 
   // Conversion functions
   convertInchesToMm(value: number): number {

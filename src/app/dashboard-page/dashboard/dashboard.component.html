@@ -12,21 +12,21 @@
                 <div class="graph-grid">
                     <div class="graph-content">
                         <div class="graph-header">
-                            <div class="graph-controls">
-                                <!-- Duration Selector -->
+                            <div class="graph-controls-centered">
                                 <app-duration-selector></app-duration-selector>
-
-                                <!-- Unit Toggle (Now correctly below the duration selector) -->
-                                <div class="unit-toggle">
-                                    <span class="unit-option" [class.active]="selectedUnit === 'metric'">Metric</span>
-                                    <label class="switch">
-                                        <input type="checkbox" (change)="toggleUnit()">
-                                        <span class="slider"></span>
-                                    </label>
-                                    <span class="unit-option" [class.active]="selectedUnit === 'standard'">Standard</span>
+  
+                                <div class="unit-toggle-wrapper">
+                                  <div class="unit-toggle-buttons">
+                                    <button 
+                                      [class.active]="selectedUnit === 'metric'" 
+                                      (click)="setUnit('metric')">Metric</button>
+                                    <button 
+                                      [class.active]="selectedUnit === 'standard'" 
+                                      (click)="setUnit('standard')">Standard</button>
+                                  </div>
                                 </div>
-                            </div>
-
+                              </div>
+  
                             <div class="cumulative-info">
                                 <div id="borderLeft"></div>
                                 <p class="cumulative-label">{{ duration }} Total Rainfall</p>
