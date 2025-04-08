@@ -40,6 +40,11 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r scripts/requirements.txt
 
+
+      - name: Debug – list scripts folder
+        run: ls -al scripts/
+
+
       - name: Decode Google Credentials
         run: |
           echo '${{ secrets.GSHEET_CREDENTIALS_B64 }}' | base64 -d > gsheet_creds.json
