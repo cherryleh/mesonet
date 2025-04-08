@@ -1,0 +1,51 @@
+name: Save Google Sheet Monthly
+
+on:
+  schedule:
+    - cron: '0 0 1 * *'  # Run monthly on the 1st at 00:00 UTC
+  workflow_dispatch:
+
+jobs:
+  download-sheet:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch or create data-branch
+        run: |
+          git fetch origin data-branch || echo "data-branch does not exist"
+          git checkout data-branch || git checkout --orphan data-branch
+          git pull origin data-branch --rebase || echo "No remote data-branch content"
+
+      - name: Download Google Sheet tab as CSV
+        run: |
+          mkdir -p "data/Run Data Map Measurements"
+          TIMESTAMP=$(date +'%Y-%m-%d')
+          curl -L "https://docs.google.com/spreadsheets/d/1yovub3qO0T1MQCC-KXGicq8BlzkAEE9IcCFTdEWW3tQ/export?format=csv&gid=0" \
+            -o "data/Run Data Map Measurements/google_sheet_${TIMESTAMP}.csv"
+
+      - name: Set up Git user
+        run: |
+          git config --local user.email "github-actions@github.com"
+          git config --local user.name "github-actions"
+
+      - name: Commit and push CSV to data-branch
+        run: |
+          git add "data/Run Data Map Measurements/google_sheet_*.csv"
+          git commit -m "Monthly Google Sheet backup - $(date +'%Y-%m-%d')" || echo "No changes to commit"
+          git push origin data-branch --force
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Decode Google Credentials
+        run: |
+          echo '${{ secrets.GSHEET_CREDENTIALS_B64 }}' | base64 -d > gsheet_creds.json
+          echo "GSHEET_CREDS=$(jq -c . gsheet_creds.json)" >> $GITHUB_ENV
+
+      - name: Clear Google Sheet tab
+        env:
+          GSHEET_CREDS: ${{ env.GSHEET_CREDS }}
+        run: python scripts/clear_google_sheet.py

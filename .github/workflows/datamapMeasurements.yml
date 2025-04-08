@@ -2,7 +2,7 @@ name: Run Data Map Measurements
 
 on:
   schedule:
-    - cron: '*/15 * * * *'  # Runs every 15 min
+    - cron: '0 0 1 * *'  
   workflow_dispatch:
 
 jobs:
