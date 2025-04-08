@@ -28,8 +28,10 @@ jobs:
           git pull origin data-branch --rebase || echo "No remote data-branch content"
       
       - name: Restore scripts
-        run: cp -r scripts_backup/ scripts/
-
+        run: |
+          rm -rf scripts/
+          cp -r scripts_backup/ scripts/
+          ls -l scripts/  # Debug: List files to verify it's restored
 
       - name: Download Google Sheet tab as CSV
         run: |
