@@ -38,7 +38,7 @@ jobs:
           git push origin data-branch --force
 
       - name: Install Python dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r scripts/requirements.txt
 
       - name: Decode Google Credentials
         run: |
