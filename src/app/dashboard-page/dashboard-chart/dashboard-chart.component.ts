@@ -126,22 +126,29 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
         return;
       }
 
-      this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
-
+      // Don't set chart here
       this.subscribeToDurationChanges();
       this.unitSubscription = this.unitService.selectedUnit$.subscribe(unit => {
         this.selectedUnit = unit;
         this.updateChartUnits();
       });
 
-      this.adjustChartHeight();
       this.isLoading = false;
     });
   }
 
+
   ngAfterViewInit(): void {
-    setTimeout(() => this.chartRef?.reflow(), 500);
+    if (!this.chartRef && this.chartContainer) {
+      this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
+    }
+
+    setTimeout(() => {
+      this.chartRef?.reflow();
+    }, 200);
   }
+
+
 
   ngOnDestroy(): void {
     this.isDestroyed = true;
