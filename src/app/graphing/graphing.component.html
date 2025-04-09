@@ -79,9 +79,11 @@
             </div>
           </div>
 
-          <div class="update-button-wrapper">
+          <div class="input-group update-button-group">
+            <label>&nbsp;</label> <!-- Empty label for alignment -->
             <button
               class="update-button"
+              [class.disabled-button]="dateRangeTooLong"
               (click)="updateChartButtonClick()"
               [disabled]="dateRangeTooLong">
               Update Chart
@@ -90,6 +92,7 @@
               ❗ Date range cannot exceed 90 days.
             </span>
           </div>
+
 
 
         </div>

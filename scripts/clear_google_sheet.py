@@ -12,7 +12,8 @@ creds = Credentials.from_service_account_file(creds_path, scopes=["https://www.g
 
 # Setup Sheet info
 SPREADSHEET_ID = '1yovub3qO0T1MQCC-KXGicq8BlzkAEE9IcCFTdEWW3tQ'
-RANGE = 'Logs'
+RANGE = 'Logs!2:100000000'
+
 
 service = build('sheets', 'v4', credentials=creds)
 service.spreadsheets().values().clear(spreadsheetId=SPREADSHEET_ID, range=RANGE).execute()
