@@ -79,7 +79,7 @@ html {
     background-color: #007bff;
     color: #ffffff;
     border: none;
-    border-radius: 8px 0 0 8px;
+    border-radius: 8px!important;
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
     min-width: 160px;
