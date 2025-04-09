@@ -13,6 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 
 import { UnitService } from '../services/unit.service'; 
 import { Subscription } from 'rxjs';
+import { SidebarService } from '../services/sidebar.service';
 
 @Component({
   selector: 'app-climatology',
@@ -35,6 +36,8 @@ export class ClimatologyComponent implements OnInit {
 
   selectedUnit: 'metric' | 'standard' = 'standard';
   private unitSubscription!: Subscription;
+  private sidebarSubscription!: Subscription;
+
 
   isCollapsed = false;
 
@@ -42,7 +45,7 @@ export class ClimatologyComponent implements OnInit {
     this.isCollapsed = collapsed;
   }
   
-  constructor(private http: HttpClient,private route: ActivatedRoute, private unitService: UnitService) {}
+  constructor(private http: HttpClient,private route: ActivatedRoute, private unitService: UnitService,private sidebarService: SidebarService) {}
 
   ngOnInit(): void {
     this.unitSubscription = this.unitService.getUnit().subscribe(unit => {
@@ -53,6 +56,11 @@ export class ClimatologyComponent implements OnInit {
       this.stationId = params['id'] || 'default_station_id';
       this.loadCSVData(this.stationId);
     });
+
+    this.sidebarSubscription = this.sidebarService.isCollapsed$.subscribe((value: boolean) => {
+      this.isCollapsed = value;
+    });
+
   }
 
   loadCSVData(stationId: string): void {

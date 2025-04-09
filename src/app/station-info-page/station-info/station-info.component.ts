@@ -6,6 +6,7 @@ import { StationTitleComponent } from '../../station-title/station-title.compone
 import { StationSpecificMapComponent } from '../station-specific-map/station-specific-map.component';
 import { StationDatesService } from '../../services/station-dates.service';
 import { StationDataService } from '../../services/station-info.service';
+import { SidebarService } from '../../services/sidebar.service';
 import { Subscription, forkJoin } from 'rxjs';
 
 @Component({
@@ -33,7 +34,8 @@ export class StationInfoComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private stationDatesService: StationDatesService,
-    private stationDataService: StationDataService
+    private stationDataService: StationDataService,
+    private sidebarService: SidebarService
   ) {}
 
   ngOnInit(): void {
@@ -43,6 +45,13 @@ export class StationInfoComponent implements OnInit, OnDestroy {
 
       this.fetchStationData();
     });
+
+    this.subscription.add(
+      this.sidebarService.isCollapsed$.subscribe(value => {
+        this.isCollapsed = value;
+        console.log('Sidebar collapsed:', value);
+      })
+    );
   }
 
 

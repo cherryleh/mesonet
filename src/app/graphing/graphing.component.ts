@@ -18,6 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 import { UnitService } from '../services/unit.service'; 
 import { Subscription } from 'rxjs';
 import { StationDatesService } from '../services/station-dates.service';
+import { SidebarService } from '../services/sidebar.service';
 
 @Component({
   selector: 'app-graphing',
@@ -80,12 +81,15 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     { label: 'Last 90 Days', value: '90d' }
   ];
 
+  private sidebarSubscription!: Subscription;
+
   constructor(
     private route: ActivatedRoute,
     private graphingDataService: GraphingDataService,
     private graphingMenuService: GraphingMenuService,
     private unitService: UnitService,
-    private stationDatesService: StationDatesService
+    private stationDatesService: StationDatesService,
+    private sidebarService: SidebarService
   ) {}
 
   minAvailableDate: Date = new Date();
@@ -102,6 +106,10 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
     this.unitSubscription = this.unitService.getUnit().subscribe(unit => {
       this.selectedUnit = unit; // Update dropdown selection when unit changes
+    });
+
+    this.sidebarSubscription = this.sidebarService.isCollapsed$.subscribe((value: boolean) => {
+      this.isCollapsed = value;
     });
   }
 

@@ -19,6 +19,8 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { UnitService } from '../../services/unit.service';
 
+import { Subscription } from 'rxjs';
+import { SidebarService } from '../../services/sidebar.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -65,7 +67,7 @@ export class DashboardComponent implements AfterViewInit {
     Rainfall: null,
     Temperature: null,
   };
-
+  private sidebarSubscription!: Subscription;
   stationName: string = ''; 
 
   selectedUnit: 'standard' | 'metric' = 'standard';
@@ -74,7 +76,8 @@ export class DashboardComponent implements AfterViewInit {
     private dataService: DataService,
     private datePipe: DatePipe,
     private aggregateService: aggregateService,
-    private unitService: UnitService ) {
+    private unitService: UnitService,
+    private sidebarService: SidebarService ) {
     Chart.register(...registerables);
     this.unitService.selectedUnit$.subscribe((unit: 'standard' | 'metric') => {
       this.selectedUnit = unit;
@@ -276,7 +279,9 @@ convertCtoF(value: number): number {
     this.aggregateService.durationText$.subscribe((durationText: string) => {
       this.duration = durationText;
     });
-
+    this.sidebarSubscription = this.sidebarService.isCollapsed$.subscribe((value: boolean) => {
+      this.isCollapsed = value;
+    });
     this.updateData();
   }
 

@@ -22,6 +22,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
+import { Subscription } from 'rxjs';
+import { SidebarService } from '../services/sidebar.service';
 
 @Component({
   selector: 'app-reports',
@@ -98,7 +100,8 @@ export class ReportsComponent implements OnInit {
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private reportsService: ReportsService,
-    private StationDatesService: StationDatesService
+    private StationDatesService: StationDatesService,
+    private sidebarService: SidebarService
   ) {
     this.reportForm = this.fb.group({
       startDate: ['', Validators.required],
@@ -108,6 +111,7 @@ export class ReportsComponent implements OnInit {
       confirmSubmission: [false, Validators.requiredTrue]
     });
   }
+  private sidebarSubscription!: Subscription;
 
   ngOnInit(): void {
     const today = new Date();
@@ -121,6 +125,9 @@ export class ReportsComponent implements OnInit {
       this.fetchStationData(this.stationId);
     });
 
+    this.sidebarSubscription = this.sidebarService.isCollapsed$.subscribe((value: boolean) => {
+      this.isCollapsed = value;
+    });
   }
 
   ngAfterViewInit(): void {
