@@ -71,29 +71,6 @@ html {
     color: #333;
   }
   
-  select {
-    width: 100%;
-    padding: 10px 15px;
-    font-size: 16px;
-    border: 1px solid #d0d7de;
-    border-radius: 8px !important;
-    background-color: #ffffff;
-    color: #333;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-  }
-  
-  select:focus {
-    border-color: #0056b3;
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.25);
-  }
-  
-  option {
-    font-size: 16px;
-    color: #333;
-  }
-  
   button.update-button {
     height: 56px;
     padding: 0 20px;
@@ -102,7 +79,7 @@ html {
     background-color: #007bff;
     color: #ffffff;
     border: none;
-    border-radius: 8px;
+    border-radius: 8px 0 0 8px;
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
     min-width: 160px;
@@ -110,16 +87,9 @@ html {
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-left: 0;
   }
 
-  button.update-button {
-    border-top-left-radius: 8px !important;
-    border-bottom-left-radius: 8px !important;
-    margin-left: 0 !important;
-  }
-
-
- 
   .update-button.disabled-button {
     background-color: #cccccc;
     color: #666666;
@@ -343,8 +313,6 @@ html {
   flex-direction: column;
   align-items: flex-start;
   height: 100%;
-  max-width: 280px;
+  max-width: 10%;
   flex: 1 1 260px;
-  max-width: 280px;
-  min-width: 200px;
 }
