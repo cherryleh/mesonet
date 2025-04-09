@@ -197,20 +197,31 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
 
 updateChartUnits() {
   if (this.chartRef && this.chartRef.series.length > 0) {
-      const convertedDataArray = this.getConvertedData();
+    const convertedDataArray = this.getConvertedData();
 
-      this.chartRef.series.forEach((series, index) => {
-          if (convertedDataArray[index]) {
-              series.setData(convertedDataArray[index], true);
-          }
-      });
+    this.chartRef.series.forEach((series, index) => {
+      if (convertedDataArray[index]) {
+        series.setData(convertedDataArray[index], true);
+      }
 
-      this.chartRef.yAxis[0].setTitle({ text: this.selectedUnit === 'metric' ? 'Temperature (°C)' : 'Temperature (°F)' });
-      this.chartRef.yAxis[1].setTitle({ text: this.selectedUnit === 'metric' ? 'Rainfall (mm)' : 'Rainfall (in)' });
+      // Update series name based on unit
+      if (index === 0) {
+        series.update({ name: this.selectedUnit === 'metric' ? 'Temperature (°C)' : 'Temperature (°F)' } as any, false);
+      } else if (index === 1) {
+        series.update({ name: this.selectedUnit === 'metric' ? 'Rainfall (mm)' : 'Rainfall (in)' } as any, false);
+      } else if (index === 2) {
+        series.update({ name: 'Solar Radiation (W/m²)' } as any, false); // stays the same
+      }
+    });
 
-      this.chartRef.redraw();
+    // Update y-axis titles
+    this.chartRef.yAxis[0].setTitle({ text: this.selectedUnit === 'metric' ? 'Temperature (°C)' : 'Temperature (°F)' });
+    this.chartRef.yAxis[1].setTitle({ text: this.selectedUnit === 'metric' ? 'Rainfall (mm)' : 'Rainfall (in)' });
+
+    this.chartRef.redraw();
   }
 }
+
 
 
 
