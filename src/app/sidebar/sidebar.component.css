@@ -154,3 +154,16 @@ li {
 .citation{
   margin-bottom: 1vw;
 }
+
+.nav-link.active-link {
+  color: #007bff; /* Active text color */
+  background-color: #f5faff; /* Subtle background */
+  border-right: 2px solid #007bff; /* Thinner right border */
+  position: relative;
+  overflow: hidden;
+}
+
+/* Change icon color when active */
+.nav-link.active-link .icon {
+  filter: brightness(0) saturate(100%) invert(32%) sepia(90%) saturate(700%) hue-rotate(180deg);
+}

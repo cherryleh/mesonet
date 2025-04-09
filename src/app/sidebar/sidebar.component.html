@@ -13,31 +13,36 @@
     <nav class="nav-menu">
       <ul>
         <li>
-          <a [routerLink]="'/dashboard'" [queryParamsHandling]="'merge'" class="nav-link">
+          <a [routerLink]="'/dashboard'" [queryParamsHandling]="'merge'" class="nav-link" routerLinkActive="active-link" 
+          [routerLinkActiveOptions]="{ exact: true }">
             <img src="dashboard.svg" alt="Dashboard Icon" class="icon">
             <span class="link-text">Site Dashboard</span>
           </a>
         </li>
         <li>
-          <a [routerLink]="'/graphing'" [queryParamsHandling]="'merge'" class="nav-link">
+          <a [routerLink]="'/graphing'" [queryParamsHandling]="'merge'" class="nav-link" routerLinkActive="active-link" 
+          [routerLinkActiveOptions]="{ exact: true }">
           <img src="graph.svg" alt="Graph Icon" class="icon">
           <span class="link-text">Graphing</span>
         </a>
         </li>
         <li>
-          <a [routerLink]="'/reports'" [queryParamsHandling]="'merge'" class="nav-link">
+          <a [routerLink]="'/reports'" [queryParamsHandling]="'merge'" class="nav-link" routerLinkActive="active-link" 
+          [routerLinkActiveOptions]="{ exact: true }">
           <img src="reports.svg" alt="Report Icon" class="icon">
           <span class="link-text">Reports</span>
         </a>
         </li>
         <li>
-          <a [routerLink]="'/climatology'" [queryParamsHandling]="'merge'" class="nav-link">
+          <a [routerLink]="'/climatology'" [queryParamsHandling]="'merge'" class="nav-link" routerLinkActive="active-link" 
+          [routerLinkActiveOptions]="{ exact: true }">
           <img src="climo.svg" alt="Dashboard Icon" class="icon">
           <span class="link-text">Climatology</span>
         </a>
         </li>
         <li>
-          <a [routerLink]="'/station-info'" [queryParamsHandling]="'merge'" class="nav-link">
+          <a [routerLink]="'/station-info'" [queryParamsHandling]="'merge'" class="nav-link" routerLinkActive="active-link" 
+          [routerLinkActiveOptions]="{ exact: true }">
           <img src="info.svg" alt="Dashboard Icon" class="icon">
           <span class="link-text">Station Information</span>
         </a>
