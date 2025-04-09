@@ -32,7 +32,7 @@ html {
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
-    padding: 20px 20px; /* ⬅️ Balanced padding top/bottom/left/right */
+    padding: 20px 20px; 
     flex-wrap: wrap;
     row-gap: 20px;
     height: 100%;
@@ -46,21 +46,18 @@ html {
   .input-group {
     display: flex;
     flex-direction: column;
-    flex: 1 1 260px; /* allow flex shrink/grow and define a base width */
+    flex: 1 1 260px;
     max-width: 280px;
     
   }
 
-
-  /* Specifically make the variable dropdown wider */
   .input-group:nth-child(1) mat-form-field {
-    width: 280px !important; /* ✅ Adjust width as needed */
+    width: 280px !important; 
   }
 
-  /* Ensure other dropdowns also resize correctly */
   mat-form-field {
-    width: 100%; /* Ensures all dropdowns take full space within their container */
-    max-width: 250px; /* Adjust if needed */
+    width: 100%; 
+    max-width: 250px; 
   }
 
   
@@ -96,10 +93,6 @@ html {
     cursor: not-allowed;
   }
 
-  
-
-
-  
   button.update-button:hover {
     background-color: #0056b3;
   }
@@ -158,16 +151,14 @@ html {
   color: #333;
 }
 
-/* Add overlay to gray out the chart */
 #graphContainer {
   width: 100%;
   height: 100%;
-  opacity: 0.5; /* Make the chart semi-transparent */
-  pointer-events: none; /* Disable interactions when loading */
+  opacity: 0.5; 
+  pointer-events: none; 
   transition: opacity 0.2s ease-in-out;
 }
 
-/* Reset chart to full opacity when loading is false */
 :not(.spinner-overlay) #graphContainer {
   opacity: 1;
   pointer-events: auto;
@@ -179,7 +170,7 @@ html {
   }
 }
 .input-group.time-range-group {
-  position: relative; /* needed to anchor absolute radio buttons */
+  position: relative; 
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -219,8 +210,8 @@ html {
 
 
 .date-range input[type="date"] {
-  height: 56px;                 /* ✅ Match Angular Material default */
-  padding: 0 12px;              /* Same left/right padding as mat-select */
+  height: 56px;                
+  padding: 0 12px;  
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -230,9 +221,9 @@ html {
 }
 
 .date-range input[type="date"]:focus {
-  border-color: #3f51b5; /* Material blue */
+  border-color: #3f51b5; 
   outline: none;
-  box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2); /* Similar to mat focus ring */
+  box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2); 
 }
 
 
@@ -241,10 +232,9 @@ html {
   color: #333;
 }
 
-/* ⬇️ The key fix */
 .radio-toggle {
   position: absolute;
-  bottom: -24px; /* move it just below the input */
+  bottom: -24px; 
   left: 0;
   display: flex;
   gap: 12px;
@@ -259,7 +249,7 @@ html {
   font-size: 0.85rem;
   font-weight: 500;
   color: #333;
-  white-space: nowrap; /* ⬅️ Prevents text from wrapping to the next line */
+  white-space: nowrap; 
 }
 
 .input-group.time-range-group .mat-mdc-form-field-subscript-wrapper {
@@ -285,11 +275,11 @@ html {
 }
 .update-button-wrapper {
   display: flex;
-  align-items: center; /* ✅ Vertical centering */
+  align-items: center;
   justify-content: flex-start;
   gap: 12px;
   margin-top: 12px;
-  height: 56px; /* match the mat-form-field height */
+  height: 56px; 
 }
 
 
