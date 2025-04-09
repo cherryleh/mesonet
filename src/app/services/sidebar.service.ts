@@ -18,4 +18,6 @@ export class SidebarService {
   getCollapsed(): boolean {
     return this.collapsed$.value;
   }
+
+  
 }

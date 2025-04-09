@@ -57,7 +57,7 @@ export class DashboardComponent implements AfterViewInit {
 
   isCollapsed = false;
 
-  onToggleSidebar(collapsed: boolean) {
+  onToggleSidebar(collapsed: boolean): void {
     this.isCollapsed = collapsed;
   }
   
