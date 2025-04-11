@@ -86,7 +86,7 @@ export class StationSelectionMapComponent implements AfterViewInit {
     .then(response => response.json())
     .then((data: any[]) => {
       data.forEach(station => {
-        if (station.lat && station.lng && station.name) {
+        if (station.lat && station.lng && station.full_name) {
           const randomizedCoords = this.randomizeLatLon(station.lat, station.lng);
 
           const circle = L.circleMarker([randomizedCoords.lat, randomizedCoords.lon],
@@ -96,7 +96,7 @@ export class StationSelectionMapComponent implements AfterViewInit {
               fillOpacity: 0.2, 
               weight: 2});
             const url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`;
-            circle.bindPopup(`<a href="${url}" style="font-size: 20px" target="_blank">${station.name}</a>`);
+            circle.bindPopup(`<a href="${url}" style="font-size: 20px" target="_blank">${station.full_name}</a>`);
           circle.addTo(this.map);
         }
       });

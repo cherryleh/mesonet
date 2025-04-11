@@ -1,11 +1,12 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { StationDataService } from '../services/station-info.service';
 import { ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-station-title',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './station-title.component.html',
   styleUrls: ['./station-title.component.css'] // Fixed 'styleUrl' to 'styleUrls'
 })
@@ -35,7 +36,7 @@ export class StationTitleComponent implements OnInit {
     this.stationDataService.getStationData(id).subscribe({
       next: (response) => {
         if (response.length > 0) {
-          this.stationName = response[0].name;
+          this.stationName = response[0].full_name;
           this.stationID = response[0].station_id;
         }
       },

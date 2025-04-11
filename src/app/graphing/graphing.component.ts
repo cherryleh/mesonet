@@ -202,16 +202,22 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   }
 
   getTickInterval(): number {
-    if (this.selectedDuration === '90d') {
-      return 7 * 24 * 3600 * 1000; // 7 days in milliseconds
-    } else if (this.selectedDuration === '60d') {
-      return 5 * 24 * 3600 * 1000; // 5 days in milliseconds
-    } else if (this.selectedDuration === '30d') {
-      return 1 * 24 * 3600 * 1000; // 1 day
-    } else {
-      return 6 * 3600 * 1000; // 6 hours
+    switch (this.selectedDuration) {
+      case '90d':
+        return 7 * 24 * 3600 * 1000; // every 7 days
+      case '60d':
+        return 5 * 24 * 3600 * 1000; // every 5 days
+      case '30d':
+        return 1 * 24 * 3600 * 1000; // every day
+      case '7d':
+        return 12 * 3600 * 1000; // every 12 hours
+      case '24h':
+        return 6 * 3600 * 1000; // every 2 hours
+      default:
+        return 6 * 3600 * 1000; // fallback
     }
   }
+
 
   getDaysFromDuration(duration: string): number {
     return duration === '24h' ? 1 : duration === '7d' ? 7 : duration === '30d' ? 30 : duration === '60d' ? 60 : duration === '90d' ? 90 : 0;
@@ -246,7 +252,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
     if (this.isCustomRange && this.dateRange.start && this.dateRange.end) {
       startDate = this.convertToApiTimestamp(this.dateRange.start);
-      endDate = this.convertToApiTimestamp(this.dateRange.end);
+      endDate = this.convertToApiTimestamp(this.dateRange.end, true); 
       console.log('Using custom range:', { startDate, endDate });
     } else {
       const days = this.getDaysFromDuration(this.selectedDuration);
@@ -260,7 +266,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       this.selectedVariables.join(','),
       startDate,
       this.selectedDuration,
-      endDate // ✅ Now always safely assigned
+      endDate 
     ).subscribe(
       data => {
         this.isLoading = false;
@@ -316,16 +322,28 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   };
 
 
-  convertToApiTimestamp(date: Date): string {
+  convertToApiTimestamp(date: Date, forceEndOfDay: boolean = false): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
-    const hour = String(date.getHours()).padStart(2, '0');
-    const minute = String(date.getMinutes()).padStart(2, '0');
-    const second = String(date.getSeconds()).padStart(2, '0');
+
+    let hour = '00';
+    let minute = '00';
+    let second = '00';
+
+    if (forceEndOfDay) {
+      hour = '23';
+      minute = '59';
+      second = '00';
+    } else {
+      hour = String(date.getHours()).padStart(2, '0');
+      minute = String(date.getMinutes()).padStart(2, '0');
+      second = String(date.getSeconds()).padStart(2, '0');
+    }
 
     return `${year}-${month}-${day}T${hour}:${minute}:${second}-10:00`;
   }
+
 
 
 
@@ -346,7 +364,11 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       if (this.chart.yAxis[2]) {
         this.chart.yAxis[2].setTitle({ text: this.selectedVariables.length > 2 ? yAxisLabels[2] : '' });
       }
-
+      this.chart.update({
+        xAxis: {
+          tickInterval: this.getTickInterval()
+        }
+      }, false);
       seriesData.forEach(series => this.chart?.addSeries(series, false));
       this.chart?.redraw();
     }
