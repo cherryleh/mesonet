@@ -22,7 +22,7 @@ import { environment } from '../../../environments/environment';
   ],
 })
 export class StationTableComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'name', 'lat', 'lng','elevation']; // Define columns to display
+  displayedColumns: string[] = ['id', 'full_name', 'lat', 'lng','elevation', 'status']; // Define columns to display
   dataSource = new MatTableDataSource<any>([]); // Initialize data source
   searchTerm: string = '';
 
@@ -56,12 +56,19 @@ export class StationTableComponent implements OnInit {
       }
 
       const responseData = await response.json();
-      console.log('Fetched data:', responseData);
-      this.dataSource.data = responseData; // Update data source
+
+      // Filter out stations with missing lat or lng
+      const filteredData = responseData.filter(
+        (station: any) => station.lat !== null && station.lng !== null
+      );
+
+      console.log('Filtered data:', filteredData);
+      this.dataSource.data = filteredData;
     } catch (error) {
       console.error('Error fetching station data:', error);
     }
   }
+
 
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
