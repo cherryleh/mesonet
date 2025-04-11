@@ -1,8 +1,38 @@
-#unitSelector{
-    width: 15%;
-    margin-left: 10px;
-}
-
-#climatologyChart{
+.chart-section {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
     margin-top: 10px;
-}
+    /* removed box-shadow */
+  }
+  
+  .disclaimer {
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    color: #444;
+  }
+  
+  .unit-toggle {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+  .unit-toggle label {
+    margin-right: 10px;
+    font-weight: 500;
+  }
+  
+  .unit-selector {
+    width: 200px;
+  }
+  
+  #climatologyChart {
+    margin-top: 10px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none !important;
+  }
+  
+  

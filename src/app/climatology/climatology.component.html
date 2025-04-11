@@ -4,19 +4,25 @@
         <app-station-title [isCollapsed]="isCollapsed"></app-station-title>
         <app-sidebar [class.collapsed]="isCollapsed" (toggle)="onToggleSidebar($event)"></app-sidebar>
         <div class="main-content" [class.collapsed]="isCollapsed">
-          <p>NOTE: Information on this page is derived from the Hawaii Climate Data Portal's gridded contemporary climatology dataset and is not sourced directly from the station's observations.</p>
+          <p class="disclaimer">
+            NOTE: Information on this page is derived from the Hawaii Climate Data Portal's gridded contemporary climatology dataset and is not sourced directly from the station's observations.
+          </p>
+  
+          <div class="chart-section">
             <div class="unit-toggle">
-                <label for="unitSelector">Select Units:</label>
-                <mat-form-field appearance="outline" class="unit-toggle">
-                  <mat-label>Select Units</mat-label>
-                  <mat-select [(ngModel)]="selectedUnit" (selectionChange)="onUnitChange()">
-                    <mat-option value="standard">Standard</mat-option>
-                    <mat-option value="metric">Metric</mat-option>
-                  </mat-select>
-                </mat-form-field>
-
-              </div>
+              <label for="unitSelector">Select Units:</label>
+              <mat-form-field appearance="outline" class="unit-selector">
+                <mat-label>Select Units</mat-label>
+                <mat-select id="unitSelector" [(ngModel)]="selectedUnit" (selectionChange)="onUnitChange()">
+                  <mat-option value="standard">Standard</mat-option>
+                  <mat-option value="metric">Metric</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+  
             <div id="climatologyChart" class="graph-container"></div>
+          </div>
         </div>
+  
     </div>
 </div>
