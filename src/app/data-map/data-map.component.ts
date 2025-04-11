@@ -404,19 +404,24 @@ private getColorFromValue(value: number, min: number, max: number): string {
   
 
   ngAfterViewInit(): void {
-    this.map = L.map('map', {
-      center: [20.493410, -158.064388],
-      zoom: 8,
-      layers: [L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')],
-      zoomControl: false 
+    requestAnimationFrame(() => {
+      this.map = L.map('map', {
+        center: [20.493410, -158.064388],
+        zoom: 8,
+        layers: [L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')],
+        zoomControl: false 
+      });
+
+      L.control.zoom({ position: "bottomleft" }).addTo(this.map);
+
+      // Delay station data fetch slightly more
+      setTimeout(() => {
+        this.fetchStationData();
+      }, 1000); // ← increase delay to give Leaflet a moment to render
     });
-
-    L.control.zoom({ position: "bottomleft" }).addTo(this.map);
-
-    setTimeout(() => {
-      this.fetchStationData();
-    }, 500);
   }
+
+  
 
   private addLegend(minValue: number, maxValue: number): void {
     if (this.selectedVariable === 'wind') {

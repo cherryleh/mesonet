@@ -717,20 +717,21 @@ export class DiagnosticMapComponent implements AfterViewInit {
 
 
     ngAfterViewInit(): void {
-        this.map = L.map('map', {
+        requestAnimationFrame(() => {
+          this.map = L.map('map', {
             center: [20.493410, -158.064388],
             zoom: 8,
             layers: [L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')],
             zoomControl: false
-        });
-
-        L.control.zoom({ position: "bottomleft" }).addTo(this.map);
-
-        setTimeout(() => {
+          });
+      
+          L.control.zoom({ position: "bottomleft" }).addTo(this.map);
+      
+          setTimeout(() => {
+            this.map.invalidateSize(); // optional: helps if map is hidden on init
             this.fetchStationData();
-        }, 500);
+          }, 500);
+        });
+      }
     }
-
-
-
-}
+      

@@ -23,7 +23,7 @@ export class StationInfoComponent implements OnInit, OnDestroy {
   elevation: number | null = null;
   lat: number | null = null;
   lon: number | null = null;
-
+  status: string = '';
   isCollapsed = false;
 
   onToggleSidebar(collapsed: boolean) {
@@ -82,6 +82,7 @@ export class StationInfoComponent implements OnInit, OnDestroy {
             this.elevation = station.elevation;
             this.lat = station.lat.toFixed(2);
             this.lon = station.lng.toFixed(2);
+            this.status = station.status;
             console.log('Elevation:', this.elevation);
           } else {
             console.warn('No station data found for ID:', this.stationId);
