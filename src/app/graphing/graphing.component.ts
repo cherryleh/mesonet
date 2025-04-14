@@ -345,34 +345,71 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   }
 
 
-
-
   updateChart(seriesData: Highcharts.SeriesOptionsType[]): void {
-    if (this.chart) {
-      while (this.chart.series.length) {
-        this.chart.series[0].remove(false);
-      }
+    if (!this.chart) return;
 
-      const yAxisLabels = this.selectedVariables.map(variable => this.getYAxisLabel(variable));
-
-      if (this.chart.yAxis[0]) {
-        this.chart.yAxis[0].setTitle({ text: yAxisLabels[0] || 'Primary Axis' });
-      }
-      if (this.chart.yAxis[1]) {
-        this.chart.yAxis[1].setTitle({ text: this.selectedVariables.length > 1 ? yAxisLabels[1] : '' });
-      }
-      if (this.chart.yAxis[2]) {
-        this.chart.yAxis[2].setTitle({ text: this.selectedVariables.length > 2 ? yAxisLabels[2] : '' });
-      }
-      this.chart.update({
-        xAxis: {
-          tickInterval: this.getTickInterval()
-        }
-      }, false);
-      seriesData.forEach(series => this.chart?.addSeries(series, false));
-      this.chart?.redraw();
+    // Clear all series
+    while (this.chart.series.length) {
+      this.chart.series[0].remove(false);
     }
+
+    const yAxisLabels = this.selectedVariables.map(variable => this.getYAxisLabel(variable));
+
+    // Define shared scale groups
+    const sharedScaleGroups = [
+      ['Tair_1_Avg', 'Tair_2_Avg'],
+      ['RH_1_Avg', 'RH_2_Avg'],
+    ];
+
+    const extremes: { [key: string]: { min: number; max: number } } = {};
+
+    // Compute min/max for each group if all variables in it are selected
+    for (const group of sharedScaleGroups) {
+      if (group.every(v => this.selectedVariables.includes(v))) {
+        const allValues: number[] = [];
+        for (const series of seriesData) {
+          const varName = (series as any).custom?.variable;
+          if (group.includes(varName)) {
+            const values = ((series as any).data || [])
+              .map((point: any) => point[1])
+              .filter((val: any) => val !== null && !isNaN(val));
+            allValues.push(...values);
+          }
+        }
+
+        const min = Math.min(...allValues);
+        const max = Math.max(...allValues);
+        group.forEach(v => (extremes[v] = { min, max }));
+      }
+    }
+
+    this.chart.yAxis.forEach((axis, i) => {
+      const variable = (this.chart?.series[i] as any)?.custom?.variable;
+      const label = this.selectedVariables[i]
+        ? this.getYAxisLabel(this.selectedVariables[i])
+        : '';
+
+      axis.setTitle({ text: label });
+
+      if (extremes[variable]) {
+        axis.update({ min: extremes[variable].min, max: extremes[variable].max }, false);
+      } else {
+        axis.update({ min: undefined, max: undefined }, false);
+      }
+    });
+
+
+    // Add series back
+    seriesData.forEach(series => this.chart?.addSeries(series, false));
+
+    // Apply updated tick interval
+    this.chart.update({
+      xAxis: { tickInterval: this.getTickInterval() }
+    }, false);
+
+    this.chart.redraw();
   }
+
 
   formatData(data: any): Highcharts.SeriesOptionsType[] {
     if (!data || data.length === 0) return [];
@@ -414,7 +451,8 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
       return {
         type: variable === 'RF_1_Tot300s' ? 'column' : 'line',
-        name: this.getYAxisLabel(variable),
+        name: this.getYAxisLabel(variable), // friendly display name
+        custom: { variable },               // raw variable name used for logic
         data: variableData,
         yAxis: index,
         zIndex: variable === 'RF_1_Tot300s' ? 0 : 1,
@@ -453,7 +491,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     if (variable === 'Tair_1_Avg') {
       return this.selectedUnit === 'standard' ? 'Temperature (°F)' : 'Temperature (°C)';
     } else if (variable === 'RF_1_Tot300s') {
-      return this.selectedUnit === 'standard' ? 'Rainfall (inches)' : 'Rainfall (mm)';
+      return this.selectedUnit === 'standard' ? 'Rainfall (in)' : 'Rainfall (mm)';
     } else {
       return this.variables.find(v => v.value === variable)?.yAxisTitle || variable;
     }
