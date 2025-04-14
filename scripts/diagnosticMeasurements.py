@@ -30,7 +30,7 @@ except requests.exceptions.RequestException as e:
 variables = ["BattVolt", "RHenc", "CellStr", "CellQlt"]
 measurements_by_variable = {
     "BattVolt": {},
-    "RHenc_80": {},   # % time RHenc > 80
+    "RHenc_50": {},   # % time RHenc > 80
     "RHenc_max": {},  # max RHenc
     "CellStr": {},
     "CellQlt": {}
@@ -57,13 +57,13 @@ for station in stations:
                     result_value = min(values)  # Get min for BattVolt
                 elif variable == "RHenc":
                     above_50 = [float(v) for v in values if float(v) > 50]
-                    percent_above_80 = (len(above_50) / len(values)) * 100 if values else 0
+                    percent_above_50 = (len(above_50) / len(values)) * 100 if values else 0
 
                     max_rh = max([float(v) for v in values])
                     latest_timestamp = max(entry["timestamp"] for entry in data if "timestamp" in entry)
 
-                    measurements_by_variable["RHenc_80"][station_id] = {
-                        "value": percent_above_80,
+                    measurements_by_variable["RHenc_50"][station_id] = {
+                        "value": percent_above_50,
                         "timestamp": latest_timestamp
                     }
 
@@ -102,8 +102,8 @@ for variable in ["BattVolt", "CellStr", "CellQlt"]:
         else:  # CellStr and CellQlt
             measurements_by_variable[variable][station_0521] = measurements_by_variable[variable][station_0520].copy()
 
-# Also copy RHenc_80 and RHenc_max from 0520 to 0521
-for variable in ["RHenc_80", "RHenc_max"]:
+# Also copy RHenc_50 and RHenc_max from 0520 to 0521
+for variable in ["RHenc_50", "RHenc_max"]:
     if station_0520 in measurements_by_variable[variable]:
         measurements_by_variable[variable][station_0521] = measurements_by_variable[variable][station_0520].copy()
 

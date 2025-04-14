@@ -40,7 +40,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
         { id: "CellQlt", name: "24H Min Cellular signal quality" },
         { id: "CellStr", name: "24H Min Cellular signal strength" },
         { id: "RHenc_max", name: "24H Max Enclosure relative humidity" },
-        { id: "RHenc_80", name: ">50% Enclosure relative humidity" },
+        { id: "RHenc_50", name: ">50% Enclosure relative humidity" },
         { id: "Tair_diff", name: "Temperature Sensor Difference" },
         { id: "RH_diff", name: "Relative Humidity Sensor Difference"},
         { id: "Earliest Measurement", name: "Earliest Measurement" }
@@ -223,8 +223,8 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 case "RHenc_max":
                     dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/RHenc_max.json";
                     break;
-                case "RHenc_80":
-                    dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/RHenc_80.json";
+                case "RHenc_50":
+                    dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/RHenc_50.json";
                     break;
                 case "CellStr":
                     dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/CellStr.json";
@@ -266,7 +266,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 if (value0520 !== null && value0521 !== null) {
                     measurementMap["0521"] = Math.max(value0520, value0521);
                 }
-            } else if (this.selectedVariable === "RHenc_80") {
+            } else if (this.selectedVariable === "RHenc_50") {
                 const value0520 = measurementMap["0520"] ?? null;
                 const value0521 = measurementMap["0521"] ?? null;
                 if (value0520 !== null && value0521 !== null) {
@@ -295,7 +295,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
             if (value >= 75) return "red";
             if (value >= 50) return "yellow";
             return "green";
-        } else if (this.selectedVariable === "RHenc_80") {
+        } else if (this.selectedVariable === "RHenc_50") {
             if (value >= 30) return "red";
             if (value >= 10) return "yellow";
             return "green";
@@ -435,7 +435,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
                                 <span>No Data</span>
                             </div>
                         </div>
-                `} else if (this.selectedVariable === "RHenc_80") {
+                `} else if (this.selectedVariable === "RHenc_50") {
                     div.innerHTML = `
                     <h4>${this.selectedVariable}</h4>
                     <div style="display: flex; flex-direction: column;">
@@ -541,7 +541,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
                 "CellStr": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/CellStr.json",
                 "CellQlt": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/CellQlt.json",
                 "RHenc_max": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RHenc_max.json",
-                "RHenc_80": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RHenc_80.json",
+                "RHenc_50": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RHenc_50.json",
                 "Tair_diff": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/Tair_diff.json",
                 "RH_diff": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RH_diff.json",
             };
@@ -701,7 +701,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
             "CellStr": "Cellular Signal Strength",
             "CellQlt": "Cellular Signal Quality",
             "RHenc_max":"24H Max Enclosure Relative Humidity",
-            "RHenc_80": ">50% Enclosure Relative Humidity",
+            "RHenc_50": ">50% Enclosure Relative Humidity",
             "Tair_diff": "Tair Sensor Difference",
             "RH_diff": "RH Sensor Difference",
         };
@@ -733,5 +733,5 @@ export class DiagnosticMapComponent implements AfterViewInit {
           }, 500);
         });
       }
-    }
       
+    }

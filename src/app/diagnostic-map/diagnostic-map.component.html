@@ -51,13 +51,20 @@
                           {{ selectedStation.id === '0521' ? key : key.replace(selectedStation.id + ' ', '') }}
                         </td>
                         <td>
-                          <span *ngIf="isDifferenceVariable(key)">
-                            {{ selectedStation.details[key] | number:'1.2-2' }}
-                          </span>
-                          <span *ngIf="!isDifferenceVariable(key)">
-                            {{ selectedStation.details[key] }}
-                          </span>
-                        </td>
+                            <span *ngIf="isDifferenceVariable(key)">
+                              {{ selectedStation.details[key] | number:'1.2-2' }}
+                            </span>
+                            <span *ngIf="!isDifferenceVariable(key)">
+                              <!-- Add % sign only for RHenc_80 -->
+                              <ng-container *ngIf="key.endsWith('>50% Enclosure Relative Humidity'); else regularValue">
+                                {{ selectedStation.details[key] | number:'1.0-0' }}%
+                              </ng-container>
+                              <ng-template #regularValue>
+                                {{ selectedStation.details[key] }}
+                              </ng-template>
+                            </span>
+                          </td>
+  
                         <td>
                           <span
                             class="{{ getStatusClass(key.replace(selectedStation.id + ' ', ''), selectedStation.details[key]) }}">
