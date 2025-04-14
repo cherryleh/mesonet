@@ -657,8 +657,8 @@ export class DiagnosticMapComponent implements AfterViewInit {
             if (numValue > 0.1) return "Warning";
             return "Good";
         } else if (variable === "RH Sensor Difference") {
-            if (numValue > 30) return "Critical";
-            if (numValue > 10) return "Warning";
+            if (numValue > 2) return "Critical";
+            if (numValue > 1.5) return "Warning";
             return "Good";
         }
 

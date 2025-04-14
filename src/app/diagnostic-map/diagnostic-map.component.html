@@ -12,8 +12,14 @@
             </option>
         </select>
 
-        <p *ngIf="selectedVariable === 'RHenc'" class="note">
-            Percent of last 24 hours where RHenc is above 80%.
+        <p *ngIf="selectedVariable === 'RHenc_50'" class="note">
+            Percent of last 24 hours where RHenc is above 50%.
+        </p>
+        <p *ngIf="selectedVariable === 'Tair_diff'" class="note">
+          24-hour temperature sensor value differences.
+        </p>
+        <p *ngIf="selectedVariable === 'RH_diff'" class="note">
+          24-hour relative humidity sensor value differences.
         </p>
 
     </div>
