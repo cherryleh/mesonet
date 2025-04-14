@@ -207,7 +207,14 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
     });
 
     this.chartRef.yAxis[0].setTitle({ text: this.selectedUnit === 'metric' ? 'Temperature (°C)' : 'Temperature (°F)' });
-    this.chartRef.yAxis[1].setTitle({ text: this.selectedUnit === 'metric' ? 'Rainfall (mm)' : 'Rainfall (in)' });
+    this.chartRef.yAxis[1].update({
+      title: {
+        text: this.selectedUnit === 'metric' ? 'Rainfall (mm)' : 'Rainfall (in)'
+      },
+      max: this.selectedUnit === 'metric' ? 10 : 0.4, // or whatever default makes sense
+      tickInterval: this.selectedUnit === 'metric' ? 2 : 0.1
+    }, false);
+
 
     this.chartRef.redraw();
   }
