@@ -86,9 +86,26 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
       series: {
         lineWidth: 3,
         marker: { enabled: false },
-        animation: false
+        animation: false,
+        events: {
+          legendItemClick: function () {
+            if (this.name === 'Solar Radiation (W/m²)') {
+              const chart = this.chart;
+              const yAxis = chart.yAxis[2];
+
+              // Toggle title based on the *new* visibility
+              const newVisibility = !this.visible;
+              yAxis.update({
+                title: {
+                  text: newVisibility ? 'Solar Radiation (W/m²)' : null
+                }
+              });
+            }
+          }
+        }
       }
-    },
+    }
+,
     legend: {
       align: 'center',
       verticalAlign: 'top',
@@ -192,6 +209,7 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
     this.chartRef.setSize(null, height);
   }
 
+  
   private updateChartUnits(): void {
     const converted = this.getConvertedData();
 
@@ -319,6 +337,15 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
 
       let timezoneOffset = id.startsWith('1') ? 660 : 600;
       this.chartOptions.time = { timezoneOffset };
+      
+      const solarSeries = this.chartRef?.series.find((s: any) => s.name === 'Solar Radiation');
+
+      this.chartRef?.yAxis[2].update({
+        title: {
+          text: solarSeries?.visible ? 'Solar Radiation (W/m²)' : null
+        }
+      });
+
 
       data.forEach(item => {
         const timestamp = new Date(item.timestamp).getTime();
@@ -343,13 +370,13 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
         this.chartOptions.yAxis = [
           { title: { text: 'Hourly Temperature (°F)' } },
           { title: { text: 'Hourly Rainfall (in)' }, opposite: true, min: 0 },
-          { title: { text: 'Hourly Solar Radiation (W/m²)' }, opposite: true, min: 0 },
+          { title: { text: null }, opposite: true, min: 0 },
         ];
       } else {
         this.chartOptions.yAxis = [
           { title: { text: 'Temperature (°F)' } },
           { title: { text: '5-min Rainfall (in)' }, opposite: true, min: 0 },
-          { title: { text: 'Solar Radiation (W/m²)' }, opposite: true, min: 0 },
+          { title: { text: null }, opposite: true, min: 0 },
         ];
       }
 
@@ -363,11 +390,14 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
       this.aggregateService.updateMaxTemp(Math.max(...temperatureData.map(point => point[1])));
       this.aggregateService.updateMeanSolarRad(radData.reduce((sum, point) => sum + point[1], 0) / radData.length);
 
+      const wasSolarVisible = this.chartRef?.series.find(s => s.name === 'Solar Radiation (W/m²)')?.visible ?? false;
+
       this.chartOptions.series = [
         { name: 'Temperature (°F)', data: temperatureData, yAxis: 0, type: 'line', color: '#41d68f', zIndex: 3 },
         { name: 'Rainfall (in)', data: rainfallData, yAxis: 1, type: 'column', color: '#769dff', maxPointWidth: 5, groupPadding: 0.05, pointPadding: 0.05 },
-        { name: 'Solar Radiation (W/m²)', data: radData, yAxis: 2, type: 'line', color: '#f9b721', visible: false }
+        { name: 'Solar Radiation (W/m²)', data: radData, yAxis: 2, type: 'line', color: '#f9b721', visible: wasSolarVisible }
       ];
+
 
       if (!this.chartRef) {
         this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
