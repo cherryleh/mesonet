@@ -3,10 +3,14 @@ html, body {
 }
 
 .dashboard-chart-container {
-  position: relative; /* Makes it the reference for absolute positioning */
+  position: relative;
   width: 100%;
-  height: 100%; /* Ensure it has a defined height */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
+
 
 .chart-container {
   width: 100%;
@@ -62,3 +66,10 @@ html, body {
   }
 }
 
+.chart-instruction {
+  text-align: center;
+  font-size: 13px;
+  font-weight: normal;
+  margin-top: 4px;
+  font-style: italic;
+}

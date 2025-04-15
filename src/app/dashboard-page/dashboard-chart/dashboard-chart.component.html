@@ -1,8 +1,14 @@
 <div class="dashboard-chart-container" style="height: 100%; width: 100%;">
+  <!-- Instruction text -->
+  <div class="chart-instruction">
+    Click on legend item to toggle data visibility
+  </div>
+
   <!-- Spinner -->
   <div *ngIf="isLoading" class="spinner-overlay">
     <div class="spinner"></div>
     <div class="spinner-text">Loading...This may take a moment.</div>
   </div>
+
   <div #chartContainer class="chart-container"></div>
 </div>

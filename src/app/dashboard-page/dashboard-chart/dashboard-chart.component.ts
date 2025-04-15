@@ -58,7 +58,8 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
     chart: {
       type: 'line',
       animation: false,
-      zooming: { type: 'x' }
+      zooming: { type: 'x' },
+      spacingTop: 0
     },
     title: { text: '' },
     xAxis: {
