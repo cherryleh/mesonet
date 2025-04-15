@@ -207,13 +207,22 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
     });
 
     this.chartRef.yAxis[0].setTitle({ text: this.selectedUnit === 'metric' ? 'Temperature (°C)' : 'Temperature (°F)' });
+    const rainfallData = this.chartRef.series[1]?.data?.map(p => p.y as number) || [];
+    const hasRainfall = rainfallData.length > 0;
+    const maxRainfall = hasRainfall ? Math.max(...rainfallData) : null;
+
+    // Fallback values only if no data
+    const fallbackMax = this.selectedUnit === 'metric' ? 10 : 0.4;
+    const fallbackTick = this.selectedUnit === 'metric' ? 2 : 0.1;
+
     this.chartRef.yAxis[1].update({
       title: {
         text: this.selectedUnit === 'metric' ? 'Rainfall (mm)' : 'Rainfall (in)'
       },
-      max: this.selectedUnit === 'metric' ? 10 : 0.4, // or whatever default makes sense
-      tickInterval: this.selectedUnit === 'metric' ? 2 : 0.1
+      max: hasRainfall ? undefined : fallbackMax,
+      tickInterval: hasRainfall ? undefined : fallbackTick
     }, false);
+
 
 
     this.chartRef.redraw();
