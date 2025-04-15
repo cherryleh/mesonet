@@ -20,11 +20,13 @@
   color: #444444;
 }
 
-.container {
+.home-container {
   display: flex;
-  width: 100%;
+  width: 80%;
   height: 70vh;
   transition: all 0.5s ease-in-out;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .left-app, .right-app {
