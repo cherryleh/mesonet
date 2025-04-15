@@ -1,19 +1,44 @@
-.acknowledgements-container {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 40px 20px;
-    text-align: center;
+.how-to-cite {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  text-align: center;
   
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 20px;
-    }
-  
-    p {
-      font-size: 1.1rem;
-      line-height: 1.6;
-      color: #333;
-    }
-  
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
   }
   
+  p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #333;
+  }
+  
+  
+}
+
+.layout {
+  min-height: 100vh; /* full viewport height */
+  background-color: white;
+}
+
+
+
+.cite-banner {
+  background-image: url('/station_photos/0541.jpeg'); /* <-- update this path */
+  background-size: cover;
+  background-position: center 60%; /* 👈 shifts focus lower */
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  color: white;
+}
+
+.cite-banner h1 {
+  font-size: 4rem;
+  padding: 20px 40px;
+}
