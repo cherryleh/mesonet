@@ -23,7 +23,7 @@ app-header {
 }
 
 app-sidebar {
-  width: 250px;
+  width: 15%;
   height: calc(100vh - 60px);
   position: fixed;
   /* Sidebar stays fixed */
@@ -45,11 +45,10 @@ app-sidebar {
 
 .main-content {
   position: relative;
-  /* Respect parent-container's flexbox */
   transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
-  margin-left: calc(16rem + (100% - 16rem) * 0.05);
+  margin-left: calc(15% + (100% - 15%) * 0.05);
   /* Centered within remaining space */
-  width: calc((100% - 16rem) * 0.9);
+  width: calc((100% - 15%) * 0.9);
   /* 80% of available space */
 }
 

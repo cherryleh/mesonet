@@ -1,10 +1,9 @@
-/* Sidebar */
 .sidebar {
-  width: 16rem; /* Expanded width */
+  width: 15%; 
   transition: width 0.3s ease-in-out;
-  height: calc(100vh - 60px); /* Adjust height based on header */
+  height: calc(100vh - 60px); 
   position: fixed;
-  top: 4.75rem; /* Position below header */
+  top: 4.75rem;
   left: 0;
   background-color: white;
   z-index: 500;
@@ -12,137 +11,122 @@
   flex-direction: column;
 }
 
-/* Collapsed Sidebar */
 .sidebar.collapsed {
-  width: 4rem; /* Collapsed width */
+  width: 4rem; 
 }
 
-/* Sidebar Header (Submenu + Toggle Button) */
 .sidebar-header {
   display: flex;
-  align-items: center; /* Vertically center items */
-  justify-content: space-between; /* Space between text and button */
-  padding: 0 10px; /* Horizontal padding */
-  height: 50px; /* Fixed height for vertical alignment */
-  border-bottom: 1px solid #edf1f7; /* Divider */
+  align-items: center; 
+  justify-content: space-between; 
+  padding: 0 10px; 
+  height: 5%; 
+  border-bottom: 1px solid #edf1f7; 
 }
 
-/* Sidebar Submenu (Text) */
 .sidebar-submenu {
   color: #8f9bb3;
-  font-size: 12px;
+  font-size: 1.5vh;
   font-weight: 600;
-  line-height: 1; /* Prevent extra spacing */
-  margin: 0; /* Remove any margin */
+  line-height: 1; 
+  margin: 0; 
   display: flex;
-  align-items: center; /* Vertically center the text */
+  align-items: center;
 }
 
-/* Hide Submenu Text When Collapsed */
 .sidebar.collapsed .sidebar-submenu {
-  display: none; /* Hide submenu text */
+  display: none; 
 }
 
-/* Sidebar Toggle Button */
 .sidebar-toggle {
   border: none;
   background: transparent;
   cursor: pointer;
-  font-size: 24px; /* Icon size */
+  font-size: 24px; 
   transition: transform 0.3s ease-in-out;
   display: flex;
-  align-items: center; /* Vertically center button */
+  align-items: center;
 }
 
-/* Hover Effect */
 .sidebar-toggle:hover {
-  color: #007bff; /* Highlight color */
+  color: #007bff; 
 }
 
-/* Navigation Menu */
 .nav-menu {
   flex-grow: 1;
 }
 
-
-/* Menu Items */
 ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
+
 li {
   display: flex;
-  align-items: center; /* Vertically center content */
-  height: 50px;
+  align-items: center; 
+  height: 6vh;
   padding: 0;
-  border-bottom: 1px solid #edf1f7; /* Divider lines */
-  transition: padding 0.3s ease-in-out; /* Smooth transition */
+  border-bottom: 1px solid #edf1f7; 
+  transition: padding 0.3s ease-in-out; 
 }
 
-/* Collapsed Sidebar: Center Icons and Remove Text Space */
 .sidebar.collapsed li {
-  justify-content: center; /* Center content horizontally */
-  padding: 0; /* Remove padding to eliminate text space */
+  justify-content: center; 
+  padding: 0;
 }
 
-/* Menu Icons */
 .icon {
-  width: 20px;
-  height: 20px;
-  transition: margin 0.3s ease-in-out; /* Smooth transition */
+  width: 15%;
+  height: 15%;
+  transition: margin 0.3s ease-in-out; 
   margin-right: 10px
 }
 
-/* Remove Margin for Collapsed Sidebar */
 .sidebar.collapsed .icon {
-  margin-right: 0; /* Remove extra margin */
+  margin-right: 0; 
 }
 
-/* Ensure the entire area is clickable */
 .nav-link {
-  display: flex; /* Flexbox for alignment */
-  align-items: center; /* Vertically center content */
-  width: 100%; /* Full clickable width */
-  height: 50px; /* Full clickable height */
-  text-decoration: none; /* Remove underline */
-  color: inherit; /* Inherit text color */
-  padding: 0 10px; /* Horizontal padding */
+  display: flex; 
+  align-items: center; 
+  width: 100%;
+  height: 6vh; 
+  text-decoration: none; 
+  color: inherit; 
+  padding: 0 10px; 
 }
 
-/* Hover effect */
 .nav-link:hover {
-  background-color: #f4f6f8; /* Highlight background */
+  background-color: #f4f6f8; 
 }
 
-/* Icon Styling */
 .icon {
-  width: 20px; /* Fixed size */
+  width: 20px; 
   height: 20px;
-  margin-right: 10px; /* Space between icon and text */
-  transition: margin 0.3s ease-in-out; /* Smooth margin animation */
+  margin-right: 10px; 
+  transition: margin 0.3s ease-in-out; 
 }
 
-/* Collapsed Sidebar: Center icon and hide text */
 .sidebar.collapsed .icon {
-  margin-right: 0; /* Remove margin */
+  margin-right: 0; 
 }
 
-/* Hide only the text, not the icon */
 .sidebar.collapsed .link-text {
-  display: none; /* Hide text */
+  display: none;
 }
 
-/* Collapsed Sidebar: Adjust padding for alignment */
+.link-text{
+  font-size: 1.5vh
+}
+
 .sidebar.collapsed .nav-link {
-  justify-content: center; /* Center icon */
-  padding: 0; /* Remove padding to align icons perfectly */
+  justify-content: center; 
+  padding: 0; 
 }
 
-
-/* Preserve Icon Positions */
 .sidebar.collapsed ul li {
-  justify-content: center; /* Keep icons centered */
+  justify-content: center; 
 }
 
 .sidebar-footer{
@@ -156,14 +140,13 @@ li {
 }
 
 .nav-link.active-link {
-  color: #007bff; /* Active text color */
-  background-color: #f5faff; /* Subtle background */
-  border-right: 2px solid #007bff; /* Thinner right border */
+  color: #007bff; 
+  background-color: #f5faff; 
+  border-right: 2px solid #007bff; 
   position: relative;
   overflow: hidden;
 }
 
-/* Change icon color when active */
 .nav-link.active-link .icon {
   filter: brightness(0) saturate(100%) invert(32%) sepia(90%) saturate(700%) hue-rotate(180deg);
 }
