@@ -39,7 +39,7 @@ export class StationTableComponent implements OnInit {
   }
 
   async fetchStationData(): Promise<void> {
-    const apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations';
+    const apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?location=hawaii';
     const apiToken = environment.apiToken;
 
     try {
