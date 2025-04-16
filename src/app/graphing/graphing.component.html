@@ -17,11 +17,12 @@
                 [(ngModel)]="selectedVariables" 
                 (selectionChange)="onVariableChange($event)">
                 <mat-option 
-                  *ngFor="let variable of variables" 
-                  [value]="variable.value" 
+                  *ngFor="let variable of filteredVariables"
+                  [value]="variable.value"
                   [disabled]="isOptionDisabled(variable.value)">
                   {{ variable.label }}
                 </mat-option>
+
               </mat-select>
             </mat-form-field>
           </div>

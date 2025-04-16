@@ -19,6 +19,9 @@ import { UnitService } from '../services/unit.service';
 import { Subscription } from 'rxjs';
 import { StationDatesService } from '../services/station-dates.service';
 import { SidebarService } from '../services/sidebar.service';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-graphing',
@@ -89,12 +92,16 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     private graphingMenuService: GraphingMenuService,
     private unitService: UnitService,
     private stationDatesService: StationDatesService,
-    private sidebarService: SidebarService
+    private sidebarService: SidebarService,
+    private http: HttpClient
   ) {}
 
   minAvailableDate: Date = new Date();
   maxAvailableDate: Date = new Date();
 
+  stationVariablesMap: { [stationId: string]: string[] } = {};
+
+  
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -111,7 +118,48 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     this.sidebarSubscription = this.sidebarService.isCollapsed$.subscribe((value: boolean) => {
       this.isCollapsed = value;
     });
+
+    this.http.get('station_variables.csv', { responseType: 'text' })
+    .pipe(
+      map(csv => this.parseCsvToMap(csv))
+    )
+    .subscribe(map => {
+      this.stationVariablesMap = map;
+
+      // Get station ID from route
+      this.route.queryParams.subscribe(params => {
+        this.stationId = params['id'] || 'default_station_id';
+        const shortId = this.stationId.substring(0, 4);
+
+        this.filteredVariables = this.variables.filter(v =>
+          this.stationVariablesMap[shortId]?.includes(v.value)
+        );
+
+        this.selectedVariables = this.filteredVariables.length > 0
+          ? [this.filteredVariables[0].value]
+          : [];
+          
+        this.fetchStationDateRange(this.stationId);
+        this.loadData();
+      });
+    });
   }
+  
+  filteredVariables: typeof this.variables = [];
+
+  parseCsvToMap(csv: string): { [stationId: string]: string[] } {
+    const lines = csv.trim().split('\n');
+    const map: { [stationId: string]: string[] } = {};
+
+    for (let i = 1; i < lines.length; i++) {
+      const [station, variableString] = lines[i].split(',', 2);
+      const variables = variableString.split(';').map(v => v.trim());
+      map[station.trim()] = variables;
+    }
+
+    return map;
+  }
+
 
   fetchStationDateRange(id: string): void {
     this.stationDatesService.getData(id).subscribe({
