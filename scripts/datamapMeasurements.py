@@ -2,6 +2,7 @@ import requests
 import json
 from datetime import datetime, timezone
 import os 
+import time
 
 API_TOKEN = os.getenv("API_TOKEN")
 
@@ -46,7 +47,7 @@ for station in stations:
 
         try:
             response = requests.get(full_url, headers=header, timeout=5)  
-
+            time.sleep(0.2)
             if response.status_code == 200:
                 data = response.json()
                 if isinstance(data, list) and len(data) > 0:

@@ -21,6 +21,7 @@ import { UnitService } from '../../services/unit.service';
 
 import { Subscription } from 'rxjs';
 import { SidebarService } from '../../services/sidebar.service';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-dashboard',
@@ -77,7 +78,8 @@ export class DashboardComponent implements AfterViewInit {
     private datePipe: DatePipe,
     private aggregateService: aggregateService,
     private unitService: UnitService,
-    private sidebarService: SidebarService ) {
+    private sidebarService: SidebarService,
+    private cdRef: ChangeDetectorRef ) {
     Chart.register(...registerables);
     this.unitService.selectedUnit$.subscribe((unit: 'standard' | 'metric') => {
       this.selectedUnit = unit;
@@ -192,6 +194,7 @@ convertCtoF(value: number): number {
             this.variables[key] = variableData ? variableData.value : 'N/A';
           }
         });
+        this.cdRef.detectChanges();
       },
       error: (error) => {
         console.error('Error fetching data:', error);
@@ -208,6 +211,7 @@ convertCtoF(value: number): number {
         } else {
           this.variables['Rainfall'] = '0.00';
         }
+        this.cdRef.detectChanges();
       },
       error: (error) => {
         console.error('Error fetching 24-hour rainfall:', error);
@@ -254,6 +258,7 @@ convertCtoF(value: number): number {
       this.id = params['id'];
       if (this.id) {
         this.fetchData(this.id);
+        this.updateData();
       }
     });
   }
@@ -282,7 +287,6 @@ convertCtoF(value: number): number {
     this.sidebarSubscription = this.sidebarService.isCollapsed$.subscribe((value: boolean) => {
       this.isCollapsed = value;
     });
-    this.updateData();
   }
 
   queryData(): void {
@@ -305,7 +309,7 @@ convertCtoF(value: number): number {
     this.refreshTimeout = setTimeout(() => {
       this.updateData();
     }, this.refreshIntervalMS);
-
+    console.log('Refreshing data for ID:', this.id);
   }
 
 
