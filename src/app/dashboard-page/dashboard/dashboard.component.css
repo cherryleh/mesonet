@@ -313,6 +313,7 @@ input:checked + .slider:before {
   font-weight: 600;
   padding: 0;
   transition: background-color 0.3s ease;
+  font-size: 1.5vh;
 }
 
 .unit-toggle-buttons button:hover {

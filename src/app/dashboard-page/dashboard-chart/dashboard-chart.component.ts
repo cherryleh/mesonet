@@ -148,8 +148,11 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
       this.subscribeToDurationChanges();
       this.unitSubscription = this.unitService.selectedUnit$.subscribe(unit => {
         this.selectedUnit = unit;
-        this.updateChartUnits();
+        if (this.id) {
+          this.fetchData(this.id, this.selectedDuration); // <-- ADD this line
+        }
       });
+
 
       this.isLoading = false;
     });
@@ -209,43 +212,30 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
     this.chartRef.setSize(null, height);
   }
 
-  
   private updateChartUnits(): void {
-    const converted = this.getConvertedData();
+    const names = [
+      this.selectedUnit === 'metric' ? 'Temperature (°C)' : 'Temperature (°F)',
+      this.selectedUnit === 'metric' ? 'Rainfall (mm)' : 'Rainfall (in)',
+      'Solar Radiation (W/m²)'
+    ];
 
+    // Update series names only
     this.chartRef.series.forEach((series, i) => {
-      if (converted[i]) series.setData(converted[i], true);
-
-      const names = [
-        this.selectedUnit === 'metric' ? 'Temperature (°C)' : 'Temperature (°F)',
-        this.selectedUnit === 'metric' ? 'Rainfall (mm)' : 'Rainfall (in)',
-        'Solar Radiation (W/m²)'
-      ];
-
       series.update({ name: names[i] } as any, false);
     });
 
-    this.chartRef.yAxis[0].setTitle({ text: this.selectedUnit === 'metric' ? 'Temperature (°C)' : 'Temperature (°F)' });
-    const rainfallData = this.chartRef.series[1]?.data?.map(p => p.y as number) || [];
-    const hasRainfall = rainfallData.length > 0;
-    const maxRainfall = hasRainfall ? Math.max(...rainfallData) : null;
-
-    // Fallback values only if no data
-    const fallbackMax = this.selectedUnit === 'metric' ? 10 : 0.4;
-    const fallbackTick = this.selectedUnit === 'metric' ? 2 : 0.1;
-
+    // Update y-axis titles
+    this.chartRef.yAxis[0].setTitle({ text: names[0] });
     this.chartRef.yAxis[1].update({
-      title: {
-        text: this.selectedUnit === 'metric' ? 'Rainfall (mm)' : 'Rainfall (in)'
-      },
-      max: hasRainfall ? undefined : fallbackMax,
-      tickInterval: hasRainfall ? undefined : fallbackTick
+      title: { text: names[1] },
+      // Optional fallback axis config
+      max: undefined,
+      tickInterval: undefined
     }, false);
-
-
 
     this.chartRef.redraw();
   }
+
 
   private getConvertedData(): [number, number][][] {
     return this.chartRef.series.map((series, i) => {
@@ -353,11 +343,11 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
 
         if (!isNaN(timestamp) && !isNaN(value)) {
           if (item.variable === 'Tair_1_Avg') {
-            temperatureData.push([timestamp, (value * 1.8) + 32]);
+            const temp = this.selectedUnit === 'metric' ? value : (value * 1.8) + 32;
+            temperatureData.push([timestamp, temp]);
           } else if (item.variable === 'RF_1_Tot300s') {
-            rainfallData.push([timestamp, value / 25.4]);
-          } else if (item.variable === 'SWin_1_Avg') {
-            radData.push([timestamp, value]);
+            const rain = this.selectedUnit === 'metric' ? value : value / 25.4;
+            rainfallData.push([timestamp, rain]);
           }
         }
       });
@@ -391,19 +381,45 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
       this.aggregateService.updateMeanSolarRad(radData.reduce((sum, point) => sum + point[1], 0) / radData.length);
 
       const wasSolarVisible = this.chartRef?.series.find(s => s.name === 'Solar Radiation (W/m²)')?.visible ?? false;
-
-      this.chartOptions.series = [
-        { name: 'Temperature (°F)', data: temperatureData, yAxis: 0, type: 'line', color: '#41d68f', zIndex: 3 },
-        { name: 'Rainfall (in)', data: rainfallData, yAxis: 1, type: 'column', color: '#769dff', maxPointWidth: 5, groupPadding: 0.05, pointPadding: 0.05 },
-        { name: 'Solar Radiation (W/m²)', data: radData, yAxis: 2, type: 'line', color: '#f9b721', visible: wasSolarVisible }
+    
+      const tempLabel = this.selectedUnit === 'metric' ? 'Temperature (°C)' : 'Temperature (°F)';
+      const rainLabel = this.selectedUnit === 'metric' ? 'Rainfall (mm)' : 'Rainfall (in)';
+      const updatedSeries: Highcharts.SeriesOptionsType[] = [
+        {
+          name: tempLabel,
+          data: temperatureData,
+          yAxis: 0,
+          type: 'line',
+          color: '#41d68f',
+          zIndex: 3,
+        },
+        {
+          name: rainLabel,
+          data: rainfallData,
+          yAxis: 1,
+          type: 'column',
+          color: '#769dff',
+          maxPointWidth: 5,
+          groupPadding: 0.05,
+          pointPadding: 0.05,
+        },
+        {
+          name: 'Solar Radiation (W/m²)',
+          data: radData,
+          yAxis: 2,
+          type: 'line',
+          color: '#f9b721',
+          visible: wasSolarVisible,
+        },
       ];
 
+      this.chartRef.update({ series: updatedSeries }, true, true);
 
-      if (!this.chartRef) {
-        this.chartRef = Highcharts.chart(this.chartContainer.nativeElement, this.chartOptions);
-      } else {
-        this.chartRef.update(this.chartOptions, true, true);
-      }
+      // Update yAxis titles after updating series
+      this.chartRef.yAxis[0].setTitle({ text: tempLabel });
+      this.chartRef.yAxis[1].update({ title: { text: rainLabel } }, false);
+
+      this.chartRef.redraw();
 
       this.isLoading = false;
     }, error => {
