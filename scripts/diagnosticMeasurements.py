@@ -3,6 +3,7 @@ import json
 from datetime import datetime, timedelta
 import os 
 import pandas as pd
+import time
 
 API_TOKEN = os.getenv("API_TOKEN")
 
@@ -21,6 +22,7 @@ start_time_str = start_time.strftime("%Y-%m-%dT%H:%M:%SZ")  # Convert to API for
 # Fetch station data
 try:
     response = requests.get(stations_url, headers=header, timeout=10)
+    time.sleep(0.2)
     response.raise_for_status()  # Raises an HTTPError for bad responses
     stations = response.json()
 except requests.exceptions.RequestException as e:
@@ -47,6 +49,7 @@ for station in stations:
 
         try:
             response = requests.get(url, headers=header, timeout=10)
+            time.sleep(0.2)
             data = response.json()
             if not data:
                 continue
@@ -117,6 +120,7 @@ for station in stations:
         url = f"https://api.hcdp.ikewai.org/mesonet/db/measurements?station_ids={station_id}&var_ids={var1},{var2}&start_date={start_time_str}"
 
         response = requests.get(url, headers=header, timeout=10)
+        time.sleep(0.2)
         data = response.json()
         if not data:
             continue
