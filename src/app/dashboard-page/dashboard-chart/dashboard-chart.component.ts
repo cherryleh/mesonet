@@ -348,6 +348,8 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
           } else if (item.variable === 'RF_1_Tot300s') {
             const rain = this.selectedUnit === 'metric' ? value : value / 25.4;
             rainfallData.push([timestamp, rain]);
+          } else if (item.variable === 'SWin_1_Avg') {
+            radData.push([timestamp, value]);
           }
         }
       });

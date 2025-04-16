@@ -309,7 +309,8 @@ convertCtoF(value: number): number {
     this.refreshTimeout = setTimeout(() => {
       this.updateData();
     }, this.refreshIntervalMS);
-    console.log('Refreshing data for ID:', this.id);
+    console.log(`Refreshing data for ID: ${this.id} at ${new Date().toLocaleTimeString()}`);
+
   }
 
 
