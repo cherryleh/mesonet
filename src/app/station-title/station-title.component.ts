@@ -48,9 +48,10 @@ export class StationTitleComponent implements OnInit {
 
           this.stationDatesService.getData(id).subscribe({
             next: (res) => {
-              if (res.length > 0 && res[0].timestamp) {
-                this.timestamp = res[0].timestamp;
+              if (res.maxDate) {
+                this.timestamp = res.maxDate.toISOString();
               }
+
             },
             error: (err) => console.error('Error fetching timestamp:', err)
           });

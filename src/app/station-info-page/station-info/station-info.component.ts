@@ -64,7 +64,7 @@ export class StationInfoComponent implements OnInit, OnDestroy {
         next: (results) => {
           console.log('Combined API Results:', results);
           const datesResponse = results.dates;
-          const date = datesResponse[0]?.timestamp ? new Date(datesResponse[0].timestamp) : null;
+          const date = datesResponse.minDate ? new Date(datesResponse.minDate) : null;
           if (date && !isNaN(date.getTime())) {
             this.stationStartDate = date.toLocaleDateString('en-US', {
               year: 'numeric',
@@ -73,7 +73,8 @@ export class StationInfoComponent implements OnInit, OnDestroy {
             });
             console.log('Formatted Start Date:', this.stationStartDate);
           } else {
-            console.warn('Invalid timestamp received:', datesResponse[0]?.timestamp);
+            console.warn('Invalid timestamp received:', datesResponse.minDate);
+
           }
 
           const metadataResponse = results.metadata;

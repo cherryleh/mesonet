@@ -10,7 +10,6 @@ import { GraphingComponent } from './graphing/graphing.component';
 import { ClimatologyComponent } from './climatology/climatology.component';
 import { StationInfoComponent } from './station-info-page/station-info/station-info.component';
 import { ReportsComponent } from './reports/reports.component';
-import { ReportsDraftComponent } from './reports-draft/reports-draft.component';
 import { DataMapComponent } from './data-map/data-map.component';
 import { AmericanSamoaComponent } from './american-samoa-page/american-samoa/american-samoa.component'
 import { DiagnosticMapComponent } from './diagnostic-map/diagnostic-map.component';
@@ -31,7 +30,6 @@ export const routes: Routes = [
   { path: 'station-info', component: StationInfoComponent},
   { path: 'reports', component: ReportsComponent},
   { path: 'acknowledgements', component: AcknowledgementsComponent},
-  { path: 'reports-draft', component: ReportsDraftComponent},
   { path: 'data-map', component: DataMapComponent},
   { path: 'american-samoa', component: AmericanSamoaComponent},
   { path: 'diagnostic-map', component: DiagnosticMapComponent},

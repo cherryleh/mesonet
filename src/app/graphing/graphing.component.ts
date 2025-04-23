@@ -163,19 +163,31 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
   fetchStationDateRange(id: string): void {
     this.stationDatesService.getData(id).subscribe({
-      next: (response) => {
-        const date = response[0]?.timestamp ? new Date(response[0].timestamp) : null;
-        if (date && !isNaN(date.getTime())) {
-          this.minAvailableDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-          this.maxAvailableDate = new Date(); // Assume max is today
-          console.log('Station date range:', this.minAvailableDate, 'to', this.maxAvailableDate);
+      next: (response: { minDate: Date | null; maxDate: Date | null }) => {
+        if (response.minDate) {
+          this.minAvailableDate = new Date(
+            response.minDate.getFullYear(),
+            response.minDate.getMonth(),
+            response.minDate.getDate()
+          );
         }
+
+        if (response.maxDate) {
+          this.maxAvailableDate = new Date(
+            response.maxDate.getFullYear(),
+            response.maxDate.getMonth(),
+            response.maxDate.getDate()
+          );
+        }
+
+        console.log('Station date range:', this.minAvailableDate, 'to', this.maxAvailableDate);
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error fetching station date range:', error);
       }
     });
   }
+
 
 
   ngAfterViewInit(): void {

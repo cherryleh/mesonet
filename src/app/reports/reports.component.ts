@@ -287,12 +287,14 @@ export class ReportsComponent implements OnInit {
   fetchStationData(id: string): void {
     this.StationDatesService.getData(id).subscribe({
       next: (response) => {
-        const date = response[0]?.timestamp ? new Date(response[0].timestamp) : null;
+        const date = response.minDate ? new Date(response.minDate) : null;
+
         if (date && !isNaN(date.getTime())) {
           this.minStartDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
           console.log(this.minStartDate);
         } else {
-          console.warn('Invalid timestamp received:', response[0]?.timestamp);
+          console.warn('Invalid timestamp received:', response.minDate);
+
           this.minStartDate = this.maxDate;
         }
       },
