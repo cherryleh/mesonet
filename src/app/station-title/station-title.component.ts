@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { StationDataService } from '../services/station-info.service';
+import { StationDatesService } from '../services/station-dates.service';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -14,12 +15,15 @@ export class StationTitleComponent implements OnInit {
   stationName: string = ''; 
   stationID: string = ''; 
   timestamp: string = '';
-  id: string | null = null; 
+  status: string = '';
+  isInactive: boolean = false;
+  id: string | null = null;
 
   @Input() isCollapsed: boolean = false;
 
   constructor(
     private stationDataService: StationDataService,
+    private stationDatesService: StationDatesService,
     private route: ActivatedRoute
   ) {}
 
@@ -36,8 +40,20 @@ export class StationTitleComponent implements OnInit {
     this.stationDataService.getStationData(id).subscribe({
       next: (response) => {
         if (response.length > 0) {
-          this.stationName = response[0].full_name;
-          this.stationID = response[0].station_id;
+          const station = response[0];
+          this.stationName = station.full_name;
+          this.stationID = station.station_id;
+          this.status = station.status;
+          this.isInactive = station.status?.toLowerCase() === 'inactive';
+
+          this.stationDatesService.getData(id).subscribe({
+            next: (res) => {
+              if (res.length > 0 && res[0].timestamp) {
+                this.timestamp = res[0].timestamp;
+              }
+            },
+            error: (err) => console.error('Error fetching timestamp:', err)
+          });
         }
       },
       error: (error) => {
@@ -45,4 +61,8 @@ export class StationTitleComponent implements OnInit {
       },
     });
   }
+
+
+  
 }
+

@@ -15,3 +15,9 @@
     width: calc(100% - 4rem); /* Adjust width dynamically */
   }
   
+  .inactive-warning {
+    color: #d9534f;
+    font-weight: bold;
+    margin-top: 0.5rem;
+  }
+  
