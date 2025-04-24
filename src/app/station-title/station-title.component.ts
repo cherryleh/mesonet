@@ -17,6 +17,7 @@ export class StationTitleComponent implements OnInit {
   timestamp: string = '';
   status: string = '';
   isInactive: boolean = false;
+  isPlanned: boolean = false;
   id: string | null = null;
 
   @Input() isCollapsed: boolean = false;
@@ -45,7 +46,8 @@ export class StationTitleComponent implements OnInit {
           this.stationID = station.station_id;
           this.status = station.status;
           this.isInactive = station.status?.toLowerCase() === 'inactive';
-
+          this.isPlanned = this.status?.toLowerCase() === 'planned';
+          
           this.stationDatesService.getData(id).subscribe({
             next: (res) => {
               if (res.maxDate) {

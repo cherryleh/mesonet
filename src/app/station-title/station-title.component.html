@@ -4,6 +4,9 @@
   {{ stationName }}<span *ngIf="id !== '0119'"> Station</span> (#{{ stationID }})
 </h1>
 <p *ngIf="isInactive" class="inactive-warning">
-  ⚠️ This station is currently inactive as of {{ timestamp | date: 'MMMM d, y h:mm a' }}, but past data may be available for downloading.
+  ⚠️ This station has been inactive since at least {{ timestamp | date: 'MMMM d, y h:mm a' }}, but past data may be available for downloading.
+</p>
+<p *ngIf="isPlanned" class="inactive-warning">
+  ⚠️ This station is currently planned for installation but not yet active. No data is available at this time.
 </p>
 </div>  
