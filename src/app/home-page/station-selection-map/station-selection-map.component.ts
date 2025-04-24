@@ -54,7 +54,30 @@ export class StationSelectionMapComponent implements AfterViewInit {
       maxZoom: 18
     });
     basemap.addTo(this.map);
+    this.addLegend();
   }
+
+  private addLegend(): void {
+    const LegendControl = L.Control.extend({
+      options: { position: 'bottomright' },
+
+      onAdd: function () {
+        const div = L.DomUtil.create('div', 'info legend');
+        div.innerHTML = `
+          <h4>Status</h4>
+          <i style="background: blue; width: 12px; height: 12px; display: inline-block; margin-right: 5px;"></i> Active<br>
+          <i style="background: orange; width: 12px; height: 12px; display: inline-block; margin-right: 5px;"></i> Planned<br>
+          <i style="background: gray; width: 12px; height: 12px; display: inline-block; margin-right: 5px;"></i> Inactive
+        `;
+        return div;
+      }
+    });
+
+    const legend = new LegendControl();
+    legend.addTo(this.map);
+  }
+
+
 
   zoomToIsl(): void {
     const obj = this.featuremap[this.selectedIsland];
@@ -89,17 +112,37 @@ export class StationSelectionMapComponent implements AfterViewInit {
         if (station.lat && station.lng && station.full_name) {
           const randomizedCoords = this.randomizeLatLon(station.lat, station.lng);
 
-          const circle = L.circleMarker([randomizedCoords.lat, randomizedCoords.lon],
-            {radius: 6, 
-              color: 'blue', 
-              fillColor: 'blue', 
-              fillOpacity: 0.2, 
-              weight: 2});
-            const url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`;
-            circle.bindPopup(`<a href="${url}" style="font-size: 20px" target="_blank">${station.full_name}</a>`);
+          let markerColor = 'blue'; // default
+          let fillOpacity = 0.2;
+
+          if (station.status?.toLowerCase() === 'inactive') {
+            markerColor = 'gray';
+            fillOpacity = 0.3;
+          } else if (station.status?.toLowerCase() === 'planned') {
+            markerColor = 'orange';
+            fillOpacity = 0.3;
+          } else if (station.status?.toLowerCase() === 'active') {
+            markerColor = 'blue';
+            fillOpacity = 0.3;
+          }
+
+          const circle = L.circleMarker(
+            [randomizedCoords.lat, randomizedCoords.lon],
+            {
+              radius: 6,
+              color: markerColor,
+              fillColor: markerColor,
+              fillOpacity: fillOpacity,
+              weight: 2
+            }
+          );
+
+          const url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`;
+          circle.bindPopup(`<a href="${url}" style="font-size: 20px" target="_blank">${station.full_name}</a>`);
           circle.addTo(this.map);
         }
       });
+
     })
     .catch(error => {
       console.error('Error fetching station data:', error);
