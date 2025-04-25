@@ -18,6 +18,7 @@
   .inactive-warning {
     color: #d9534f;
     font-weight: bold;
+    font-size: 1.2vw;
     margin-top: 0.5rem;
   }
   
