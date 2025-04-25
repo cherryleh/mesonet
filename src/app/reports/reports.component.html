@@ -2,8 +2,12 @@
   <app-header></app-header>
   <div class="parent-container">
     <app-station-title [isCollapsed]="isCollapsed"></app-station-title>
+    
     <app-sidebar [class.collapsed]="isCollapsed" (toggle)="onToggleSidebar($event)"></app-sidebar>
     <div class="main-content" [class.collapsed]="isCollapsed">
+      <p class="inactive-warning">
+        ⚠️ The reports page is currently under development and will be available soon.
+      </p>
       <form [formGroup]="reportForm" (ngSubmit)="validateAndSubmit()">
         <div class="form-box">
           <div class="form-container">
