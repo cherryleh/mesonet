@@ -69,6 +69,26 @@ export class StationTableComponent implements OnInit {
     }
   }
 
+  getStationUrl(element: any): string {
+    const status = element.status?.toLowerCase();
+    const id = element.station_id;
+
+    if (status === 'planned') {
+      return `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/station-info?id=${id}`;
+    } else if (status === 'inactive') {
+      return `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/graphing?id=${id}`;
+    } else {
+      return `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${id}`;
+    }
+  }
+
+  getStatusColor(status: string): string {
+    const normalized = status?.toLowerCase();
+    if (normalized === 'planned') return 'orange';
+    if (normalized === 'inactive') return 'gray';
+    return 'green'; // treating "active" and others as green
+  }
+
 
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
