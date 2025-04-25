@@ -8,19 +8,21 @@ import { StationDatesService } from '../../services/station-dates.service';
 import { StationDataService } from '../../services/station-info.service';
 import { SidebarService } from '../../services/sidebar.service';
 import { Subscription, forkJoin } from 'rxjs';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-station-info',
   standalone: true,
-  imports: [HeaderComponent, SidebarComponent, StationTitleComponent, StationSpecificMapComponent],
+  imports: [CommonModule, HeaderComponent, SidebarComponent, StationTitleComponent, StationSpecificMapComponent],
   templateUrl: './station-info.component.html',
   styleUrls: ['./station-info.component.css']
 })
 export class StationInfoComponent implements OnInit, OnDestroy {
   stationId: string = '';
-  startDate: Date | null = null; // Original date object
-  stationStartDate: string = ''; // Formatted date string
+  startDate: Date | null = null; 
+  stationStartDate: string = ''; 
   elevation: number | null = null;
+  elevationMeters: number | null = null;
   lat: number | null = null;
   lon: number | null = null;
   status: string = '';
@@ -81,10 +83,10 @@ export class StationInfoComponent implements OnInit, OnDestroy {
           if (metadataResponse && metadataResponse.length > 0) {
             const station = metadataResponse[0];
             this.elevation = station.elevation;
+            this.elevationMeters = this.elevation !== null ? +(this.elevation * 0.3048).toFixed(0) : null; 
             this.lat = station.lat.toFixed(2);
             this.lon = station.lng.toFixed(2);
             this.status = station.status;
-            console.log('Elevation:', this.elevation);
           } else {
             console.warn('No station data found for ID:', this.stationId);
           }

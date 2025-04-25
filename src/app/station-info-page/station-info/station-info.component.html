@@ -13,7 +13,10 @@
                     </div>
                     <div class="info top-right">
                         <p class="info-label">Elevation</p>
-                        <p class="info-value">{{elevation}} ft.</p>
+                        <p class="info-value">
+                            {{ elevation }} ft / {{ elevationMeters }} m
+                          </p>
+  
                     </div>
                     <div class="info bottom-left">
                         <p class="info-label">Lat/Lon</p>
@@ -21,7 +24,7 @@
                     </div>
                     <div class="info bottom-right">
                         <p class="info-label">Station Status</p>
-                        <p class="info-value">{{ status }}</p>
+                        <p class="info-value">{{ status | titlecase }}</p>
                     </div>
                     <img [attr.src]="'./station_photos/' + stationId + '.jpeg'" alt="station-photo" class="station-photo">
                 </div>
