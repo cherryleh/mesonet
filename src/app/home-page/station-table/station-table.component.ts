@@ -22,7 +22,7 @@ import { environment } from '../../../environments/environment';
   ],
 })
 export class StationTableComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'status','full_name',  'lat', 'lng','elevation']; // Define columns to display
+  displayedColumns: string[] = ['id', 'status','full_name', 'island', 'lat', 'lng','elevation']; // Define columns to display
   dataSource = new MatTableDataSource<any>([]); // Initialize data source
   searchTerm: string = '';
 
@@ -74,4 +74,18 @@ export class StationTableComponent implements OnInit {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
+
+  getIsland(stationId: string): string {
+    if (!stationId) return '';
+    const firstDigit = stationId[1];
+    switch (firstDigit) {
+      case '1': return 'Maui';
+      case '2': return 'Hawaii';
+      case '4': return 'Molokai';
+      case '5': return 'Oahu';
+      case '6': return 'Kauai';
+      default: return 'Unknown';
+    }
+  }
+
 }
