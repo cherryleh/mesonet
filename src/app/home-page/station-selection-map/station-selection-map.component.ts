@@ -137,8 +137,29 @@ export class StationSelectionMapComponent implements AfterViewInit {
             }
           );
 
-          const url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`;
-          circle.bindPopup(`<a href="${url}" style="font-size: 20px" target="_blank">${station.full_name}</a>`);
+          const status = station.status?.toLowerCase() || '';
+          const statusFormatted = status.charAt(0).toUpperCase() + status.slice(1);
+
+          let url = '';
+          if (status === 'active') {
+            url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`;
+          } else if (status === 'planned') {
+            url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/station-info?id=${station.station_id}`;
+          } else if (status === 'inactive') {
+            url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/graphing?id=${station.station_id}`;
+          } else {
+            url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/`;
+          }
+
+          circle.bindPopup(`
+            <div style="font-size: 14px;">
+              <a href="${url}" style="font-size: 20px; display: block; margin-bottom: 5px;" target="_blank">${station.full_name}</a>
+              <strong>Status:</strong> ${statusFormatted || 'Unknown'}
+            </div>
+          `);
+
+
+
           circle.addTo(this.map);
         }
       });
