@@ -26,7 +26,6 @@
 
 
 .cite-banner {
-  background-image: url('/station_photos/0541.jpeg'); /* <-- update this path */
   background-size: cover;
   background-position: center 60%; /* 👈 shifts focus lower */
   height: 250px;
