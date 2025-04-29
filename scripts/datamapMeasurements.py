@@ -1,6 +1,6 @@
 import requests
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import os 
 import time
 
@@ -16,6 +16,8 @@ measurements_url = "https://api.hcdp.ikewai.org/mesonet/db/measurements"
 variables = ["Tair_1_Avg", "SM_1_Avg", "RH_1_Avg", "SWin_1_Avg", "Tsoil_1_Avg"]
 
 current_time = datetime.now(timezone.utc)
+start_time = current_time - timedelta(hours=24)
+start_time_str = start_time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 response = requests.get(stations_url, headers=header)
 stations = response.json() if response.status_code == 200 else []
@@ -54,11 +56,10 @@ for station in stations:
                     timestamp_str = data[0]["timestamp"]
                     value = data[0]["value"]
 
-                    # Convert timestamp to datetime object in UTC
                     observation_time = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
 
-                    # Check if observation is older than 1 hour
-                    if (current_time - observation_time).total_seconds() > 3600:
+                    # Mark value as None if observation is older than 1 hour (or older than start_time)
+                    if observation_time < start_time:
                         value = None
 
                     measurements_by_variable[variable][station_id] = {

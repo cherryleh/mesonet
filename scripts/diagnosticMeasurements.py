@@ -1,6 +1,6 @@
 import requests
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os 
 import pandas as pd
 import time
@@ -15,7 +15,7 @@ header = {
 stations_url = "https://api.hcdp.ikewai.org/mesonet/db/stations"
 measurements_url = "https://api.hcdp.ikewai.org/mesonet/db/measurements"
 
-now = datetime.utcnow()
+now = datetime.now(timezone.utc)
 start_time = now - timedelta(hours=24)
 start_time_str = start_time.strftime("%Y-%m-%dT%H:%M:%SZ")  # Convert to API format
 
