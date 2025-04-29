@@ -58,5 +58,4 @@ jobs:
         run: |
           git add data/Tair_1_Avg.json data/SM_1_Avg.json data/RH_1_Avg.json data/SWin_1_Avg.json data/RF_1_Tot300s_24H.json data/Tsoil_1_Avg.json data/wind.json
           git commit -m "Update JSON data" || echo "No changes to commit"
-          git pull origin data-branch --rebase || echo "No remote changes to merge"
-          git push origin data-branch --force
+          git push origin data-branch 
