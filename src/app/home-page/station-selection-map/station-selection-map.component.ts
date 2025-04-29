@@ -35,9 +35,12 @@ export class StationSelectionMapComponent implements AfterViewInit {
   };
 
   ngAfterViewInit(): void {
-    this.initMap();
-    this.fetchStationData();
+    setTimeout(() => {
+      this.initMap();
+      this.fetchStationData();
+    }, 50); 
   }
+
 
   private initMap(): void {
     const latitude = 20.389;
@@ -113,17 +116,17 @@ export class StationSelectionMapComponent implements AfterViewInit {
           const randomizedCoords = this.randomizeLatLon(station.lat, station.lng);
 
           let markerColor = 'blue'; // default
-          let fillOpacity = 0.2;
+          let fillOpacity = 0.1;
 
           if (station.status?.toLowerCase() === 'inactive') {
             markerColor = 'gray';
-            fillOpacity = 0.3;
+            fillOpacity = 0.4;
           } else if (station.status?.toLowerCase() === 'planned') {
             markerColor = 'orange';
-            fillOpacity = 0.3;
+            fillOpacity = 0.5;
           } else if (station.status?.toLowerCase() === 'active') {
             markerColor = 'blue';
-            fillOpacity = 0.3;
+            fillOpacity = 0.5;
           }
 
           const circle = L.circleMarker(
@@ -133,7 +136,7 @@ export class StationSelectionMapComponent implements AfterViewInit {
               color: markerColor,
               fillColor: markerColor,
               fillOpacity: fillOpacity,
-              weight: 2
+              weight: 1
             }
           );
 
