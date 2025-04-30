@@ -138,6 +138,7 @@ export class ClimatologyComponent implements OnInit {
         name: `Rainfall (${this.selectedUnit === 'metric' ? 'mm' : 'in'})`,
         data: this.rfData,
         yAxis: 0,
+        color: '#4A90E2',
         tooltip: {
           valueSuffix: this.selectedUnit === 'metric'  ? ' mm' : ' in',
         },
@@ -163,6 +164,7 @@ export class ClimatologyComponent implements OnInit {
           name: `Mean Temperature (${this.selectedUnit === 'metric' ? '°C' : '°F'})`,
           data: this.tmeanData,
           yAxis: 1,
+          color: '#F5A623',
           tooltip: {
             valueSuffix: this.selectedUnit === 'metric' ? ' °C' : ' °F',
           },
@@ -172,6 +174,7 @@ export class ClimatologyComponent implements OnInit {
           name: `Minimum Temperature (${this.selectedUnit === 'metric' ? '°C' : '°F'})`,
           data: this.tminData,
           yAxis: 1,
+          color: '#4A4A4A',
           tooltip: {
             valueSuffix: this.selectedUnit === 'metric' ? ' °C' : ' °F',
           },
@@ -181,6 +184,7 @@ export class ClimatologyComponent implements OnInit {
           name: `Maximum Temperature (${this.selectedUnit === 'metric' ? '°C' : '°F'})`,
           data: this.tmaxData,
           yAxis: 1,
+          color: '#D0021B',
           tooltip: {
             valueSuffix: this.selectedUnit === 'metric' ? ' °C' : ' °F',
           },

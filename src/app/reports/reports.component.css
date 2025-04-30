@@ -209,7 +209,7 @@ mat-form-field .mat-error {
 .inactive-warning {
   color: #d9534f;
   font-weight: bold;
-  font-size: 1.2vw;
+  font-size: 1.2em;
   margin-top: 0.5rem;
   text-align: center;
 }
