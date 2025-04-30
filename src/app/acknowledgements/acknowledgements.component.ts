@@ -19,7 +19,7 @@ export class AcknowledgementsComponent {
 
   acknowledgements = [
     {
-      title: "Installation Team",
+      title: "Core Leadership Team",
       content: "X"
     },
     {

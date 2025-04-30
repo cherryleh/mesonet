@@ -150,3 +150,7 @@ li {
 .nav-link.active-link .icon {
   filter: brightness(0) saturate(100%) invert(32%) sepia(90%) saturate(700%) hue-rotate(180deg);
 }
+
+.contact{
+  font-size: 0.9em;
+}
