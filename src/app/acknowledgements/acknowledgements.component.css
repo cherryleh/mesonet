@@ -1,45 +1,56 @@
 .acknowledgements-container {
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 40px 20px;
   text-align: center;
+}
 
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 20px;
-  }
+.acknowledgements-container h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
 
-  p {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    color: #333;
-  }
+.acknowledgements-container p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #333;
+}
 
-  .acknowledgement-section {
-    margin: 30px 0;
-    padding: 20px;
-    border-left: 5px solid #006699;
-    background: #f9f9f9;
-    text-align: left;
+.acknowledgement-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+  margin-top: 30px;
+}
 
-    h2 {
-      color: #006699;
-      margin-bottom: 10px;
-    }
-  }
+.acknowledgement-section {
+  padding: 20px;
+  border-left: 5px solid #006699;
+  background: #f9f9f9;
+  text-align: center;
+}
 
-  .footer {
-    margin-top: 40px;
-    font-size: 0.9rem;
+.acknowledgement-section h2 {
+  color: #006699;
+  margin-bottom: 10px;
+}
 
-    a {
-      color: #006699;
-      text-decoration: none;
-      font-weight: bold;
-    }
+.name-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px 20px;
+  font-size: 1rem;
+  text-align: left;
+  padding-left: 15%;
+  padding-right: 15%;
+}
 
-    a:hover {
-      text-decoration: underline;
-    }
-  }
+.name {
+  padding: 2px 0;
+}
+
+/* Funding section spans full width */
+.full-width {
+  margin-top: 40px;
+  grid-column: 1 / -1;
 }

@@ -20,20 +20,33 @@ export class AcknowledgementsComponent {
   acknowledgements = [
     {
       title: "Core Leadership Team",
-      content: "X"
+      names: ["Tom Giambelluca", "Chris Shuler", "Han Tseng"]
     },
     {
-      title: "Station Stewards",
-      content: "X"
+      title: "Project Co-PIs",
+      names: ["Yin-Phan Tsang", "Dave Beilman", "Alison Nugent", "Abby Frazier"]
     },
     {
-      title: "IT",
-      content: "X"
+      title: "Installation Team",
+      names: ["Dylan Giardina", "Chris Shuler", "Sam Dodge", "Anke Krueger", "John DeLay"]
     },
     {
-      title: "Funding Support",
-      content: "This project has been supported by..."
+      title: "Data Management Team",
+      names: ["Matty Lucas", "Jared McLean", "Sean Cleveland", "Ryan Longman", "Keri Kodama"]
+    },
+    {
+      title: "Data Visualization Team",
+      names: ["Cherryle Heu", "RJ Tabalba, Jr", "Nurit Kirshenbaum", "Marissa Halim", "Jason Leigh"]
+    },
+    {
+      title: "Technical Support",
+      names: ["Isaac Fjeldsted, Campbell Scientific", "Brian Olsen, Campbell Scientific", "Bart Nef, Campbell Scientific", "Brent Whittier, Campbell Scientific"],
+    },
+    {
+      title: "Funding",
+      content: "This work is supported by the National Science Foundation under award number 2117975, and by funding provided by the Honolulu Board of Water Supply, Hawaiʻi Commission on Water Resource Management, University of Hawaiʻi, Hawaiʻi State Legislature, and the National Oceanic and Atmospheric Administration through the National Mesonet Program."
     }
   ];
+
 
 }
