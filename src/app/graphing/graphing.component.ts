@@ -131,13 +131,19 @@ export class GraphingComponent implements OnInit, AfterViewInit {
         this.stationId = params['id'] || 'default_station_id';
         const shortId = this.stationId.substring(0, 4);
 
+        const fallbackVarList = `SWin_1_Avg;SWout_1_Avg;LWin_1_Avg;LWout_1_Avg;SWnet_1_Avg;LWnet_1_Avg;Rnet_1_Avg;Albedo_1_Avg;Tsrf_1_Avg;Tsky_1_Avg;Tair_1_Avg;Tair_2_Avg;RH_1_Avg;RH_2_Avg;VP_1_Avg;VP_2_Avg;VPsat_1_Avg;VPsat_2_Avg;VPD_1_Avg;VPD_2_Avg;WS_1_Avg;WDrs_1_Avg;P_1;Psl_1;Tsoil_1_Avg;SHFsrf_1_Avg;SM_1_Avg;SM_2_Avg;SM_3_Avg;Tsoil_2;Tsoil_3;Tsoil_4;RF_1_Tot300s;RFint_1_Max`
+          .split(';');
+
+        const allowedVariables = this.stationVariablesMap[shortId] ?? fallbackVarList;
+
         this.filteredVariables = this.variables.filter(v =>
-          this.stationVariablesMap[shortId]?.includes(v.value)
+          allowedVariables.includes(v.value)
         );
 
         this.selectedVariables = this.filteredVariables.length > 0
           ? [this.filteredVariables[0].value]
           : [];
+
           
         this.fetchStationDateRange(this.stationId);
         this.loadData();
