@@ -462,18 +462,24 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       }
     }
 
-    this.selectedVariables.forEach((variable, i) => {
-      const axis = this.chart!.yAxis[i];
-      const label = this.getYAxisLabel(variable);
+    // Update or hide y-axes
+    for (let i = 0; i < this.chart.yAxis.length; i++) {
+      const axis = this.chart.yAxis[i];
+      if (i < this.selectedVariables.length) {
+        const variable = this.selectedVariables[i];
+        const label = this.getYAxisLabel(variable);
 
-      axis.setTitle({ text: label });
-
-      if (extremes[variable]) {
-        axis.update({ min: extremes[variable].min, max: extremes[variable].max }, false);
+        axis.setTitle({ text: label });
+        axis.update({
+          visible: true,
+          min: extremes[variable]?.min,
+          max: extremes[variable]?.max,
+        }, false);
       } else {
-        axis.update({ min: undefined, max: undefined }, false);
+        axis.update({ visible: false }, false); // hide unused axis
       }
-    });
+    }
+
 
 
 
@@ -566,7 +572,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
 
   getYAxisLabel(variable: string): string {
-    if (variable === 'Tair_1_Avg') {
+    if (['Tair_1_Avg', 'Tair_2_Avg', 'Tsrf_1_Avg', 'Tsky_1_Avg','Tsoil_1_Avg','Tsoil_2','Tsoil_3','Tsoil_4'].includes(variable)) {
       return this.selectedUnit === 'standard' ? 'Temperature (°F)' : 'Temperature (°C)';
     } else if (variable === 'RF_1_Tot300s') {
       return this.selectedUnit === 'standard' ? 'Rainfall (in)' : 'Rainfall (mm)';
@@ -574,6 +580,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       return this.variables.find(v => v.value === variable)?.yAxisTitle || variable;
     }
   }
+
 
 
   isCustomRange = false;
