@@ -424,18 +424,29 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     // Define shared scale groups
     const sharedScaleGroups = [
       ['Tair_1_Avg', 'Tair_2_Avg'],
+      ['Tsrf_1_Avg','Tsky_1_Avg','Tair_1_Avg','Tair_2_Avg'],
+      ['SM_1_Avg', 'SM_2_Avg', 'SM_3_Avg'],
+      ['VP_1_Avg', 'VP_2_Avg'],
+      ['VPsat_1_Avg', 'VPsat_2_Avg'],
+      ['VPD_1_Avg', 'VPD_2_Avg'],
       ['RH_1_Avg', 'RH_2_Avg'],
+      ['Tsoil_1_Avg', 'Tsoil_2', 'Tsoil_3', 'Tsoil_4'],
+      [
+        'SWin_1_Avg', 'SWout_1_Avg', 'LWin_1_Avg', 'LWout_1_Avg',
+        'SWnet_1_Avg', 'LWnet_1_Avg', 'Rnet_1_Avg', 'SHFsrf_1_Avg'
+      ]
     ];
 
     const extremes: { [key: string]: { min: number; max: number } } = {};
 
     // Compute min/max for each group if all variables in it are selected
     for (const group of sharedScaleGroups) {
-      if (group.every(v => this.selectedVariables.includes(v))) {
+      const selectedInGroup = group.filter(v => this.selectedVariables.includes(v));
+      if (selectedInGroup.length >= 2) {
         const allValues: number[] = [];
         for (const series of seriesData) {
           const varName = (series as any).custom?.variable;
-          if (group.includes(varName)) {
+          if (selectedInGroup.includes(varName)) {
             const values = ((series as any).data || [])
               .map((point: any) => point[1])
               .filter((val: any) => val !== null && !isNaN(val));
@@ -445,15 +456,15 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
         const min = Math.min(...allValues);
         const max = Math.max(...allValues);
-        group.forEach(v => (extremes[v] = { min, max }));
+
+        selectedInGroup.forEach(v => (extremes[v] = { min, max }));
+
       }
     }
 
-    this.chart.yAxis.forEach((axis, i) => {
-      const variable = (this.chart?.series[i] as any)?.custom?.variable;
-      const label = this.selectedVariables[i]
-        ? this.getYAxisLabel(this.selectedVariables[i])
-        : '';
+    this.selectedVariables.forEach((variable, i) => {
+      const axis = this.chart!.yAxis[i];
+      const label = this.getYAxisLabel(variable);
 
       axis.setTitle({ text: label });
 
@@ -463,6 +474,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
         axis.update({ min: undefined, max: undefined }, false);
       }
     });
+
 
 
     // Add series back
