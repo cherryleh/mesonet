@@ -3,6 +3,7 @@ import * as L from 'leaflet';
 import { CommonModule } from '@angular/common';
 import { environment } from "../../environments/environment";  
 import { interpolateViridis } from "d3-scale-chromatic";
+import { interpolateTurbo } from 'd3-scale-chromatic';
 import { HeaderComponent } from '../header/header.component';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -196,19 +197,24 @@ async fetchStationData(): Promise<void> {
 
         stations.forEach(station => {
             if (station.lat && station.lng) {
-                let value = measurementMap[station.station_id] ?? null;
-                let numericValue = value !== null ? Number(value) : null;
+              const value = measurementMap[station.station_id] ?? null;
+              const numericValue = value !== null ? Number(value) : null;
+              const hasData = numericValue !== null && !isNaN(numericValue);
 
-                let color = numericValue !== null && !isNaN(numericValue) 
-                    ? this.getColorFromValue(numericValue, minValue, maxValue) 
-                    : "gray";
+              const color = hasData 
+                  ? this.getColorFromValue(numericValue, minValue, maxValue) 
+                  : 'gray';
 
-                const marker = L.circleMarker([station.lat, station.lng], {
-                    radius: 8,
-                    color: color,
-                    fillColor: color,
-                    fillOpacity: 0.8
-                }).addTo(this.map);
+              const marker = L.circleMarker([station.lat, station.lng], {
+                  radius: 8,
+                  color: 'gray',     
+                  fillColor: color,                  
+                  fillOpacity: hasData ? 1 : 0.3,
+                  opacity: hasData ? 1 : 0.3,
+                  weight: hasData ? 1 : 0.5
+              }).addTo(this.map);
+
+              hasData ? marker.bringToFront() : marker.bringToBack();
 
                 marker.on('click', () => {
                     console.log("Clicked on station:", station.station_id); // Debugging log
@@ -398,8 +404,8 @@ private getColorFromValue(value: number, min: number, max: number): string {
     const isReversed = reversedVariables.includes(this.selectedVariable);
   
     return isReversed
-      ? interpolateViridis(1 - normalizedValue)
-      : interpolateViridis(normalizedValue);
+      ? interpolateTurbo(1 - normalizedValue)
+      : interpolateTurbo(normalizedValue);
   }
   
 
@@ -408,7 +414,11 @@ private getColorFromValue(value: number, min: number, max: number): string {
       this.map = L.map('map', {
         center: [20.493410, -158.064388],
         zoom: 8,
-        layers: [L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')],
+        layers: [
+          L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles © Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+          })
+        ],
         zoomControl: false 
       });
 
@@ -470,8 +480,8 @@ private getColorFromValue(value: number, min: number, max: number): string {
         if (gradientDiv) {
             gradientDiv.style.background = `linear-gradient(to right, 
                 ${this.selectedVariable === "RF_1_Tot300s_24H" || this.selectedVariable === "SM_1_Avg" || this.selectedVariable === "RH_1_Avg"
-                    ? `${interpolateViridis(1)}, ${interpolateViridis(0.75)}, ${interpolateViridis(0.5)}, ${interpolateViridis(0.25)}, ${interpolateViridis(0)}`
-                    : `${interpolateViridis(0)}, ${interpolateViridis(0.25)}, ${interpolateViridis(0.5)}, ${interpolateViridis(0.75)}, ${interpolateViridis(1)}`
+                    ? `${interpolateTurbo(1)}, ${interpolateTurbo(0.75)}, ${interpolateTurbo(0.5)}, ${interpolateTurbo(0.25)}, ${interpolateTurbo(0)}`
+                    : `${interpolateTurbo(0)}, ${interpolateTurbo(0.25)}, ${interpolateTurbo(0.5)}, ${interpolateTurbo(0.75)}, ${interpolateTurbo(1)}`
                 })`;
             gradientDiv.style.border = "1px solid black";
         }
