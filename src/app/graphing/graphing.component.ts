@@ -572,14 +572,23 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
 
   getYAxisLabel(variable: string): string {
-    if (['Tair_1_Avg', 'Tair_2_Avg', 'Tsrf_1_Avg', 'Tsky_1_Avg','Tsoil_1_Avg','Tsoil_2','Tsoil_3','Tsoil_4'].includes(variable)) {
-      return this.selectedUnit === 'standard' ? 'Temperature (°F)' : 'Temperature (°C)';
-    } else if (variable === 'RF_1_Tot300s') {
-      return this.selectedUnit === 'standard' ? 'Rainfall (in)' : 'Rainfall (mm)';
-    } else {
-      return this.variables.find(v => v.value === variable)?.yAxisTitle || variable;
-    }
+    const isStandard = this.selectedUnit === 'standard';
+
+    const labelMap: { [key: string]: string } = {
+      Tair_1_Avg: `Air Temp Sensor 1 (${isStandard ? '°F' : '°C'})`,
+      Tair_2_Avg: `Air Temp Sensor 2 (${isStandard ? '°F' : '°C'})`,
+      Tsrf_1_Avg: `Surface Temp (${isStandard ? '°F' : '°C'})`,
+      Tsky_1_Avg: `Sky Temp (${isStandard ? '°F' : '°C'})`,
+      Tsoil_1_Avg: `Soil Temp Sensor 1 (${isStandard ? '°F' : '°C'})`,
+      Tsoil_2:     `Soil Temp Sensor 2 (${isStandard ? '°F' : '°C'})`,
+      Tsoil_3:     `Soil Temp Sensor 3 (${isStandard ? '°F' : '°C'})`,
+      Tsoil_4:     `Soil Temp Sensor 4 (${isStandard ? '°F' : '°C'})`,
+      RF_1_Tot300s: `Rainfall (${isStandard ? 'in' : 'mm'})`
+    };
+
+    return labelMap[variable] || this.variables.find(v => v.value === variable)?.yAxisTitle || variable;
   }
+
 
 
 
