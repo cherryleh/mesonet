@@ -68,9 +68,9 @@ export class StationSelectionMapComponent implements AfterViewInit {
         const div = L.DomUtil.create('div', 'info legend');
         div.innerHTML = `
           <h4>Status</h4>
-          <i style="background: blue; width: 12px; height: 12px; display: inline-block; margin-right: 5px;"></i> Active<br>
-          <i style="background: orange; width: 12px; height: 12px; display: inline-block; margin-right: 5px;"></i> Planned<br>
-          <i style="background: gray; width: 12px; height: 12px; display: inline-block; margin-right: 5px;"></i> Inactive
+          <i style="background: blue; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 5px;"></i> Active<br>
+          <i style="background: orange; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 5px;"></i> Planned<br>
+          <i style="background: gray; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 5px;"></i> Inactive
         `;
         return div;
       }
@@ -79,6 +79,7 @@ export class StationSelectionMapComponent implements AfterViewInit {
     const legend = new LegendControl();
     legend.addTo(this.map);
   }
+
 
 
 
