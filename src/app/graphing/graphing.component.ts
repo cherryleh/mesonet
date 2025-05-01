@@ -575,14 +575,14 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     const isStandard = this.selectedUnit === 'standard';
 
     const labelMap: { [key: string]: string } = {
-      Tair_1_Avg: `Air Temp Sensor 1 (${isStandard ? '°F' : '°C'})`,
-      Tair_2_Avg: `Air Temp Sensor 2 (${isStandard ? '°F' : '°C'})`,
-      Tsrf_1_Avg: `Surface Temp (${isStandard ? '°F' : '°C'})`,
-      Tsky_1_Avg: `Sky Temp (${isStandard ? '°F' : '°C'})`,
-      Tsoil_1_Avg: `Soil Temp Sensor 1 (${isStandard ? '°F' : '°C'})`,
-      Tsoil_2:     `Soil Temp Sensor 2 (${isStandard ? '°F' : '°C'})`,
-      Tsoil_3:     `Soil Temp Sensor 3 (${isStandard ? '°F' : '°C'})`,
-      Tsoil_4:     `Soil Temp Sensor 4 (${isStandard ? '°F' : '°C'})`,
+      Tair_1_Avg: `Air Temperature Sensor 1 (${isStandard ? '°F' : '°C'})`,
+      Tair_2_Avg: `Air Temperature Sensor 2 (${isStandard ? '°F' : '°C'})`,
+      Tsrf_1_Avg: `Surface Temperature (${isStandard ? '°F' : '°C'})`,
+      Tsky_1_Avg: `Sky Temperature (${isStandard ? '°F' : '°C'})`,
+      Tsoil_1_Avg: `Soil Temperature Sensor 1 (${isStandard ? '°F' : '°C'})`,
+      Tsoil_2:     `Soil Temperature Sensor 2 (${isStandard ? '°F' : '°C'})`,
+      Tsoil_3:     `Soil Temperature Sensor 3 (${isStandard ? '°F' : '°C'})`,
+      Tsoil_4:     `Soil Temperature Sensor 4 (${isStandard ? '°F' : '°C'})`,
       RF_1_Tot300s: `Rainfall (${isStandard ? 'in' : 'mm'})`
     };
 
