@@ -116,9 +116,6 @@ export class ReportsComponent implements OnInit {
   ngOnInit(): void {
     const today = new Date();
     this.maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-
-
-    console.log('Max Date String:', this.maxDate);
     this.route.queryParams.subscribe(params => {
       this.stationId = params['id'] || 'default_station_id';
       this.initializeForm(); 
@@ -150,11 +147,11 @@ export class ReportsComponent implements OnInit {
 
 
   validateAndSubmit(): void {
-    this.hasSubmitted = true;  // ✅ Mark submission attempt
-    this.checkDateRange();  // ✅ Validate all fields
+    this.hasSubmitted = true;  
+    this.checkDateRange();  
 
     if (this.reportForm.invalid) {
-      this.reportForm.markAllAsTouched(); // ✅ Highlight errors only on submit
+      this.reportForm.markAllAsTouched(); 
       return;
     }
 
@@ -164,31 +161,43 @@ export class ReportsComponent implements OnInit {
 
   onSubmit(): void {
     this.isLoading = true;
-    let { startDate, endDate } = this.reportForm.value;
+
+    let { startDate, endDate, email, interval } = this.reportForm.value;
 
     try {
-      startDate = this.formatDateToHST(startDate, 'T00:00:00-10:00'); 
-      endDate = this.formatDateToHST(endDate, 'T23:59:59-10:00'); 
+      startDate = this.formatDateToHST(startDate, 'T00:00:00-10:00');
+      endDate = this.formatDateToHST(endDate, 'T23:59:59-10:00');
     } catch (error) {
       console.error('Date processing error:', error);
       this.isLoading = false;
       return;
     }
 
-    this.reportsService.getData(this.stationId, startDate, endDate).subscribe(
-      (data) => {
-        console.log('Raw Data Length:', data.length); 
-        this.reportData = data;
-        this.formatTableData();
-        this.showExportButton = this.dataSource.data.length > 0;
-        this.isLoading = false;      
+    const exportPayload = {
+      email: email,
+      data: {
+        location: 'hawaii',
+        station_ids: [this.stationId],
+        var_ids: "Tair_1_Avg",
+        start_date: startDate,
+        end_date: endDate,
+        local_tz: true,
       },
-      (error) => {
-        console.error('Error fetching report data:', error);
+      outputName: `report_${this.stationId}_${startDate}_to_${endDate}.csv`
+    };
+
+    this.reportsService.sendExportRequest(exportPayload).subscribe({
+      complete: () => {
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Export request failed:', error);
         this.isLoading = false;
       }
-    );
+    });
+
   }
+
 
 
   formatDateToHST(date: string, time: string): string {
@@ -234,7 +243,6 @@ export class ReportsComponent implements OnInit {
     }, {});
 
     this.dataSource.data = Object.values(groupedData);
-    console.log(this.dataSource.data.length);
 
     setTimeout(() => {
       this.dataSource.paginator = this.paginator;
@@ -291,7 +299,6 @@ export class ReportsComponent implements OnInit {
 
         if (date && !isNaN(date.getTime())) {
           this.minStartDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-          console.log(this.minStartDate);
         } else {
           console.warn('Invalid timestamp received:', response.minDate);
 
@@ -314,7 +321,7 @@ export class ReportsComponent implements OnInit {
       const endDate = new Date(endDateControl.value);
       const dateDiff = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24); // Days difference
 
-      if (dateDiff > 30) {
+      if (dateDiff > 90) {
         if (!confirmLongRangeControl?.disabled) {
           confirmLongRangeControl?.patchValue(true, { emitEvent: false });
           confirmLongRangeControl?.disable({ emitEvent: false });

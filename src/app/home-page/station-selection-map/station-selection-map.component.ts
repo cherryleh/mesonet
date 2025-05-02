@@ -102,6 +102,7 @@ export class StationSelectionMapComponent implements AfterViewInit {
 
   fetchStationData(): void {
     const apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?location=hawaii'; 
+    console.log('Fetching station coordinates from:', apiUrl);
     const apiToken = environment.apiToken; 
     fetch(apiUrl, {
       method: 'GET',

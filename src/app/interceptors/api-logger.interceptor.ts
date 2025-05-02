@@ -47,10 +47,7 @@ export const apiLoggerInterceptor: HttpInterceptorFn = (
       body: JSON.stringify(logEntry),
       mode: 'no-cors'
     }).catch(err => console.error('[API LOGGER] Failed to log to Google Sheets:', err));
-
-    console.log('[API LOGGER] Sent log to Google Sheets:', logEntry);
   } else {
-    console.log('[API LOGGER] Skipped logging for:', req.url);
   }
 
   return next(req).pipe(

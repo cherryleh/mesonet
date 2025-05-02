@@ -45,18 +45,20 @@ export class StationTitleComponent implements OnInit {
           this.stationName = station.full_name;
           this.stationID = station.station_id;
           this.status = station.status;
-          this.isInactive = station.status?.toLowerCase() === 'inactive';
-          this.isPlanned = this.status?.toLowerCase() === 'planned';
-          
-          this.stationDatesService.getData(id).subscribe({
-            next: (res) => {
-              if (res.maxDate) {
-                this.timestamp = res.maxDate.toISOString();
-              }
+          const statusLower = station.status?.toLowerCase();
+          this.isInactive = statusLower === 'inactive';
+          this.isPlanned = statusLower === 'planned';
 
-            },
-            error: (err) => console.error('Error fetching timestamp:', err)
-          });
+          if (this.isInactive || this.isPlanned) {
+            this.stationDatesService.getData(id).subscribe({
+              next: (res) => {
+                if (res.maxDate) {
+                  this.timestamp = res.maxDate.toISOString();
+                }
+              },
+              error: (err) => console.error('Error fetching timestamp:', err)
+            });
+          }
         }
       },
       error: (error) => {
@@ -64,6 +66,7 @@ export class StationTitleComponent implements OnInit {
       },
     });
   }
+
 
 
   

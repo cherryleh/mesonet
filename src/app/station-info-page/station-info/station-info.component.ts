@@ -42,8 +42,7 @@ export class StationInfoComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.stationId = params['id'] || 'default_station_id'; // Default ID if none is provided
-      console.log('Station ID from URL:', this.stationId);
+      this.stationId = params['id'] || 'default_station_id'; 
 
       this.fetchStationData();
     });
@@ -51,20 +50,19 @@ export class StationInfoComponent implements OnInit, OnDestroy {
     this.subscription.add(
       this.sidebarService.isCollapsed$.subscribe(value => {
         this.isCollapsed = value;
-        console.log('Sidebar collapsed:', value);
       })
     );
   }
 
 
   fetchStationData(): void {
+    console.log('FETCHING STATION DATA'),
     this.subscription.add(
       forkJoin({
         dates: this.stationDatesService.getData(this.stationId),
         metadata: this.stationDataService.getStationData(this.stationId)
       }).subscribe({
         next: (results) => {
-          console.log('Combined API Results:', results);
           const datesResponse = results.dates;
           const date = datesResponse.minDate ? new Date(datesResponse.minDate) : null;
           if (date && !isNaN(date.getTime())) {
@@ -73,7 +71,6 @@ export class StationInfoComponent implements OnInit, OnDestroy {
               month: 'long',
               day: 'numeric'
             });
-            console.log('Formatted Start Date:', this.stationStartDate);
           } else {
             console.warn('Invalid timestamp received:', datesResponse.minDate);
 

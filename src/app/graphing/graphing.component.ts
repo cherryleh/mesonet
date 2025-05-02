@@ -101,18 +101,9 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
   stationVariablesMap: { [stationId: string]: string[] } = {};
 
-  
-
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      this.stationId = params['id'] || 'default_station_id';
-      console.log(`Initializing graph for station ID: ${this.stationId}`); 
-      this.fetchStationDateRange(this.stationId);
-      this.loadData();
-    });
-
     this.unitSubscription = this.unitService.getUnit().subscribe(unit => {
-      this.selectedUnit = unit; // Update dropdown selection when unit changes
+      this.selectedUnit = unit;
     });
 
     this.sidebarSubscription = this.sidebarService.isCollapsed$.subscribe((value: boolean) => {
@@ -120,36 +111,27 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     });
 
     this.http.get('station_variables.csv', { responseType: 'text' })
-    .pipe(
-      map(csv => this.parseCsvToMap(csv))
-    )
-    .subscribe(map => {
-      this.stationVariablesMap = map;
+      .pipe(map(csv => this.parseCsvToMap(csv)))
+      .subscribe(map => {
+        this.stationVariablesMap = map;
 
-      // Get station ID from route
-      this.route.queryParams.subscribe(params => {
-        this.stationId = params['id'] || 'default_station_id';
-        const shortId = this.stationId.substring(0, 4);
+        this.route.queryParams.subscribe(params => {
+          this.stationId = params['id'] || 'default_station_id';
+          const shortId = this.stationId.substring(0, 4);
 
-        const fallbackVarList = `SWin_1_Avg;SWout_1_Avg;LWin_1_Avg;LWout_1_Avg;SWnet_1_Avg;LWnet_1_Avg;Rnet_1_Avg;Albedo_1_Avg;Tsrf_1_Avg;Tsky_1_Avg;Tair_1_Avg;Tair_2_Avg;RH_1_Avg;RH_2_Avg;VP_1_Avg;VP_2_Avg;VPsat_1_Avg;VPsat_2_Avg;VPD_1_Avg;VPD_2_Avg;WS_1_Avg;WDrs_1_Avg;P_1;Psl_1;Tsoil_1_Avg;SHFsrf_1_Avg;SM_1_Avg;SM_2_Avg;SM_3_Avg;Tsoil_2;Tsoil_3;Tsoil_4;RF_1_Tot300s;RFint_1_Max`
-          .split(';');
+          const fallbackVarList = `SWin_1_Avg;SWout_1_Avg;LWin_1_Avg;LWout_1_Avg;SWnet_1_Avg;LWnet_1_Avg;Rnet_1_Avg;Albedo_1_Avg;Tsrf_1_Avg;Tsky_1_Avg;Tair_1_Avg;Tair_2_Avg;RH_1_Avg;RH_2_Avg;VP_1_Avg;VP_2_Avg;VPsat_1_Avg;VPsat_2_Avg;VPD_1_Avg;VPD_2_Avg;WS_1_Avg;WDrs_1_Avg;P_1;Psl_1;Tsoil_1_Avg;SHFsrf_1_Avg;SM_1_Avg;SM_2_Avg;SM_3_Avg;Tsoil_2;Tsoil_3;Tsoil_4;RF_1_Tot300s;RFint_1_Max`.split(';');
+          const allowedVariables = this.stationVariablesMap[shortId] ?? fallbackVarList;
 
-        const allowedVariables = this.stationVariablesMap[shortId] ?? fallbackVarList;
-
-        this.filteredVariables = this.variables.filter(v =>
-          allowedVariables.includes(v.value)
-        );
-
-        this.selectedVariables = this.filteredVariables.length > 0
-          ? [this.filteredVariables[0].value]
-          : [];
-
-          
-        this.fetchStationDateRange(this.stationId);
-        this.loadData();
+          this.filteredVariables = this.variables.filter(v => allowedVariables.includes(v.value));
+          this.selectedVariables = this.filteredVariables.length > 0 ? [this.filteredVariables[0].value] : [];
+          this.fetchStationDateRange(this.stationId); 
+          this.loadData();  
+        });
       });
-    });
   }
+
+
+
   
   filteredVariables: typeof this.variables = [];
 
@@ -185,8 +167,6 @@ export class GraphingComponent implements OnInit, AfterViewInit {
             response.maxDate.getDate()
           );
         }
-
-        console.log('Station date range:', this.minAvailableDate, 'to', this.maxAvailableDate);
       },
       error: (error: any) => {
         console.error('Error fetching station date range:', error);
@@ -318,13 +298,11 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
     if (this.isCustomRange && this.dateRange.start && this.dateRange.end) {
       startDate = this.convertToApiTimestamp(this.dateRange.start);
-      endDate = this.convertToApiTimestamp(this.dateRange.end, true); 
-      console.log('Using custom range:', { startDate, endDate });
+      endDate = this.convertToApiTimestamp(this.dateRange.end, true);
     } else {
       const days = this.getDaysFromDuration(this.selectedDuration);
       startDate = this.getDateMinusDays(days);
-      endDate = this.convertToApiTimestamp(new Date()); // use "now" as fallback end
-      console.log('Using duration range:', { startDate, endDate });
+      endDate = this.convertToApiTimestamp(new Date());
     }
 
     this.graphingDataService.getData(
@@ -332,18 +310,15 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       this.selectedVariables.join(','),
       startDate,
       this.selectedDuration,
-      endDate 
+      endDate
     ).subscribe(
       data => {
         this.isLoading = false;
-        if (!data || data.length === 0) {
-          return;
-        }
+        if (!data || data.length === 0) return;
 
         const timezoneOffset = this.stationId.startsWith('1') ? 660 : 600;
         this.chart?.update({ time: { timezoneOffset } });
 
-        console.log(`Applying Timezone Offset: ${timezoneOffset} minutes`);
         this.updateChart(this.formatData(data));
       },
       error => {
@@ -352,6 +327,8 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       }
     );
   }
+
+
 
   maxEndDate: Date = new Date();
   maxStartDate: Date = new Date(new Date().getTime() - 90 * 24 * 60 * 60 * 1000); // 90 days ago

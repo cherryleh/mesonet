@@ -22,9 +22,6 @@ export class StationDatesService {
     return this.getDateFromApi(id, false);
   }
 
-
-
-
   getData(id: string): Observable<{ minDate: Date | null, maxDate: Date | null }> {
     return forkJoin({
       minDate: this.getMinDate(id).pipe(
@@ -58,7 +55,7 @@ export class StationDatesService {
     }
 
     const url = `https://api.hcdp.ikewai.org/mesonet/db/measurements?${params.toString()}`;
-    console.log(`Fetching ${isMin ? 'min' : 'max'} date from:`, url);
+    console.log(`Fetching for station date information`, url);
 
     return this.http.get<any>(url, { headers });
   }

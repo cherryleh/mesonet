@@ -257,7 +257,6 @@ convertCtoF(value: number): number {
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.id = params['id'];
       if (this.id) {
-        this.fetchData(this.id);
         this.updateData();
       }
     });
@@ -299,19 +298,20 @@ convertCtoF(value: number): number {
 
   updateData(): void {
     if (this.isDestroyed || !this.id) {
-      return; 
+      return;
     }
 
-    this.fetchData(this.id);  // Fetch new data and update latestTimestamp
-    
-    clearTimeout(this.refreshTimeout); // Clear previous timeout
+    clearTimeout(this.refreshTimeout);
 
     this.refreshTimeout = setTimeout(() => {
-      this.updateData();
+      if (!this.isDestroyed && this.id) {
+        this.fetchData(this.id); // only fetch after delay
+        this.updateData();       // reschedule next
+        console.log(`Refreshing data for ID: ${this.id} at ${new Date().toLocaleTimeString()}`);
+      }
     }, this.refreshIntervalMS);
-    console.log(`Refreshing data for ID: ${this.id} at ${new Date().toLocaleTimeString()}`);
-
   }
+
 
 
   getProgressValue(variableKey: string): number {

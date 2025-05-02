@@ -18,7 +18,7 @@ export class StationDataService {
     });
     const locationParam = id.startsWith('1') ? '&location=american_samoa' : '&location=hawaii';
     const url = `${this.apiUrl}&station_ids=${id}${locationParam}`;
-    console.log('API request for station metadata: ',url);
+    console.log('Fetching for station metadata: ',url);
     return this.http.get<any>(url, { headers });
   }
 }
