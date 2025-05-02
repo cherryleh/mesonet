@@ -9,6 +9,8 @@ import { StationDataService } from '../../services/station-info.service';
 import { SidebarService } from '../../services/sidebar.service';
 import { Subscription, forkJoin } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { map } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-station-info',
@@ -41,6 +43,7 @@ export class StationInfoComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    console.log('[StationInfoComponent] ngOnInit');
     this.route.queryParams.subscribe(params => {
       this.stationId = params['id'] || 'default_station_id'; 
 
@@ -59,12 +62,14 @@ export class StationInfoComponent implements OnInit, OnDestroy {
     console.log('FETCHING STATION DATA'),
     this.subscription.add(
       forkJoin({
-        dates: this.stationDatesService.getData(this.stationId),
+        minDate: this.stationDatesService.getMinDate(this.stationId).pipe(
+          map((res: any[]) => res[0]?.timestamp ? new Date(res[0].timestamp) : null)
+        ),
+
         metadata: this.stationDataService.getStationData(this.stationId)
       }).subscribe({
         next: (results) => {
-          const datesResponse = results.dates;
-          const date = datesResponse.minDate ? new Date(datesResponse.minDate) : null;
+          const date = results.minDate;
           if (date && !isNaN(date.getTime())) {
             this.stationStartDate = date.toLocaleDateString('en-US', {
               year: 'numeric',
@@ -72,9 +77,9 @@ export class StationInfoComponent implements OnInit, OnDestroy {
               day: 'numeric'
             });
           } else {
-            console.warn('Invalid timestamp received:', datesResponse.minDate);
-
+            console.warn('Invalid timestamp received:', date);
           }
+
 
           const metadataResponse = results.metadata;
           if (metadataResponse && metadataResponse.length > 0) {

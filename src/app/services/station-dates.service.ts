@@ -23,6 +23,7 @@ export class StationDatesService {
   }
 
   getData(id: string): Observable<{ minDate: Date | null, maxDate: Date | null }> {
+    console.log(`[StationDatesService] getData called for ${id}`);
     return forkJoin({
       minDate: this.getMinDate(id).pipe(
         map((res: any[]) => res[0]?.timestamp ? new Date(res[0].timestamp) : null)
