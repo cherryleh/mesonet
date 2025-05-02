@@ -5,7 +5,7 @@ import { HeaderComponent } from '../header/header.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { StationTitleComponent } from '../station-title/station-title.component';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
-import { ReportsService } from '../services/reports.service'; 
+import { ReportsEmailService } from '../services/reports-email.service'; 
 import { StationDatesService } from '../services/station-dates.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -24,6 +24,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { Subscription } from 'rxjs';
 import { SidebarService } from '../services/sidebar.service';
+import { ReportsApiService } from '../services/reports-api.service';
 
 @Component({
   selector: 'app-reports',
@@ -99,9 +100,10 @@ export class ReportsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private fb: FormBuilder,
-    private reportsService: ReportsService,
+    private reportsEmailService: ReportsEmailService,
     private StationDatesService: StationDatesService,
-    private sidebarService: SidebarService
+    private sidebarService: SidebarService,
+    private reportsApiService: ReportsApiService
   ) {
     this.reportForm = this.fb.group({
       startDate: ['', Validators.required],
@@ -137,7 +139,7 @@ export class ReportsComponent implements OnInit {
       endDate: ['', Validators.required],
       interval: ['hourly'],
       email: ['', [Validators.required, Validators.email]],
-      confirmLongRange: new FormControl({ value: false, disabled: false }), // ✅ Explicitly set value & disabled state
+      confirmLongRange: new FormControl({ value: false, disabled: false }),
       confirmSubmission: [false, Validators.requiredTrue]
     });
 
@@ -158,11 +160,10 @@ export class ReportsComponent implements OnInit {
     this.onSubmit();
   }
 
-
   onSubmit(): void {
     this.isLoading = true;
 
-    let { startDate, endDate, email, interval } = this.reportForm.value;
+    let { startDate, endDate, email, interval, confirmLongRange } = this.reportForm.value;
 
     try {
       startDate = this.formatDateToHST(startDate, 'T00:00:00-10:00');
@@ -176,28 +177,55 @@ export class ReportsComponent implements OnInit {
     const exportPayload = {
       email: email,
       data: {
-        location: 'hawaii',
         station_ids: [this.stationId],
-        var_ids: "Tair_1_Avg",
+        var_ids: ["Tair_1_Avg", "Tair_2_Avg", "RF_1_Tot300s","RFint_1_Max", "SWin_1_Avg", "SWout_1_Avg", "LWin_1_Avg", "LWout_1_Avg", "SWnet_1_Avg", "LWnet_1_Avg", "Rnet_1_Avg", "Albedo_1_Avg", "Tsrf_1_Avg", "Tsky_1_Avg", "RH_1_Avg", "RH_2_Avg", "VP_1_Avg", "VP_2_Avg", "VPsat_1_Avg", "VPsat_2_Avg", "VPD_1_Avg", "VPD_2_Avg", "WS_1_Avg", "WDrs_1_Avg", "P_1", "Psl_1", "Tsoil_1_Avg", "SHFsrf_1_Avg", "SM_1_Avg", "SM_2_Avg", "SM_3_Avg", "Tsoil_2", "Tsoil_3","Tsoil_4",],
         start_date: startDate,
         end_date: endDate,
-        local_tz: true,
+        local_tz: "true",
       },
-      outputName: `report_${this.stationId}_${startDate}_to_${endDate}.csv`
+      outputName: `${this.stationId}_${this.formatShortDate(startDate)}_${this.formatShortDate(endDate)}.csv`
     };
 
-    this.reportsService.sendExportRequest(exportPayload).subscribe({
-      complete: () => {
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Export request failed:', error);
-        this.isLoading = false;
-      }
-    });
+    const start = new Date(this.reportForm.get('startDate')?.value);
+    const end = new Date(this.reportForm.get('endDate')?.value);
+    const dateDiff = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
 
+    const mustUseEmail = dateDiff > 31;
+    const shouldEmail = mustUseEmail || confirmLongRange;
+
+    if (shouldEmail) {
+      this.reportsEmailService.sendExportRequest(exportPayload).subscribe({
+        complete: () => this.isLoading = false,
+        error: err => {
+          console.error('Email export failed:', err);
+          this.isLoading = false;
+        }
+      });
+    }
+
+    if (!mustUseEmail) {
+      this.reportsApiService.getData(this.stationId, startDate, endDate).subscribe({
+        next: (data) => {
+          this.reportData = data;
+          this.formatTableData();
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('API fetch failed:', err);
+          this.isLoading = false;
+        }
+      });
+    }
   }
 
+
+  formatShortDate(date: string): string {
+    const d = new Date(date);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}${mm}${dd}`;
+  }
 
 
   formatDateToHST(date: string, time: string): string {
@@ -286,7 +314,13 @@ export class ReportsComponent implements OnInit {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `report_${this.stationId}_${new Date().toISOString().slice(0, 10)}.csv`;
+    const start = this.reportForm.get('startDate')?.value;
+    const end = this.reportForm.get('endDate')?.value;
+    const startShort = this.formatShortDate(start);
+    const endShort = this.formatShortDate(end);
+
+    a.download = `${this.stationId}_${startShort}_${endShort}.csv`;
+
     a.click();
     window.URL.revokeObjectURL(url);
   }
@@ -321,7 +355,7 @@ export class ReportsComponent implements OnInit {
       const endDate = new Date(endDateControl.value);
       const dateDiff = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24); // Days difference
 
-      if (dateDiff > 90) {
+      if (dateDiff > 31) {
         if (!confirmLongRangeControl?.disabled) {
           confirmLongRangeControl?.patchValue(true, { emitEvent: false });
           confirmLongRangeControl?.disable({ emitEvent: false });

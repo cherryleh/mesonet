@@ -7,7 +7,7 @@ import { tap } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
-export class ReportsService {
+export class ReportsEmailService {
   private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements/email';
   private apiToken = environment.apiToken;  // Or load from environment.ts
 
