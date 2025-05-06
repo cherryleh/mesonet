@@ -257,3 +257,13 @@ table.mat-table thead th {
   z-index: 1;
   box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);
 }
+
+.info-icon {
+  font-size: 18px;
+  vertical-align: middle;
+  margin-left: 4px;
+  cursor: pointer;
+  color: #101010; /* Material gray */
+}
+
+

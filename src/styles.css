@@ -1,7 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
-Replace with a light theme html,
+html,
 body {
   height: 100%;
 }
@@ -114,9 +114,6 @@ option {
 }
 
 
-
-
-
 html, body, #map {
   height: 100%;
   width: 100%;
@@ -160,3 +157,12 @@ html, body, #map {
   overflow: hidden !important;
   pointer-events: none !important;
 }
+
+.mdc-tooltip__surface {
+  font-size: 16px !important;
+  padding: 8px 12px !important;
+  white-space: normal !important;
+  max-width: 300px !important;
+}
+
+

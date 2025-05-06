@@ -40,23 +40,43 @@
           </div>
 
           <div class="form-column">
-            <div [matTooltip]="isAutoChecked ? 'This checkbox is required for reports over 1 month' : null"
+            <div [matTooltip]="isAutoChecked ? 'This checkbox is required for reports over 30 days' : null"
                  matTooltipPosition="above">
-              <mat-checkbox 
-                formControlName="confirmLongRange"
-                [disabled]="!!reportForm.get('confirmLongRange')?.disabled"
-                [class.disabled-label]="!!reportForm.get('confirmLongRange')?.disabled">
-                Send download package to email
-              </mat-checkbox>
+                 <div class="checkbox-with-tooltip">
+                  <mat-checkbox 
+                    formControlName="confirmLongRange"
+                    [disabled]="!!reportForm.get('confirmLongRange')?.disabled"
+                    [class.disabled-label]="!!reportForm.get('confirmLongRange')?.disabled">
+                    Send download package to email
+                  </mat-checkbox>
+                  <mat-icon 
+                    class="info-icon"
+                    matTooltip="Package the requested data into a CSV file and email a download link to you. This is required if requesting over 30 days of data."
+                    matTooltipPosition="right">
+                    help
+                  </mat-icon>
+                </div>
+  
             </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Email</mat-label>
-              <input matInput formControlName="email" type="email" placeholder="Enter your email">
-              <mat-error *ngIf="reportForm.get('email')?.invalid && reportForm.get('email')?.touched">
-                Please enter a valid email.
-              </mat-error>
-            </mat-form-field>
+            <div class="email-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Email</mat-label>
+                <input matInput formControlName="email" type="email" placeholder="Enter your email">
+                <mat-error *ngIf="reportForm.get('email')?.invalid && reportForm.get('email')?.touched">
+                  Please enter a valid email.
+                </mat-error>
+              </mat-form-field>
+
+              <mat-icon
+                class="info-icon"
+                matTooltipClass="tooltip"
+                matTooltip="Please enter your email address. This will be used for logging purposes and to send you your data if the above box is selected."
+                matTooltipPosition="right">
+                help
+              </mat-icon>
+            </div>
+
 
             <mat-checkbox formControlName="confirmSubmission">
               All data is covered under the <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">Attribution-NonCommercial-NoDerivatives 4.0 International</a> licensing agreement. By checking this box, I acknowledge and agree to adhere to the terms of this license in my use of any data provided by this application.

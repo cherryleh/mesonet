@@ -28,6 +28,7 @@ import { ReportsApiService } from '../services/reports-api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { EmailDialogComponent } from '../email-dialog/email-dialog.component';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-reports',
@@ -51,6 +52,7 @@ import { EmailDialogComponent } from '../email-dialog/email-dialog.component';
     MatOptionModule,
     MatSelectModule,
     MatDialogModule,
+    MatIconModule,
     EmailDialogComponent
   ],
   templateUrl: './reports.component.html',
@@ -228,8 +230,8 @@ export class ReportsComponent implements OnInit {
     const start = new Date(this.reportForm.get('startDate')?.value);
     const end = new Date(this.reportForm.get('endDate')?.value);
     const dateDiff = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
-    this.isLongRangeRequired = dateDiff > 31;
-    const mustUseEmail = dateDiff > 31;
+    this.isLongRangeRequired = dateDiff > 30;
+    const mustUseEmail = dateDiff > 30;
     const shouldEmail = mustUseEmail || confirmLongRange;
 
     if (shouldEmail) {
@@ -439,7 +441,7 @@ export class ReportsComponent implements OnInit {
       const endDate = new Date(endDateControl.value);
       const dateDiff = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24); // Days difference
 
-      if (dateDiff > 31) {
+      if (dateDiff > 30) {
         if (!confirmLongRangeControl?.disabled) {
           confirmLongRangeControl?.patchValue(true, { emitEvent: false });
           confirmLongRangeControl?.disable({ emitEvent: false });
