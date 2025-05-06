@@ -249,3 +249,11 @@ mat-form-field .mat-error {
   margin-top: 0.5rem;
   text-align: center;
 }
+
+table.mat-table thead th {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 1;
+  box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);
+}

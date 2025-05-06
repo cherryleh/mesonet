@@ -192,13 +192,17 @@ export class ReportsComponent implements OnInit {
     }
 
     this.onSubmit();
+    console.log('Checkbox checked:', this.reportForm.get('confirmLongRange')?.value);
+
   }
 
   onSubmit(): void {
-    this.dialog.open(EmailDialogComponent, { width: '400px' });
     this.isLoading = true;
 
-    let { startDate, endDate, email, interval, confirmLongRange } = this.reportForm.value;
+    const formValues = this.reportForm.getRawValue();
+    let { startDate, endDate, email, interval, confirmLongRange } = this.reportForm.getRawValue();
+
+
 
     try {
       startDate = this.formatDateToHST(startDate, 'T00:00:00-10:00');
@@ -232,13 +236,25 @@ export class ReportsComponent implements OnInit {
       this.reportsEmailService.sendExportRequest(exportPayload).subscribe({
         next: () => {
           this.isLoading = false;
-          this.dialog.open(EmailDialogComponent, { width: '400px' });
+          const dialogRef = this.dialog.open(EmailDialogComponent, { width: '400px' });
+          dialogRef.afterClosed().subscribe(() => {
+            console.log('Dialog closed');
+          });
+
         },
         error: err => {
-          console.error('Email export failed:', err);
-          this.isLoading = false;
+          if (err.status === 202 && typeof err.error === 'string' && err.error.includes('Request received')) {
+            // Treat this as success
+            console.warn('Received 202 response, treating as success.');
+            this.isLoading = false;
+            this.dialog.open(EmailDialogComponent, { width: '400px' });
+          } else {
+            console.error('Email export failed:', err);
+            this.isLoading = false;
+          }
         }
       });
+
 
     }
 

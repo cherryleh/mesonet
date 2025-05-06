@@ -19,9 +19,9 @@ export class ReportsEmailService {
       'Authorization': `Bearer ${this.apiToken}`
     });
 
-    console.log('📤 Sending export payload:', payload);
+    console.log('Sending export payload:', payload);
 
-    return this.http.post(this.apiUrl, payload, { headers }).pipe(
+    return this.http.post(this.apiUrl, payload, { headers, responseType: 'text' as const }).pipe(
       tap({
         next: (response) => console.log('Export response:', response),
         error: (error) => console.error('Export error:', error)
