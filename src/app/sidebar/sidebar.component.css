@@ -151,6 +151,21 @@ li {
   filter: brightness(0) saturate(100%) invert(32%) sepia(90%) saturate(700%) hue-rotate(180deg);
 }
 
-.contact{
+.contact {
   font-size: 0.9em;
+  text-align: center;
+  margin-top: auto; /* Push to the bottom of sidebar */
+  padding-top: 1vh;
+  color: #8f9bb3;
+}
+
+.contact a {
+  color: #8f9bb3;
+  text-decoration: none;
+  transition: color 0.3s ease-in-out;
+}
+
+.contact a:hover {
+  color: #007bff; /* Same hover color as sidebar-toggle */
+  text-decoration: underline;
 }
