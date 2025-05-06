@@ -145,25 +145,31 @@
 
 .graph-header {
   display: flex;
-  justify-content: start; 
+  justify-content: space-between; 
   align-items: center; 
-  gap: 20px; 
-  padding: 10px 20px; 
+  gap: clamp(12px, 4vw, 32px); 
+  padding: 10px 0px; 
   border-bottom: 1px solid #edf1f7;
+}
+
+@media (min-width: 1920px) {
+  .graph-header {
+    padding: 10px 40px; /* Add left/right padding on larger screens */
+  }
 }
 
 
 app-duration-selector {
-  flex: 0 0 200px; 
+  flex: 1 1 250px; /* allow it to grow and give it a wider base size */
+  max-width: 500px; /* optional: set a reasonable maximum width */
 }
+
 
 .cumulative-info {
   display: flex; 
   flex-direction: column; 
   align-items: flex-start; 
   justify-content: center;
-  padding-left: 2%;
-  padding-right: 2%;
 }
 
 .cumulative-label {
