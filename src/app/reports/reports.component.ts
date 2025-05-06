@@ -25,6 +25,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { Subscription } from 'rxjs';
 import { SidebarService } from '../services/sidebar.service';
 import { ReportsApiService } from '../services/reports-api.service';
+import { MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
+import { EmailDialogComponent } from '../email-dialog/email-dialog.component';
 
 @Component({
   selector: 'app-reports',
@@ -46,7 +49,9 @@ import { ReportsApiService } from '../services/reports-api.service';
     MatCheckboxModule,
     MatTooltipModule,
     MatOptionModule,
-    MatSelectModule
+    MatSelectModule,
+    MatDialogModule,
+    EmailDialogComponent
   ],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.css',
@@ -131,7 +136,8 @@ export class ReportsComponent implements OnInit {
     private reportsEmailService: ReportsEmailService,
     private StationDatesService: StationDatesService,
     private sidebarService: SidebarService,
-    private reportsApiService: ReportsApiService
+    private reportsApiService: ReportsApiService,
+    private dialog: MatDialog
   ) {
     this.reportForm = this.fb.group({
       startDate: ['', Validators.required],
@@ -189,6 +195,7 @@ export class ReportsComponent implements OnInit {
   }
 
   onSubmit(): void {
+    this.dialog.open(EmailDialogComponent, { width: '400px' });
     this.isLoading = true;
 
     let { startDate, endDate, email, interval, confirmLongRange } = this.reportForm.value;
@@ -206,7 +213,7 @@ export class ReportsComponent implements OnInit {
       email: email,
       data: {
         station_ids: [this.stationId],
-        var_ids: ["Tair_1_Avg", "Tair_2_Avg", "RF_1_Tot300s","RFint_1_Max", "SWin_1_Avg", "SWout_1_Avg", "LWin_1_Avg", "LWout_1_Avg", "SWnet_1_Avg", "LWnet_1_Avg", "Rnet_1_Avg", "Albedo_1_Avg", "Tsrf_1_Avg", "Tsky_1_Avg", "RH_1_Avg", "RH_2_Avg", "VP_1_Avg", "VP_2_Avg", "VPsat_1_Avg", "VPsat_2_Avg", "VPD_1_Avg", "VPD_2_Avg", "WS_1_Avg", "WDrs_1_Avg", "P_1", "Psl_1", "Tsoil_1_Avg", "SHFsrf_1_Avg", "SM_1_Avg", "SM_2_Avg", "SM_3_Avg", "Tsoil_2", "Tsoil_3","Tsoil_4"],
+        var_ids: [/* your vars */],
         start_date: startDate,
         end_date: endDate,
         local_tz: "true",
@@ -223,12 +230,16 @@ export class ReportsComponent implements OnInit {
 
     if (shouldEmail) {
       this.reportsEmailService.sendExportRequest(exportPayload).subscribe({
-        complete: () => this.isLoading = false,
+        next: () => {
+          this.isLoading = false;
+          this.dialog.open(EmailDialogComponent, { width: '400px' });
+        },
         error: err => {
           console.error('Email export failed:', err);
           this.isLoading = false;
         }
       });
+
     }
 
     if (!mustUseEmail) {
@@ -245,6 +256,7 @@ export class ReportsComponent implements OnInit {
       });
     }
   }
+
 
 
   formatShortDate(date: string): string {
