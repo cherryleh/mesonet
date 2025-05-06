@@ -69,19 +69,23 @@
           </div>
 
           <button mat-raised-button type="submit">
-            Create Report
+            Generate Report
           </button>
         </div>
       </form> 
-
 
       <div class="table-container" 
       [class.no-data-present]="!dataSource.data.length && !isLoading" 
       [class.loading]="isLoading">
 
-        <p *ngIf="!dataSource.data.length && !isLoading" class="no-data">
-          Select date range for station report.
-        </p>
+      <p 
+      *ngIf="!dataSource.data.length && !isLoading" 
+      class="no-data" 
+      [ngClass]="{ 'important': isLongRangeRequired }">
+      {{ isLongRangeRequired ? 'No preview available' : 'Select date range for station report.' }}
+    </p>
+
+
         <div *ngIf="isLoading" class="spinner-overlay">
           <div class="spinner-container">
             <div class="spinner"></div>

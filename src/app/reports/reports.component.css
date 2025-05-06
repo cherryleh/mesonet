@@ -22,7 +22,12 @@ table th, table td {
   text-align: center;
   color: #666;
   font-style: italic;
-  margin-top: 20px;
+  margin-bottom: 0 !important;
+}
+
+.no-data.important {
+  color: #c0392b;
+  font-weight: bold;
 }
 
 .form-box{
@@ -68,14 +73,6 @@ table th, table td {
   height: 600px; /* or auto or fit-content if using max-height elsewhere */
 }
 
-/* Optional: center "Select date range..." text */
-.no-data {
-  text-align: center;
-  color: #666;
-  font-style: italic;
-  font-size: 1.1rem;
-  padding-top: 20px;
-}
 
 .table-header-fixed {
   position: sticky;

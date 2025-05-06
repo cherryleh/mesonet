@@ -217,7 +217,7 @@ export class ReportsComponent implements OnInit {
     const start = new Date(this.reportForm.get('startDate')?.value);
     const end = new Date(this.reportForm.get('endDate')?.value);
     const dateDiff = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
-
+    this.isLongRangeRequired = dateDiff > 31;
     const mustUseEmail = dateDiff > 31;
     const shouldEmail = mustUseEmail || confirmLongRange;
 
