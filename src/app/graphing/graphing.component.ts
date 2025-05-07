@@ -108,7 +108,18 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
     this.sidebarSubscription = this.sidebarService.isCollapsed$.subscribe((value: boolean) => {
       this.isCollapsed = value;
+
+      // Reflow chart after layout updates
+      setTimeout(() => {
+        this.chart?.reflow();
+
+        // Second reflow in case first is too early
+        setTimeout(() => {
+          this.chart?.reflow();
+        }, 250); // Adjust if your sidebar transition takes longer
+      }, 0);
     });
+
 
     this.http.get('station_variables.csv', { responseType: 'text' })
       .pipe(map(csv => this.parseCsvToMap(csv)))

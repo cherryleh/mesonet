@@ -2,6 +2,7 @@ import {
   Component, OnInit, OnDestroy, AfterViewInit,
   ViewChild, ElementRef, Input, Output, EventEmitter, HostListener
 } from '@angular/core';
+import { OnChanges, SimpleChanges } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -30,7 +31,7 @@ OfflineExporting(Highcharts);
   styleUrls: ['./dashboard-chart.component.css'],
   providers: [DashboardChartService],
 })
-export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit {
+export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
   @Input() isCollapsed = false;
   @Output() durationChanged = new EventEmitter<string>();
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
@@ -53,6 +54,21 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
     { label: 'Last 3 Days', value: '3' },
     { label: 'Last 7 Days', value: '7' },
   ];
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isCollapsed'] && !changes['isCollapsed'].firstChange) {
+      // Initial reflow (after collapse/expand)
+      setTimeout(() => {
+        this.chartRef?.reflow();
+
+        // Follow-up reflow to fix edge cutoff after transition
+        setTimeout(() => {
+          this.chartRef?.reflow();
+        }, 250); // Adjust if your sidebar animation is longer
+      }, 0);
+    }
+  }
+
 
   chartOptions: Highcharts.Options = {
     chart: {
