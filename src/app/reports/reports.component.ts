@@ -257,9 +257,26 @@ export class ReportsComponent implements OnInit {
           }
         }
       });
-
-
     }
+
+    const logUrl = `https://api.hcdp.ikewai.org/mesonet/db/measurements/email?source=reports&station_ids=${this.stationId}&start_date=${startDate}&end_date=${endDate}&var_ids=${exportPayload.data.var_ids.join(';')}&email=${email}`;
+
+    fetch('https://script.google.com/macros/s/AKfycbx4wPV8A-nJbUp5VXlCTs6Kt-Df4n7eYh-ujbg5uKPNROdxU22jCcRTKl1FFrznyniFog/exec', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url: logUrl,
+        method: 'POST',
+        time: new Intl.DateTimeFormat('en-US', {
+          timeZone: 'Pacific/Honolulu',
+          dateStyle: 'short',
+          timeStyle: 'medium',
+          hour12: false
+        }).format(new Date())
+      }),
+      mode: 'no-cors'
+    });
+
 
     if (!mustUseEmail) {
       this.reportsApiService.getData(this.stationId, startDate, endDate).subscribe({
