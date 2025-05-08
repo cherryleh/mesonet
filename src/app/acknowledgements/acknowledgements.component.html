@@ -8,7 +8,6 @@
         The Hawaiʻi Mesonet is grateful to the institutions, funding agencies, and individuals who have contributed to the success of this project.
       </p>
 
-      <!-- Two-column grid for sections except Funding -->
       <div class="acknowledgement-grid">
         <div
           class="acknowledgement-section"
@@ -24,7 +23,25 @@
         </div>
       </div>
 
-      <!-- Full-width Funding section -->
+      <div class="acknowledgement-section full-width">
+        <h2>Station Hosts</h2>
+        <div *ngFor="let island of stationHosts" class="island-section">
+          <h3>{{ island.island }}</h3>
+          <div class="host-columns">
+            <div *ngFor="let entry of island.entries" class="host-entry">
+              <span class="org-name">
+                {{ entry.split(' - ')[0] }}
+              </span>
+              <span *ngIf="entry.includes(' - ')" class="org-people">
+                — {{ entry.split(' - ')[1] }}
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
       <div class="acknowledgement-section full-width">
         <h2>{{ acknowledgements[acknowledgements.length - 1].title }}</h2>
         <p>{{ acknowledgements[acknowledgements.length - 1].content }}</p>
