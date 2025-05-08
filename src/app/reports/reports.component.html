@@ -5,11 +5,13 @@
     
     <app-sidebar [class.collapsed]="isCollapsed" (toggle)="onToggleSidebar($event)"></app-sidebar>
     <div class="main-content" [class.collapsed]="isCollapsed">
-      <!-- <p class="inactive-warning">
-        ⚠️ The reports page is currently under development and will be available soon.
-      </p> -->
       <form [formGroup]="reportForm" (ngSubmit)="validateAndSubmit()">
         <div class="form-box">
+          <div class="page-description">
+            <p>
+              This page allows you to generate and download station data reports. Select a date range to retrieve measurements for up to 35 variables at the selected station.
+            </p>
+          </div>
           <div class="form-container">
             <mat-form-field appearance="outline">
               <mat-label>MM/DD/YYYY</mat-label>
@@ -46,7 +48,7 @@
                   <mat-checkbox 
                     formControlName="confirmLongRange"
                     [disabled]="!!reportForm.get('confirmLongRange')?.disabled"
-                    [class.disabled-label]="!!reportForm.get('confirmLongRange')?.disabled">
+                    [class.disabled-label]="!!reportForm.get('confirmLongRange')?.disabled" color="primary">
                     Send download package to email
                   </mat-checkbox>
                   <mat-icon 
@@ -78,7 +80,7 @@
             </div>
 
 
-            <mat-checkbox formControlName="confirmSubmission">
+            <mat-checkbox formControlName="confirmSubmission" color="primary">
               All data is covered under the <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">Attribution-NonCommercial-NoDerivatives 4.0 International</a> licensing agreement. By checking this box, I acknowledge and agree to adhere to the terms of this license in my use of any data provided by this application.
             </mat-checkbox>
 
@@ -102,7 +104,7 @@
       *ngIf="!dataSource.data.length && !isLoading" 
       class="no-data" 
       [ngClass]="{ 'important': isLongRangeRequired }">
-      {{ isLongRangeRequired ? 'No preview available' : 'Select date range for station report.' }}
+      {{ isLongRangeRequired ? 'No preview available for requests over 30 days' : 'Select date range for station report.' }}
     </p>
 
 
