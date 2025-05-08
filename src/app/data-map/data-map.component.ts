@@ -176,9 +176,17 @@ async fetchStationData(): Promise<void> {
         const measurementMap: { [key: string]: number } = {};
         
         Object.keys(variableData).forEach(stationId => {
-            if (variableData[stationId] && variableData[stationId].value !== undefined) {
-                measurementMap[stationId] = variableData[stationId].value;
-            }
+          const entry = variableData[stationId];
+          if (!entry || entry.value === undefined || entry.value === null) return;
+  
+          const value = Number(entry.value);
+  
+          // Apply soil temperature cap
+          if (this.selectedVariable === 'Tsoil_1_Avg' && value > 50) {
+            return; // skip this value
+          }
+  
+          measurementMap[stationId] = value;
         });
 
         this.map.eachLayer(layer => {
@@ -199,6 +207,7 @@ async fetchStationData(): Promise<void> {
             if (station.lat && station.lng) {
               const value = measurementMap[station.station_id] ?? null;
               const numericValue = value !== null ? Number(value) : null;
+
               const hasData = numericValue !== null && !isNaN(numericValue);
 
               const color = hasData 
@@ -354,6 +363,11 @@ async fetchStationDetails(stationId: string): Promise<void> {
                 if (variableData && variableData[stationId]) {
                     const numericValue = Number(variableData[stationId].value);
                     const timestamp = variableData[stationId].timestamp;
+
+                    if (variable === "Tsoil_1_Avg" && numericValue > 50) {
+                      updatedDetails[variable] = "No Data";
+                      continue;
+                  }
 
                     if (!isNaN(numericValue)) {
                         let formattedValue = `${numericValue.toFixed(1)}${unitMapping[variable]}`;
