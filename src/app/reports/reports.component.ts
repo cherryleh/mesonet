@@ -247,7 +247,6 @@ export class ReportsComponent implements OnInit {
         },
         error: err => {
           if (err.status === 202 && typeof err.error === 'string' && err.error.includes('Request received')) {
-            // Treat this as success
             console.warn('Received 202 response, treating as success.');
             this.isLoading = false;
             this.dialog.open(EmailDialogComponent, { width: '400px' });
@@ -279,7 +278,7 @@ export class ReportsComponent implements OnInit {
 
 
     if (!mustUseEmail) {
-      this.reportsApiService.getData(this.stationId, startDate, endDate).subscribe({
+      this.reportsApiService.getData(this.stationId, startDate, endDate, email).subscribe({
         next: (data) => {
           this.reportData = data;
           this.formatTableData();
