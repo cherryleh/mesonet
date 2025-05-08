@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { environment } from '../../../environments/environment';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 
 @Component({
   selector: 'app-station-table',
@@ -18,7 +19,8 @@ import { environment } from '../../../environments/environment';
     MatTableModule,
     MatPaginatorModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatSortModule
   ],
 })
 export class StationTableComponent implements OnInit {
@@ -27,15 +29,26 @@ export class StationTableComponent implements OnInit {
   searchTerm: string = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
 
   constructor() {}
 
   ngOnInit(): void {
     this.fetchStationData();
+
+    this.dataSource.sortingDataAccessor = (item, property) => {
+      if (property === 'island') {
+        return this.getIsland(item.station_id); // use derived value
+      }
+      return item[property];
+    };
   }
 
+
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator; // Assign paginator after view initialization
+    this.dataSource.paginator = this.paginator; 
+    this.dataSource.sort = this.sort; 
   }
 
   async fetchStationData(): Promise<void> {
@@ -64,6 +77,9 @@ export class StationTableComponent implements OnInit {
 
       console.log('Filtered data:', filteredData);
       this.dataSource.data = filteredData;
+
+      this.dataSource.sort = this.sort;
+      this.dataSource.paginator = this.paginator;
     } catch (error) {
       console.error('Error fetching station data:', error);
     }

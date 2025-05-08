@@ -22,7 +22,7 @@ import { environment } from '../../../environments/environment';
   styleUrl: './as-station-table.component.css'
 })
 export class AsStationTableComponent {
-  displayedColumns: string[] = ['id', 'name', 'lat', 'lng','elevation']; 
+  displayedColumns: string[] = ['id', 'name', 'lat', 'lng', 'elevation', 'type'];
   dataSource = new MatTableDataSource<any>([]); 
   searchTerm: string = '';
 
