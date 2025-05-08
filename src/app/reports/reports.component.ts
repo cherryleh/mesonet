@@ -223,6 +223,7 @@ export class ReportsComponent implements OnInit {
         start_date: startDate,
         end_date: endDate,
         local_tz: "true",
+        reverse: "true"
       },
       outputName: `${this.stationId}_${this.formatShortDate(startDate)}_${this.formatShortDate(endDate)}.csv`
     };
