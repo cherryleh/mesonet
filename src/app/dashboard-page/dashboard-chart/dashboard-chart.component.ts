@@ -341,8 +341,8 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
       let rainfallData: [number, number][] = [];
       let radData: [number, number][] = [];
 
-      let timezoneOffset = id.startsWith('1') ? 660 : 600;
-      this.chartOptions.time = { timezoneOffset };
+      const timezoneOffset = id.startsWith('1') ? 660 : 600;
+
       
       const solarSeries = this.chartRef?.series.find((s: any) => s.name === 'Solar Radiation');
 
@@ -431,7 +431,11 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
         },
       ];
 
-      this.chartRef.update({ series: updatedSeries }, true, true);
+      this.chartRef.update({
+        time: { timezoneOffset },
+        series: updatedSeries,
+        yAxis: this.chartOptions.yAxis
+      }, true, true);
 
       // Update yAxis titles after updating series
       this.chartRef.yAxis[0].setTitle({ text: tempLabel });
