@@ -23,7 +23,7 @@ export class StationInfoComponent implements OnInit, OnDestroy {
   stationId: string = '';
   startDate: Date | null = null; 
   stationStartDate: string = ''; 
-  elevation: number | null = null;
+  elevationFeet: number | null = null;
   elevationMeters: number | null = null;
   lat: number | null = null;
   lon: number | null = null;
@@ -84,8 +84,8 @@ export class StationInfoComponent implements OnInit, OnDestroy {
           const metadataResponse = results.metadata;
           if (metadataResponse && metadataResponse.length > 0) {
             const station = metadataResponse[0];
-            this.elevation = station.elevation;
-            this.elevationMeters = this.elevation !== null ? +(this.elevation * 0.3048).toFixed(0) : null; 
+            this.elevationMeters = station.elevation;
+            this.elevationFeet = this.elevationMeters !== null ? +(this.elevationMeters * 3.28084).toFixed(0) : null;
             this.lat = station.lat.toFixed(2);
             this.lon = station.lng.toFixed(2);
             this.status = station.status;
