@@ -13,7 +13,7 @@
     },
     "0119": {
         "value": 0.0,
-        "timestamp": "2025-05-09T07:30:00.000Z"
+        "timestamp": "2025-05-09T07:15:00.000Z"
     },
     "0121": {
         "value": 0.0,
@@ -25,7 +25,7 @@
     },
     "0132": {
         "value": 0.508,
-        "timestamp": "2025-05-09T07:30:00.000Z"
+        "timestamp": "2025-05-09T07:15:00.000Z"
     },
     "0133": {
         "value": 8.4,
@@ -33,7 +33,7 @@
     },
     "0134": {
         "value": 2.761,
-        "timestamp": "2025-05-09T07:30:00.000Z"
+        "timestamp": "2025-05-09T07:15:00.000Z"
     },
     "0141": {
         "value": 1.27,
@@ -49,7 +49,7 @@
     },
     "0145": {
         "value": 0.762,
-        "timestamp": "2025-05-09T07:30:00.000Z"
+        "timestamp": "2025-05-09T07:00:00.000Z"
     },
     "0151": {
         "value": 5.08,
@@ -61,7 +61,7 @@
     },
     "0153": {
         "value": 0.508,
-        "timestamp": "2025-05-09T07:45:00.000Z"
+        "timestamp": "2025-05-09T07:30:00.000Z"
     },
     "0154": {
         "value": 17.871000000000002,
@@ -72,10 +72,6 @@
         "timestamp": "2025-05-09T07:30:00.000Z"
     },
     "0156": {
-        "value": null,
-        "timestamp": null
-    },
-    "0160": {
         "value": null,
         "timestamp": null
     },
@@ -90,10 +86,6 @@
     "0164": {
         "value": null,
         "timestamp": null
-    },
-    "0165": {
-        "value": 3.306,
-        "timestamp": "2024-05-16T16:30:00.000Z"
     },
     "0166": {
         "value": 16.803,
@@ -129,19 +121,15 @@
     },
     "0214": {
         "value": 1.2850000000000001,
-        "timestamp": "2025-05-09T07:45:00.000Z"
+        "timestamp": "2025-05-09T07:30:00.000Z"
     },
     "0215": {
         "value": null,
         "timestamp": null
     },
-    "0221": {
-        "value": 0.0,
-        "timestamp": "2025-05-09T07:25:00.000Z"
-    },
     "0222": {
         "value": 0.0,
-        "timestamp": "2025-05-09T07:45:00.000Z"
+        "timestamp": "2025-05-09T07:30:00.000Z"
     },
     "0223": {
         "value": null,
@@ -151,31 +139,11 @@
         "value": null,
         "timestamp": null
     },
-    "0224": {
-        "value": null,
-        "timestamp": null
-    },
-    "0225": {
-        "value": null,
-        "timestamp": null
-    },
     "0231": {
         "value": 2.54,
-        "timestamp": "2025-05-09T07:45:00.000Z"
+        "timestamp": "2025-05-09T07:30:00.000Z"
     },
     "0232": {
-        "value": null,
-        "timestamp": null
-    },
-    "0233": {
-        "value": null,
-        "timestamp": null
-    },
-    "0234": {
-        "value": null,
-        "timestamp": null
-    },
-    "0235": {
         "value": null,
         "timestamp": null
     },
@@ -193,11 +161,11 @@
     },
     "0243": {
         "value": 2.54,
-        "timestamp": "2025-05-09T07:45:00.000Z"
+        "timestamp": "2025-05-09T07:30:00.000Z"
     },
     "0244": {
         "value": 0.0,
-        "timestamp": "2025-05-09T07:45:00.000Z"
+        "timestamp": "2025-05-09T07:30:00.000Z"
     },
     "0245": {
         "value": 0.0,
@@ -207,29 +175,25 @@
         "value": null,
         "timestamp": null
     },
-    "0247": {
-        "value": null,
-        "timestamp": null
-    },
     "0251": {
         "value": 1.27,
         "timestamp": "2025-05-09T07:30:00.000Z"
     },
     "0252": {
         "value": 0.0,
-        "timestamp": "2025-05-09T07:45:00.000Z"
+        "timestamp": "2025-05-09T07:30:00.000Z"
     },
     "0253": {
         "value": 0.0,
-        "timestamp": "2025-05-09T07:45:00.000Z"
+        "timestamp": "2025-05-09T07:30:00.000Z"
     },
     "0254": {
         "value": 0.0,
-        "timestamp": "2025-05-09T07:45:00.000Z"
+        "timestamp": "2025-05-09T07:30:00.000Z"
     },
     "0255": {
         "value": 1.036,
-        "timestamp": "2025-05-09T07:45:00.000Z"
+        "timestamp": "2025-05-09T07:30:00.000Z"
     },
     "0256": {
         "value": null,
@@ -238,22 +202,6 @@
     "0257": {
         "value": null,
         "timestamp": null
-    },
-    "0258": {
-        "value": null,
-        "timestamp": null
-    },
-    "0259": {
-        "value": null,
-        "timestamp": null
-    },
-    "0260": {
-        "value": null,
-        "timestamp": null
-    },
-    "0281": {
-        "value": 7.8740000000000006,
-        "timestamp": "2025-05-09T07:15:00.000Z"
     },
     "0282": {
         "value": 1.016,
@@ -265,11 +213,11 @@
     },
     "0286": {
         "value": 0.254,
-        "timestamp": "2025-05-09T07:45:00.000Z"
+        "timestamp": "2025-05-09T07:30:00.000Z"
     },
     "0287": {
         "value": 0.0,
-        "timestamp": "2025-05-09T07:45:00.000Z"
+        "timestamp": "2025-05-09T07:30:00.000Z"
     },
     "0288": {
         "value": 0.762,
@@ -281,19 +229,7 @@
     },
     "0412": {
         "value": 8.214,
-        "timestamp": "2025-05-09T07:45:00.000Z"
-    },
-    "0413": {
-        "value": null,
-        "timestamp": null
-    },
-    "0414": {
-        "value": null,
-        "timestamp": null
-    },
-    "0421": {
-        "value": null,
-        "timestamp": null
+        "timestamp": "2025-05-09T07:15:00.000Z"
     },
     "0422": {
         "value": null,
@@ -305,7 +241,7 @@
     },
     "0501": {
         "value": 16.51,
-        "timestamp": "2025-05-09T07:25:00.000Z"
+        "timestamp": "2025-05-09T06:55:00.000Z"
     },
     "0502": {
         "value": 8.389,
@@ -318,10 +254,6 @@
     "0504": {
         "value": 7.62,
         "timestamp": "2025-05-09T07:40:00.000Z"
-    },
-    "0505": {
-        "value": 18.542,
-        "timestamp": "2025-05-09T07:45:00.000Z"
     },
     "0506": {
         "value": 8.128,
@@ -399,18 +331,6 @@
         "value": 16.818,
         "timestamp": "2025-05-09T07:45:00.000Z"
     },
-    "0642": {
-        "value": null,
-        "timestamp": null
-    },
-    "1311": {
-        "value": null,
-        "timestamp": null
-    },
-    "1312": {
-        "value": null,
-        "timestamp": null
-    },
     "1313": {
         "value": null,
         "timestamp": null
@@ -432,10 +352,6 @@
         "timestamp": null
     },
     "1417": {
-        "value": null,
-        "timestamp": null
-    },
-    "1419": {
         "value": null,
         "timestamp": null
     }
