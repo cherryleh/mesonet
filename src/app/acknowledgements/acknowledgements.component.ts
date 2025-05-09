@@ -101,11 +101,11 @@ export class AcknowledgementsComponent {
     },
     {
       title: "Project Co-PIs",
-      names: ["Yin-Phan Tsang", "Dave Beilman", "Alison Nugent", "Abby Frazier"]
+      names: ["Yinphan Tsang", "Dave Beilman", "Alison Nugent", "Abby Frazier"]
     },
     {
       title: "Installation Team",
-      names: ["Dylan Giardina", "Chris Shuler", "Sam Dodge", "Anke Krueger", "John DeLay"]
+      names: ["Dylan Giardina", "Chris Shuler", "Cory Yap", "Sam Dodge", "Anke Krueger", "John DeLay"]
     },
     {
       title: "Data Management Team",
