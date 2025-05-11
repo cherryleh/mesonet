@@ -31,11 +31,6 @@
     },
     {
         "station_id": "0115",
-        "variable": "Tair_1_Avg",
-        "timestamp": "2025-05-10T18:00:00.000Z"
-    },
-    {
-        "station_id": "0115",
         "variable": "Tair_2_Avg",
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
