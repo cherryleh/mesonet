@@ -1,4 +1,8 @@
 {
+    "0115": {
+        "value": null,
+        "timestamp": "2025-05-10T18:00:00.000Z"
+    },
     "0116": {
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
@@ -7,7 +11,15 @@
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
+    "0119": {
+        "value": null,
+        "timestamp": "2025-05-10T17:45:00.000Z"
+    },
     "0121": {
+        "value": null,
+        "timestamp": "2025-05-10T18:00:00.000Z"
+    },
+    "0131": {
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
@@ -16,6 +28,10 @@
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
     "0133": {
+        "value": null,
+        "timestamp": "2025-05-10T18:00:00.000Z"
+    },
+    "0134": {
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
@@ -35,7 +51,15 @@
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
+    "0152": {
+        "value": null,
+        "timestamp": "2025-05-10T17:55:00.000Z"
+    },
     "0153": {
+        "value": null,
+        "timestamp": "2025-05-10T18:00:00.000Z"
+    },
+    "0154": {
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
@@ -46,6 +70,10 @@
     "0161": {
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
+    },
+    "0165": {
+        "value": null,
+        "timestamp": "2024-05-16T16:30:00.000Z"
     },
     "0166": {
         "value": null,
@@ -59,7 +87,15 @@
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
+    "0204": {
+        "value": null,
+        "timestamp": "2025-05-10T18:00:00.000Z"
+    },
     "0211": {
+        "value": null,
+        "timestamp": "2025-05-10T18:00:00.000Z"
+    },
+    "0212": {
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
@@ -75,6 +111,10 @@
         "value": null,
         "timestamp": "2025-05-10T17:55:00.000Z"
     },
+    "0222": {
+        "value": null,
+        "timestamp": "2025-05-10T18:00:00.000Z"
+    },
     "0231": {
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
@@ -83,11 +123,23 @@
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
+    "0242": {
+        "value": null,
+        "timestamp": "2025-05-10T18:00:00.000Z"
+    },
     "0244": {
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
+    "0245": {
+        "value": null,
+        "timestamp": "2025-04-06T21:15:00.000Z"
+    },
     "0251": {
+        "value": null,
+        "timestamp": "2025-05-10T18:00:00.000Z"
+    },
+    "0252": {
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
@@ -99,7 +151,15 @@
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
+    "0255": {
+        "value": null,
+        "timestamp": "2025-05-10T17:45:00.000Z"
+    },
     "0282": {
+        "value": null,
+        "timestamp": "2025-05-10T18:00:00.000Z"
+    },
+    "0283": {
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
@@ -111,9 +171,17 @@
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
+    "0412": {
+        "value": null,
+        "timestamp": "2025-05-10T18:00:00.000Z"
+    },
     "0431": {
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
+    },
+    "0501": {
+        "value": null,
+        "timestamp": "2025-05-10T17:40:00.000Z"
     },
     "0502": {
         "value": null,
@@ -131,9 +199,17 @@
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
+    "0541": {
+        "value": null,
+        "timestamp": "2025-05-10T17:45:00.000Z"
+    },
     "0551": {
         "value": null,
         "timestamp": "2025-05-10T17:55:00.000Z"
+    },
+    "0601": {
+        "value": null,
+        "timestamp": "2025-05-10T18:00:00.000Z"
     },
     "0602": {
         "value": null,
@@ -144,6 +220,14 @@
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
     "0611": {
+        "value": null,
+        "timestamp": "2025-05-10T18:00:00.000Z"
+    },
+    "0621": {
+        "value": null,
+        "timestamp": "2025-05-10T17:45:00.000Z"
+    },
+    "0641": {
         "value": null,
         "timestamp": "2025-05-10T18:00:00.000Z"
     }
