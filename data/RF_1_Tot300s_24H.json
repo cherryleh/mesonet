@@ -87,10 +87,6 @@
         "value": null,
         "timestamp": null
     },
-    "0164": {
-        "value": null,
-        "timestamp": null
-    },
     "0165": {
         "value": 3.306,
         "timestamp": "2024-05-16T16:30:00.000Z"
@@ -191,10 +187,6 @@
         "value": 0.0,
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
-    "0243": {
-        "value": 1.778,
-        "timestamp": "2025-05-10T18:00:00.000Z"
-    },
     "0244": {
         "value": 1.016,
         "timestamp": "2025-05-10T18:00:00.000Z"
@@ -202,14 +194,6 @@
     "0245": {
         "value": 0.0,
         "timestamp": "2025-04-06T21:15:00.000Z"
-    },
-    "0246": {
-        "value": null,
-        "timestamp": null
-    },
-    "0247": {
-        "value": null,
-        "timestamp": null
     },
     "0251": {
         "value": 0.0,
@@ -295,10 +279,6 @@
         "value": null,
         "timestamp": null
     },
-    "0422": {
-        "value": null,
-        "timestamp": null
-    },
     "0431": {
         "value": 0.0,
         "timestamp": "2025-05-10T18:00:00.000Z"
@@ -318,10 +298,6 @@
     "0504": {
         "value": 0.0,
         "timestamp": "2025-05-10T17:55:00.000Z"
-    },
-    "0505": {
-        "value": 0.508,
-        "timestamp": "2025-05-10T18:00:00.000Z"
     },
     "0506": {
         "value": 0.0,
@@ -348,14 +324,6 @@
         "timestamp": "2025-05-10T17:45:00.000Z"
     },
     "0542": {
-        "value": null,
-        "timestamp": null
-    },
-    "0543": {
-        "value": null,
-        "timestamp": null
-    },
-    "0544": {
         "value": null,
         "timestamp": null
     },
@@ -399,18 +367,6 @@
         "value": 9.413,
         "timestamp": "2025-05-10T18:00:00.000Z"
     },
-    "0642": {
-        "value": null,
-        "timestamp": null
-    },
-    "1311": {
-        "value": null,
-        "timestamp": null
-    },
-    "1312": {
-        "value": null,
-        "timestamp": null
-    },
     "1313": {
         "value": null,
         "timestamp": null
@@ -432,10 +388,6 @@
         "timestamp": null
     },
     "1417": {
-        "value": null,
-        "timestamp": null
-    },
-    "1419": {
         "value": null,
         "timestamp": null
     }
