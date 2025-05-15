@@ -3,6 +3,7 @@ import * as L from 'leaflet';
 import { environment } from '../../../environments/environment';
 import { FormsModule } from '@angular/forms'; 
 import { CommonModule } from '@angular/common';
+import 'leaflet.fullscreen';
 
 @Component({
   selector: 'app-station-map',
