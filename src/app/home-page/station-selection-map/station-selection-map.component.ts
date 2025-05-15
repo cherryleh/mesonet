@@ -3,6 +3,7 @@ import * as L from 'leaflet';
 import { environment } from '../../../environments/environment';
 import { FormsModule } from '@angular/forms'; 
 import { CommonModule } from '@angular/common'; 
+import 'leaflet.fullscreen';
 
 @Component({
   selector: 'app-station-map',
@@ -48,8 +49,11 @@ export class StationSelectionMapComponent implements AfterViewInit {
 
     this.map = L.map('map', {
       center: [latitude, longitude],
-      zoom: 7
+      zoom: 7,
+      fullscreenControl: true
     });
+
+
 
     const basemap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community',

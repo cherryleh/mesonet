@@ -6,15 +6,15 @@
   background-color: white;
   padding-top: 10px;
   padding-bottom: 10px;
-  height: 20vh;
+  height: 15vh;
 }
 
 .section img {
-  height: 20vh;
+  height: 12vh;
 }
 
 .section .title {
-  font-size: 3vw;
+  font-size: 2.5em;
   font-weight: bold;
   margin: 0;
   color: #444444;
@@ -23,7 +23,7 @@
 .home-container {
   display: flex;
   width: 80%;
-  height: 70vh;
+  height: 80vh;
   transition: all 0.5s ease-in-out;
   margin-left: auto;
   margin-right: auto;
