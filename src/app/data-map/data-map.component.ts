@@ -7,6 +7,7 @@ import { interpolateTurbo } from 'd3-scale-chromatic';
 import { HeaderComponent } from '../header/header.component';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { UserIdService } from '../services/user-id.service';
 
 interface Station {
   station_id: string;
@@ -31,7 +32,7 @@ interface Measurement {
 
 export class DataMapComponent implements AfterViewInit {
 
-    constructor(private http: HttpClient,private cdr: ChangeDetectorRef) {}
+    constructor(private http: HttpClient,private cdr: ChangeDetectorRef, private userIdService: UserIdService) {}
 
   private map!: L.Map;
   private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?reverse=True&source=data_map';
@@ -47,7 +48,6 @@ export class DataMapComponent implements AfterViewInit {
       const scriptId = 'leaflet-windbarb-js';
   
       if (document.getElementById(scriptId)) {
-        console.log('⚠️ WindBarb script already being loaded');
         resolve();
         return;
       }
@@ -56,15 +56,14 @@ export class DataMapComponent implements AfterViewInit {
       script.id = scriptId;
       script.src = 'assets/libs/leaflet-windbarb.js';
       script.onload = () => {
-        console.log('✅ leaflet-windbarb.js loaded');
-        console.log('L.WindBarb:', (window as any).L?.WindBarb);  // 🔍 inspect this in console
+        console.log('L.WindBarb:', (window as any).L?.WindBarb);  
         if ((window as any).L?.WindBarb?.icon) {
           resolve();
         } else {
-          reject('⚠️ WindBarb script loaded but did not attach correctly to window.L');
+          reject('WindBarb script loaded but did not attach correctly to window.L');
         }
       };
-      script.onerror = () => reject('❌ Failed to load leaflet-windbarb.js');
+      script.onerror = () => reject('Failed to load leaflet-windbarb.js');
       document.body.appendChild(script);
     });
   }
@@ -88,7 +87,8 @@ export class DataMapComponent implements AfterViewInit {
 
   async fetchLatestObservationTime(): Promise<string | null> {
     try {
-        const url = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=0115&local_tz=True&limit=1`;
+        const userId = this.userIdService.getUserId();
+        const url = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=0115&local_tz=True&limit=1&user_id=${userId}`;
 
         console.log("Fetching latest observation time from:", url);
         

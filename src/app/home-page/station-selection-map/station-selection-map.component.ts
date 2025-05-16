@@ -63,16 +63,14 @@ export class StationSelectionMapComponent implements AfterViewInit {
     basemap.addTo(this.map);
 
     this.map.on('enterFullscreen', () => {
-      // Optional: Adjust zoom or center for fullscreen view
       this.map.setZoom(this.map.getZoom() + 1); // Zoom in one level
     });
 
     this.map.on('exitFullscreen', () => {
-      // Optional: Revert zoom if needed
       this.map.setZoom(this.map.getZoom() - 1); // Zoom out one level
     });
 
-    
+
     this.addLegend();
   }
 
