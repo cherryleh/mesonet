@@ -23,6 +23,7 @@ export class DataService {
     return this.http.get<any>(url, { headers });
   }
 
+
   get24HourRainfall(id: string): Observable<any> {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${environment.apiToken}`,
