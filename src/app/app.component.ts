@@ -2,9 +2,9 @@ import { Component, HostListener } from '@angular/core';
 import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import { UserAgreementComponent } from './user-agreement/user-agreement.component';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router'; // ✅ Import this
+import { ActivatedRoute } from '@angular/router'; 
 
-declare let gtag: Function; // ✅ Needed for GA4 tracking if using gtag.js
+declare let gtag: Function; 
 
 @Component({
   selector: 'app-root',
@@ -33,7 +33,7 @@ export class AppComponent {
             gtag('event', 'iframe_view', {
               event_category: 'Engagement',
               event_label: 'App loaded in iframe',
-              environment: isLocal ? 'development' : 'production', // 🔥 Custom param
+              environment: isLocal ? 'development' : 'production',
             });
           }
         }
@@ -87,4 +87,19 @@ export class AppComponent {
       });
     }, 100);
   }
+
+  private getOrCreateUserId(): string {
+    const key = 'mesonet_user_id';
+    let userId = localStorage.getItem(key);
+
+    if (!userId) {
+      // Generate a UUID (simple version)
+      userId = crypto.randomUUID();
+      localStorage.setItem(key, userId);
+    }
+
+    return userId;
+  }
+
+
 }

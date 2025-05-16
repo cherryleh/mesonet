@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { UserIdService } from './user-id.service'; 
 
 @Injectable({
   providedIn: 'root'
@@ -11,12 +12,13 @@ export class DataService {
   private defaultVars = '&var_ids=Tair_1_Avg,SWin_1_Avg,SM_1_Avg,WS_1_Avg,WDrs_1_Avg,RH_1_Avg&limit=7';
   private rainfallUrl = '&var_ids=RF_1_Tot300s&limit=288'; // 24-hour rainfall data (5 min intervals * 288 = 24 hours)
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private userIdService: UserIdService) {}
 
   getData(id: string): Observable<any> {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${environment.apiToken}`);
     const locationParam = id.startsWith('1') ? '&location=american_samoa' : '';
-    const url = `${this.baseUrl}${this.defaultVars}&station_ids=${id}${locationParam}`;
+    const userId = this.userIdService.getUserId();
+    const url = `${this.baseUrl}${this.defaultVars}&station_ids=${id}${locationParam}&user_id=${userId}`;
     console.log('API request for general dashboard data: ', url);
     return this.http.get<any>(url, { headers });
   }
