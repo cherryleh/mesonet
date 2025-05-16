@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders} from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { UserIdService } from './user-id.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,13 +10,13 @@ import { environment } from '../../environments/environment';
 export class GraphingDataService {
   private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements?local_tz=True&source=graphing&reverse=True&limit=100000';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,private userIdService: UserIdService) {}
 
   getData(id: string, vars: string, start_date: string, duration: string, end_date?: string): Observable<any> {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${environment.apiToken}`);
     const locationParam = id.startsWith('1') ? '&location=american_samoa' : '&location=hawaii';
-
-    let url = `${this.apiUrl}&station_ids=${id}&var_ids=${vars}&start_date=${start_date}${locationParam}`;
+    const userId = this.userIdService.getUserId();
+    let url = `${this.apiUrl}&station_ids=${id}&var_ids=${vars}&start_date=${start_date}${locationParam}&user_id=${userId}`;
 
     if (end_date) {
       url += `&end_date=${end_date}`;
