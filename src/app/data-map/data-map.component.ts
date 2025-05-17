@@ -32,7 +32,7 @@ interface Measurement {
 
 export class DataMapComponent implements AfterViewInit {
 
-    constructor(private http: HttpClient,private cdr: ChangeDetectorRef, private userIdService: UserIdService) {}
+  constructor(private http: HttpClient,private cdr: ChangeDetectorRef, private userIdService: UserIdService) {}
 
   private map!: L.Map;
   private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?reverse=True&source=data_map';
@@ -87,8 +87,7 @@ export class DataMapComponent implements AfterViewInit {
 
   async fetchLatestObservationTime(): Promise<string | null> {
     try {
-        const userId = this.userIdService.getUserId();
-        const url = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=0115&local_tz=True&limit=1&user_id=${userId}`;
+        const url = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=0115&local_tz=True&limit=1`;
 
         console.log("Fetching latest observation time from:", url);
         
