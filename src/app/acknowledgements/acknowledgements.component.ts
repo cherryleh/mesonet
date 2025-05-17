@@ -105,7 +105,7 @@ export class AcknowledgementsComponent {
     },
     {
       title: "Installation Team",
-      names: ["Dylan Giardina", "Chris Shuler", "Cory Yap", "Sam Dodge", "Anke Krueger", "John DeLay"]
+      names: ["Dylan Giardina", "Cory Yap", "Sam Dodge", "Anke Krueger", "John DeLay"]
     },
     {
       title: "Data Management Team",
