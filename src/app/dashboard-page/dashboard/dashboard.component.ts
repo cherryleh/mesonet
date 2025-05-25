@@ -23,6 +23,9 @@ import { Subscription } from 'rxjs';
 import { SidebarService } from '../../services/sidebar.service';
 import { ChangeDetectorRef } from '@angular/core';
 
+import { IntervalHandler } from '../../utils/interval-handler';
+
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -40,10 +43,14 @@ import { ChangeDetectorRef } from '@angular/core';
   styleUrls: ['./dashboard.component.css'],
   providers: [DatePipe]
 })
+
+
+
 export class DashboardComponent implements AfterViewInit {
   private refreshTimeout: any;
   private destroy$ = new Subject<void>();
   private isDestroyed = false; 
+  private reloadHandler!: IntervalHandler;
 
   totalRainfall: number = 0;
   meanTemp: number = 0;
@@ -79,7 +86,8 @@ export class DashboardComponent implements AfterViewInit {
     private aggregateService: aggregateService,
     private unitService: UnitService,
     private sidebarService: SidebarService,
-    private cdRef: ChangeDetectorRef ) {
+    private cdRef: ChangeDetectorRef,
+ ) {
     Chart.register(...registerables);
     this.unitService.selectedUnit$.subscribe((unit: 'standard' | 'metric') => {
       this.selectedUnit = unit;
@@ -298,20 +306,27 @@ convertCtoF(value: number): number {
   }
 
   updateData(): void {
-    if (this.isDestroyed || !this.id) {
-      return;
-    }
+    if (!this.id) return;
 
-    clearTimeout(this.refreshTimeout);
-
-    this.refreshTimeout = setTimeout(() => {
+    const refreshData = () => {
       if (!this.isDestroyed && this.id) {
-        this.fetchData(this.id); // only fetch after delay
-        this.updateData();       // reschedule next
-        console.log(`Refreshing data for ID: ${this.id} at ${new Date().toLocaleTimeString()}`);
+        this.fetchData(this.id);
+        console.log(`Refreshed at ${new Date().toLocaleTimeString()}`);
       }
-    }, this.refreshIntervalMS);
+    };
+
+    this.reloadHandler = new IntervalHandler(this.refreshIntervalMS, refreshData);
+    this.reloadHandler.start();
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this.reloadHandler.pause();
+      } else {
+        this.reloadHandler.start();
+      }
+    });
   }
+
 
 
 
@@ -324,10 +339,13 @@ convertCtoF(value: number): number {
   }
 
   ngOnDestroy(): void {
-    this.isDestroyed = true; 
-    clearTimeout(this.refreshTimeout);
+    this.isDestroyed = true;
     this.destroy$.next();
     this.destroy$.complete();
+    if (this.reloadHandler) {
+      this.reloadHandler.pause();
+    }
   }
+
 
 }
