@@ -39,34 +39,6 @@
         "value": 1.016,
         "timestamp": "2025-05-25T21:15:00.000Z"
     },
-    "0144": {
-        "value": 0.0,
-        "timestamp": "2025-05-25T21:15:00.000Z"
-    },
-    "0145": {
-        "value": 0.0,
-        "timestamp": "2025-05-25T21:10:00.000Z"
-    },
-    "0151": {
-        "value": 0.0,
-        "timestamp": "2025-05-25T21:15:00.000Z"
-    },
-    "0152": {
-        "value": 0.0,
-        "timestamp": "2025-05-25T21:10:00.000Z"
-    },
-    "0153": {
-        "value": 0.0,
-        "timestamp": "2025-05-25T21:00:00.000Z"
-    },
-    "0154": {
-        "value": 1.554,
-        "timestamp": "2025-05-25T21:15:00.000Z"
-    },
-    "0155": {
-        "value": 0.502,
-        "timestamp": "2025-05-25T21:00:00.000Z"
-    },
     "0156": {
         "value": 0.0,
         "timestamp": "2025-05-25T21:15:00.000Z"
@@ -78,22 +50,6 @@
     "0161": {
         "value": 0.0,
         "timestamp": "2025-05-25T21:00:00.000Z"
-    },
-    "0165": {
-        "value": 3.306,
-        "timestamp": "2024-05-16T16:30:00.000Z"
-    },
-    "0166": {
-        "value": 0.762,
-        "timestamp": "2025-05-25T21:10:00.000Z"
-    },
-    "0201": {
-        "value": 2.5700000000000003,
-        "timestamp": "2025-05-25T21:15:00.000Z"
-    },
-    "0202": {
-        "value": 4.8260000000000005,
-        "timestamp": "2025-05-25T21:15:00.000Z"
     },
     "0203": {
         "value": null,
@@ -111,33 +67,37 @@
         "value": 2.012,
         "timestamp": "2025-05-25T21:15:00.000Z"
     },
-    "0213": {
-        "value": 4.368,
-        "timestamp": "2025-05-25T21:15:00.000Z"
-    },
     "0214": {
         "value": 4.111,
         "timestamp": "2025-05-25T21:15:00.000Z"
     },
-    "0223": {
+    "0216": {
         "value": null,
         "timestamp": null
+    },
+    "0221": {
+        "value": 0.0,
+        "timestamp": "2025-05-25T21:10:00.000Z"
+    },
+    "0222": {
+        "value": 0.0,
+        "timestamp": "2025-05-25T21:15:00.000Z"
     },
     "0224": {
         "value": null,
         "timestamp": null
     },
-    "0233": {
-        "value": null,
-        "timestamp": null
+    "0231": {
+        "value": 16.257,
+        "timestamp": "2025-05-25T21:15:00.000Z"
     },
     "0234": {
         "value": null,
         "timestamp": null
     },
-    "0236": {
-        "value": null,
-        "timestamp": null
+    "0235": {
+        "value": 0.0,
+        "timestamp": "2025-05-25T21:15:00.000Z"
     },
     "0241": {
         "value": 24.723,
@@ -163,11 +123,35 @@
         "value": 7.62,
         "timestamp": "2025-05-25T21:00:00.000Z"
     },
-    "0257": {
+    "0251": {
+        "value": 0.508,
+        "timestamp": "2025-05-25T21:15:00.000Z"
+    },
+    "0252": {
+        "value": 0.0,
+        "timestamp": "2025-05-25T21:15:00.000Z"
+    },
+    "0253": {
+        "value": 0.0,
+        "timestamp": "2025-05-25T21:15:00.000Z"
+    },
+    "0254": {
+        "value": 0.0,
+        "timestamp": "2025-05-25T21:15:00.000Z"
+    },
+    "0255": {
+        "value": 2.331,
+        "timestamp": "2025-05-25T21:15:00.000Z"
+    },
+    "0256": {
+        "value": 0.254,
+        "timestamp": "2025-05-25T21:15:00.000Z"
+    },
+    "0259": {
         "value": null,
         "timestamp": null
     },
-    "0258": {
+    "0260": {
         "value": null,
         "timestamp": null
     },
@@ -203,11 +187,7 @@
         "value": 0.514,
         "timestamp": "2025-05-25T21:15:00.000Z"
     },
-    "0413": {
-        "value": null,
-        "timestamp": null
-    },
-    "0414": {
+    "0421": {
         "value": null,
         "timestamp": null
     },
@@ -227,10 +207,6 @@
         "value": 0.254,
         "timestamp": "2025-05-25T21:00:00.000Z"
     },
-    "0503": {
-        "value": 0.508,
-        "timestamp": "2025-05-26T03:10:00.000Z"
-    },
     "0505": {
         "value": 0.0,
         "timestamp": "2025-05-26T03:30:00.000Z"
@@ -239,19 +215,19 @@
         "value": 0.0,
         "timestamp": "2025-05-25T21:15:00.000Z"
     },
-    "0521": {
-        "value": 0.254,
+    "0522": {
+        "value": null,
+        "timestamp": null
+    },
+    "0531": {
+        "value": 0.0,
         "timestamp": "2025-05-25T21:15:00.000Z"
     },
     "0541": {
         "value": 0.0,
         "timestamp": "2025-05-25T21:15:00.000Z"
     },
-    "0543": {
-        "value": null,
-        "timestamp": null
-    },
-    "0544": {
+    "0542": {
         "value": null,
         "timestamp": null
     },
@@ -271,14 +247,6 @@
         "value": 4.067,
         "timestamp": "2025-05-25T21:15:00.000Z"
     },
-    "0604": {
-        "value": null,
-        "timestamp": null
-    },
-    "0611": {
-        "value": 3.829,
-        "timestamp": "2025-05-25T21:15:00.000Z"
-    },
     "0621": {
         "value": 0.508,
         "timestamp": "2025-05-25T21:15:00.000Z"
@@ -295,10 +263,6 @@
         "value": null,
         "timestamp": null
     },
-    "1311": {
-        "value": null,
-        "timestamp": null
-    },
     "1313": {
         "value": null,
         "timestamp": null
@@ -307,19 +271,11 @@
         "value": null,
         "timestamp": null
     },
-    "1319": {
-        "value": null,
-        "timestamp": null
-    },
     "1411": {
         "value": null,
         "timestamp": null
     },
     "1417": {
-        "value": null,
-        "timestamp": null
-    },
-    "1419": {
         "value": null,
         "timestamp": null
     }
