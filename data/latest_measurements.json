@@ -1,1 +1,277 @@
-[]
+[
+    {
+        "station_id": "0119",
+        "variable": "P_1",
+        "timestamp": "2025-05-26T12:20:00.000Z"
+    },
+    {
+        "station_id": "0119",
+        "variable": "Tair_1_Avg",
+        "timestamp": "2025-05-26T12:20:00.000Z"
+    },
+    {
+        "station_id": "0119",
+        "variable": "WS_1_Avg",
+        "timestamp": "2025-05-26T12:20:00.000Z"
+    },
+    {
+        "station_id": "0134",
+        "variable": "RH_2_Avg",
+        "timestamp": "2025-05-25T20:50:00.000Z"
+    },
+    {
+        "station_id": "0134",
+        "variable": "Tsoil_1_Avg",
+        "timestamp": "2025-05-26T14:10:00.000Z"
+    },
+    {
+        "station_id": "0144",
+        "variable": "RH_2_Avg",
+        "timestamp": "2025-05-26T13:10:00.000Z"
+    },
+    {
+        "station_id": "0144",
+        "variable": "SM_1_Avg",
+        "timestamp": "2025-05-26T13:05:00.000Z"
+    },
+    {
+        "station_id": "0152",
+        "variable": "SM_1_Avg",
+        "timestamp": "2025-05-26T13:20:00.000Z"
+    },
+    {
+        "station_id": "0152",
+        "variable": "Tair_2_Avg",
+        "timestamp": "2025-05-26T13:25:00.000Z"
+    },
+    {
+        "station_id": "0153",
+        "variable": "SWin_1_Avg",
+        "timestamp": "2025-05-26T13:30:00.000Z"
+    },
+    {
+        "station_id": "0153",
+        "variable": "Tair_2_Avg",
+        "timestamp": "2025-05-26T13:30:00.000Z"
+    },
+    {
+        "station_id": "0154",
+        "variable": "SM_1_Avg",
+        "timestamp": "2025-05-26T12:05:00.000Z"
+    },
+    {
+        "station_id": "0154",
+        "variable": "SWin_1_Avg",
+        "timestamp": "2025-05-26T12:05:00.000Z"
+    },
+    {
+        "station_id": "0154",
+        "variable": "Tair_2_Avg",
+        "timestamp": "2025-05-26T12:05:00.000Z"
+    },
+    {
+        "station_id": "0166",
+        "variable": "RH_1_Avg",
+        "timestamp": "2025-05-26T13:10:00.000Z"
+    },
+    {
+        "station_id": "0166",
+        "variable": "Tsoil_1_Avg",
+        "timestamp": "2025-05-26T13:05:00.000Z"
+    },
+    {
+        "station_id": "0201",
+        "variable": "SWin_1_Avg",
+        "timestamp": "2025-05-26T12:55:00.000Z"
+    },
+    {
+        "station_id": "0201",
+        "variable": "Tair_1_Avg",
+        "timestamp": "2025-05-26T12:55:00.000Z"
+    },
+    {
+        "station_id": "0201",
+        "variable": "Tsoil_1_Avg",
+        "timestamp": "2025-05-26T12:55:00.000Z"
+    },
+    {
+        "station_id": "0212",
+        "variable": "SWin_1_Avg",
+        "timestamp": "2025-05-26T13:10:00.000Z"
+    },
+    {
+        "station_id": "0212",
+        "variable": "Tair_2_Avg",
+        "timestamp": "2025-05-26T13:10:00.000Z"
+    },
+    {
+        "station_id": "0212",
+        "variable": "Tsoil_1_Avg",
+        "timestamp": "2025-05-26T13:05:00.000Z"
+    },
+    {
+        "station_id": "0221",
+        "variable": "RH_2_Avg",
+        "timestamp": "2025-05-26T13:10:00.000Z"
+    },
+    {
+        "station_id": "0222",
+        "variable": "RH_2_Avg",
+        "timestamp": "2025-05-26T13:10:00.000Z"
+    },
+    {
+        "station_id": "0222",
+        "variable": "Tair_1_Avg",
+        "timestamp": "2025-05-26T13:10:00.000Z"
+    },
+    {
+        "station_id": "0222",
+        "variable": "WS_1_Avg",
+        "timestamp": "2025-05-26T13:05:00.000Z"
+    },
+    {
+        "station_id": "0235",
+        "variable": "Tair_2_Avg",
+        "timestamp": "2025-05-26T14:55:00.000Z"
+    },
+    {
+        "station_id": "0243",
+        "variable": "RH_2_Avg",
+        "timestamp": "2025-05-26T14:00:00.000Z"
+    },
+    {
+        "station_id": "0244",
+        "variable": "RH_2_Avg",
+        "timestamp": "2025-05-26T13:20:00.000Z"
+    },
+    {
+        "station_id": "0244",
+        "variable": "Tair_1_Avg",
+        "timestamp": "2025-05-26T13:20:00.000Z"
+    },
+    {
+        "station_id": "0244",
+        "variable": "WS_1_Avg",
+        "timestamp": "2025-05-26T13:15:00.000Z"
+    },
+    {
+        "station_id": "0253",
+        "variable": "RH_1_Avg",
+        "timestamp": "2025-05-26T13:10:00.000Z"
+    },
+    {
+        "station_id": "0253",
+        "variable": "RH_2_Avg",
+        "timestamp": "2025-05-26T13:10:00.000Z"
+    },
+    {
+        "station_id": "0255",
+        "variable": "SM_1_Avg",
+        "timestamp": "2025-05-26T13:15:00.000Z"
+    },
+    {
+        "station_id": "0255",
+        "variable": "SWin_1_Avg",
+        "timestamp": "2025-05-26T13:20:00.000Z"
+    },
+    {
+        "station_id": "0255",
+        "variable": "Tair_2_Avg",
+        "timestamp": "2025-05-26T13:20:00.000Z"
+    },
+    {
+        "station_id": "0283",
+        "variable": "SM_1_Avg",
+        "timestamp": "2025-05-26T13:40:00.000Z"
+    },
+    {
+        "station_id": "0283",
+        "variable": "Tair_2_Avg",
+        "timestamp": "2025-05-26T13:40:00.000Z"
+    },
+    {
+        "station_id": "0411",
+        "variable": "Tair_2_Avg",
+        "timestamp": "2025-05-26T13:10:00.000Z"
+    },
+    {
+        "station_id": "0411",
+        "variable": "Tsoil_1_Avg",
+        "timestamp": "2025-05-26T13:05:00.000Z"
+    },
+    {
+        "station_id": "0502",
+        "variable": "SM_1_Avg",
+        "timestamp": "2025-05-26T13:05:00.000Z"
+    },
+    {
+        "station_id": "0502",
+        "variable": "Tair_2_Avg",
+        "timestamp": "2025-05-26T13:10:00.000Z"
+    },
+    {
+        "station_id": "0504",
+        "variable": "SM_1_Avg",
+        "timestamp": "2025-05-27T02:55:00.000Z"
+    },
+    {
+        "station_id": "0506",
+        "variable": "P_1",
+        "timestamp": "2025-02-28T21:15:00.000Z"
+    },
+    {
+        "station_id": "0506",
+        "variable": "RH_2_Avg",
+        "timestamp": "2025-05-26T13:05:00.000Z"
+    },
+    {
+        "station_id": "0531",
+        "variable": "RH_1_Avg",
+        "timestamp": "2025-05-26T12:05:00.000Z"
+    },
+    {
+        "station_id": "0531",
+        "variable": "SWin_1_Avg",
+        "timestamp": "2025-05-26T12:05:00.000Z"
+    },
+    {
+        "station_id": "0551",
+        "variable": "RH_2_Avg",
+        "timestamp": "2025-05-26T13:10:00.000Z"
+    },
+    {
+        "station_id": "0551",
+        "variable": "Tsoil_1_Avg",
+        "timestamp": "2025-05-26T13:05:00.000Z"
+    },
+    {
+        "station_id": "0602",
+        "variable": "P_1",
+        "timestamp": "2025-05-26T13:05:00.000Z"
+    },
+    {
+        "station_id": "0602",
+        "variable": "RH_1_Avg",
+        "timestamp": "2025-05-26T13:10:00.000Z"
+    },
+    {
+        "station_id": "0602",
+        "variable": "WS_1_Avg",
+        "timestamp": "2025-05-26T13:05:00.000Z"
+    },
+    {
+        "station_id": "0621",
+        "variable": "SWin_1_Avg",
+        "timestamp": "2025-05-26T13:10:00.000Z"
+    },
+    {
+        "station_id": "0621",
+        "variable": "Tair_2_Avg",
+        "timestamp": "2025-05-26T13:10:00.000Z"
+    },
+    {
+        "station_id": "0621",
+        "variable": "Tsoil_1_Avg",
+        "timestamp": "2025-05-26T13:05:00.000Z"
+    }
+]
