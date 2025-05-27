@@ -1,1 +1,170 @@
-{}
+{
+    "0115": {
+        "value": 0.0,
+        "timestamp": "2025-05-26T13:05:00.000Z"
+    },
+    "0116": {
+        "value": 0.0,
+        "timestamp": "2025-05-27T12:05:00.000Z"
+    },
+    "0118": {
+        "value": 0.0,
+        "timestamp": "2025-05-27T13:05:00.000Z"
+    },
+    "0121": {
+        "value": 0.0,
+        "timestamp": "2025-05-27T12:05:00.000Z"
+    },
+    "0133": {
+        "value": 0.0,
+        "timestamp": "2025-05-27T12:05:00.000Z"
+    },
+    "0141": {
+        "value": 0.0,
+        "timestamp": "2025-05-27T12:15:00.000Z"
+    },
+    "0144": {
+        "value": 0.0,
+        "timestamp": "2025-05-27T12:05:00.000Z"
+    },
+    "0152": {
+        "value": 0.0,
+        "timestamp": "2025-05-27T13:20:00.000Z"
+    },
+    "0160": {
+        "value": null,
+        "timestamp": null
+    },
+    "0161": {
+        "value": 0.0,
+        "timestamp": "2025-05-27T13:05:00.000Z"
+    },
+    "0164": {
+        "value": null,
+        "timestamp": null
+    },
+    "0165": {
+        "value": 3.306,
+        "timestamp": "2024-05-16T16:30:00.000Z"
+    },
+    "0166": {
+        "value": 0.762,
+        "timestamp": "2025-05-27T11:00:00.000Z"
+    },
+    "0203": {
+        "value": null,
+        "timestamp": null
+    },
+    "0204": {
+        "value": 5.59,
+        "timestamp": "2025-05-27T11:00:00.000Z"
+    },
+    "0211": {
+        "value": 0.0,
+        "timestamp": "2025-05-27T12:05:00.000Z"
+    },
+    "0212": {
+        "value": 2.5140000000000002,
+        "timestamp": "2025-05-27T12:05:00.000Z"
+    },
+    "0213": {
+        "value": 3.855,
+        "timestamp": "2025-05-27T12:10:00.000Z"
+    },
+    "0214": {
+        "value": 3.597,
+        "timestamp": "2025-05-27T12:15:00.000Z"
+    },
+    "0221": {
+        "value": 0.0,
+        "timestamp": "2025-05-27T12:55:00.000Z"
+    },
+    "0223": {
+        "value": null,
+        "timestamp": null
+    },
+    "0233": {
+        "value": null,
+        "timestamp": null
+    },
+    "0236": {
+        "value": null,
+        "timestamp": null
+    },
+    "0251": {
+        "value": 0.508,
+        "timestamp": "2025-05-27T12:05:00.000Z"
+    },
+    "0255": {
+        "value": 3.6260000000000003,
+        "timestamp": "2025-05-27T12:10:00.000Z"
+    },
+    "0286": {
+        "value": 9.652000000000001,
+        "timestamp": "2025-05-13T01:00:00.000Z"
+    },
+    "0287": {
+        "value": 0.0,
+        "timestamp": "2025-05-27T11:20:00.000Z"
+    },
+    "0412": {
+        "value": 0.514,
+        "timestamp": "2025-05-27T12:05:00.000Z"
+    },
+    "0414": {
+        "value": null,
+        "timestamp": null
+    },
+    "0422": {
+        "value": null,
+        "timestamp": null
+    },
+    "0521": {
+        "value": 0.254,
+        "timestamp": "2025-05-27T12:10:00.000Z"
+    },
+    "0541": {
+        "value": 0.0,
+        "timestamp": "2025-05-27T11:00:00.000Z"
+    },
+    "0542": {
+        "value": null,
+        "timestamp": null
+    },
+    "0543": {
+        "value": null,
+        "timestamp": null
+    },
+    "0551": {
+        "value": 0.0,
+        "timestamp": "2025-05-27T12:05:00.000Z"
+    },
+    "0603": {
+        "value": 5.337,
+        "timestamp": "2025-05-27T12:05:00.000Z"
+    },
+    "0611": {
+        "value": 3.829,
+        "timestamp": "2025-05-27T12:05:00.000Z"
+    },
+    "0631": {
+        "value": null,
+        "timestamp": null
+    },
+    "0632": {
+        "value": null,
+        "timestamp": null
+    },
+    "0641": {
+        "value": 5.588,
+        "timestamp": "2025-05-27T13:00:00.000Z"
+    },
+    "1417": {
+        "value": null,
+        "timestamp": null
+    },
+    "1419": {
+        "value": null,
+        "timestamp": null
+    }
+}
