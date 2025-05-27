@@ -1,50 +1,50 @@
 {
     "0115": {
         "value": 0.0,
+        "timestamp": "2025-05-27T21:30:00.000Z"
+    },
+    "0161": {
+        "value": 0.0,
         "timestamp": "2025-05-27T21:15:00.000Z"
     },
     "0162": {
         "value": null,
         "timestamp": null
     },
-    "0164": {
-        "value": null,
-        "timestamp": null
-    },
-    "0201": {
+    "0202": {
         "value": 0.0,
-        "timestamp": "2025-05-27T21:15:00.000Z"
-    },
-    "0236": {
-        "value": null,
-        "timestamp": null
-    },
-    "0241": {
-        "value": 9.906,
-        "timestamp": "2025-05-27T21:15:00.000Z"
+        "timestamp": "2025-05-27T21:30:00.000Z"
     },
     "0242": {
         "value": 0.0,
         "timestamp": "2025-05-27T21:15:00.000Z"
     },
-    "0287": {
+    "0251": {
         "value": 0.0,
-        "timestamp": "2025-05-27T21:15:00.000Z"
+        "timestamp": "2025-05-27T21:30:00.000Z"
     },
-    "0288": {
-        "value": 0.762,
-        "timestamp": "2025-02-20T10:00:00.000Z"
-    },
-    "0411": {
+    "0254": {
         "value": 0.0,
-        "timestamp": "2025-05-27T21:15:00.000Z"
+        "timestamp": "2025-05-27T21:30:00.000Z"
     },
-    "0601": {
-        "value": 1.525,
-        "timestamp": "2025-05-27T21:15:00.000Z"
+    "0413": {
+        "value": null,
+        "timestamp": null
     },
-    "0603": {
-        "value": 1.27,
-        "timestamp": "2025-05-27T21:15:00.000Z"
+    "0504": {
+        "value": 0.0,
+        "timestamp": "2025-05-27T21:25:00.000Z"
+    },
+    "0631": {
+        "value": null,
+        "timestamp": null
+    },
+    "0632": {
+        "value": null,
+        "timestamp": null
+    },
+    "1319": {
+        "value": null,
+        "timestamp": null
     }
 }
