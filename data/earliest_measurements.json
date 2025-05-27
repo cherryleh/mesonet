@@ -1,1 +1,167 @@
-[]
+[
+    {
+        "station_id": "0115",
+        "timestamp": "2025-05-26T12:05:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0119",
+        "timestamp": "2025-05-26T12:15:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0121",
+        "timestamp": "2025-05-26T13:05:00.000Z",
+        "variable": "WS_1_Avg"
+    },
+    {
+        "station_id": "0131",
+        "timestamp": "2025-05-26T12:55:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0132",
+        "timestamp": "2025-05-26T12:05:00.000Z",
+        "variable": "RH_2_Avg"
+    },
+    {
+        "station_id": "0141",
+        "timestamp": "2025-05-26T13:25:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0153",
+        "timestamp": "2025-05-26T13:25:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0154",
+        "timestamp": "2025-05-26T12:05:00.000Z",
+        "variable": "RH_2_Avg"
+    },
+    {
+        "station_id": "0161",
+        "timestamp": "2025-05-26T13:05:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0201",
+        "timestamp": "2025-05-26T12:50:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0202",
+        "timestamp": "2025-05-26T12:05:00.000Z",
+        "variable": "RH_2_Avg"
+    },
+    {
+        "station_id": "0211",
+        "timestamp": "2025-05-26T13:05:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0212",
+        "timestamp": "2025-05-26T13:05:00.000Z",
+        "variable": "WS_1_Avg"
+    },
+    {
+        "station_id": "0214",
+        "timestamp": "2025-05-26T12:05:00.000Z",
+        "variable": "RH_2_Avg"
+    },
+    {
+        "station_id": "0221",
+        "timestamp": "2025-05-26T13:05:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0222",
+        "timestamp": "2025-05-26T13:05:00.000Z",
+        "variable": "WS_1_Avg"
+    },
+    {
+        "station_id": "0231",
+        "timestamp": "2025-05-26T13:05:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0241",
+        "timestamp": "2025-05-26T13:05:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0246",
+        "timestamp": "2025-05-26T12:05:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0255",
+        "timestamp": "2025-05-26T12:10:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0256",
+        "timestamp": "2025-05-26T13:45:00.000Z",
+        "variable": "WS_1_Avg"
+    },
+    {
+        "station_id": "0281",
+        "timestamp": "2025-05-26T14:15:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0282",
+        "timestamp": "2025-05-26T12:20:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0411",
+        "timestamp": "2025-05-26T13:05:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0412",
+        "timestamp": "2025-05-26T13:05:00.000Z",
+        "variable": "WS_1_Avg"
+    },
+    {
+        "station_id": "0431",
+        "timestamp": "2025-05-26T12:05:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0504",
+        "timestamp": "2025-05-27T01:10:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0505",
+        "timestamp": "2025-05-26T23:55:00.000Z",
+        "variable": "SM_1_Avg"
+    },
+    {
+        "station_id": "0521",
+        "timestamp": "2025-05-26T13:15:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0551",
+        "timestamp": "2025-05-26T13:05:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0611",
+        "timestamp": "2025-05-26T11:00:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0621",
+        "timestamp": "2025-05-26T13:05:00.000Z",
+        "variable": "WS_1_Avg"
+    },
+    {
+        "station_id": "0641",
+        "timestamp": "2025-05-26T13:05:00.000Z",
+        "variable": "RF_1_Tot300s"
+    }
+]
