@@ -1,12 +1,1 @@
-[
-    {
-        "station_id": "0116",
-        "timestamp": "2025-05-27T23:15:00.000Z",
-        "variable": "Tair_1_Avg"
-    },
-    {
-        "station_id": "0161",
-        "timestamp": "2025-05-27T23:00:00.000Z",
-        "variable": "Tair_2_Avg"
-    }
-]
+[]
