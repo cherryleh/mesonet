@@ -1,1 +1,17 @@
-[]
+[
+    {
+        "station_id": "0115",
+        "timestamp": "2025-05-28T04:15:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0116",
+        "timestamp": "2025-05-28T04:00:00.000Z",
+        "variable": "RF_1_Tot300s"
+    },
+    {
+        "station_id": "0502",
+        "timestamp": "2025-05-28T04:15:00.000Z",
+        "variable": "RF_1_Tot300s"
+    }
+]
