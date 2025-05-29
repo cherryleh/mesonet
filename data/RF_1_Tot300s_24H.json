@@ -3,24 +3,24 @@
         "value": 0.0,
         "timestamp": "2025-05-29T11:30:00.000Z"
     },
-    "0223": {
+    "0203": {
         "value": null,
         "timestamp": null
     },
-    "0224": {
+    "0255": {
+        "value": 4.662,
+        "timestamp": "2025-05-29T11:45:00.000Z"
+    },
+    "0520": {
         "value": null,
         "timestamp": null
     },
-    "0225": {
+    "0522": {
         "value": null,
         "timestamp": null
     },
-    "0502": {
+    "0531": {
         "value": 0.0,
         "timestamp": "2025-05-29T11:30:00.000Z"
-    },
-    "0503": {
-        "value": 0.762,
-        "timestamp": "2025-05-29T11:25:00.000Z"
     }
 }
