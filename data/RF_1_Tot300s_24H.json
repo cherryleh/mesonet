@@ -1,26 +1,138 @@
 {
     "0115": {
         "value": 0.0,
-        "timestamp": "2025-05-29T21:30:00.000Z"
+        "timestamp": "2025-05-29T22:00:00.000Z"
     },
-    "0204": {
+    "0132": {
         "value": 0.0,
-        "timestamp": "2025-05-29T21:30:00.000Z"
+        "timestamp": "2025-05-29T22:00:00.000Z"
     },
-    "0211": {
+    "0133": {
+        "value": 0.254,
+        "timestamp": "2025-05-29T22:00:00.000Z"
+    },
+    "0134": {
+        "value": 0.0,
+        "timestamp": "2025-05-29T22:00:00.000Z"
+    },
+    "0145": {
         "value": 0.0,
         "timestamp": "2025-05-29T21:15:00.000Z"
     },
-    "0255": {
-        "value": 4.662,
-        "timestamp": "2025-05-29T21:30:00.000Z"
+    "0151": {
+        "value": 0.0,
+        "timestamp": "2025-05-29T22:00:00.000Z"
     },
-    "0520": {
+    "0156": {
+        "value": 0.0,
+        "timestamp": "2025-05-29T22:00:00.000Z"
+    },
+    "0160": {
+        "value": 0.0,
+        "timestamp": "2025-05-29T22:00:00.000Z"
+    },
+    "0201": {
+        "value": 1.028,
+        "timestamp": "2025-05-29T22:00:00.000Z"
+    },
+    "0202": {
+        "value": 0.0,
+        "timestamp": "2025-05-29T22:00:00.000Z"
+    },
+    "0203": {
         "value": null,
         "timestamp": null
     },
-    "0521": {
+    "0215": {
+        "value": null,
+        "timestamp": null
+    },
+    "0225": {
+        "value": null,
+        "timestamp": null
+    },
+    "0232": {
+        "value": null,
+        "timestamp": null
+    },
+    "0235": {
+        "value": 0.0,
+        "timestamp": "2025-05-29T22:15:00.000Z"
+    },
+    "0236": {
+        "value": null,
+        "timestamp": null
+    },
+    "0243": {
+        "value": 0.0,
+        "timestamp": "2025-05-29T22:00:00.000Z"
+    },
+    "0245": {
+        "value": 4.268,
+        "timestamp": "2025-04-21T13:00:00.000Z"
+    },
+    "0246": {
         "value": 0.254,
-        "timestamp": "2025-05-29T21:15:00.000Z"
+        "timestamp": "2025-05-29T22:00:00.000Z"
+    },
+    "0247": {
+        "value": null,
+        "timestamp": null
+    },
+    "0255": {
+        "value": 4.662,
+        "timestamp": "2025-05-29T22:15:00.000Z"
+    },
+    "0412": {
+        "value": 0.77,
+        "timestamp": "2025-05-29T22:15:00.000Z"
+    },
+    "0421": {
+        "value": null,
+        "timestamp": null
+    },
+    "0422": {
+        "value": null,
+        "timestamp": null
+    },
+    "0502": {
+        "value": 0.0,
+        "timestamp": "2025-05-29T22:15:00.000Z"
+    },
+    "0503": {
+        "value": 0.508,
+        "timestamp": "2025-05-29T22:10:00.000Z"
+    },
+    "0506": {
+        "value": 0.0,
+        "timestamp": "2025-05-29T22:15:00.000Z"
+    },
+    "0541": {
+        "value": 0.0,
+        "timestamp": "2025-05-29T22:15:00.000Z"
+    },
+    "0542": {
+        "value": null,
+        "timestamp": null
+    },
+    "0603": {
+        "value": 0.0,
+        "timestamp": "2025-05-29T22:15:00.000Z"
+    },
+    "0611": {
+        "value": 0.0,
+        "timestamp": "2025-05-29T22:15:00.000Z"
+    },
+    "0641": {
+        "value": 0.254,
+        "timestamp": "2025-05-29T22:15:00.000Z"
+    },
+    "1316": {
+        "value": null,
+        "timestamp": null
+    },
+    "1417": {
+        "value": null,
+        "timestamp": null
     }
 }
