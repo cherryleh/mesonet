@@ -1,7 +1,12 @@
 [
     {
         "station_id": "0118",
-        "variable": "SWin_1_Avg",
-        "timestamp": "2025-05-31T22:15:00.000Z"
+        "variable": "P_1",
+        "timestamp": "2025-05-31T23:15:00.000Z"
+    },
+    {
+        "station_id": "0118",
+        "variable": "RF_1_Tot300s",
+        "timestamp": "2025-05-31T23:15:00.000Z"
     }
 ]
