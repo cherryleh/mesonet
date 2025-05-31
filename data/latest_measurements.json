@@ -1,1 +1,62 @@
-[]
+[
+    {
+        "station_id": "0115",
+        "variable": "P_1",
+        "timestamp": "2025-05-31T01:45:00.000Z"
+    },
+    {
+        "station_id": "0115",
+        "variable": "RF_1_Tot300s",
+        "timestamp": "2025-05-31T01:45:00.000Z"
+    },
+    {
+        "station_id": "0115",
+        "variable": "RH_1_Avg",
+        "timestamp": "2025-05-31T01:45:00.000Z"
+    },
+    {
+        "station_id": "0115",
+        "variable": "RH_2_Avg",
+        "timestamp": "2025-05-31T01:45:00.000Z"
+    },
+    {
+        "station_id": "0115",
+        "variable": "SM_1_Avg",
+        "timestamp": "2025-05-31T01:45:00.000Z"
+    },
+    {
+        "station_id": "0115",
+        "variable": "SWin_1_Avg",
+        "timestamp": "2025-05-31T01:45:00.000Z"
+    },
+    {
+        "station_id": "0115",
+        "variable": "Tair_1_Avg",
+        "timestamp": "2025-05-31T01:45:00.000Z"
+    },
+    {
+        "station_id": "0115",
+        "variable": "Tair_2_Avg",
+        "timestamp": "2025-05-31T01:45:00.000Z"
+    },
+    {
+        "station_id": "0115",
+        "variable": "WS_1_Avg",
+        "timestamp": "2025-05-31T01:45:00.000Z"
+    },
+    {
+        "station_id": "0116",
+        "variable": "RF_1_Tot300s",
+        "timestamp": "2025-05-31T01:30:00.000Z"
+    },
+    {
+        "station_id": "0116",
+        "variable": "SWin_1_Avg",
+        "timestamp": "2025-05-31T01:30:00.000Z"
+    },
+    {
+        "station_id": "0116",
+        "variable": "Tair_2_Avg",
+        "timestamp": "2025-05-31T01:30:00.000Z"
+    }
+]
