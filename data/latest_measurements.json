@@ -1,1 +1,47 @@
-[]
+[
+    {
+        "station_id": "0116",
+        "variable": "Tair_1_Avg",
+        "timestamp": "2025-06-02T13:15:00.000Z"
+    },
+    {
+        "station_id": "0116",
+        "variable": "Tair_2_Avg",
+        "timestamp": "2025-06-02T13:15:00.000Z"
+    },
+    {
+        "station_id": "0231",
+        "variable": "RF_1_Tot300s",
+        "timestamp": "2025-06-02T13:30:00.000Z"
+    },
+    {
+        "station_id": "0231",
+        "variable": "RH_2_Avg",
+        "timestamp": "2025-06-02T13:30:00.000Z"
+    },
+    {
+        "station_id": "0231",
+        "variable": "SM_1_Avg",
+        "timestamp": "2025-06-02T13:30:00.000Z"
+    },
+    {
+        "station_id": "0601",
+        "variable": "P_1",
+        "timestamp": "2025-06-02T13:30:00.000Z"
+    },
+    {
+        "station_id": "0601",
+        "variable": "RF_1_Tot300s",
+        "timestamp": "2025-06-02T13:30:00.000Z"
+    },
+    {
+        "station_id": "0601",
+        "variable": "RH_1_Avg",
+        "timestamp": "2025-06-02T13:30:00.000Z"
+    },
+    {
+        "station_id": "0601",
+        "variable": "SWin_1_Avg",
+        "timestamp": "2025-06-02T13:30:00.000Z"
+    }
+]
