@@ -1,29 +1,17 @@
 {
-    "0118": {
-        "value": 0.0,
-        "timestamp": "2025-06-03T18:15:00.000Z"
-    },
-    "0222": {
-        "value": 3.855,
-        "timestamp": "2025-06-03T18:00:00.000Z"
+    "0115": {
+        "value": 0.249,
+        "timestamp": "2025-06-03T18:30:00.000Z"
     },
     "0224": {
         "value": null,
         "timestamp": null
     },
-    "0413": {
-        "value": null,
-        "timestamp": null
+    "0505": {
+        "value": 3.556,
+        "timestamp": "2025-06-03T18:15:00.000Z"
     },
-    "0414": {
-        "value": null,
-        "timestamp": null
-    },
-    "0422": {
-        "value": null,
-        "timestamp": null
-    },
-    "1419": {
+    "0520": {
         "value": null,
         "timestamp": null
     }
