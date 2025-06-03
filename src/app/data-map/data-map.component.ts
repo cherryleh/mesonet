@@ -35,7 +35,11 @@ export class DataMapComponent implements AfterViewInit {
   constructor(private http: HttpClient,private cdr: ChangeDetectorRef, private userIdService: UserIdService) {}
 
   private map!: L.Map;
-  private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?reverse=True&source=data_map';
+  private getApiUrlWithUserId(): string {
+    const userId = this.userIdService.getUserId();
+    return `https://api.hcdp.ikewai.org/mesonet/db/stations?reverse=True&source=data_map&user_id=${userId}`;
+  }
+
   private measurementsUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii';
   private apiToken = environment.apiToken;
 
@@ -135,7 +139,7 @@ formatTimestamp(timestamp: string): string {
 async fetchStationData(): Promise<void> {
     try {
         const stations: Station[] = await firstValueFrom(
-            this.http.get<Station[]>(this.apiUrl, {
+            this.http.get<Station[]>(this.getApiUrlWithUserId(), {
               headers: {
                 Authorization: `Bearer ${this.apiToken}`,
                 'Content-Type': 'application/json'

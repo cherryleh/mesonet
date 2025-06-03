@@ -8,6 +8,24 @@
   width: 80%;
 }
 
+#map{
+  margin-top: 40px;
+}
+
+.alert-banner {
+  width: 100%;
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 12px 20px;
+  text-align: center;
+  font-weight: 600;
+  border-bottom: 1px solid #ffeeba;
+  font-size: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-top: 75px
+}
+
+
 .sidebar {
   width: 20% !important;
   background: white;

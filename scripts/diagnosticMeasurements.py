@@ -96,19 +96,15 @@ for station in stations:
 station_0520 = "0520"
 station_0521 = "0521"
 
-for variable in ["BattVolt", "CellStr", "CellQlt"]:
+for variable in ["BattVolt", "CellStr", "CellQlt","RHenc_50", "RHenc_max"]:
     if station_0520 in measurements_by_variable[variable] and station_0521 in measurements_by_variable[variable]:
+        #Get the min BattVolt value between the two stations
         if variable == "BattVolt":
             val_0520 = float(measurements_by_variable[variable][station_0520]["value"])
             val_0521 = float(measurements_by_variable[variable][station_0521]["value"])
             measurements_by_variable[variable][station_0521]["value"] = min(val_0520, val_0521)
         else:  # CellStr and CellQlt
             measurements_by_variable[variable][station_0521] = measurements_by_variable[variable][station_0520].copy()
-
-# Also copy RHenc_50 and RHenc_max from 0520 to 0521
-for variable in ["RHenc_50", "RHenc_max"]:
-    if station_0520 in measurements_by_variable[variable]:
-        measurements_by_variable[variable][station_0521] = measurements_by_variable[variable][station_0520].copy()
 
     
 var_pairs = [('Tair_1_Avg', 'Tair_2_Avg', 'Tair'), ('RH_1_Avg', 'RH_2_Avg','RH')]
