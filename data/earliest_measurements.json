@@ -1,17 +1,12 @@
 [
     {
         "station_id": "0115",
-        "timestamp": "2025-06-03T11:15:00.000Z",
+        "timestamp": "2025-06-03T12:45:00.000Z",
         "variable": "RF_1_Tot300s"
     },
     {
         "station_id": "0116",
-        "timestamp": "2025-06-03T11:00:00.000Z",
-        "variable": "RH_2_Avg"
-    },
-    {
-        "station_id": "0134",
-        "timestamp": "2025-06-03T11:15:00.000Z",
-        "variable": "WS_1_Avg"
+        "timestamp": "2025-06-03T12:45:00.000Z",
+        "variable": "RF_1_Tot300s"
     }
 ]
