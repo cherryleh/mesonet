@@ -1,17 +1,21 @@
 {
     "0115": {
         "value": 0.249,
-        "timestamp": "2025-06-03T18:30:00.000Z"
+        "timestamp": "2025-06-03T19:00:00.000Z"
     },
-    "0224": {
+    "0162": {
         "value": null,
         "timestamp": null
     },
-    "0505": {
-        "value": 3.556,
-        "timestamp": "2025-06-03T18:15:00.000Z"
+    "0413": {
+        "value": null,
+        "timestamp": null
     },
-    "0520": {
+    "0621": {
+        "value": 0.0,
+        "timestamp": "2025-06-03T18:45:00.000Z"
+    },
+    "0631": {
         "value": null,
         "timestamp": null
     }
