@@ -265,7 +265,7 @@ convertCtoF(value: number): number {
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.id = params['id'];
       if (this.id) {
-        this.fetchData(this.id);
+        // this.fetchData(this.id);
         this.updateData();
       }
     });

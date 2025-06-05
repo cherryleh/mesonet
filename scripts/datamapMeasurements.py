@@ -3,6 +3,7 @@ import json
 from datetime import datetime, timedelta, timezone
 import os 
 import time
+import numpy as np
 
 API_TOKEN = os.getenv("API_TOKEN")
 
@@ -13,7 +14,9 @@ header = {
 
 stations_url = "https://api.hcdp.ikewai.org/mesonet/db/stations"
 measurements_url = "https://api.hcdp.ikewai.org/mesonet/db/measurements"
-variables = ["Tair_1_Avg", "SM_1_Avg", "RH_1_Avg", "SWin_1_Avg", "Tsoil_1_Avg"]
+variables_list = "Tair_1_Avg,SM_1_Avg,RH_1_Avg,SWin_1_Avg,Tsoil_1_Avg"
+
+expected_vars = ['Tair_1_Avg', 'SM_1_Avg', 'RH_1_Avg', 'SWin_1_Avg', 'Tsoil_1_Avg']
 
 current_time = datetime.now(timezone.utc)
 start_time = current_time - timedelta(hours=24)
@@ -24,11 +27,13 @@ stations = response.json() if response.status_code == 200 else []
 
 measurements_by_variable = {var: {} for var in variables}
 rainfall_24H = {}
+measurements_by_variable = {}
 
 for station in stations:
     station_id = station["station_id"]
 
     for variable in variables:
+        #Run a test query to check if data exists for the station and variable 
         test_query = f"station_ids={station_id}&var_ids={variable}&limit=1"
         test_url = f"{measurements_url}?{test_query}"
 
@@ -52,20 +57,19 @@ for station in stations:
             time.sleep(0.2)
             if response.status_code == 200:
                 data = response.json()
-                if isinstance(data, list) and len(data) > 0:
-                    timestamp_str = data[0]["timestamp"]
-                    value = data[0]["value"]
+                timestamp_str = data[0]["timestamp"]
+                value = data[0]["value"]
 
-                    observation_time = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
+                observation_time = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
 
-                    # Mark value as None if observation is older than 1 hour (or older than start_time)
-                    if observation_time < start_time:
-                        value = None
+                # Mark value as None if observation is older than 1 hour (or older than start_time)
+                if observation_time < start_time:
+                    value = None
 
-                    measurements_by_variable[variable][station_id] = {
-                        "value": value, 
-                        "timestamp": timestamp_str
-                    }
+                measurements_by_variable[variable][station_id] = {
+                    "value": value, 
+                    "timestamp": timestamp_str
+                }
 
         except requests.exceptions.Timeout:
             print(f"Skipping {variable} for station {station_id} (request timed out)")
