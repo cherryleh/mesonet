@@ -161,6 +161,7 @@ convertCtoF(value: number): number {
   objectKeys = Object.keys;
 
   fetchData(id: string): void {
+    console.log('[FETCH DATA CALLED]', new Date().toISOString());
     this.dataService.getData(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         if (response.length > 0) {
@@ -265,7 +266,7 @@ convertCtoF(value: number): number {
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.id = params['id'];
       if (this.id) {
-        // this.fetchData(this.id);
+        this.fetchData(this.id);
         this.updateData();
       }
     });
@@ -316,7 +317,9 @@ convertCtoF(value: number): number {
     };
 
     this.reloadHandler = new IntervalHandler(this.refreshIntervalMS, refreshData);
-    this.reloadHandler.start();
+    setTimeout(() => {
+      this.reloadHandler.start();
+    }, 50);
 
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
