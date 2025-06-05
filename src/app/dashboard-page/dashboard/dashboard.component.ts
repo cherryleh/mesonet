@@ -300,7 +300,7 @@ convertCtoF(value: number): number {
 
   queryData(): void {
     if (this.id) {
-      this.fetchData(this.id);
+      // this.fetchData(this.id);
     } else {
       console.error('ID is not available to query data.');
     }
