@@ -317,6 +317,7 @@ convertCtoF(value: number): number {
     };
 
     this.reloadHandler = new IntervalHandler(this.refreshIntervalMS, refreshData);
+    refreshData();
     setTimeout(() => {
       this.reloadHandler.start();
     }, 50);
