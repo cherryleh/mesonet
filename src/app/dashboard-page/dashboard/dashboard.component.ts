@@ -307,6 +307,7 @@ convertCtoF(value: number): number {
   }
 
   updateData(): void {
+    console.log('[UPDATE DATA CALLED]', new Date().toISOString());
     if (!this.id) return;
 
     const refreshData = () => {
@@ -317,7 +318,7 @@ convertCtoF(value: number): number {
     };
 
     this.reloadHandler = new IntervalHandler(this.refreshIntervalMS, refreshData);
-    refreshData();
+
     setTimeout(() => {
       this.reloadHandler.start();
     }, 50);
