@@ -161,7 +161,6 @@ convertCtoF(value: number): number {
   objectKeys = Object.keys;
 
   fetchData(id: string): void {
-    console.log('[FETCH DATA CALLED]', new Date().toISOString());
     this.dataService.getData(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         if (response.length > 0) {
