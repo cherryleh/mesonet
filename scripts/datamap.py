@@ -175,8 +175,9 @@ converted_rainfall = {
     }
     for sid, data in rainfall_24H.items()
 }
-with open(filename, "w") as json_file:
+with open(rainfall_filename, "w") as json_file:
     json.dump(converted_rainfall, json_file, indent=4)
-    print(f"Saved {filename}")
+    print(f"Saved {rainfall_filename}")
+
 
 
