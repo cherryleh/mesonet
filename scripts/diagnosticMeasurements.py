@@ -49,7 +49,7 @@ for station in stations:
 
         try:
             response = requests.get(url, headers=header, timeout=10)
-            time.sleep(0.2)
+            time.sleep(2)
             data = response.json()
             if not data:
                 continue
