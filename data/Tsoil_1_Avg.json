@@ -1,238 +1,242 @@
 {
     "0115": {
-        "value": "23.08551",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 23.18489,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0116": {
-        "value": "21.99976",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 22.06301,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0118": {
-        "value": "36.65231",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 37.1148,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0119": {
-        "value": "21.59126",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 22.05469,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0121": {
-        "value": "40.68549",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 40.40078,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0122": {
-        "value": "30.77882",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 30.86493,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0131": {
-        "value": "41.80673",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 42.11053,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0132": {
-        "value": "42.5965",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 43.08524,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0133": {
-        "value": "36.57082",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 36.61485,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0134": {
-        "value": "20.82032",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 21.03842,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0141": {
-        "value": "18.53755",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 18.51254,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0143": {
-        "value": "14.9",
+        "value": 14.9,
         "timestamp": "2025-06-06T14:00:00.000Z"
     },
     "0144": {
-        "value": "20.5939",
-        "timestamp": "2025-06-07T01:00:00.000Z"
+        "value": 20.63923,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0145": {
-        "value": "No Data",
-        "timestamp": "No Timestamp"
+        "value": null,
+        "timestamp": null
     },
     "0151": {
-        "value": "17.72907",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 18.39387,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0152": {
-        "value": "31.14612",
-        "timestamp": "2025-06-07T01:10:00.000Z"
+        "value": 31.46541,
+        "timestamp": "2025-06-07T01:55:00.000Z"
     },
     "0153": {
-        "value": "32.40686",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 32.11511,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0154": {
-        "value": "16.81248",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 16.53319,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0155": {
-        "value": "28.79833",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 28.9586,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0156": {
-        "value": "No Data",
-        "timestamp": "No Timestamp"
+        "value": null,
+        "timestamp": null
     },
     "0160": {
-        "value": "No Data",
-        "timestamp": "No Timestamp"
+        "value": null,
+        "timestamp": null
     },
     "0161": {
-        "value": "16.66427",
+        "value": 16.66427,
         "timestamp": "2025-06-07T01:15:00.000Z"
     },
     "0166": {
-        "value": "26.94468",
+        "value": 26.94468,
         "timestamp": "2025-06-07T01:10:00.000Z"
     },
     "0201": {
-        "value": "16.1598",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 16.14714,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0202": {
-        "value": "28.08474",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 27.92222,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0204": {
-        "value": "28.38833",
-        "timestamp": "2025-06-07T01:00:00.000Z"
+        "value": 28.60948,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0211": {
-        "value": "15.36768",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 15.63851,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0235": {
-        "value": "No Data",
-        "timestamp": "No Timestamp"
+        "value": null,
+        "timestamp": null
     },
     "0241": {
-        "value": "24.63969",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 24.56348,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0242": {
-        "value": "18.88761",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 18.99058,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0243": {
-        "value": "No Data",
-        "timestamp": "No Timestamp"
+        "value": null,
+        "timestamp": null
     },
     "0244": {
-        "value": "18.22976",
-        "timestamp": "2025-06-07T01:00:00.000Z"
+        "value": 18.3226,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0246": {
-        "value": "No Data",
-        "timestamp": "No Timestamp"
+        "value": null,
+        "timestamp": null
     },
     "0251": {
-        "value": "16.39249",
-        "timestamp": "2025-06-07T01:00:00.000Z"
+        "value": 16.46339,
+        "timestamp": "2025-06-07T01:15:00.000Z"
     },
     "0252": {
-        "value": "21.54024",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 21.773,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0253": {
-        "value": "21.35945",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 21.47881,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0254": {
-        "value": "39.38018",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 39.4582,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0255": {
-        "value": "16.77616",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 16.79032,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0256": {
-        "value": "No Data",
-        "timestamp": "No Timestamp"
+        "value": null,
+        "timestamp": null
     },
     "0281": {
-        "value": "No Data",
-        "timestamp": "No Timestamp"
+        "value": null,
+        "timestamp": null
     },
     "0282": {
-        "value": "26.46642",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 26.37278,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0283": {
-        "value": "16.822",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 16.80131,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0287": {
-        "value": "No Data",
-        "timestamp": "No Timestamp"
+        "value": null,
+        "timestamp": null
     },
     "0288": {
-        "value": "14.23338",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 14.2777,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0411": {
-        "value": "29.69433",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 29.90212,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0412": {
-        "value": "23.87339",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 23.92691,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0421": {
-        "value": "30.12861",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 30.17406,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0422": {
-        "value": "33.48584",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 33.75555,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     },
     "0431": {
-        "value": "37.09865",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 37.18116,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0501": {
-        "value": "28.94158",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 29.03721,
+        "timestamp": "2025-06-07T01:25:00.000Z"
     },
     "0502": {
-        "value": "30.15992",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 30.36053,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0503": {
-        "value": "No Data",
-        "timestamp": "No Timestamp"
+        "value": null,
+        "timestamp": null
     },
     "0504": {
-        "value": "No Data",
-        "timestamp": "No Timestamp"
+        "value": null,
+        "timestamp": null
     },
     "0505": {
-        "value": "No Data",
-        "timestamp": "No Timestamp"
+        "value": null,
+        "timestamp": null
+    },
+    "0601": {
+        "value": 27.99193,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0602": {
-        "value": "28.13447",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 28.31661,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0603": {
-        "value": "24.83774",
-        "timestamp": "2025-06-07T01:00:00.000Z"
+        "value": 25.03152,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0611": {
-        "value": "26.85885",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 26.79802,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0621": {
-        "value": "27.36903",
-        "timestamp": "2025-06-07T01:15:00.000Z"
+        "value": 27.2525,
+        "timestamp": "2025-06-07T02:00:00.000Z"
     },
     "0641": {
-        "value": "24.6067",
-        "timestamp": "2025-06-07T01:00:00.000Z"
+        "value": 24.72973,
+        "timestamp": "2025-06-07T01:45:00.000Z"
     }
 }
