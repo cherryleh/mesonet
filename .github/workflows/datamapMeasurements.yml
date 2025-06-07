@@ -30,7 +30,7 @@ jobs:
       - name: Run Python script with API Token
         env:
           API_TOKEN: ${{ env.API_TOKEN }}
-        run: python scripts/datamapMeasurements.py
+        run: python scripts/datamap.py
 
       - name: Ensure data-branch exists
         run: |
