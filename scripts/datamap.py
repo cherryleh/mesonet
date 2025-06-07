@@ -53,9 +53,9 @@ for station in active_stations:
                 timestamp_str = entry["timestamp"]
                 observation_time = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
 
-                # Value is np.nan if too old
+                # Value is None if too old
                 if (now_utc - observation_time) > timedelta(hours=24):
-                    value = np.nan
+                    value = None
                 else:
                     value = float(entry["value"])
 
@@ -81,7 +81,7 @@ for station in active_stations:
                     if variable not in measurements_by_variable:
                         measurements_by_variable[variable] = {}
                     measurements_by_variable[variable][station_id] = {
-                        "value": np.nan,
+                        "value": None,
                         "timestamp": None
                     }
 
@@ -92,9 +92,9 @@ for station in active_stations:
                 wind_values["WDrs_1_Avg"]["timestamp"] == wind_values["WS_1_Avg"]["timestamp"]
             ):
                 wind_data[station_id] = {
-                    "value_WDrs": wind_values["WDrs_1_Avg"]["value"],
-                    "value_WS": wind_values["WS_1_Avg"]["value"],
-                    "timestamp": wind_values["WS_1_Avg"]["timestamp"],
+                    "value_WDrs": str(wind_values["WDrs_1_Avg"]["value"]),
+                    "value_WS": str(wind_values["WS_1_Avg"]["value"]),
+                    "timestamp": str(wind_values["WS_1_Avg"]["timestamp"]),
                     "lat": lat,
                     "lon": lon
                 }
@@ -154,11 +154,19 @@ for variable, measurements in measurements_by_variable.items():
         continue  # Skip saving these
     filename = f"{variable}.json"
     with open(filename, "w") as json_file:
+        converted = {
+            sid: {"value": str(data["value"]), "timestamp": str(data["timestamp"])}
+            for sid, data in measurements.items()
+        }
         json.dump(measurements, json_file, indent=4)
         print(f"Saved {filename}")
 
 # Save rainfall total
 rainfall_filename = "RF_1_Tot300s_24H.json"
 with open(rainfall_filename, "w") as json_file:
+    converted_rainfall = {
+        sid: {"value": str(data["value"]), "timestamp": str(data["timestamp"])}
+        for sid, data in rainfall_24H.items()
+    }
     json.dump(rainfall_24H, json_file, indent=4)
     print(f"Saved {rainfall_filename}")
