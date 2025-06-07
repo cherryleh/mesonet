@@ -153,20 +153,28 @@ for variable, measurements in measurements_by_variable.items():
     if variable in ["WS_1_Avg", "WDrs_1_Avg"]:
         continue  # Skip saving these
     filename = f"{variable}.json"
-    with open(filename, "w") as json_file:
-        converted = {
-            sid: {"value": str(data["value"]), "timestamp": str(data["timestamp"])}
-            for sid, data in measurements.items()
+    converted = {
+        sid: {
+            "value": str(data["value"]) if data["value"] is not None else "No Data",
+            "timestamp": str(data["timestamp"]) if data["timestamp"] is not None else "No Timestamp"
         }
-        json.dump(measurements, json_file, indent=4)
+        for sid, data in measurements.items()
+    }
+    with open(filename, "w") as json_file:
+        json.dump(converted, json_file, indent=4)
         print(f"Saved {filename}")
+
 
 # Save rainfall total
 rainfall_filename = "RF_1_Tot300s_24H.json"
-with open(rainfall_filename, "w") as json_file:
-    converted_rainfall = {
-        sid: {"value": str(data["value"]), "timestamp": str(data["timestamp"])}
-        for sid, data in rainfall_24H.items()
+converted_rainfall = {
+    sid: {
+        "value": str(data["value"]) if data["value"] is not None else "No Data",
+        "timestamp": str(data["timestamp"]) if data["timestamp"] is not None else "No Timestamp"
     }
-    json.dump(rainfall_24H, json_file, indent=4)
+    for sid, data in rainfall_24H.items()
+}
+with open(rainfall_filename, "w") as json_file:
+    json.dump(converted_rainfall, json_file, indent=4)
     print(f"Saved {rainfall_filename}")
+
