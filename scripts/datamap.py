@@ -41,7 +41,7 @@ for station in active_stations:
     print(full_url)
 
     try:
-        response = requests.get(full_url, headers=header, timeout=5)
+        response = requests.get(full_url, headers=header, timeout=10)
 
         if response.status_code == 200:
             data = response.json()
@@ -119,7 +119,7 @@ for station in active_stations:
 
     try:
         rainfall_response = requests.get(rainfall_url, headers=header, timeout=5)
-        time.sleep(0.2)
+        time.sleep(2)
 
         if rainfall_response.status_code == 200:
             rainfall_data = rainfall_response.json()
