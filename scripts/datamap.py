@@ -155,8 +155,8 @@ for variable, measurements in measurements_by_variable.items():
     filename = f"{variable}.json"
     converted = {
         sid: {
-            "value": str(data["value"]) if data["value"] is not None else "No Data",
-            "timestamp": str(data["timestamp"]) if data["timestamp"] is not None else "No Timestamp"
+            "value": data["value"] if data["value"] is not None else None,
+            "timestamp": data["timestamp"] if data["timestamp"] is not None else None
         }
         for sid, data in measurements.items()
     }
@@ -165,16 +165,15 @@ for variable, measurements in measurements_by_variable.items():
         print(f"Saved {filename}")
 
 
+
 # Save rainfall total
 rainfall_filename = "RF_1_Tot300s_24H.json"
 converted_rainfall = {
     sid: {
-        "value": str(data["value"]) if data["value"] is not None else "No Data",
-        "timestamp": str(data["timestamp"]) if data["timestamp"] is not None else "No Timestamp"
+        "value": data["value"] if data["value"] is not None else None,
+        "timestamp": data["timestamp"] if data["timestamp"] is not None else None
     }
     for sid, data in rainfall_24H.items()
 }
-with open(rainfall_filename, "w") as json_file:
-    json.dump(converted_rainfall, json_file, indent=4)
-    print(f"Saved {rainfall_filename}")
+
 
