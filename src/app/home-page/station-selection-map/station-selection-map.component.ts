@@ -4,6 +4,8 @@ import { environment } from '../../../environments/environment';
 import { FormsModule } from '@angular/forms'; 
 import { CommonModule } from '@angular/common';
 import 'leaflet.fullscreen';
+import * as Papa from 'papaparse';
+
 
 @Component({
   selector: 'app-station-map',
@@ -115,79 +117,77 @@ export class StationSelectionMapComponent implements AfterViewInit {
   }
 
   fetchStationData(): void {
-    const apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?location=hawaii'; 
-    console.log('Fetching station coordinates from:', apiUrl);
-    const apiToken = environment.apiToken; 
-    fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${apiToken}`, 
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(response => response.json())
-    .then((data: any[]) => {
-      data.forEach(station => {
-        if (station.lat && station.lng && station.full_name) {
-          const randomizedCoords = this.randomizeLatLon(station.lat, station.lng);
+    const csvUrl = 'https://raw.githubusercontent.com/HCDP/loggernet_station_data/refs/heads/db-handler/csv_data/stations/station_metadata.csv';
 
-          let markerColor = 'blue'; // default
-          let fillOpacity = 0.1;
+    Papa.parse(csvUrl, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: (results: Papa.ParseResult<any>) => {
+        const data: any[] = results.data;
 
-          if (station.status?.toLowerCase() === 'inactive') {
-            markerColor = 'gray';
-            fillOpacity = 0.4;
-          } else if (station.status?.toLowerCase() === 'planned') {
-            markerColor = 'orange';
-            fillOpacity = 0.5;
-          } else if (station.status?.toLowerCase() === 'active') {
-            markerColor = 'blue';
-            fillOpacity = 0.5;
-          }
+        data.forEach(station => {
+          const lat = parseFloat(station.lat);
+          const lng = parseFloat(station.lng);
+          const name = station.full_name;
+          const status = station.status?.toLowerCase();
 
-          const circle = L.circleMarker(
-            [randomizedCoords.lat, randomizedCoords.lon],
-            {
-              radius: 6,
-              color: markerColor,
-              fillColor: markerColor,
-              fillOpacity: fillOpacity,
-              weight: 1
+          if (!isNaN(lat) && !isNaN(lng) && name) {
+            const randomizedCoords = this.randomizeLatLon(lat, lng);
+
+            let markerColor = 'blue';
+            let fillOpacity = 0.1;
+
+            if (status === 'inactive') {
+              markerColor = 'gray';
+              fillOpacity = 0.4;
+            } else if (status === 'planned') {
+              markerColor = 'orange';
+              fillOpacity = 0.5;
+            } else if (status === 'active') {
+              markerColor = 'blue';
+              fillOpacity = 0.5;
             }
-          );
 
-          const status = station.status?.toLowerCase() || '';
-          const statusFormatted = status.charAt(0).toUpperCase() + status.slice(1);
+            const circle = L.circleMarker(
+              [randomizedCoords.lat, randomizedCoords.lon],
+              {
+                radius: 6,
+                color: markerColor,
+                fillColor: markerColor,
+                fillOpacity,
+                weight: 1
+              }
+            );
 
-          let url = '';
-          if (status === 'active') {
-            url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`;
-          } else if (status === 'planned') {
-            url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/station-info?id=${station.station_id}`;
-          } else if (status === 'inactive') {
-            url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/graphing?id=${station.station_id}`;
-          } else {
-            url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/`;
+            const statusFormatted = status.charAt(0).toUpperCase() + status.slice(1);
+            let url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/`;
+
+            if (status === 'active') {
+              url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`;
+            } else if (status === 'planned') {
+              url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/station-info?id=${station.station_id}`;
+            } else if (status === 'inactive') {
+              url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/graphing?id=${station.station_id}`;
+            }
+
+            circle.bindPopup(`
+              <div style="font-size: 14px;">
+                <a href="${url}" style="font-size: 20px; display: block; margin-bottom: 5px;" target="_blank">${name}</a>
+                <strong>Status:</strong> ${statusFormatted || 'Unknown'}
+              </div>
+            `);
+
+            circle.addTo(this.map);
           }
-
-          circle.bindPopup(`
-            <div style="font-size: 14px;">
-              <a href="${url}" style="font-size: 20px; display: block; margin-bottom: 5px;" target="_blank">${station.full_name}</a>
-              <strong>Status:</strong> ${statusFormatted || 'Unknown'}
-            </div>
-          `);
-
-
-
-          circle.addTo(this.map);
-        }
-      });
-
-    })
-    .catch(error => {
-      console.error('Error fetching station data:', error);
+        });
+      },
+      error: (error: any) => {
+        console.error('Error loading CSV:', error);
+      }
     });
   }
+
 
   private randomizeLatLon(lat: number, lon: number): { lat: number; lon: number } {
     const latOffset = (Math.random() - 0.5) * 0.0002; 
