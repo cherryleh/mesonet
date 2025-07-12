@@ -2,7 +2,7 @@ import { Component, AfterViewInit, ChangeDetectorRef,ViewEncapsulation } from '@
 import * as L from 'leaflet';
 import { CommonModule } from '@angular/common';
 import { environment } from "../../environments/environment";  
-import { interpolateViridis } from "d3-scale-chromatic";
+// import { interpolateViridis } from "d3-scale-chromatic";
 import { interpolateTurbo } from 'd3-scale-chromatic';
 import { HeaderComponent } from '../header/header.component';
 import { HttpClient } from '@angular/common/http';
@@ -33,6 +33,7 @@ interface Measurement {
 export class DataMapComponent implements AfterViewInit {
 
   constructor(private http: HttpClient,private cdr: ChangeDetectorRef, private userIdService: UserIdService) {}
+  isLoading: boolean = false;
 
   private map!: L.Map;
   private getApiUrlWithUserId(): string {
@@ -137,180 +138,289 @@ formatTimestamp(timestamp: string): string {
 }
 
 async fetchStationData(): Promise<void> {
-    try {
-        const stations: Station[] = await firstValueFrom(
-            this.http.get<Station[]>(this.getApiUrlWithUserId(), {
-              headers: {
-                Authorization: `Bearer ${this.apiToken}`,
-                'Content-Type': 'application/json'
-              }
-            })
-          );
-
-        if (!stations || stations.length === 0) {
-            console.warn("No station data received!");
-            return;
+  this.isLoading = true;
+  try {
+    const stations: Station[] = await firstValueFrom(
+      this.http.get<Station[]>(this.getApiUrlWithUserId(), {
+        headers: {
+          Authorization: `Bearer ${this.apiToken}`,
+          'Content-Type': 'application/json'
         }
+      })
+    );
 
-        const dataUrl = `https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/${this.selectedVariable}.json`;
+    const activeStations = stations.filter(s => (s as any).status === 'active');
 
-        console.log("Fetching data from:", dataUrl);
-        
-        if (this.selectedVariable === 'wind') {
-            await this.loadWindBarbPlugin();  // Wait until script fully loads
-            await this.plotWindBarbs();       // Then safely use L.WindBarb
-            return;
-          }
-  
-
-          
-        const variableData = await fetch(dataUrl)
-            .then(res => res.json())
-            .catch(error => {
-                console.error("Error fetching variable data:", error);
-                return null;
-            });
-
-        if (!variableData || typeof variableData !== "object") {
-            console.warn("Invalid variable data format!");
-            return;
-        }
-
-        const measurementMap: { [key: string]: number } = {};
-        
-        Object.keys(variableData).forEach(stationId => {
-          const entry = variableData[stationId];
-          if (!entry || entry.value === undefined || entry.value === null) return;
-  
-          const value = Number(entry.value);
-  
-          // Apply soil temperature cap
-          if (this.selectedVariable === 'Tsoil_1_Avg' && value > 50) {
-            return; // skip this value
-          }
-  
-          measurementMap[stationId] = value;
-        });
-
-        this.map.eachLayer(layer => {
-            if (layer instanceof L.CircleMarker) {
-                this.map.removeLayer(layer);
-            }
-        });
-
-        const values = Object.values(measurementMap).filter(v => v !== null);
-        if (values.length === 0) return;
-
-        const minValue = Math.min(...values);
-        const maxValue = Math.max(...values);
-
-        this.addLegend(minValue, maxValue);
-
-        stations.forEach(station => {
-            if (station.lat && station.lng) {
-              const value = measurementMap[station.station_id] ?? null;
-              const numericValue = value !== null ? Number(value) : null;
-
-              const hasData = numericValue !== null && !isNaN(numericValue);
-
-              const color = hasData 
-                  ? this.getColorFromValue(numericValue, minValue, maxValue) 
-                  : 'gray';
-
-              const marker = L.circleMarker([station.lat, station.lng], {
-                  radius: 8,
-                  color: 'gray',     
-                  fillColor: color,                  
-                  fillOpacity: hasData ? 1 : 0.3,
-                  opacity: hasData ? 1 : 0.3,
-                  weight: hasData ? 1 : 0.5
-              }).addTo(this.map);
-
-              hasData ? marker.bringToFront() : marker.bringToBack();
-
-                marker.on('click', () => {
-                    console.log("Clicked on station:", station.station_id); // Debugging log
-
-                    this.selectedStation = {
-                        name: station.name,
-                        id: station.station_id,
-                        lat: station.lat,
-                        lng: station.lng,
-                        value: numericValue !== null && !isNaN(numericValue) ? numericValue.toFixed(1) : "No Data",
-                        variable: this.selectedVariable,
-                        url: `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`,
-                        details: null
-                    };
-
-                    this.fetchStationDetails(station.station_id); // Make sure this is being called
-                });
-
-            }
-        });
-
-    } catch (error) {
-        console.error('Error fetching station data:', error);
+    if (activeStations.length === 0) {
+      console.warn("No active stations found.");
+      return;
     }
+
+    const stationCount = activeStations.length;
+    console.log(`Using ${stationCount} active stations`);
+
+    const varId = this.selectedVariable === 'RF_1_Tot300s_24H' ? 'RF_1_Tot300s' : this.selectedVariable;
+    const stationIds = activeStations.map(s => s.station_id).join(',');
+
+    let url = `${this.measurementsUrl}&var_ids=${varId}&station_ids=${stationIds}&local_tz=True`;
+
+    if (varId === 'RF_1_Tot300s') {
+      url += `&limit=${stationCount * 288}`;
+    } else {
+      url += `&limit=${stationCount * 12}`;
+    }
+
+    console.log("Fetching data from:", url);
+
+
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${this.apiToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const data = await response.json();
+    if (!Array.isArray(data)) {
+      console.warn("Invalid response format from measurements API");
+      return;
+    }
+
+    const variableData: { [key: string]: { value: number | null, timestamp: string | null } } = {};
+
+    if (varId === 'RF_1_Tot300s') {
+      // Sum rainfall per station
+      const rainMap: { [key: string]: { total: number, timestamp: string | null } } = {};
+      const now = new Date();
+
+      for (const entry of data) {
+        const sid = entry.station_id;
+        const val = parseFloat(entry.value);
+        const ts = entry.timestamp;
+        const tsDate = new Date(ts);
+
+        const withinOneHour = (now.getTime() - tsDate.getTime()) <= 60 * 60 * 1000;
+
+        if (!isNaN(val) && withinOneHour) {
+          if (
+            !variableData[sid] ||
+            tsDate > new Date(variableData[sid].timestamp || 0)
+          ) {
+            variableData[sid] = {
+              value: val,
+              timestamp: ts
+            };
+          }
+        } else {
+          console.log(`Skipping ${sid}: data too old (${ts})`);
+        }
+      }
+
+      for (const sid in rainMap) {
+        variableData[sid] = {
+          value: rainMap[sid].total,
+          timestamp: rainMap[sid].timestamp
+        };
+      }
+    } else {
+      // Take first valid value per station
+      for (const entry of data) {
+        const sid = entry.station_id;
+        const val = parseFloat(entry.value);
+        if (!isNaN(val) && !(sid in variableData)) {
+          variableData[sid] = {
+            value: val,
+            timestamp: entry.timestamp
+          };
+        }
+      }
+    }
+
+    // Clear existing markers
+    this.map.eachLayer(layer => {
+      if (layer instanceof L.CircleMarker) {
+        this.map.removeLayer(layer);
+      }
+    });
+
+    const measurementMap: { [key: string]: number } = {};
+    for (const sid in variableData) {
+      const entry = variableData[sid];
+      if (!entry || entry.value == null) continue;
+
+      const value = Number(entry.value);  
+      if (this.selectedVariable === 'Tsoil_1_Avg' && value > 50) continue;
+      if (this.selectedVariable === 'SM_1_Avg' && value > 1) continue;
+
+      measurementMap[sid] = value;
+    }
+
+    const values = Object.values(measurementMap).filter(v => v !== null);
+    if (values.length === 0) return;
+
+    let minValue = Math.min(...values);
+    let maxValue = Math.max(...values);
+
+    if (this.selectedVariable === 'SM_1_Avg') {
+      minValue = 0;
+      maxValue = 1;  // raw value in fraction (0–1)
+    }
+
+
+    this.addLegend(minValue, maxValue);
+
+    stations.forEach(station => {
+      if (station.lat && station.lng) {
+        const value = measurementMap[station.station_id] ?? null;
+        const numericValue = value !== null ? Number(value) : null;
+        const hasData = numericValue !== null && !isNaN(numericValue);
+
+        const color = hasData
+          ? this.getColorFromValue(numericValue, minValue, maxValue)
+          : 'gray';
+
+        const marker = L.circleMarker([station.lat, station.lng], {
+          radius: 8,
+          color: 'gray',
+          fillColor: color,
+          fillOpacity: hasData ? 1 : 0.3,
+          opacity: hasData ? 1 : 0.3,
+          weight: hasData ? 1 : 0.5
+        }).addTo(this.map);
+
+        hasData ? marker.bringToFront() : marker.bringToBack();
+
+        marker.on('click', () => {
+          this.selectedStation = {
+            name: station.name,
+            id: station.station_id,
+            lat: station.lat,
+            lng: station.lng,
+            value: numericValue !== null && !isNaN(numericValue) ? numericValue.toFixed(1) : "No Data",
+            variable: this.selectedVariable,
+            url: `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`,
+            details: null
+          };
+
+          this.fetchStationDetails(station.station_id);
+        });
+      }
+    });
+
+  } catch (error) {
+    console.error("Error fetching station data:", error);
+  } finally {
+    this.isLoading = false;
+    this.cdr.detectChanges(); 
+  }
 }
 
+
 private async plotWindBarbs(): Promise<void> {
-    const windDataUrl = 'https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/wind.json';
-  
-    if (!(window as any).L?.WindBarb || typeof (window as any).L.WindBarb.icon !== 'function') {
-        console.error('❌ WindBarb plugin is not available or icon method is undefined.');
-        return;
-      }
-  
-  
-    try {
-      const response = await fetch(windDataUrl);
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const data = await response.json();
-  
-      this.map.eachLayer(layer => {
-        if (layer instanceof L.CircleMarker || layer instanceof L.Marker) {
-          this.map.removeLayer(layer);
-        }
-      });
-  
-      Object.entries(data).forEach(([stationId, entry]: [string, any]) => {
-        if (!entry || entry.lat == null || entry.lon == null || entry.value_WDrs == null) return;
-  
-        const lat = entry.lat;
-        const lon = entry.lon;
-        const direction = parseFloat(entry.value_WDrs);
-        const speedMS = entry.value_WS !== null ? parseFloat(entry.value_WS) : 0;
-        const speedKMH = speedMS * 3.6;
-
-  
-        if (!isNaN(lat) && !isNaN(lon) && !isNaN(direction)) {
-            const icon = (window as any).L.WindBarb.icon({ deg: direction, speed: speedKMH });
-            const marker = L.marker([lat, lon], { icon: icon }).addTo(this.map);
-
-            marker.on('click', () => {
-              console.log("Clicked on wind station:", entry.station_id); // For debugging
-
-              this.selectedStation = {
-                name: entry.name || stationId || 'Unknown Station',
-                id: stationId,
-                lat: lat,
-                lng: lon,
-                value: `${speedKMH.toFixed(1)} km/h`,
-                variable: 'wind',
-                url: `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${stationId}`,
-                details: null
-              };
-
-              this.fetchStationDetails(stationId);
-
-            });
-
-        }
-      });
-    } catch (error) {
-      console.error('Error loading wind data:', error);
-    }
+  this.isLoading = true;
+  const windVarIds = 'WS_1_Avg,WDrs_1_Avg';
+  if (!(window as any).L?.WindBarb || typeof (window as any).L.WindBarb.icon !== 'function') {
+    return;
   }
+
+  try {
+    // Get active stations
+    const stations: Station[] = await firstValueFrom(
+      this.http.get<Station[]>(this.getApiUrlWithUserId(), {
+        headers: {
+          Authorization: `Bearer ${this.apiToken}`,
+          'Content-Type': 'application/json'
+        }
+      })
+    );
+    const activeStations = stations.filter(s => (s as any).status === 'active');
+    const stationCount = activeStations.length;
+    const stationIdMap = new Map(activeStations.map(s => [s.station_id, s]));
+
+    const stationIds = activeStations.map(s => s.station_id).join(',');
+    const url = `${this.measurementsUrl}&var_ids=${windVarIds}&station_ids=${stationIds}&local_tz=True&limit=${stationCount * 12}`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.apiToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+    const data = await response.json();
+
+    // Group wind values by station
+    const stationWindMap: {
+      [stationId: string]: { WS: number | null; WDrs: number | null; lat: number; lon: number; name?: string }
+    } = {};
+
+    for (const entry of data) {
+      const sid = entry.station_id;
+      const val = parseFloat(entry.value);
+      const variable = entry.variable;
+
+      const stationMeta = stationIdMap.get(sid);
+      if (!stationMeta || isNaN(val)) continue;
+
+      if (!stationWindMap[sid]) {
+        stationWindMap[sid] = {
+          WS: null,
+          WDrs: null,
+          lat: stationMeta.lat,
+          lon: stationMeta.lng,
+          name: stationMeta.name
+        };
+      }
+
+      if (variable === 'WS_1_Avg') {
+        stationWindMap[sid].WS = val;
+      } else if (variable === 'WDrs_1_Avg') {
+        stationWindMap[sid].WDrs = val;
+      }
+    }
+
+    // Remove existing wind markers
+    this.map.eachLayer(layer => {
+      if (layer instanceof L.Marker || layer instanceof L.CircleMarker) {
+        this.map.removeLayer(layer);
+      }
+    });
+
+    // Add wind barb markers
+    Object.entries(stationWindMap).forEach(([stationId, wind]) => {
+      const { WS, WDrs, lat, lon, name } = wind;
+
+      if (lat != null && lon != null && WS != null && WDrs != null) {
+        const speedKMH = WS * 3.6;
+
+        const icon = (window as any).L.WindBarb.icon({ deg: WDrs, speed: speedKMH });
+        const marker = L.marker([lat, lon], { icon }).addTo(this.map);
+
+        marker.on('click', () => {
+          this.selectedStation = {
+            name: name || stationId,
+            id: stationId,
+            lat,
+            lng: lon,
+            value: `${speedKMH.toFixed(1)} km/h`,
+            variable: 'wind',
+            url: `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${stationId}`,
+            details: null
+          };
+
+          this.fetchStationDetails(stationId);
+        });
+      }
+    });
+
+  } catch (error) {
+    console.error('Error loading wind barbs:', error);
+  }finally {
+    this.isLoading = false;
+    this.cdr.detectChanges();
+  }
+}
+
   
   
 
@@ -350,53 +460,70 @@ async fetchStationDetails(stationId: string): Promise<void> {
         let updatedDetails: { [key: string]: string } = { ...this.selectedStation.details };
 
         for (const variable of variableList) {
-            const dataUrl = `https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/${variable}.json`;
+          const varId = variable === "RF_1_Tot300s_24H" ? "RF_1_Tot300s" : variable;
+          const url = `${this.measurementsUrl}&var_ids=${varId}&station_ids=${stationId}&local_tz=True&limit=${varId === "RF_1_Tot300s" ? 288 : 1}`;
+          console.log(url);
+          try {
+            const response = await fetch(url, {
+              headers: {
+                'Authorization': `Bearer ${this.apiToken}`,
+                'Content-Type': 'application/json'
+              }
+            });
 
-            console.log(`Fetching station data for ${variable} from:`, dataUrl);
-
-            try {
-                const response = await fetch(dataUrl);
-                if (!response.ok) {
-                    console.warn(`Failed to fetch data for ${variable}`);
-                    continue;
-                }
-
-                const variableData = await response.json();
-
-                if (variableData && variableData[stationId]) {
-                    const numericValue = Number(variableData[stationId].value);
-                    const timestamp = variableData[stationId].timestamp;
-
-                    if (variable === "Tsoil_1_Avg" && numericValue > 50) {
-                      updatedDetails[variable] = "No Data";
-                      continue;
-                  }
-
-                    if (!isNaN(numericValue)) {
-                        let formattedValue = `${numericValue.toFixed(1)}${unitMapping[variable]}`;
-
-                        // Convert Soil Moisture to percentage
-                        if (variable === "SM_1_Avg") {
-                            formattedValue = `${(numericValue * 100).toFixed(1)}${unitMapping[variable]}`;
-                        }
-
-                        updatedDetails[variable.replace("_24H", "")] = formattedValue;
-
-                        // Track the latest timestamp across all variables
-                        if (!latestTimestamp || (timestamp && timestamp > latestTimestamp)) {
-                            latestTimestamp = timestamp;
-                        }
-                    }
-                } else {
-                    console.warn(`No data found for ${variable} at station ${stationId}`);
-                    updatedDetails[variable.replace("_24H", "")] = "No Data";
-                }
-
-            } catch (error) {
-                console.error(`Error fetching data for ${variable}:`, error);
-                updatedDetails[variable.replace("_24H", "")] = "Error Loading";
+            if (!response.ok) {
+              console.warn(`Failed to fetch data for ${variable}`);
+              updatedDetails[variable.replace("_24H", "")] = "Error Loading";
+              continue;
             }
+
+            const data = await response.json();
+
+            // Handle 24H Rainfall
+            if (varId === "RF_1_Tot300s") {
+              const validValues = data
+                .filter((entry: any) => entry.value != null && !isNaN(parseFloat(entry.value)))
+                .map((entry: any) => parseFloat(entry.value));
+
+              const total = validValues.reduce((sum: number, val: number) => sum + val, 0);
+
+              const ts = data.length > 0 ? data[0].timestamp : null;
+
+              updatedDetails["RF_1_Tot300s"] = total > 0 ? `${total.toFixed(1)} mm` : "0.0 mm";
+              if (!latestTimestamp || (ts && ts > latestTimestamp)) {
+                latestTimestamp = ts;
+              }
+            } else if (data.length > 0 && data[0].value != null) {
+              const numericValue = parseFloat(data[0].value);
+              const ts = data[0].timestamp;
+
+              if (variable === "Tsoil_1_Avg" && numericValue > 50) {
+                updatedDetails[variable] = "No Data";
+                continue;
+              }
+
+              let formattedValue = `${numericValue.toFixed(1)}${unitMapping[variable]}`;
+
+              if (variable === "SM_1_Avg") {
+                // Convert to percent
+                formattedValue = `${(numericValue * 100).toFixed(1)}${unitMapping[variable]}`;
+              }
+
+              updatedDetails[variable.replace("_24H", "")] = formattedValue;
+
+              if (!latestTimestamp || (ts && ts > latestTimestamp)) {
+                latestTimestamp = ts;
+              }
+            } else {
+              updatedDetails[variable.replace("_24H", "")] = "No Data";
+            }
+
+          } catch (error) {
+            console.error(`Error fetching data for ${variable}:`, error);
+            updatedDetails[variable.replace("_24H", "")] = "Error Loading";
+          }
         }
+
 
         // Update the station details
         this.selectedStation.details = { ...updatedDetails };
@@ -479,8 +606,8 @@ private getColorFromValue(value: number, min: number, max: number): string {
             <h4>${variableLabel}</h4>
             <div id="legend-gradient" style="width: 200px; height: 15px;"></div>
             <div style="display: flex; justify-content: space-between;">
-                <span>${minValue.toFixed(1)}</span>
-                <span>${maxValue.toFixed(1)}</span>
+              <span>${this.selectedVariable === 'SM_1_Avg' ? '0' : minValue.toFixed(1)}</span>
+              <span>${this.selectedVariable === 'SM_1_Avg' ? '100' : maxValue.toFixed(1)}</span>
             </div>
         `;
         return div;
@@ -502,24 +629,27 @@ private getColorFromValue(value: number, min: number, max: number): string {
 }
 
 
-updateVariable(event: Event): void {
+  updateVariable(event: Event): void {
     this.selectedVariable = (event.target as HTMLSelectElement).value;
 
-    // Clear existing markers
     this.map.eachLayer(layer => {
-        if (layer instanceof L.CircleMarker || layer instanceof L.Marker) {
-            this.map.removeLayer(layer);
-        }
+      if (layer instanceof L.CircleMarker || layer instanceof L.Marker) {
+        this.map.removeLayer(layer);
+      }
     });
 
-    // Clear legend
     const existingLegend = document.querySelector(".info.legend");
     if (existingLegend) {
-        existingLegend.remove();
+      existingLegend.remove();
     }
 
-    this.fetchStationData();
-}
+      if (this.selectedVariable === 'wind') {
+        this.loadWindBarbPlugin().then(() => this.plotWindBarbs());
+      } else {
+      this.fetchStationData();
+    }
+  }
+
 
 
   unitSystem: 'metric' | 'standard' = 'metric';
@@ -537,7 +667,6 @@ updateVariable(event: Event): void {
     ];
   
     const index = Math.round(degrees / 22.5) % 16;
-    console.log('Wind direction index:', index);
     return directions[index];
   }
 
