@@ -292,3 +292,34 @@ app-header {
   color: #555;
   font-style: italic;
 }
+
+
+/*Spin bar*/
+/* diagnostic-map.component.css */
+.loading-overlay {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: calc(100%);
+  background: rgba(255, 255, 255, 0.85);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  border: 4px solid #ccc;
+  border-top: 4px solid #0077cc;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

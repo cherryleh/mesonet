@@ -1,6 +1,12 @@
 <app-header></app-header>
 
 <div class="map-container">
+    <!-- diagnostic-map.component.html -->
+    <div *ngIf="loading" class="loading-overlay">
+      <div class="spinner"></div>
+      <p>Loading station data...</p>
+    </div>
+
     <div class="controls">
         <p *ngIf="latestObservationTime" class="observation-time">
             Latest Observation: <br> {{ latestObservationTime }}
@@ -54,7 +60,7 @@
                     <tbody>
                       <tr *ngFor="let key of objectKeys(selectedStation.details)">
                         <td>
-                          {{ selectedStation.id === '0521' ? key : key.replace(selectedStation.id + ' ', '') }}
+                          {{ getVariableName(key) }}
                         </td>
                         <td>
                             <span *ngIf="isDifferenceVariable(key)">

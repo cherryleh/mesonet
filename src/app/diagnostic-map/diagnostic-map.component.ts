@@ -4,6 +4,9 @@ import { CommonModule } from '@angular/common';
 import { environment } from "../../environments/environment";
 import { interpolateViridis } from "d3-scale-chromatic";
 import { HeaderComponent } from '../header/header.component';
+import { firstValueFrom } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+
 
 interface Station {
     station_id: string;
@@ -27,8 +30,21 @@ interface Measurement {
     styleUrls: ['./diagnostic-map.component.css']
 })
 export class DiagnosticMapComponent implements AfterViewInit {
-    constructor(private cdr: ChangeDetectorRef) { }
+    constructor(
+      private cdr: ChangeDetectorRef,
+      private http: HttpClient
+    ) {}
 
+    private toFloat(val: unknown): number {
+      return typeof val === 'number' ? val : parseFloat(val as string);
+    }
+
+
+    private getApiUrlWithUserId(): string {
+      return 'https://api.hcdp.ikewai.org/mesonet/db/stations?reverse=True&source=diagnostic_map';
+    }
+
+    loading: boolean = false;
     private map!: L.Map;
     private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?reverse=True';
     private measurementsUrl = 'https://api.hcdp.ikewai.org/mesonet/db/measurements?location=hawaii';
@@ -52,7 +68,6 @@ export class DiagnosticMapComponent implements AfterViewInit {
     async fetchLatestObservationTime(): Promise<void> {
         try {
             const url = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=0115&local_tz=True&limit=1`;
-
             const response = await fetch(url, {
                 method: 'GET',
                 headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
@@ -200,88 +215,164 @@ export class DiagnosticMapComponent implements AfterViewInit {
     }
 
     async fetchStationData(): Promise<void> {
-        try {
-            await this.fetchMapObservationTime();
-
-            if (this.selectedVariable === "Earliest Measurement") {
-                await this.plotEarliestMeasurements();
-                return;
+        this.loading = true;
+      try {
+        const stations: Station[] = await firstValueFrom(
+          this.http.get<Station[]>(this.getApiUrlWithUserId(), {
+            headers: {
+              Authorization: `Bearer ${this.apiToken}`,
+              'Content-Type': 'application/json'
             }
+          })
+        );
 
-            const stations: Station[] = await fetch(this.apiUrl, {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
-            }).then(res => res.json());
+        const activeStations = stations.filter(s => (s as any).status === 'active');
+        const stationIds = activeStations.map(s => s.station_id);
+        const varId = this.selectedVariable;
 
-            console.log("Fetched Stations:", stations);
+        const stationCount = stationIds.length;
 
-            let dataUrl = "";
-            switch (this.selectedVariable) {
-                case "BattVolt":
-                    dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/BattVolt.json";
-                    break;
-                case "RHenc_max":
-                    dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/RHenc_max.json";
-                    break;
-                case "RHenc_50":
-                    dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/RHenc_50.json";
-                    break;
-                case "CellStr":
-                    dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/CellStr.json";
-                    break;
-                case "CellQlt":
-                    dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/CellQlt.json";
-                    break;
-                case "Tair_diff":
-                    dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/Tair_diff.json";
-                    break;
-                case "RH_diff":
-                    dataUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/refs/heads/data-branch/data/RH_diff.json";
-                    break;
-                default:
-                    console.warn(`No local data available for ${this.selectedVariable}`);
-                    return;
+        const limit = ["Tair_diff", "RH_diff"].includes(this.selectedVariable)
+          ? stationCount * 288 * 2
+          : stationCount * 288;
+
+
+        // Early return if it's 'Earliest Measurement' (still uses static JSON for now)
+        if (varId === "Earliest Measurement") {
+          await this.plotEarliestMeasurements(); // keep your original method
+          return;
+        }
+
+        let fetchVars = [varId];
+        if (["RHenc_max", "RHenc_50"].includes(varId)) {
+          fetchVars = ["RHenc"];
+        }
+        if (varId === "Tair_diff") fetchVars = ["Tair_1_Avg", "Tair_2_Avg"];
+        if (varId === "RH_diff") fetchVars = ["RH_1_Avg", "RH_2_Avg"];
+
+        const url = `${this.measurementsUrl}&var_ids=${fetchVars.join(",")}&station_ids=${stationIds.join(",")}&local_tz=True&limit=${limit}`;
+        console.log("[fetchStationData] API URL:", url);
+
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${this.apiToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data: Measurement[] = await response.json();
+        const grouped: Record<string, number[]> = {};
+        const diffGrouped: Record<string, { [ts: string]: number }> = {};
+
+        for (const entry of data) {
+          const sid = entry.station_id;
+          const ts = entry.timestamp;
+          const val = typeof entry.value === 'number' ? entry.value : parseFloat(entry.value as string);
+
+
+          if (isNaN(val)) continue;
+
+          // For diff vars, store separately
+          if (["Tair_diff", "RH_diff"].includes(varId)) {
+            if (!diffGrouped[sid]) diffGrouped[sid] = {};
+            if (!diffGrouped[sid][ts]) diffGrouped[sid][ts] = 0;
+            diffGrouped[sid][ts + "|" + entry.variable] = val;
+            continue;
+          }
+
+          // Regular vars
+          if (!grouped[sid]) grouped[sid] = [];
+          grouped[sid].push(val);
+        }
+
+        const measurementMap: Record<string, number> = {};
+
+        for (const sid of stationIds) {
+          const values = grouped[sid] ?? [];
+
+          if (values.length === 0) continue;
+
+          switch (varId) {
+            case "BattVolt":
+            case "CellQlt":
+            case "CellStr":
+              measurementMap[sid] = Math.min(...values);
+              break;
+            case "RHenc_max":
+              measurementMap[sid] = Math.max(...values);
+              break;
+            case "RHenc_50":
+              const countAbove = values.filter(v => v > 50).length;
+              measurementMap[sid] = (countAbove / values.length) * 100;
+              break;
+          }
+        }
+
+        // Diff var logic
+        if (["Tair_diff", "RH_diff"].includes(varId)) {
+          for (const sid of stationIds) {
+            const raw = diffGrouped[sid];
+            if (!raw) continue;
+
+            const pairedDiffs: number[] = [];
+
+            Object.keys(raw).forEach(key => {
+              if (!key.includes("|")) return;
+              const [ts, variable] = key.split("|");
+            let otherVar = "";
+            if (varId === "Tair_diff") {
+              otherVar = variable === "Tair_1_Avg" ? "Tair_2_Avg" : "Tair_1_Avg";
+            } else if (varId === "RH_diff") {
+              otherVar = variable === "RH_1_Avg" ? "RH_2_Avg" : "RH_1_Avg";
             }
+            const other = raw[ts + "|" + otherVar];
 
-            const response = await fetch(dataUrl);
-            const data: Record<string, { value: string; timestamp: string }> = await response.json();
-
-            console.log(`Fetched ${this.selectedVariable} Data:`, data);
-
-            const measurementMap: Record<string, number> = {};
-            Object.keys(data).forEach(stationId => {
-                measurementMap[stationId] = parseFloat(data[stationId].value);
+              if (other != null) {
+                const diff = Math.abs(raw[key] - other);
+                pairedDiffs.push(diff);
+              }
             });
 
-            // Special Rule for Station 0521
-            if (this.selectedVariable === "BattVolt") {
-                const value0520 = measurementMap["0520"] ?? null;
-                const value0521 = measurementMap["0521"] ?? null;
-                if (value0520 !== null && value0521 !== null) {
-                    measurementMap["0521"] = Math.min(value0520, value0521);
-                }
-            } else if (this.selectedVariable === "RHenc_max") {
-                const value0520 = measurementMap["0520"] ?? null;
-                const value0521 = measurementMap["0521"] ?? null;
-                if (value0520 !== null && value0521 !== null) {
-                    measurementMap["0521"] = Math.max(value0520, value0521);
-                }
-            } else if (this.selectedVariable === "RHenc_50") {
-                const value0520 = measurementMap["0520"] ?? null;
-                const value0521 = measurementMap["0521"] ?? null;
-                if (value0520 !== null && value0521 !== null) {
-                    measurementMap["0521"] = Math.max(value0520, value0521);
-                }
-            } else if (this.selectedVariable === "CellStr" || this.selectedVariable === "CellQlt") {
-                if (measurementMap["0520"] !== undefined) {
-                    measurementMap["0521"] = measurementMap["0520"]; // Use 0520's value for 0521
-                }
+            if (pairedDiffs.length > 0) {
+              measurementMap[sid] = Math.max(...pairedDiffs);
             }
-
-            this.plotStations(stations, measurementMap, false);
-        } catch (error) {
-            console.error(`Error fetching data for ${this.selectedVariable}:`, error);
+          }
         }
+
+        // Special station logic
+        const v = this.selectedVariable;
+        const v0520 = measurementMap["0520"] ?? null;
+        const v0521 = measurementMap["0521"] ?? null;
+        if (v0520 !== null && v0521 !== null) {
+          if (v === "BattVolt") {
+            measurementMap["0521"] = Math.min(v0520, v0521);
+          } else if (["RHenc_max", "RHenc_50"].includes(v)) {
+            measurementMap["0521"] = Math.max(v0520, v0521);
+          } else if (["CellStr", "CellQlt"].includes(v)) {
+            measurementMap["0521"] = v0520;
+          }
+        }
+
+        this.plotStations(activeStations, measurementMap, false);
+
+        // Timestamp for UI
+        const tsEntry = data.find(d => d.station_id === "0115");
+        if (tsEntry?.timestamp) {
+          this.latestObservationTime = this.formatTimestamp(tsEntry.timestamp);
+        }
+
+        console.log("Processed station data:");
+        Object.entries(measurementMap).forEach(([stationId, value]) => {
+          console.log(`  ${stationId}: ${value}`);
+        });
+
+
+      } catch (error) {
+        console.error("Error fetching diagnostic station data:", error);
+      } finally {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     }
 
 
@@ -535,81 +626,123 @@ export class DiagnosticMapComponent implements AfterViewInit {
     }
 
     async fetchStationDetails(stationId: string): Promise<void> {
+      this.loading = true;
+
+      const details: { [key: string]: number } = {};
+      const sensorUpdates: { [key: string]: string } = {};
+
+      try {
+        // --- Diagnostic variables (one request) ---
+        const diagVars = ["BattVolt", "CellQlt", "CellStr", "RHenc"];
+        const diagUrl = `${this.measurementsUrl}&var_ids=${diagVars.join(",")}&station_ids=${stationId}&local_tz=True&limit=288`;
+
+        console.log("📡 Fetching diagnostic vars from:", diagUrl);
+
+        let diagData: Measurement[] = [];
         try {
-            const variableJsonUrls: { [key: string]: string } = {
-                "BattVolt": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/BattVolt.json",
-                "CellStr": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/CellStr.json",
-                "CellQlt": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/CellQlt.json",
-                "RHenc_max": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RHenc_max.json",
-                "RHenc_50": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RHenc_50.json",
-                "Tair_diff": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/Tair_diff.json",
-                "RH_diff": "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/RH_diff.json",
-            };
-
-            let latestDetails: { [key: string]: string } = {};
-            let sensorUpdateDetails: { [key: string]: string } = {};
-
-            // Fetch local JSON files for diagnostics
-            const jsonRequests = Object.keys(variableJsonUrls).map(async (variable) => {
-                const response = await fetch(variableJsonUrls[variable]);
-                const data: Record<string, { value: string; timestamp: string }> = await response.json();
-                return { variable, data };
-            });
-
-            // Fetch sensor update JSON (for "Sensor Latest Update")
-            const sensorUpdateUrl = "https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/latest_measurements.json";
-            const [sensorUpdateResponse, ...resolvedJsonResponses] = await Promise.all([
-                fetch(sensorUpdateUrl).then(res => res.json()).catch(err => {
-                    console.warn("Sensor update fetch failed:", err);
-                    return [];
-                }),
-                ...jsonRequests
-            ]);
-
-            // Process diagnostic JSON values
-            resolvedJsonResponses.forEach(({ variable, data }) => {
-                Object.keys(data).forEach(stationKey => {
-                    const shouldInclude = (stationId === '0521' && (stationKey === '0520' || stationKey === '0521')) ||
-                                          stationKey === stationId;
-
-                    if (shouldInclude) {
-                        const rawValue = parseFloat(data[stationKey].value);
-                        const key = `${stationKey} ${this.getVariableName(variable)}`;
-                        latestDetails[key] = isNaN(rawValue) ? "No Data" : rawValue.toString();
-                    }
-
-  
-                });
-            });
-
-            // Process sensor updates (like in your old code)
-            sensorUpdateResponse.forEach((measurement: Measurement) => {
-                if (measurement.station_id === stationId && measurement.timestamp) {
-                    const timeAgo = this.formatTimeAgo(measurement.timestamp);
-                    sensorUpdateDetails[measurement.variable] = timeAgo.text;
-                }
-            });
-
-            // Optional: Remove bad data for 0521
-            if (stationId === "0521") {
-                delete latestDetails["0521 Cellular Signal Strength"];
-                delete latestDetails["0521 Cellular Signal Quality"];
+          const diagRes = await firstValueFrom(this.http.get<Measurement[]>(diagUrl, {
+            headers: {
+              Authorization: `Bearer ${this.apiToken}`,
+              'Content-Type': 'application/json'
             }
-
-            this.selectedStation = {
-                ...this.selectedStation,
-                details: latestDetails,
-                sensorUpdates: sensorUpdateDetails
-            };
-
-            this.cdr.detectChanges();
-
-        } catch (error) {
-            console.error("Error fetching station details:", error);
-            this.selectedStation = { ...this.selectedStation, details: {}, sensorUpdates: {} };
-            this.cdr.detectChanges();
+          }));
+          console.log("📥 Diagnostic response:", diagRes);
+          diagData = diagRes ?? [];
+        } catch (err: any) {
+          console.error("❌ Failed to fetch diagnostic vars:", err.message || err);
         }
+
+        const byVar: Record<string, Measurement[]> = {};
+        for (const entry of diagData) {
+          if (!byVar[entry.variable]) byVar[entry.variable] = [];
+          byVar[entry.variable].push(entry);
+        }
+
+        for (const v of ["BattVolt", "CellQlt", "CellStr"]) {
+          const values = (byVar[v] || []).map(d => this.toFloat(d.value)).filter(v => !isNaN(v));
+          if (values.length) {
+            details[v] = Math.min(...values);
+            const latest = byVar[v].find(d => d.value != null)?.timestamp;
+            if (latest) sensorUpdates[v] = this.formatTimestamp(latest);
+          }
+        }
+
+        const rhencVals = (byVar["RHenc"] || []).map(d => this.toFloat(d.value)).filter(v => !isNaN(v));
+        if (rhencVals.length) {
+          details["RHenc_max"] = Math.max(...rhencVals);
+          details["RHenc_50"] = (rhencVals.filter(v => v > 50).length / rhencVals.length) * 100;
+          const latest = byVar["RHenc"].find(d => d.value != null)?.timestamp;
+          if (latest) sensorUpdates["RHenc"] = this.formatTimestamp(latest);
+        }
+
+        // --- Tair sensor diff ---
+        const tairVars = ["Tair_1_Avg", "Tair_2_Avg"];
+        const tairUrl = `${this.measurementsUrl}&var_ids=${tairVars.join(",")}&station_ids=${stationId}&local_tz=True&limit=288`;
+        console.log("📡 Fetching Tair vars from:", tairUrl);
+
+        try {
+          const tairRes = await firstValueFrom(this.http.get<Measurement[]>(tairUrl));
+          const tairPairs: { [ts: string]: number[] } = {};
+          for (const d of tairRes) {
+            const val = this.toFloat(d.value);
+            if (isNaN(val)) continue;
+            if (!tairPairs[d.timestamp]) tairPairs[d.timestamp] = [];
+            tairPairs[d.timestamp].push(val);
+          }
+          const diffs = Object.values(tairPairs)
+            .filter(p => p.length === 2)
+            .map(([a, b]) => Math.abs(a - b));
+          if (diffs.length) {
+            details["Tair_diff"] = Math.max(...diffs);
+            const latest = tairRes.find(d => d.value != null)?.timestamp;
+            if (latest) sensorUpdates["Tair"] = this.formatTimestamp(latest);
+          }
+        } catch (err: any) {
+          console.error("❌ Failed to fetch Tair vars:", err.message || err);
+        }
+
+        // --- RH sensor diff ---
+        const rhVars = ["RH_1_Avg", "RH_2_Avg"];
+        const rhUrl = `${this.measurementsUrl}&var_ids=${rhVars.join(",")}&station_ids=${stationId}&local_tz=True&limit=288`;
+        console.log("📡 Fetching RH vars from:", rhUrl);
+
+        try {
+          const rhRes = await firstValueFrom(this.http.get<Measurement[]>(rhUrl));
+          const rhPairs: { [ts: string]: number[] } = {};
+          for (const d of rhRes) {
+            const val = this.toFloat(d.value);
+            if (isNaN(val)) continue;
+            if (!rhPairs[d.timestamp]) rhPairs[d.timestamp] = [];
+            rhPairs[d.timestamp].push(val);
+          }
+          const diffs = Object.values(rhPairs)
+            .filter(p => p.length === 2)
+            .map(([a, b]) => Math.abs(a - b));
+          if (diffs.length) {
+            details["RH_diff"] = Math.max(...diffs);
+            const latest = rhRes.find(d => d.value != null)?.timestamp;
+            if (latest) sensorUpdates["RH"] = this.formatTimestamp(latest);
+          }
+        } catch (err: any) {
+          console.error("❌ Failed to fetch RH vars:", err.message || err);
+        }
+
+        // --- Save + show ---
+        if (!this.selectedStation) this.selectedStation = { id: stationId } as any;
+        this.selectedStation.details = details;
+        this.selectedStation.sensorUpdates = sensorUpdates;
+
+        console.table(details);
+        console.table(sensorUpdates);
+
+      } catch (err: any) {
+        console.error(`❌ Unexpected error in fetchStationDetails for ${stationId}:`, err.message || err);
+      } finally {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     }
+
 
 
     isDifferenceVariable(key: string): boolean {
@@ -621,49 +754,57 @@ export class DiagnosticMapComponent implements AfterViewInit {
         return isNaN(num) ? 0 : num;
       }
     
-
     getStatus(variable: string, value: number | string | null): string {
-        if (value === null || value === "No Data" || isNaN(parseFloat(value as any))) {
-            return "No Data";
-        }
-
-        const numValue = parseFloat(value as any);
-
-        if (variable === "Battery Voltage") {
-            if (numValue === 0) return "No Data"; // Specific check if 0 should be treated as No Data for this variable
-            if (numValue < 11.8) return "Critical";
-            if (numValue < 12) return "Warning";
-            if (numValue < 12.2) return "Caution";
-            return "Good";
-        } else if (variable === "24H Max Enclosure Relative Humidity") {
-            if (numValue >= 75) return "Critical";
-            if (numValue >= 50) return "Caution";
-            return "Good"; // 0 is valid here
-        } else if (variable === ">50% Enclosure Relative Humidity") {
-            if (numValue >= 30) return "Critical";
-            if (numValue > 10) return "Caution";
-            return "Good"; // 0 is valid here
-        } else if (variable === "Cellular Signal Strength") {
-            if (numValue === 0) return "No Data";
-            if (numValue < -115) return "Critical";
-            if (numValue < -106) return "Warning";
-            return "Good";
-        } else if (variable === "Cellular Signal Quality") {
-            if (numValue === 0) return "No Data";
-            if (numValue < -12) return "Warning";
-            return "Good";
-        } else if (variable === "Tair Sensor Difference") {
-            if (numValue > 0.2) return "Critical";
-            if (numValue > 0.1) return "Warning";
-            return "Good";
-        } else if (variable === "RH Sensor Difference") {
-            if (numValue > 2) return "Critical";
-            if (numValue > 1.5) return "Warning";
-            return "Good";
-        }
-
+      if (value === null || value === "No Data" || isNaN(parseFloat(value as any))) {
         return "No Data";
+      }
+
+      const numValue = parseFloat(value as any);
+
+      switch (variable) {
+        case "BattVolt":
+          if (numValue === 0) return "No Data";
+          if (numValue < 11.8) return "Critical";
+          if (numValue < 12) return "Warning";
+          if (numValue < 12.2) return "Caution";
+          return "Good";
+
+        case "RHenc_max":
+          if (numValue >= 75) return "Critical";
+          if (numValue >= 50) return "Caution";
+          return "Good";
+
+        case "RHenc_50":
+          if (numValue >= 30) return "Critical";
+          if (numValue > 10) return "Caution";
+          return "Good";
+
+        case "CellStr":
+          if (numValue === 0) return "No Data";
+          if (numValue < -115) return "Critical";
+          if (numValue < -106) return "Warning";
+          return "Good";
+
+        case "CellQlt":
+          if (numValue === 0) return "No Data";
+          if (numValue < -12) return "Warning";
+          return "Good";
+
+        case "Tair_diff":
+          if (numValue > 0.2) return "Critical";
+          if (numValue > 0.1) return "Warning";
+          return "Good";
+
+        case "RH_diff":
+          if (numValue > 2) return "Critical";
+          if (numValue > 1.5) return "Warning";
+          return "Good";
+
+        default:
+          return "No Data";
+      }
     }
+
 
 
     getStatusClass(variable: string, value: number | string | null): string {
