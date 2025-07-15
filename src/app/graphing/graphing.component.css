@@ -18,35 +18,43 @@
 
   .menu-container {
     margin-bottom: 20px; 
-    height: 20%;
+    padding: 20px;
     background-color: #ffffff;
     border-radius: 8px;
     border: 1px solid #d0d7de;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%;
+    box-sizing: border-box;
   }
+
   
   .select-container {
-    
-    padding: 20px 20px; 
     flex-wrap: wrap;
     row-gap: 20px;
     height: auto;
     position: relative;
   }
 
-  .select-inner-wrapper{
+  .select-inner-wrapper {
     display: flex;
-    justify-content: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;      /* or flex-start if you want left-aligned */
     align-items: flex-start;
+    gap: 12px;
+    max-width: 80%;             /* ✅ limit width */
+    margin: 0 auto;               /* ✅ center it */
+    width: 100%;
   }
+
 
   .input-group {
     display: flex;
     flex-direction: column;
     flex: 1 1 260px;
-    max-width: 280px;
-    
+    min-width: 260px;      /* ensures usable size */
+    max-width: 100%;       /* allows responsiveness */
   }
+
 
   .input-group:nth-child(1) mat-form-field {
     width: 280px !important; 
@@ -82,7 +90,6 @@
     align-items: center;
     justify-content: center;
     margin-left: 0;
-    
   }
   
 
@@ -265,11 +272,30 @@
 }
 
 .input-group.update-button-group {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  height: 100%;
-  max-width: 10%;
-  flex: 1 1 260px;
+  align-self: flex-end;  /* pushes to bottom of line */
+  min-width: 160px;
+  max-width: 30%;
 }
+
+@media (max-width: 768px) {
+  .select-inner-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .input-group {
+    max-width: 100%;
+    min-width: auto;
+  }
+
+  .input-group.update-button-group {
+    align-self: stretch;
+    width: 100%;
+  }
+
+  .update-button {
+    max-width: 30%;
+  }
+}
+
 
