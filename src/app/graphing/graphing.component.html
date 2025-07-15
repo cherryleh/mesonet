@@ -6,8 +6,7 @@
     <div class="main-content" [class.collapsed]="isCollapsed">
       <div class="menu-container">
         <div class="select-container">
-          <!-- Variable Selection (Multi-Select) -->
-          <!-- Variable Selection (Multi-Select) -->
+          <div class="select-inner-wrapper">
           <div class="input-group">
             <label for="variableSelect">Variable (Up to 3):</label>
             <mat-form-field appearance="outline" style="width: 300px;">
@@ -26,7 +25,6 @@
               </mat-select>
             </mat-form-field>
           </div>
-
           <div class="input-group">
             <label for="unitSelect">Units:</label>
             <mat-form-field appearance="outline">
@@ -36,8 +34,6 @@
               </mat-select>
             </mat-form-field>
           </div>
-
-          <!-- Time Range (in one line with other selects) -->
           <div class="input-group time-range-group">
             <label for="duration">Time Range:</label>
 
@@ -82,7 +78,6 @@
               </label>
             </div>
           </div>
-
           <div class="input-group update-button-group">
             <label>&nbsp;</label> <!-- Empty label for alignment -->
             <button
@@ -96,9 +91,7 @@
               ❗ Date range cannot exceed 90 days.
             </span>
           </div>
-
-
-
+        </div>
         </div>
       </div>
       <div id="graphContainerWrapper">
