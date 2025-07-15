@@ -627,8 +627,6 @@ export class DiagnosticMapComponent implements AfterViewInit {
     }
 
     async fetchStationDetails(stationId: string): Promise<void> {
-      this.loading = true;
-
       const details: { [key: string]: number } = {};
       const sensorUpdates: { [key: string]: string } = {};
 
@@ -676,7 +674,6 @@ export class DiagnosticMapComponent implements AfterViewInit {
           if (latest) sensorUpdates["RHenc"] = this.formatTimestamp(latest);
         }
 
-        // --- Tair sensor diff ---
         // --- Tair sensor diff ---
         const tairVars = ["Tair_1_Avg", "Tair_2_Avg"];
         const tairUrl = `${this.measurementsUrl}&var_ids=${tairVars.join(",")}&station_ids=${stationId}&local_tz=True&limit=288`;
@@ -746,6 +743,31 @@ export class DiagnosticMapComponent implements AfterViewInit {
           console.error("❌ Failed to fetch RH vars:", err.message || err);
         }
 
+        const varsToCheck = this.sensorUpdateVars;
+
+        for (const variable of varsToCheck) {
+          const url = `${this.measurementsUrl}&var_ids=${variable}&station_ids=${stationId}&local_tz=True&limit=1`;
+
+          try {
+            const res = await firstValueFrom(this.http.get<Measurement[]>(url, {
+              headers: {
+                Authorization: `Bearer ${this.apiToken}`,
+                'Content-Type': 'application/json'
+              }
+            }));
+
+            if (res?.length && res[0].timestamp) {
+              sensorUpdates[variable] = this.formatTimestamp(res[0].timestamp);
+            } else {
+              sensorUpdates[variable] = "No Data";
+            }
+
+          } catch (err: any) {
+            console.error(`❌ Failed to fetch timestamp for ${variable}:`, err.message || err);
+            sensorUpdates[variable] = "Error";
+          }
+        }
+
 
         // --- Save + show ---
         if (!this.selectedStation) this.selectedStation = { id: stationId } as any;
@@ -753,13 +775,9 @@ export class DiagnosticMapComponent implements AfterViewInit {
         setTimeout(() => this.cdr.detectChanges(), 0);
         this.selectedStation.sensorUpdates = sensorUpdates;
 
-        console.table(details);
-        console.table(sensorUpdates);
-
       } catch (err: any) {
         console.error(`❌ Unexpected error in fetchStationDetails for ${stationId}:`, err.message || err);
       } finally {
-        this.loading = false;
         this.cdr.detectChanges();
       }
     }
