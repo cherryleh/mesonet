@@ -334,8 +334,9 @@ export class DiagnosticMapComponent implements AfterViewInit {
             });
 
             if (pairedDiffs.length > 0) {
-              measurementMap[sid] = Math.max(...pairedDiffs);
+              measurementMap[sid] = pairedDiffs.reduce((a, b) => a + b, 0) / pairedDiffs.length;
             }
+
           }
         }
 
@@ -676,24 +677,33 @@ export class DiagnosticMapComponent implements AfterViewInit {
         }
 
         // --- Tair sensor diff ---
+        // --- Tair sensor diff ---
         const tairVars = ["Tair_1_Avg", "Tair_2_Avg"];
         const tairUrl = `${this.measurementsUrl}&var_ids=${tairVars.join(",")}&station_ids=${stationId}&local_tz=True&limit=288`;
         console.log("📡 Fetching Tair vars from:", tairUrl);
 
         try {
-          const tairRes = await firstValueFrom(this.http.get<Measurement[]>(tairUrl));
-          const tairPairs: { [ts: string]: number[] } = {};
+          const tairRes = await firstValueFrom(this.http.get<Measurement[]>(tairUrl, {
+            headers: {
+              Authorization: `Bearer ${this.apiToken}`,
+              'Content-Type': 'application/json'
+            }
+          }));
+
+          const tairMap: Record<string, Record<string, number>> = {};
           for (const d of tairRes) {
             const val = this.toFloat(d.value);
             if (isNaN(val)) continue;
-            if (!tairPairs[d.timestamp]) tairPairs[d.timestamp] = [];
-            tairPairs[d.timestamp].push(val);
+            if (!tairMap[d.timestamp]) tairMap[d.timestamp] = {};
+            tairMap[d.timestamp][d.variable] = val;
           }
-          const diffs = Object.values(tairPairs)
-            .filter(p => p.length === 2)
-            .map(([a, b]) => Math.abs(a - b));
+
+          const diffs = Object.values(tairMap)
+            .filter(pair => pair["Tair_1_Avg"] != null && pair["Tair_2_Avg"] != null)
+            .map(pair => Math.abs(pair["Tair_1_Avg"] - pair["Tair_2_Avg"]));
+
           if (diffs.length) {
-            details["Tair_diff"] = Math.max(...diffs);
+            details["Tair_diff"] = diffs.reduce((a, b) => a + b, 0) / diffs.length;
             const latest = tairRes.find(d => d.value != null)?.timestamp;
             if (latest) sensorUpdates["Tair"] = this.formatTimestamp(latest);
           }
@@ -701,25 +711,34 @@ export class DiagnosticMapComponent implements AfterViewInit {
           console.error("❌ Failed to fetch Tair vars:", err.message || err);
         }
 
+
         // --- RH sensor diff ---
         const rhVars = ["RH_1_Avg", "RH_2_Avg"];
         const rhUrl = `${this.measurementsUrl}&var_ids=${rhVars.join(",")}&station_ids=${stationId}&local_tz=True&limit=288`;
         console.log("📡 Fetching RH vars from:", rhUrl);
 
         try {
-          const rhRes = await firstValueFrom(this.http.get<Measurement[]>(rhUrl));
-          const rhPairs: { [ts: string]: number[] } = {};
+          const rhRes = await firstValueFrom(this.http.get<Measurement[]>(rhUrl, {
+            headers: {
+              Authorization: `Bearer ${this.apiToken}`,
+              'Content-Type': 'application/json'
+            }
+          }));
+
+          const rhMap: Record<string, Record<string, number>> = {};
           for (const d of rhRes) {
             const val = this.toFloat(d.value);
             if (isNaN(val)) continue;
-            if (!rhPairs[d.timestamp]) rhPairs[d.timestamp] = [];
-            rhPairs[d.timestamp].push(val);
+            if (!rhMap[d.timestamp]) rhMap[d.timestamp] = {};
+            rhMap[d.timestamp][d.variable] = val;
           }
-          const diffs = Object.values(rhPairs)
-            .filter(p => p.length === 2)
-            .map(([a, b]) => Math.abs(a - b));
+
+          const diffs = Object.values(rhMap)
+            .filter(pair => pair["RH_1_Avg"] != null && pair["RH_2_Avg"] != null)
+            .map(pair => Math.abs(pair["RH_1_Avg"] - pair["RH_2_Avg"]));
+
           if (diffs.length) {
-            details["RH_diff"] = Math.max(...diffs);
+            details["RH_diff"] = diffs.reduce((a, b) => a + b, 0) / diffs.length;
             const latest = rhRes.find(d => d.value != null)?.timestamp;
             if (latest) sensorUpdates["RH"] = this.formatTimestamp(latest);
           }
@@ -727,9 +746,11 @@ export class DiagnosticMapComponent implements AfterViewInit {
           console.error("❌ Failed to fetch RH vars:", err.message || err);
         }
 
+
         // --- Save + show ---
         if (!this.selectedStation) this.selectedStation = { id: stationId } as any;
         this.selectedStation.details = details;
+        setTimeout(() => this.cdr.detectChanges(), 0);
         this.selectedStation.sensorUpdates = sensorUpdates;
 
         console.table(details);

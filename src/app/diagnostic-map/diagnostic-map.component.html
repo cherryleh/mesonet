@@ -49,43 +49,27 @@
                     <h4 style="margin-bottom: 0;">Diagnostic Observations</h4>
                 </div>
 
-                <table class="diagnostic-table">
-                    <thead>
-                      <tr>
-                        <th>Variable</th>
-                        <th>Value</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let key of objectKeys(selectedStation.details)">
-                        <td>
-                          {{ getVariableName(key) }}
-                        </td>
-                        <td>
-                            <span *ngIf="isDifferenceVariable(key)">
-                              {{ selectedStation.details[key] | number:'1.2-2' }}
-                            </span>
-                            <span *ngIf="!isDifferenceVariable(key)">
-                              <!-- Add % sign only for RHenc_80 -->
-                              <ng-container *ngIf="key.endsWith('>50% Enclosure Relative Humidity'); else regularValue">
-                                {{ selectedStation.details[key] | number:'1.0-0' }}%
-                              </ng-container>
-                              <ng-template #regularValue>
-                                {{ selectedStation.details[key] }}
-                              </ng-template>
-                            </span>
-                          </td>
-  
-                        <td>
-                          <span
-                            class="{{ getStatusClass(key.replace(selectedStation.id + ' ', ''), selectedStation.details[key]) }}">
-                            {{ getStatus(key.replace(selectedStation.id + ' ', ''), selectedStation.details[key]) }}
-                          </span>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+            <table>
+              <thead>
+                <tr>
+                  <th>Variable</th>
+                  <th>Value</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let key of objectKeys(selectedStation?.details)">
+                  <td>{{ getVariableName(key) }}</td>
+                  <td>{{ selectedStation.details[key] | number:'1.2-2' }}</td>
+                  <td>
+                    <span [ngClass]="getStatusClass(key, selectedStation.details[key])">
+                      {{ getStatus(key, selectedStation.details[key]) }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
       
             <div *ngIf="selectedStation.sensorUpdates && objectKeys(selectedStation.sensorUpdates).length > 0"
                 class="details-header">
