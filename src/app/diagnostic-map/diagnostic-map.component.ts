@@ -6,7 +6,7 @@ import { interpolateViridis } from "d3-scale-chromatic";
 import { HeaderComponent } from '../header/header.component';
 import { firstValueFrom } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-
+import { UserIdService } from '../services/user-id.service';
 
 interface Station {
     station_id: string;
@@ -32,7 +32,8 @@ interface Measurement {
 export class DiagnosticMapComponent implements AfterViewInit {
     constructor(
       private cdr: ChangeDetectorRef,
-      private http: HttpClient
+      private http: HttpClient,
+      private userIdService: UserIdService
     ) {}
 
     private toFloat(val: unknown): number {
@@ -41,8 +42,10 @@ export class DiagnosticMapComponent implements AfterViewInit {
 
 
     private getApiUrlWithUserId(): string {
-      return 'https://api.hcdp.ikewai.org/mesonet/db/stations?reverse=True&source=diagnostic_map';
+      const userId = this.userIdService.getUserId();
+      return `https://api.hcdp.ikewai.org/mesonet/db/stations?reverse=True&source=diagnostic_map&user_id=${userId}`;
     }
+
 
     loading: boolean = false;
     private map!: L.Map;
