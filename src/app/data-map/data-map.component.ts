@@ -2,7 +2,7 @@ import { Component, AfterViewInit, ChangeDetectorRef,ViewEncapsulation } from '@
 import * as L from 'leaflet';
 import { CommonModule } from '@angular/common';
 import { environment } from "../../environments/environment";  
-// import { interpolateViridis } from "d3-scale-chromatic";
+import { interpolateViridis } from "d3-scale-chromatic";
 import { interpolateTurbo } from 'd3-scale-chromatic';
 import { HeaderComponent } from '../header/header.component';
 import { HttpClient } from '@angular/common/http';
@@ -265,6 +265,13 @@ async fetchStationData(): Promise<void> {
       minValue = 0;
       maxValue = 1;  // raw value in fraction (0–1)
     }
+    if (this.selectedVariable === 'RF_1_Tot300s_24H') {
+      minValue = 0;
+
+      const fixedMax = 1;  
+      maxValue = maxValue > fixedMax ? maxValue : fixedMax;
+    }
+
 
 
     this.addLegend(minValue, maxValue);
@@ -539,18 +546,22 @@ async fetchStationDetails(stationId: string): Promise<void> {
     }
 }
 
-private getColorFromValue(value: number, min: number, max: number): string {
+  private getColorFromValue(value: number, min: number, max: number): string {
     const normalizedValue = (value - min) / (max - min);
-  
-    // These variables are reversed (yellow for low, blue for high)
-    const reversedVariables = ["RF_1_Tot300s_24H", "RH_1_Avg", "SM_1_Avg"];
-  
-    const isReversed = reversedVariables.includes(this.selectedVariable);
-  
+
+    const reversedViridisVariables = ["RF_1_Tot300s_24H"];
+    const reversedTurboVariables = ["RH_1_Avg", "SM_1_Avg"];
+
+    if (reversedViridisVariables.includes(this.selectedVariable)) {
+      return interpolateViridis(1 - normalizedValue);  // reversed viridis
+    }
+
+    const isReversed = reversedTurboVariables.includes(this.selectedVariable);
     return isReversed
       ? interpolateTurbo(1 - normalizedValue)
       : interpolateTurbo(normalizedValue);
   }
+
   
 
   ngAfterViewInit(): void {
@@ -619,10 +630,13 @@ private getColorFromValue(value: number, min: number, max: number): string {
         const gradientDiv = document.getElementById("legend-gradient");
         if (gradientDiv) {
             gradientDiv.style.background = `linear-gradient(to right, 
-                ${this.selectedVariable === "RF_1_Tot300s_24H" || this.selectedVariable === "SM_1_Avg" || this.selectedVariable === "RH_1_Avg"
-                    ? `${interpolateTurbo(1)}, ${interpolateTurbo(0.75)}, ${interpolateTurbo(0.5)}, ${interpolateTurbo(0.25)}, ${interpolateTurbo(0)}`
-                    : `${interpolateTurbo(0)}, ${interpolateTurbo(0.25)}, ${interpolateTurbo(0.5)}, ${interpolateTurbo(0.75)}, ${interpolateTurbo(1)}`
-                })`;
+            ${this.selectedVariable === "RF_1_Tot300s_24H"
+                ? `${interpolateViridis(1)}, ${interpolateViridis(0.75)}, ${interpolateViridis(0.5)}, ${interpolateViridis(0.25)}, ${interpolateViridis(0)}`
+                : this.selectedVariable === "SM_1_Avg" || this.selectedVariable === "RH_1_Avg"
+                  ? `${interpolateTurbo(1)}, ${interpolateTurbo(0.75)}, ${interpolateTurbo(0.5)}, ${interpolateTurbo(0.25)}, ${interpolateTurbo(0)}`
+                  : `${interpolateTurbo(0)}, ${interpolateTurbo(0.25)}, ${interpolateTurbo(0.5)}, ${interpolateTurbo(0.75)}, ${interpolateTurbo(1)}`
+            })`;
+
             gradientDiv.style.border = "1px solid black";
         }
     }, 100);
