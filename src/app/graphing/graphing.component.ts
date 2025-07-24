@@ -74,6 +74,8 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     { label: 'Soil Temperature, Sensor 4', value: 'Tsoil_4', yAxisTitle: 'Soil Temperature Sensor 4 (°C)' },
     { label: 'Surface soil heat flux', value: 'SHFsrf_1_Avg', yAxisTitle: 'Surface Soil Heat Flux (W/m²)' },
     { label: 'Maximum Rainfall Intensity', value: 'RFint_1_Max', yAxisTitle: 'Maximum Rainfall Intensity (mm/hr)' },
+    { label: 'Water temperature', value: 'Twt_1_Avg', yAxisTitle: 'Water Temperature (°C)'},
+    { label: 'Water level', value:'Wlvl_1_Avg', yAxisTitle: 'Water level (m)'}
   ];
 
   durations = [
@@ -108,15 +110,11 @@ export class GraphingComponent implements OnInit, AfterViewInit {
 
     this.sidebarSubscription = this.sidebarService.isCollapsed$.subscribe((value: boolean) => {
       this.isCollapsed = value;
-
-      // Reflow chart after layout updates
       setTimeout(() => {
         this.chart?.reflow();
-
-        // Second reflow in case first is too early
         setTimeout(() => {
           this.chart?.reflow();
-        }, 250); // Adjust if your sidebar transition takes longer
+        }, 250); 
       }, 0);
     });
 
@@ -402,14 +400,12 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   updateChart(seriesData: Highcharts.SeriesOptionsType[]): void {
     if (!this.chart) return;
 
-    // Clear all series
     while (this.chart.series.length) {
       this.chart.series[0].remove(false);
     }
 
     const yAxisLabels = this.selectedVariables.map(variable => this.getYAxisLabel(variable));
 
-    // Define shared scale groups
     const sharedScaleGroups = [
       ['Tair_1_Avg', 'Tair_2_Avg'],
       ['Tsrf_1_Avg','Tsky_1_Avg','Tair_1_Avg','Tair_2_Avg'],
@@ -546,7 +542,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     }
 
     if (this.selectedUnit === 'standard') {
-      if (['Tair_1_Avg', 'Tsrf_1_Avg', 'Tsky_1_Avg', 'Tair_2_Avg', 'Tsoil_1_Avg', 'Tsoil_2', 'Tsoil_3', 'Tsoil_4'].includes(variable)) {
+      if (['Tair_1_Avg', 'Tsrf_1_Avg', 'Tsky_1_Avg', 'Tair_2_Avg', 'Tsoil_1_Avg', 'Tsoil_2', 'Tsoil_3', 'Tsoil_4','Twt_1_Avg'].includes(variable)) {
         return (value * 9/5) + 32; // Convert °C to °F
       } else if (variable === 'RF_1_Tot300s') {
         return value / 25.4; // Convert mm to inches
