@@ -71,6 +71,6 @@ station,variables
 1313,SWin_1_Avg;Tair_1_Avg;RH_1_Avg;VP_1_Avg;VPsat_1_Avg;VPD_1_Avg;WS_1_Avg;WDrs_1_Avg;SM_1_Avg;RF_1_Tot300s
 1316,SWin_1_Avg;Tair_1_Avg;RH_1_Avg;VP_1_Avg;VPsat_1_Avg;VPD_1_Avg;WS_1_Avg;WDrs_1_Avg;SM_1_Avg;RF_1_Tot300s
 1319,SWin_1_Avg;Tair_1_Avg;RH_1_Avg;VP_1_Avg;VPsat_1_Avg;VPD_1_Avg;WS_1_Avg;WDrs_1_Avg;SM_1_Avg;RF_1_Tot300s
-1411,Wlvl_1_Avg,Twt_1_Avg,RF_1_Tot300s
-1417,Wlvl_1_Avg,Twt_1_Avg,RF_1_Tot300s
-1419,Wlvl_1_Avg,Twt_1_Avg,RF_1_Tot300s
+1411,Wlvl_1_Avg;Twt_1_Avg;RF_1_Tot300s
+1417,Wlvl_1_Avg;Twt_1_Avg;RF_1_Tot300s
+1419,Wlvl_1_Avg;Twt_1_Avg;RF_1_Tot300s
