@@ -352,20 +352,32 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
         }
       });
 
+      const isStreamStation = id.startsWith('14');
 
       data.forEach(item => {
         const timestamp = new Date(item.timestamp).getTime();
         const value = parseFloat(item.value);
 
-        if (!isNaN(timestamp) && !isNaN(value)) {
-          if (item.variable === 'Tair_1_Avg') {
-            const temp = this.selectedUnit === 'metric' ? value : (value * 1.8) + 32;
-            temperatureData.push([timestamp, temp]);
-          } else if (item.variable === 'RF_1_Tot300s') {
-            const rain = this.selectedUnit === 'metric' ? value : value / 25.4;
-            rainfallData.push([timestamp, rain]);
-          } else if (item.variable === 'SWin_1_Avg') {
-            radData.push([timestamp, value]);
+      if (!isNaN(timestamp) && !isNaN(value)) {
+          if (isStreamStation) {
+            if (item.variable === 'Twt_1_Avg') {
+              temperatureData.push([timestamp, value]);
+            } else if (item.variable === 'Wlvl_1_Avg') {
+              radData.push([timestamp, value]);
+            } else if (item.variable === 'RF_1_Tot300s') {
+              const rain = this.selectedUnit === 'metric' ? value : value / 25.4;
+              rainfallData.push([timestamp, rain]);
+            }
+          } else {
+            if (item.variable === 'Tair_1_Avg') {
+              const temp = this.selectedUnit === 'metric' ? value : (value * 1.8) + 32;
+              temperatureData.push([timestamp, temp]);
+            } else if (item.variable === 'RF_1_Tot300s') {
+              const rain = this.selectedUnit === 'metric' ? value : value / 25.4;
+              rainfallData.push([timestamp, rain]);
+            } else if (item.variable === 'SWin_1_Avg') {
+              radData.push([timestamp, value]);
+            }
           }
         }
       });
@@ -375,18 +387,32 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
         rainfallData = this.aggregateToHourly(rainfallData, true);
         radData = this.aggregateToHourly(radData);
 
-        this.chartOptions.yAxis = [
-          { title: { text: 'Hourly Temperature (°F)' } },
-          { title: { text: 'Hourly Rainfall (in)' }, opposite: true, min: 0 },
-          { title: { text: null }, opposite: true, min: 0 },
-        ];
+        this.chartOptions.yAxis = isStreamStation
+        ? [
+            { title: { text: 'Hourly Water Temperature (°C)' } },
+            { title: { text: 'Hourly Rainfall (in)' }, opposite: true, min: 0 },
+            { title: { text: 'Hourly Water Level (m)' }, opposite: true, min: 0 },
+          ]
+        : [
+            { title: { text: 'Hourly Temperature (°F)' } },
+            { title: { text: 'Hourly Rainfall (in)' }, opposite: true, min: 0 },
+            { title: { text: 'Solar Radiation (W/m²)' }, opposite: true, min: 0 },
+          ];
       } else {
-        this.chartOptions.yAxis = [
-          { title: { text: 'Temperature (°F)' } },
-          { title: { text: '5-min Rainfall (in)' }, opposite: true, min: 0 },
-          { title: { text: null }, opposite: true, min: 0 },
-        ];
+        this.chartOptions.yAxis = isStreamStation
+        ? [
+            { title: { text: 'Water Temperature (°C)' } },
+            { title: { text: '5-min Rainfall (in)' }, opposite: true, min: 0 },
+            { title: { text: 'Water Level (m)' }, opposite: true, min: 0 },
+          ]
+        : [
+            { title: { text: 'Temperature (°F)' } },
+            { title: { text: '5-min Rainfall (in)' }, opposite: true, min: 0 },
+            { title: { text: 'Solar Radiation (W/m²)' }, opposite: true, min: 0 },
+          ];
       }
+
+      this.chartRef.update({ yAxis: this.chartOptions.yAxis }, false);
 
       temperatureData.sort((a, b) => a[0] - b[0]);
       rainfallData.sort((a, b) => a[0] - b[0]);
@@ -400,8 +426,17 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
 
       const wasSolarVisible = this.chartRef?.series.find(s => s.name === 'Solar Radiation (W/m²)')?.visible ?? false;
     
-      const tempLabel = this.selectedUnit === 'metric' ? 'Temperature (°C)' : 'Temperature (°F)';
+      let tempLabel = this.selectedUnit === 'metric' ? 'Temperature (°C)' : 'Temperature (°F)';
+      let radLabel = 'Solar Radiation (W/m²)';
+
+      if (isStreamStation) {
+        tempLabel = 'Water Temperature (°C)';
+        radLabel = 'Water Level (m)';
+      }
+
       const rainLabel = this.selectedUnit === 'metric' ? 'Rainfall (mm)' : 'Rainfall (in)';
+
+
       const updatedSeries: Highcharts.SeriesOptionsType[] = [
         {
           name: tempLabel,
@@ -422,12 +457,12 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
           pointPadding: 0.05,
         },
         {
-          name: 'Solar Radiation (W/m²)',
+          name: radLabel,
           data: radData,
           yAxis: 2,
           type: 'line',
           color: '#f9b721',
-          visible: wasSolarVisible,
+          visible: isStreamStation,
         },
       ];
 

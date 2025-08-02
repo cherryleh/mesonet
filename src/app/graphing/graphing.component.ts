@@ -546,6 +546,8 @@ export class GraphingComponent implements OnInit, AfterViewInit {
         return (value * 9/5) + 32; // Convert °C to °F
       } else if (variable === 'RF_1_Tot300s') {
         return value / 25.4; // Convert mm to inches
+      } else if (variable === 'Wlvl_1_Avg') {
+        return value * 3.28084; // Convert m to ft
       } else if (variable === 'WS_1_Avg') {
         return value * 2.23694; // Convert m/s to mph
       }
@@ -561,13 +563,15 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     const labelMap: { [key: string]: string } = {
       Tair_1_Avg: `Air Temperature Sensor 1 (${isStandard ? '°F' : '°C'})`,
       Tair_2_Avg: `Air Temperature Sensor 2 (${isStandard ? '°F' : '°C'})`,
+      Twt_1_Avg: `Water Temperature (${isStandard ? '°F' : '°C'})`,
       Tsrf_1_Avg: `Surface Temperature (${isStandard ? '°F' : '°C'})`,
       Tsky_1_Avg: `Sky Temperature (${isStandard ? '°F' : '°C'})`,
       Tsoil_1_Avg: `Soil Temperature Sensor 1 (${isStandard ? '°F' : '°C'})`,
       Tsoil_2:     `Soil Temperature Sensor 2 (${isStandard ? '°F' : '°C'})`,
       Tsoil_3:     `Soil Temperature Sensor 3 (${isStandard ? '°F' : '°C'})`,
       Tsoil_4:     `Soil Temperature Sensor 4 (${isStandard ? '°F' : '°C'})`,
-      RF_1_Tot300s: `Rainfall (${isStandard ? 'in' : 'mm'})`
+      RF_1_Tot300s: `Rainfall (${isStandard ? 'in' : 'mm'})`,
+      Wlvl_1_Avg: `Water Level (${isStandard ? 'ft' : 'm'})`,
     };
 
     return labelMap[variable] || this.variables.find(v => v.value === variable)?.yAxisTitle || variable;
