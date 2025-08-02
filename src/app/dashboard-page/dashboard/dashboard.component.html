@@ -68,14 +68,25 @@
                             </div>
                         </div>
                         <div class="data-ele">
-                            <div class="data-content">
-                                <div class="title">Temperature</div>
-                                <div class="index">{{ variables['Temperature'] || 'N/A' }}
-                                    <span class="unit"> &deg;{{ selectedUnit === 'standard' ? 'F' : 'C' }}</span>
-                                </div>
+                          <div class="data-content">
+                            <div class="title">{{ isStreamStation ? 'Water Temperature' : 'Temperature' }}</div>
+                            <div class="index">
+                              {{ isStreamStation ? variables['Water Temperature'] : variables['Temperature'] || 'N/A' }}
+                              <span class="unit"> &deg;{{ selectedUnit === 'standard' ? 'F' : 'C' }}</span>
                             </div>
+                          </div>
                         </div>
-                        <div class="data-ele"> <!-- Moved inside .data-side-grid -->
+                        <div class="data-ele" *ngIf="isStreamStation">
+                          <div class="data-content">
+                            <div class="title">Water Level</div>
+                            <div class="index">
+                              {{ variables['Water Level'] || 'N/A' }}
+                              <span class="unit">m</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="data-ele" *ngIf="!isStreamStation"> <!-- Moved inside .data-side-grid -->
                             <div class="data-content">
                                 <div class="title">Wind Speed</div>
                                 <div class="index">
@@ -85,7 +96,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="data-ele">
+                        <div class="data-ele" *ngIf="!isStreamStation">
                             <div class="data-content">
                                 <div class="title">Soil Moisture</div>
                                 <div class="index">
@@ -95,7 +106,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="data-ele">
+                        <div class="data-ele" *ngIf="!isStreamStation">
                             <div class="data-content">
                                 <div class="title">Solar Radiation</div>
                                 <div class="index-pbar">
@@ -117,7 +128,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="data-ele">
+                        <div class="data-ele" *ngIf="!isStreamStation">
                             <div class="data-content">
                                 <div class="title">Relative Humidity</div>
                                 <div class="index-pbar">

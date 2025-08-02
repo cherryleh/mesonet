@@ -60,6 +60,7 @@ export class DashboardComponent implements AfterViewInit {
   duration: string = '24-hour'; // Default duration
   refreshIntervalMS = 300000;
   dataVariables: string[] = ['Rainfall', 'Temperature', 'Wind Speed', 'Wind Direction', 'Soil Moisture', 'Solar Radiation', 'Relative Humidity'];
+  isStreamStation = false;
 
   lastUpdated: string = '';
 
@@ -173,6 +174,15 @@ convertCtoF(value: number): number {
             (item: any) => item.variable === this.variableMapping[key]
           );
 
+          if (this.isStreamStation && key === 'Water Temperature' && variableData) {
+            this.variables[key] = this.selectedUnit === 'metric'
+              ? `${parseFloat(variableData.value).toFixed(1)}`
+              : `${((parseFloat(variableData.value) * 9) / 5 + 32).toFixed(1)}`;
+          } else if (this.isStreamStation && key === 'Water Level' && variableData) {
+            this.variables[key] = variableData.value;
+          }
+          if (key === 'Rainfall') return;
+
           if (key === 'Temperature' && variableData) {
             const celsius = parseFloat(variableData.value);
             const fahrenheit = (celsius * 1.8) + 32;
@@ -265,7 +275,29 @@ convertCtoF(value: number): number {
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.id = params['id'];
       if (this.id) {
-        // this.fetchData(this.id);
+        this.isStreamStation = this.id.startsWith('14');
+
+        if (this.isStreamStation) {
+          this.dataVariables = ['Rainfall', 'Water Temperature', 'Water Level'];
+          this.variableMapping = {
+            Rainfall: 'RF_1_Tot300s',
+            'Water Temperature': 'Twt_1_Avg',
+            'Water Level': 'Wlvl_1_Avg'
+          };
+        } else {
+          this.dataVariables = ['Rainfall', 'Temperature', 'Wind Speed', 'Wind Direction', 'Soil Moisture', 'Solar Radiation', 'Relative Humidity'];
+          this.variableMapping = {
+            Rainfall: 'RF_1_Tot300s',
+            Temperature: 'Tair_1_Avg',
+            'Solar Radiation': 'SWin_1_Avg',
+            'Soil Moisture': 'SM_1_Avg',
+            'Wind Speed': 'WS_1_Avg',
+            'Wind Direction': 'WDrs_1_Avg',
+            'Relative Humidity': 'RH_1_Avg'
+          };
+        }
+
+
         this.updateData();
       }
     });

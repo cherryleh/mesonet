@@ -18,10 +18,18 @@ export class DataService {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${environment.apiToken}`);
     const locationParam = id.startsWith('1') ? '&location=american_samoa' : '';
     const userId = this.userIdService.getUserId();
-    const url = `${this.baseUrl}${this.defaultVars}&station_ids=${id}${locationParam}&user_id=${userId}`;
+
+    const isStreamStation = id.startsWith('14');
+    const vars = isStreamStation
+      ? '&var_ids=Twt_1_Avg,Wlvl_1_Avg'
+      : '&var_ids=Tair_1_Avg,SWin_1_Avg,SM_1_Avg,WS_1_Avg,WDrs_1_Avg,RH_1_Avg';
+
+    const url = `${this.baseUrl}${vars}&station_ids=${id}${locationParam}&user_id=${userId}`;
     console.log('API request for general dashboard data: ', url);
+
     return this.http.get<any>(url, { headers });
   }
+
 
 
   get24HourRainfall(id: string): Observable<any> {
