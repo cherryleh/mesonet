@@ -132,7 +132,13 @@ export class GraphingComponent implements OnInit, AfterViewInit {
           const allowedVariables = this.stationVariablesMap[shortId] ?? fallbackVarList;
 
           this.filteredVariables = this.variables.filter(v => allowedVariables.includes(v.value));
-          this.selectedVariables = this.filteredVariables.length > 0 ? [this.filteredVariables[0].value] : [];
+          const isStreamStation = shortId.startsWith('14');
+
+          this.selectedVariables = isStreamStation
+            ? ['Twt_1_Avg', 'Wlvl_1_Avg', 'RF_1_Tot300s'].filter(v => allowedVariables.includes(v))
+            : (this.filteredVariables.length > 0 ? [this.filteredVariables[0].value] : []);
+
+          
           this.fetchStationDateRange(this.stationId); 
           this.loadData();  
         });

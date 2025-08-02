@@ -80,8 +80,10 @@
                           <div class="data-content">
                             <div class="title">Water Level</div>
                             <div class="index">
-                              {{ variables['Water Level'] || 'N/A' }}
-                              <span class="unit">m</span>
+                                <span>
+                                  {{ variables['Water Level'] }} {{ selectedUnit === 'metric' ? 'm' : 'ft' }}
+                                </span>
+
                             </div>
                           </div>
                         </div>

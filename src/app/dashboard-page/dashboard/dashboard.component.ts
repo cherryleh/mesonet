@@ -139,14 +139,20 @@ convertCtoF(value: number): number {
 
     if (this.selectedUnit === 'metric') {
       this.variables['Temperature'] = (((getValue(this.variables['Temperature']) - 32) * 5) / 9).toFixed(1);
+      this.variables['Water Temperature'] = (((getValue(this.variables['Water Temperature']) - 32) * 5) / 9).toFixed(1);
       this.variables['Rainfall'] = (getValue(this.variables['Rainfall']) * 25.4).toFixed(2);
       this.variables['Wind Speed'] = (getValue(this.variables['Wind Speed']) * 0.44704).toFixed(1);
+      this.variables['Water Level'] = (getValue(this.variables['Water Level']) / 3.28084).toFixed(2);
     } else {
       this.variables['Temperature'] = ((getValue(this.variables['Temperature']) * 1.8) + 32).toFixed(1);
+      this.variables['Water Temperature'] = ((getValue(this.variables['Water Temperature']) * 1.8) + 32).toFixed(1);
       this.variables['Rainfall'] = (getValue(this.variables['Rainfall']) / 25.4).toFixed(2);
       this.variables['Wind Speed'] = (getValue(this.variables['Wind Speed']) * 2.23694).toFixed(1);
+      this.variables['Water Level'] = (getValue(this.variables['Water Level']) * 3.28084).toFixed(2);
     }
   }
+
+
 
 
   private variableMapping: { [key: string]: string } = {
@@ -174,44 +180,39 @@ convertCtoF(value: number): number {
             (item: any) => item.variable === this.variableMapping[key]
           );
 
-          if (this.isStreamStation && key === 'Water Temperature' && variableData) {
-            this.variables[key] = this.selectedUnit === 'metric'
-              ? `${parseFloat(variableData.value).toFixed(1)}`
-              : `${((parseFloat(variableData.value) * 9) / 5 + 32).toFixed(1)}`;
-          } else if (this.isStreamStation && key === 'Water Level' && variableData) {
-            this.variables[key] = variableData.value;
+          if (!variableData) {
+            if (key !== 'Rainfall') {
+              this.variables[key] = 'N/A';
+            }
+            return;
           }
-          if (key === 'Rainfall') return;
 
-          if (key === 'Temperature' && variableData) {
+
+          if (key === 'Temperature' || key === 'Water Temperature') {
             const celsius = parseFloat(variableData.value);
-            const fahrenheit = (celsius * 1.8) + 32;
-            this.variables[key] = `${fahrenheit.toFixed(1)}`;
-          } 
-          else if(key === 'Wind Speed' && variableData){
+            this.variables[key] = this.selectedUnit === 'metric'
+              ? `${celsius.toFixed(1)}`
+              : `${((celsius * 9) / 5 + 32).toFixed(1)}`;
+          } else if (key === 'Water Level') {
+            this.variables[key] = variableData.value;
+          } else if (key === 'Wind Speed') {
             const mps = parseFloat(variableData.value);
             const mph = mps * 2.23694;
             this.variables[key] = `${mph.toFixed(1)}`;
-          }
-          else if (key === 'Wind Direction' && variableData) {
+          } else if (key === 'Wind Direction') {
             const degrees = parseFloat(variableData.value);
             this.variables[key] = this.windDirectionToCardinal(degrees);
-          }
-          else if (key === 'Soil Moisture' && variableData){
+          } else if (key === 'Soil Moisture') {
             const sm_dec = parseFloat(variableData.value);
             const sm_pct = sm_dec * 100;
             this.variables[key] = `${Math.round(sm_pct)}`;
-          }
-          else if (key === 'Relative Humidity' && variableData){
-            this.variables[key] = `${Math.round(variableData.value)}`;
-          }
-          else if (key === 'Solar Radiation' && variableData){
-            this.variables[key] = `${Math.round(variableData.value)}`;
-          }
-          else {
-            this.variables[key] = variableData ? variableData.value : 'N/A';
+          } else if (key === 'Relative Humidity' || key === 'Solar Radiation') {
+            this.variables[key] = `${Math.round(parseFloat(variableData.value))}`;
+          } else if (key !== 'Rainfall') {
+            this.variables[key] = variableData.value;
           }
         });
+
         this.cdRef.detectChanges();
       },
       error: (error) => {
