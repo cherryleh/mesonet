@@ -16,6 +16,7 @@ import { DiagnosticMapComponent } from './diagnostic-map/diagnostic-map.componen
 import { AcknowledgementsComponent } from './acknowledgements/acknowledgements.component';
 import { HowToCiteComponent } from './how-to-cite/how-to-cite.component';
 import { WindMapComponent } from './wind-map/wind-map.component';
+import { DiagnosticTableComponent } from './diagnostic-table/diagnostic-table.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent }, // Root route displays Home
@@ -33,6 +34,7 @@ export const routes: Routes = [
   { path: 'data-map', component: DataMapComponent},
   { path: 'american-samoa', component: AmericanSamoaComponent},
   { path: 'diagnostic-map', component: DiagnosticMapComponent},
+  { path: 'diagnostic-table', component: DiagnosticTableComponent},
   { path: 'acknowledgements', component: AcknowledgementsComponent},
   { path: 'how-to-cite', component: HowToCiteComponent},
   { path: 'wind-map', component: WindMapComponent},

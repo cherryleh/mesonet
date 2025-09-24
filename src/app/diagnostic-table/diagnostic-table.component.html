@@ -1,0 +1,18 @@
+<div *ngIf="loading">Loading...</div>
+
+<table *ngIf="!loading" class="data-table">
+  <thead>
+    <tr>
+      <th>Station</th>
+      <th *ngFor="let col of columns">{{ col }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let row of stationData">
+      <td>{{ row.stationId }}</td>
+      <td *ngFor="let col of columns">
+        {{ row[col] }}
+      </td>
+    </tr>
+  </tbody>
+</table>
