@@ -1,6 +1,7 @@
 <app-header></app-header>
 
-<div class="map-container">
+
+    <div class="map-container">
     <!-- diagnostic-map.component.html -->
     <div *ngIf="loading" class="loading-overlay">
       <div class="spinner"></div>
@@ -57,42 +58,35 @@
                   <th>Status</th>
                 </tr>
               </thead>
+                <tbody>
+                  <ng-container *ngFor="let key of diagnosticKeys">
+                    <tr *ngIf="selectedStation.details && selectedStation.details[key] !== undefined">
+                      <td>{{ getVariableName(key) }}</td>
+                      <td>{{ selectedStation.details[key] | number:'1.2-2' }}</td>
+                      <td>
+                        <span [ngClass]="getStatusClass(key, selectedStation.details[key])">
+                          {{ getStatus(key, selectedStation.details[key]) }}
+                        </span>
+                      </td>
+                    </tr>
+                  </ng-container>
+                </tbody>
+
+            </table>
+            <div class="details-header">
+              <h4 style="margin-bottom: 0;">Missing Variables in the last 24 Hours</h4>
+            </div>
+            <table>
               <tbody>
-                <tr *ngFor="let key of objectKeys(selectedStation?.details)">
-                  <td>{{ getVariableName(key) }}</td>
-                  <td>{{ selectedStation.details[key] | number:'1.2-2' }}</td>
-                  <td>
-                    <span [ngClass]="getStatusClass(key, selectedStation.details[key])">
-                      {{ getStatus(key, selectedStation.details[key]) }}
-                    </span>
-                  </td>
+                <tr *ngIf="selectedStation.missingLatest?.length === 0">
+                  <td>None</td>
+                </tr>
+                <tr *ngFor="let entry of selectedStation.missingLatest">
+                  <td>{{ getVariableName(entry.variable) }}</td>
                 </tr>
               </tbody>
             </table>
 
-      
-            <div *ngIf="selectedStation.sensorUpdates && objectKeys(selectedStation.sensorUpdates).length > 0"
-                class="details-header">
-                <h4 style="margin-bottom: 0;">Sensor Latest Update</h4>
-            </div>
-
-            <table *ngIf="selectedStation.sensorUpdates && objectKeys(selectedStation.sensorUpdates).length > 0"
-                class="sensor-update-table">
-                <thead>
-                    <tr>
-                        <th>Variable</th>
-                        <th>Latest Update</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <ng-container *ngFor="let key of objectKeys(selectedStation.sensorUpdates)">
-                        <tr>
-                            <td>{{ getVariableName(key) }}</td>
-                            <td>{{ selectedStation.sensorUpdates[key] }}</td>
-                        </tr>
-                    </ng-container>
-                </tbody>
-            </table>
         </div>
 
         <ng-template #noData>

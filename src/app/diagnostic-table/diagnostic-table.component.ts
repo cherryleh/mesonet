@@ -33,6 +33,12 @@ export class DiagnosticTableComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  reload() {
+    this.loading = true;
+    this.loadData();
+  }
+
+
   passwordInput = '';
   authorized = false;
   error = false;

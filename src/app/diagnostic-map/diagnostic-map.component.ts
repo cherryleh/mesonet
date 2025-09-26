@@ -7,6 +7,7 @@ import { HeaderComponent } from '../header/header.component';
 import { firstValueFrom } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { UserIdService } from '../services/user-id.service';
+import { StationMonitorService } from '../services/station-monitor.service';
 
 interface Station {
     station_id: string;
@@ -33,12 +34,25 @@ export class DiagnosticMapComponent implements AfterViewInit {
     constructor(
       private cdr: ChangeDetectorRef,
       private http: HttpClient,
-      private userIdService: UserIdService
+      private userIdService: UserIdService,
+      
+    private stationMonitorService: StationMonitorService
     ) {}
+    private stationVarsMap: Record<string, Set<string>> = {};
 
     private toFloat(val: unknown): number {
       return typeof val === 'number' ? val : parseFloat(val as string);
     }
+
+    diagnosticKeys: string[] = [
+      "BattVolt",
+      "CellStr",
+      "CellQlt",
+      "RHenc_max",
+      "RHenc_50",
+      "Tair_diff",
+      "RH_diff"
+    ];
 
 
     private getApiUrlWithUserId(): string {
@@ -46,6 +60,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
       return `https://api.hcdp.ikewai.org/mesonet/db/stations?reverse=True&source=diagnostic_map&user_id=${userId}`;
     }
 
+    
 
     loading: boolean = false;
     private map!: L.Map;
@@ -61,11 +76,14 @@ export class DiagnosticMapComponent implements AfterViewInit {
         { id: "RHenc_max", name: "24H Max Enclosure relative humidity" },
         { id: "RHenc_50", name: ">50% Enclosure relative humidity" },
         { id: "Tair_diff", name: "Temperature Sensor Difference" },
-        { id: "RH_diff", name: "Relative Humidity Sensor Difference"},
-        { id: "Earliest Measurement", name: "Earliest Measurement" }
+        { id: "RH_diff", name: "Relative Humidity Sensor Difference"}
     ];
 
-    selectedStation: any = null;
+    selectedStation: any = {
+      details: {},
+      missingLatest: []
+    };
+
     latestObservationTime: string | null = null;
 
     async fetchLatestObservationTime(): Promise<void> {
@@ -101,28 +119,6 @@ export class DiagnosticMapComponent implements AfterViewInit {
         }
     }
 
-
-    async plotEarliestMeasurements(): Promise<void> {
-        try {
-            const response = await fetch('https://raw.githubusercontent.com/cherryleh/mesonet/data-branch/data/earliest_measurements.json');
-            const earliestData: Measurement[] = await response.json();
-
-            console.log("Earliest Measurements Data:", earliestData);
-
-            const measurementMap = Object.fromEntries(
-                earliestData.map(measurement => [measurement.station_id, measurement.timestamp])
-            );
-
-            const stations: Station[] = await fetch(this.apiUrl, {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
-            }).then(res => res.json());
-            console.log('Station info', this.apiUrl);
-            this.plotStations(stations, measurementMap, true);
-        } catch (error) {
-            console.error("Error loading earliest measurements:", error);
-        }
-    }
 
     plotStations(stations: Station[], measurementMap: Record<string, any>, isTimestamp: boolean = false): void {
         this.map.eachLayer(layer => {
@@ -218,166 +214,79 @@ export class DiagnosticMapComponent implements AfterViewInit {
     }
 
     async fetchStationData(): Promise<void> {
-        this.loading = true;
+      this.loading = true;
+
       try {
-        const stations: Station[] = await firstValueFrom(
-          this.http.get<Station[]>(this.getApiUrlWithUserId(), {
-            headers: {
-              Authorization: `Bearer ${this.apiToken}`,
-              'Content-Type': 'application/json'
-            }
-          })
-        );
+        const stationMonitorData = await firstValueFrom(this.stationMonitorService.getStationData());
 
-        const activeStations = stations.filter(s => (s as any).status === 'active');
-        const stationIds = activeStations.map(s => s.station_id);
-        const varId = this.selectedVariable;
-
-        const stationCount = stationIds.length;
-
-        const limit = ["Tair_diff", "RH_diff"].includes(this.selectedVariable)
-          ? stationCount * 288 * 2
-          : stationCount * 288;
-
-
-        // Early return if it's 'Earliest Measurement' (still uses static JSON for now)
-        if (varId === "Earliest Measurement") {
-          await this.plotEarliestMeasurements(); // keep your original method
-          return;
-        }
-
-        let fetchVars = [varId];
-        if (["RHenc_max", "RHenc_50"].includes(varId)) {
-          fetchVars = ["RHenc"];
-        }
-        if (varId === "Tair_diff") fetchVars = ["Tair_1_Avg", "Tair_2_Avg"];
-        if (varId === "RH_diff") fetchVars = ["RH_1_Avg", "RH_2_Avg"];
-
-        const url = `${this.measurementsUrl}&var_ids=${fetchVars.join(",")}&station_ids=${stationIds.join(",")}&local_tz=True&limit=${limit}`;
-        console.log("[fetchStationData] API URL:", url);
-
-        const response = await fetch(url, {
-          headers: {
-            Authorization: `Bearer ${this.apiToken}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        const data: Measurement[] = await response.json();
-        const grouped: Record<string, number[]> = {};
-        const diffGrouped: Record<string, { [ts: string]: number }> = {};
-
-        for (const entry of data) {
-          const sid = entry.station_id;
-          const ts = entry.timestamp;
-          const val = typeof entry.value === 'number' ? entry.value : parseFloat(entry.value as string);
-
-
-          if (isNaN(val)) continue;
-
-          // For diff vars, store separately
-          if (["Tair_diff", "RH_diff"].includes(varId)) {
-            if (!diffGrouped[sid]) diffGrouped[sid] = {};
-            if (!diffGrouped[sid][ts]) diffGrouped[sid][ts] = 0;
-            diffGrouped[sid][ts + "|" + entry.variable] = val;
-            continue;
-          }
-
-          // Regular vars
-          if (!grouped[sid]) grouped[sid] = [];
-          grouped[sid].push(val);
-        }
-
+        // Flatten into a measurementMap { station_id: value }
         const measurementMap: Record<string, number> = {};
 
-        for (const sid of stationIds) {
-          const values = grouped[sid] ?? [];
+        for (const [stationId, stationData] of Object.entries<any>(stationMonitorData)) {
+          let val: number | null = null;
 
-          if (values.length === 0) continue;
-
-          switch (varId) {
+          switch (this.selectedVariable) {
             case "BattVolt":
-            case "CellQlt":
+              val = stationData["24hr_min"]?.["BattVolt"] ?? null;
+              break;
             case "CellStr":
-              measurementMap[sid] = Math.min(...values);
+              val = stationData["24hr_min"]?.["CellStr"] ?? null;
+              break;
+            case "CellQlt":
+              val = stationData["24hr_min"]?.["CellQlt"] ?? null;
               break;
             case "RHenc_max":
-              measurementMap[sid] = Math.max(...values);
+              val = stationData["24hr_max"]?.["RHenc"] ?? null;
               break;
             case "RHenc_50":
-              const countAbove = values.filter(v => v > 50).length;
-              measurementMap[sid] = (countAbove / values.length) * 100;
+              val = stationData["24hr_>50"]?.["RHenc"] ?? null;
               break;
+            case "Tair_diff":
+              val = Math.abs(stationData["24hr_avg_diff"]?.["Tair_Avg"] ?? 0);
+              break;
+            case "RH_diff":
+              val = Math.abs(stationData["24hr_avg_diff"]?.["RH_Avg"] ?? 0);
+              break;
+              return;
+            default:
+              val = stationData["24hr_latest"]?.[this.selectedVariable]?.["value"] ?? null;
           }
+
+          if (val !== null) measurementMap[stationId] = val;
         }
 
-        // Diff var logic
-        if (["Tair_diff", "RH_diff"].includes(varId)) {
-          for (const sid of stationIds) {
-            const raw = diffGrouped[sid];
-            if (!raw) continue;
-
-            const pairedDiffs: number[] = [];
-
-            Object.keys(raw).forEach(key => {
-              if (!key.includes("|")) return;
-              const [ts, variable] = key.split("|");
-            let otherVar = "";
-            if (varId === "Tair_diff") {
-              otherVar = variable === "Tair_1_Avg" ? "Tair_2_Avg" : "Tair_1_Avg";
-            } else if (varId === "RH_diff") {
-              otherVar = variable === "RH_1_Avg" ? "RH_2_Avg" : "RH_1_Avg";
-            }
-            const other = raw[ts + "|" + otherVar];
-
-              if (other != null) {
-                const diff = Math.abs(raw[key] - other);
-                pairedDiffs.push(diff);
-              }
-            });
-
-            if (pairedDiffs.length > 0) {
-              measurementMap[sid] = pairedDiffs.reduce((a, b) => a + b, 0) / pairedDiffs.length;
-            }
-
-          }
-        }
-
-        // Special station logic
-        const v = this.selectedVariable;
-        const v0520 = measurementMap["0520"] ?? null;
-        const v0521 = measurementMap["0521"] ?? null;
-        if (v0520 !== null && v0521 !== null) {
-          if (v === "BattVolt") {
-            measurementMap["0521"] = Math.min(v0520, v0521);
-          } else if (["RHenc_max", "RHenc_50"].includes(v)) {
-            measurementMap["0521"] = Math.max(v0520, v0521);
-          } else if (["CellStr", "CellQlt"].includes(v)) {
-            measurementMap["0521"] = v0520;
-          }
-        }
+        // Fetch stations metadata (lat/lng/name)
+        const stations: Station[] = await firstValueFrom(
+          this.http.get<Station[]>(this.getApiUrlWithUserId(), {
+            headers: { Authorization: `Bearer ${this.apiToken}` }
+          })
+        );
+        const activeStations = stations.filter(s => (s as any).status === "active");
 
         this.plotStations(activeStations, measurementMap, false);
 
-        // Timestamp for UI
-        const tsEntry = data.find(d => d.station_id === "0115");
-        if (tsEntry?.timestamp) {
-          this.latestObservationTime = this.formatTimestamp(tsEntry.timestamp);
+        // Grab a timestamp from one station for UI display
+        const firstStation = Object.values<any>(stationMonitorData)[0];
+        if (firstStation?.["24hr_latest"]) {
+          const firstVar = Object.values(firstStation["24hr_latest"] ?? {})[0] as { value: number; timestamp: string };
+
+          if (firstVar?.timestamp) {
+            this.latestObservationTime = this.formatTimestamp(firstVar.timestamp);
+          }
+
         }
-
-        console.log("Processed station data:");
-        Object.entries(measurementMap).forEach(([stationId, value]) => {
-          console.log(`  ${stationId}: ${value}`);
-        });
-
-
-      } catch (error) {
-        console.error("Error fetching diagnostic station data:", error);
+      } catch (err) {
+        console.error("❌ Error fetching station monitor data:", err);
       } finally {
         this.loading = false;
         this.cdr.detectChanges();
       }
     }
+
+    ngOnInit(): void {
+      this.loadStationVars();
+    }
+
 
 
     private getColorFromValue(value: number, min: number, max: number): string {
@@ -629,159 +538,79 @@ export class DiagnosticMapComponent implements AfterViewInit {
         }
     }
 
+    private loadStationVars() {
+      this.http.get('station_variables.csv', { responseType: 'text' }).subscribe({
+        next: (csv) => {
+          const lines = csv.trim().split('\n');
+          lines.slice(1).forEach(line => {
+            const [station, vars] = line.split(',');
+            if (station && vars) {
+              const varSet = new Set(vars.split(';').map(v => v.trim()));
+              this.stationVarsMap[station.padStart(4, '0')] = varSet;
+            }
+          });
+        },
+        error: (err) => console.error('❌ Failed to load station_variables.csv:', err)
+      });
+    }
+
     async fetchStationDetails(stationId: string): Promise<void> {
-      const details: { [key: string]: number } = {};
-      const sensorUpdates: { [key: string]: string } = {};
-
       try {
-        // --- Diagnostic variables (one request) ---
-        const diagVars = ["BattVolt", "CellQlt", "CellStr", "RHenc"];
-        const diagUrl = `${this.measurementsUrl}&var_ids=${diagVars.join(",")}&station_ids=${stationId}&local_tz=True&limit=288`;
+        const stationMonitorData = await firstValueFrom(this.stationMonitorService.getStationData());
+        const data = stationMonitorData[stationId];
+        if (!data) return;
 
-        console.log("📡 Fetching diagnostic vars from:", diagUrl);
+        // ✅ diagnostic core vars
+        this.selectedStation.details = {
+          BattVolt: data["24hr_min"]?.["BattVolt"],
+          CellStr: data["24hr_min"]?.["CellStr"],
+          CellQlt: data["24hr_min"]?.["CellQlt"],
+          RHenc_max: data["24hr_max"]?.["RHenc"],
+          RHenc_50: data["24hr_>50"]?.["RHenc"],
+          Tair_diff: Math.abs(data["24hr_avg_diff"]?.["Tair_Avg"] ?? 0),
+          RH_diff: Math.abs(data["24hr_avg_diff"]?.["RH_Avg"] ?? 0)
+        };
 
-        let diagData: Measurement[] = [];
-        try {
-          const diagRes = await firstValueFrom(this.http.get<Measurement[]>(diagUrl, {
-            headers: {
-              Authorization: `Bearer ${this.apiToken}`,
-              'Content-Type': 'application/json'
+        // ✅ restrict to only expected variables
+        const expectedVars = [
+          "P_1", "RF_1_Tot300s", "RH_1_Avg", "RH_2_Avg",
+          "SM_1_Avg", "SM_2_Avg", "SM_3_Avg",
+          "SWin_1_Avg", "Tair_1_Avg", "Tair_2_Avg",
+          "Tsoil_1_Avg", "Tsoil_2", "Tsoil_3", "Tsoil_4",
+          "WS_1_Avg"
+        ];
+
+        const csvVars = this.stationVarsMap[stationId] || new Set<string>();
+        const latest = data["24hr_latest"] || {};
+        const latestKeys = new Set(Object.keys(latest).map(k => k.trim()));
+
+        const missingList: { variable: string; timestamp: string }[] = [];
+
+        expectedVars.forEach(varName => {
+          if (csvVars.has(varName) && !latestKeys.has(varName)) {
+            missingList.push({
+              variable: varName,
+              timestamp: "No Data"
+            });
+          }
+        });
+
+        // merge API-provided missing_latest
+        if (data["missing_latest"]) {
+          Object.entries(data["missing_latest"]).forEach(([varName, ts]) => {
+            if (expectedVars.includes(varName) && csvVars.has(varName)) {
+              missingList.push({
+                variable: varName,
+                timestamp: this.formatTimestamp(ts as string)
+              });
             }
-          }));
-          console.log("📥 Diagnostic response:", diagRes);
-          diagData = diagRes ?? [];
-        } catch (err: any) {
-          console.error("❌ Failed to fetch diagnostic vars:", err.message || err);
+          });
         }
 
-        const byVar: Record<string, Measurement[]> = {};
-        for (const entry of diagData) {
-          if (!byVar[entry.variable]) byVar[entry.variable] = [];
-          byVar[entry.variable].push(entry);
-        }
-
-        for (const v of ["BattVolt", "CellQlt", "CellStr"]) {
-          const values = (byVar[v] || []).map(d => this.toFloat(d.value)).filter(v => !isNaN(v));
-          if (values.length) {
-            details[v] = Math.min(...values);
-            const latest = byVar[v].find(d => d.value != null)?.timestamp;
-            if (latest) sensorUpdates[v] = this.formatTimestamp(latest);
-          }
-        }
-
-        const rhencVals = (byVar["RHenc"] || []).map(d => this.toFloat(d.value)).filter(v => !isNaN(v));
-        if (rhencVals.length) {
-          details["RHenc_max"] = Math.max(...rhencVals);
-          details["RHenc_50"] = (rhencVals.filter(v => v > 50).length / rhencVals.length) * 100;
-          const latest = byVar["RHenc"].find(d => d.value != null)?.timestamp;
-          if (latest) sensorUpdates["RHenc"] = this.formatTimestamp(latest);
-        }
-
-        // --- Tair sensor diff ---
-        const tairVars = ["Tair_1_Avg", "Tair_2_Avg"];
-        const tairUrl = `${this.measurementsUrl}&var_ids=${tairVars.join(",")}&station_ids=${stationId}&local_tz=True&limit=288`;
-        console.log("📡 Fetching Tair vars from:", tairUrl);
-
-        try {
-          const tairRes = await firstValueFrom(this.http.get<Measurement[]>(tairUrl, {
-            headers: {
-              Authorization: `Bearer ${this.apiToken}`,
-              'Content-Type': 'application/json'
-            }
-          }));
-
-          const tairMap: Record<string, Record<string, number>> = {};
-          for (const d of tairRes) {
-            const val = this.toFloat(d.value);
-            if (isNaN(val)) continue;
-            if (!tairMap[d.timestamp]) tairMap[d.timestamp] = {};
-            tairMap[d.timestamp][d.variable] = val;
-          }
-
-          const diffs = Object.values(tairMap)
-            .filter(pair => pair["Tair_1_Avg"] != null && pair["Tair_2_Avg"] != null)
-            .map(pair => Math.abs(pair["Tair_1_Avg"] - pair["Tair_2_Avg"]));
-
-          if (diffs.length) {
-            details["Tair_diff"] = diffs.reduce((a, b) => a + b, 0) / diffs.length;
-            const latest = tairRes.find(d => d.value != null)?.timestamp;
-            if (latest) sensorUpdates["Tair"] = this.formatTimestamp(latest);
-          }
-        } catch (err: any) {
-          console.error("❌ Failed to fetch Tair vars:", err.message || err);
-        }
-
-
-        // --- RH sensor diff ---
-        const rhVars = ["RH_1_Avg", "RH_2_Avg"];
-        const rhUrl = `${this.measurementsUrl}&var_ids=${rhVars.join(",")}&station_ids=${stationId}&local_tz=True&limit=288`;
-        console.log("📡 Fetching RH vars from:", rhUrl);
-
-        try {
-          const rhRes = await firstValueFrom(this.http.get<Measurement[]>(rhUrl, {
-            headers: {
-              Authorization: `Bearer ${this.apiToken}`,
-              'Content-Type': 'application/json'
-            }
-          }));
-
-          const rhMap: Record<string, Record<string, number>> = {};
-          for (const d of rhRes) {
-            const val = this.toFloat(d.value);
-            if (isNaN(val)) continue;
-            if (!rhMap[d.timestamp]) rhMap[d.timestamp] = {};
-            rhMap[d.timestamp][d.variable] = val;
-          }
-
-          const diffs = Object.values(rhMap)
-            .filter(pair => pair["RH_1_Avg"] != null && pair["RH_2_Avg"] != null)
-            .map(pair => Math.abs(pair["RH_1_Avg"] - pair["RH_2_Avg"]));
-
-          if (diffs.length) {
-            details["RH_diff"] = diffs.reduce((a, b) => a + b, 0) / diffs.length;
-            const latest = rhRes.find(d => d.value != null)?.timestamp;
-            if (latest) sensorUpdates["RH"] = this.formatTimestamp(latest);
-          }
-        } catch (err: any) {
-          console.error("❌ Failed to fetch RH vars:", err.message || err);
-        }
-
-        const varsToCheck = this.sensorUpdateVars;
-
-        for (const variable of varsToCheck) {
-          const url = `${this.measurementsUrl}&var_ids=${variable}&station_ids=${stationId}&local_tz=True&limit=1`;
-
-          try {
-            const res = await firstValueFrom(this.http.get<Measurement[]>(url, {
-              headers: {
-                Authorization: `Bearer ${this.apiToken}`,
-                'Content-Type': 'application/json'
-              }
-            }));
-
-            if (res?.length && res[0].timestamp) {
-              sensorUpdates[variable] = this.formatTimestamp(res[0].timestamp);
-            } else {
-              sensorUpdates[variable] = "No Data";
-            }
-
-          } catch (err: any) {
-            console.error(`❌ Failed to fetch timestamp for ${variable}:`, err.message || err);
-            sensorUpdates[variable] = "Error";
-          }
-        }
-
-
-        // --- Save + show ---
-        if (!this.selectedStation) this.selectedStation = { id: stationId } as any;
-        this.selectedStation.details = details;
-        setTimeout(() => this.cdr.detectChanges(), 0);
-        this.selectedStation.sensorUpdates = sensorUpdates;
-
-      } catch (err: any) {
-        console.error(`❌ Unexpected error in fetchStationDetails for ${stationId}:`, err.message || err);
-      } finally {
+        this.selectedStation.missingLatest = missingList;
         this.cdr.detectChanges();
+      } catch (err) {
+        console.error(`Error fetching station details for ${stationId}:`, err);
       }
     }
 

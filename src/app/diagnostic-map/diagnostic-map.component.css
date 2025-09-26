@@ -323,3 +323,40 @@ app-header {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* diagnostic-map.component.css */
+
+.login-box {
+  margin-top: 100px;   /* 👈 pushes box below the header */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;           /* spacing between items */
+  background: #fff;
+  padding: 20px 30px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.login-box h3 {
+  margin: 0;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 8px;
+}
+
+.login-box button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.error-text {
+  color: red;
+  font-size: 0.9em;
+}

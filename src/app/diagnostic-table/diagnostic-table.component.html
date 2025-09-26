@@ -1,3 +1,4 @@
+<!-- Login box -->
 <div *ngIf="!authorized" class="login-box">
   <h2>Password Required</h2>
   <input [(ngModel)]="passwordInput" type="password" placeholder="Enter password" />
@@ -5,15 +6,26 @@
   <p *ngIf="error" style="color:red;">Invalid password</p>
 </div>
 
-<div *ngIf="authorized">
+<!-- Reload button -->
+<div *ngIf="authorized && !loading" class="table-header">
+  <button (click)="reload()">🔄 Reload Data</button>
+</div>
+
+<!-- Loading indicator -->
+<div *ngIf="authorized && loading" class="loading-box">
+  <p>Loading station data...</p>
+</div>
+
+<!-- Data table -->
+<div *ngIf="authorized && !loading">
   <table>
     <thead>
       <tr>
-        <th>Station</th>
+        <th (click)="sortBy('stationId')">Station</th>
         <th *ngFor="let col of columns" (click)="sortBy(col)">
           {{ col }}
         </th>
-        <th>Status</th>
+        <th (click)="sortBy('Status')">Status</th>
       </tr>
     </thead>
     <tbody>
