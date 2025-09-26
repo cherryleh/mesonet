@@ -1,17 +1,31 @@
-.data-table {
+table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
-  font-size: 14px;
 }
 
-.data-table th,
-.data-table td {
-  border: 1px solid #ddd;
+th, td {
+  border: 1px solid #ccc;
   padding: 6px 10px;
+  text-align: center;
 }
 
-.data-table th {
-  background: #f9fafb;
-  text-align: left;
+th {
+  background: #f5f5f5;
+  cursor: pointer;
+  user-select: none;
+}
+
+
+.critical {
+  color: red;
+  font-weight: bold;
+}
+
+.login-box {
+  max-width: 300px;
+  margin: 2rem auto;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  text-align: center;
 }
