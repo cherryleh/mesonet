@@ -1,7 +1,13 @@
 <app-header></app-header>
+    <div *ngIf="!authorized" class="login-box">
+      <h2>Password Required</h2>
+      <input [(ngModel)]="passwordInput" type="password" placeholder="Enter password" />
+      <button (click)="checkPassword()">Login</button>
+      <p *ngIf="error" style="color:red;">Invalid password</p>
+    </div>
 
-
-    <div class="map-container">
+    <!-- Map + controls only when authorized -->
+    <div *ngIf="authorized" class="map-container">
     <!-- diagnostic-map.component.html -->
     <div *ngIf="loading" class="loading-overlay">
       <div class="spinner"></div>

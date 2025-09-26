@@ -8,6 +8,7 @@ import { firstValueFrom } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { UserIdService } from '../services/user-id.service';
 import { StationMonitorService } from '../services/station-monitor.service';
+import { FormsModule } from '@angular/forms';
 
 interface Station {
     station_id: string;
@@ -26,7 +27,7 @@ interface Measurement {
 @Component({
     selector: 'app-diagnostic-map',
     standalone: true,
-    imports: [CommonModule, HeaderComponent],
+    imports: [CommonModule, HeaderComponent, FormsModule],
     templateUrl: './diagnostic-map.component.html',
     styleUrls: ['./diagnostic-map.component.css']
 })
@@ -43,7 +44,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
     private toFloat(val: unknown): number {
       return typeof val === 'number' ? val : parseFloat(val as string);
     }
-
+    private mapInitialized = false;
     diagnosticKeys: string[] = [
       "BattVolt",
       "CellStr",
@@ -54,7 +55,46 @@ export class DiagnosticMapComponent implements AfterViewInit {
       "RH_diff"
     ];
 
+    passwordInput = '';
+    authorized = false;
+    error = false;
 
+    checkPassword() {
+      if (this.passwordInput === environment.sitePassword) {
+        this.authorized = true;
+        this.error = false;
+
+        // Initialize map after login if not already done
+        if (!this.mapInitialized) {
+          setTimeout(() => {
+            this.initMap();
+          }, 0);
+        }
+      } else {
+        this.error = true;
+      }
+    }
+
+
+    private initMap() {
+      this.map = L.map('map', {
+        center: [20.493410, -158.064388],
+        zoom: 8,
+        layers: [L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')],
+        zoomControl: false
+      });
+
+      L.control.zoom({ position: "bottomleft" }).addTo(this.map);
+
+      setTimeout(() => {
+        this.map.invalidateSize();
+        this.fetchStationData();
+      }, 500);
+
+      this.mapInitialized = true;
+    }
+
+    
     private getApiUrlWithUserId(): string {
       const userId = this.userIdService.getUserId();
       return `https://api.hcdp.ikewai.org/mesonet/db/stations?reverse=True&source=diagnostic_map&user_id=${userId}`;
