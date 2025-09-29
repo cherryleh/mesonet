@@ -257,9 +257,10 @@ export class DiagnosticMapComponent implements AfterViewInit {
       this.loading = true;
 
       try {
-        const stationMonitorData = await firstValueFrom(this.stationMonitorService.getStationData());
+        const stationMonitorResponse = await firstValueFrom(this.stationMonitorService.getStationData());
 
-        // Flatten into a measurementMap { station_id: value }
+        const stationMonitorData = stationMonitorResponse?.data || {};
+
         const measurementMap: Record<string, number> = {};
 
         for (const [stationId, stationData] of Object.entries<any>(stationMonitorData)) {
@@ -287,15 +288,13 @@ export class DiagnosticMapComponent implements AfterViewInit {
             case "RH_diff":
               val = Math.abs(stationData["24hr_avg_diff"]?.["RH_Avg"] ?? 0);
               break;
-              return;
             default:
-              val = stationData["24hr_latest"]?.[this.selectedVariable]?.["value"] ?? null;
+              val = stationData["24hr_latest"]?.[this.selectedVariable]?.value ?? null;
           }
 
           if (val !== null) measurementMap[stationId] = val;
         }
 
-        // Fetch stations metadata (lat/lng/name)
         const stations: Station[] = await firstValueFrom(
           this.http.get<Station[]>(this.getApiUrlWithUserId(), {
             headers: { Authorization: `Bearer ${this.apiToken}` }
@@ -305,15 +304,12 @@ export class DiagnosticMapComponent implements AfterViewInit {
 
         this.plotStations(activeStations, measurementMap, false);
 
-        // Grab a timestamp from one station for UI display
         const firstStation = Object.values<any>(stationMonitorData)[0];
         if (firstStation?.["24hr_latest"]) {
           const firstVar = Object.values(firstStation["24hr_latest"] ?? {})[0] as { value: number; timestamp: string };
-
           if (firstVar?.timestamp) {
             this.latestObservationTime = this.formatTimestamp(firstVar.timestamp);
           }
-
         }
       } catch (err) {
         console.error("❌ Error fetching station monitor data:", err);
@@ -322,6 +318,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
         this.cdr.detectChanges();
       }
     }
+
 
     ngOnInit(): void {
       this.loadStationVars();
@@ -596,11 +593,12 @@ export class DiagnosticMapComponent implements AfterViewInit {
 
     async fetchStationDetails(stationId: string): Promise<void> {
       try {
-        const stationMonitorData = await firstValueFrom(this.stationMonitorService.getStationData());
+        const stationMonitorResponse = await firstValueFrom(this.stationMonitorService.getStationData());
+        const stationMonitorData = stationMonitorResponse?.data || {};
+
         const data = stationMonitorData[stationId];
         if (!data) return;
 
-        // ✅ diagnostic core vars
         this.selectedStation.details = {
           BattVolt: data["24hr_min"]?.["BattVolt"],
           CellStr: data["24hr_min"]?.["CellStr"],
@@ -611,7 +609,6 @@ export class DiagnosticMapComponent implements AfterViewInit {
           RH_diff: Math.abs(data["24hr_avg_diff"]?.["RH_Avg"] ?? 0)
         };
 
-        // ✅ restrict to only expected variables
         const expectedVars = [
           "P_1", "RF_1_Tot300s", "RH_1_Avg", "RH_2_Avg",
           "SM_1_Avg", "SM_2_Avg", "SM_3_Avg",
@@ -628,10 +625,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
 
         expectedVars.forEach(varName => {
           if (csvVars.has(varName) && !latestKeys.has(varName)) {
-            missingList.push({
-              variable: varName,
-              timestamp: "No Data"
-            });
+            missingList.push({ variable: varName, timestamp: "No Data" });
           }
         });
 
@@ -653,6 +647,7 @@ export class DiagnosticMapComponent implements AfterViewInit {
         console.error(`Error fetching station details for ${stationId}:`, err);
       }
     }
+
 
 
 
@@ -682,12 +677,12 @@ export class DiagnosticMapComponent implements AfterViewInit {
 
         case "RHenc_max":
           if (numValue >= 75) return "Critical";
-          if (numValue >= 50) return "Caution";
+          if (numValue >= 50) return "Warning";
           return "Good";
 
         case "RHenc_50":
           if (numValue >= 30) return "Critical";
-          if (numValue > 10) return "Caution";
+          if (numValue > 10) return "Warning";
           return "Good";
 
         case "CellStr":

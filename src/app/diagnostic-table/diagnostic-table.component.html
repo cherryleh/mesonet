@@ -11,6 +11,33 @@
   <button (click)="reload()">🔄 Reload Data</button>
 </div>
 
+<div *ngIf="authorized && !loading" class="criteria-toggle">
+  <label>
+    <input type="checkbox" [(ngModel)]="showCriteria" />
+    Show Criteria
+  </label>
+</div>
+
+<!-- Criteria list -->
+<div *ngIf="showCriteria" class="criteria-details">
+  <table>
+    <thead>
+      <tr>
+        <th>Variable</th>
+        <th>⚠️ Warning</th>
+        <th>❌ Critical</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let c of criteriaReference">
+        <td><b>{{ c.variable }}</b></td>
+        <td>{{ c.warning }}</td>
+        <td>{{ c.critical }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
 <!-- Loading indicator -->
 <div *ngIf="authorized && loading" class="loading-box">
   <p>Loading station data...</p>
@@ -39,9 +66,13 @@
             }">
           {{ row[col] }}
         </td>
-        <td [ngClass]="{'critical': row['Status'] === 'Critical'}">
+        <td [ngClass]="{
+              'critical': row['Status'] === 'Critical',
+              'warning': row['Status'] === 'Warning'
+        }">
           {{ row['Status'] }}
         </td>
+
       </tr>
     </tbody>
   </table>

@@ -21,6 +21,11 @@ th {
   font-weight: bold;
 }
 
+.warning {
+  color: goldenrod; 
+  font-weight: bold;
+}
+
 .login-box {
   max-width: 300px;
   margin: 2rem auto;
