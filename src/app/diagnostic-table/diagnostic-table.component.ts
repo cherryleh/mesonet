@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { StationMonitorService } from '../services/station-monitor.service';
-import { DatePipe, NgFor, NgIf, NgClass } from '@angular/common';
+import { NgFor, NgIf, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +13,7 @@ interface StationRow {
 @Component({
   selector: 'app-diagnostic-table',
   standalone: true,
-  imports: [NgFor, NgIf, NgClass, DatePipe, FormsModule],
+  imports: [NgFor, NgIf, NgClass, FormsModule],
   templateUrl: './diagnostic-table.component.html',
   styleUrl: './diagnostic-table.component.css'
 })
@@ -67,13 +67,13 @@ export class DiagnosticTableComponent implements OnInit {
             this.loading = false;
           },
           error: (err) => {
-            console.error('❌ API error:', err);
+            console.error('API error:', err);
             this.loading = false;
           }
         });
       },
       error: (err) => {
-        console.error('❌ Failed to load station_variables.csv:', err);
+        console.error('Failed to load station_variables.csv:', err);
         this.loading = false;
       }
     });

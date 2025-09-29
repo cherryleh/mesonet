@@ -293,9 +293,6 @@ app-header {
   font-style: italic;
 }
 
-
-/*Spin bar*/
-/* diagnostic-map.component.css */
 .loading-overlay {
   position: absolute;
   left: 0;
@@ -324,14 +321,12 @@ app-header {
   100% { transform: rotate(360deg); }
 }
 
-/* diagnostic-map.component.css */
-
 .login-box {
-  margin-top: 100px;   /* 👈 pushes box below the header */
+  margin-top: 100px;   
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;           /* spacing between items */
+  gap: 12px;          
   background: #fff;
   padding: 20px 30px;
   border: 1px solid #ccc;
