@@ -340,13 +340,16 @@ export class DiagnosticMapComponent implements AfterViewInit {
             if (value >= 30) return "red";
             if (value >= 10) return "yellow";
             return "green";
-        } else if (this.selectedVariable === "CellStr") {
-            if (value < -115) return "red";
-            if (value < -106) return "yellow";
-            return "green";
-        } else if (this.selectedVariable === "CellQlt") {
-            if (value < -12) return "red";
-            return "green";
+          } else if (this.selectedVariable === "CellStr") {
+              if (value === 0 || value === -130) return "red";
+              if (value < -120) return "red";
+              if (value < -115) return "orange"; // warning
+              return "green";
+          } else if (this.selectedVariable === "CellQlt") {
+              if (value === 0 || value === -99) return "red";
+              if (value < -20) return "red";
+              if (value < -15) return "orange"; // warning
+              return "green";
         } else if (this.selectedVariable === "Tair_diff") {
             if (value > 0.2) return "red";
             if ( value >0.1) return "yellow";
@@ -417,44 +420,27 @@ export class DiagnosticMapComponent implements AfterViewInit {
                     </div>
                 </div>
           `;
-            } else if (this.selectedVariable === "CellStr") {div.innerHTML = `
-                <h4>${this.selectedVariable}</h4>
-                <div style="display: flex; flex-direction: column;">
-                    <div style="display: flex; align-items: center;">
-                        <span style="width: 15px; height: 15px; background: green; display: inline-block; margin-right: 5px;"></span>
-                        <span>>-105 dBm</span>
-                    </div>
-                <div style="display: flex; align-items: center;">
-                        <span style="width: 15px; height: 15px; background: yellow; display: inline-block; margin-right: 5px;"></span>
-                        <span>-106 to -115 dBm</span>
-                    </div>
-                <div style="display: flex; align-items: center;">
-                        <span style="width: 15px; height: 15px; background: red; display: inline-block; margin-right: 5px;"></span>
-                        <span>< -115 dBm</span>
-                    </div>
-                </div>
-                <div style="display: flex; align-items: center;">
-                        <span style="width: 15px; height: 15px; background: gray; display: inline-block; margin-right: 5px;"></span>
-                        <span>No Data</span>
-                    </div>
-                </div>
-                `} else if (this.selectedVariable === "CellQlt") {div.innerHTML = `
+                } else if (this.selectedVariable === "CellStr") {
+                  div.innerHTML = `
                     <h4>${this.selectedVariable}</h4>
-                    <div style="display: flex; flex-direction: column;">
-                        <div style="display: flex; align-items: center;">
-                            <span style="width: 15px; height: 15px; background: green; display: inline-block; margin-right: 5px;"></span>
-                            <span>>-12</span>
-                        </div>
-                    <div style="display: flex; align-items: center;">
-                            <span style="width: 15px; height: 15px; background: red; display: inline-block; margin-right: 5px;"></span>
-                            <span>< -12</span>
-                        </div>
-                    <div style="display: flex; align-items: center;">
-                            <span style="width: 15px; height: 15px; background: gray; display: inline-block; margin-right: 5px;"></span>
-                            <span>No Data</span>
-                        </div>
+                    <div style="display:flex;flex-direction:column;">
+                      <div><span style="background:green;width:15px;height:15px;display:inline-block;margin-right:5px;"></span>> -115 dBm</div>
+                      <div><span style="background:orange;width:15px;height:15px;display:inline-block;margin-right:5px;"></span>-116 to -120 dBm</div>
+                      <div><span style="background:red;width:15px;height:15px;display:inline-block;margin-right:5px;"></span>< -120 dBm, -130, or 0</div>
+                      <div><span style="background:gray;width:15px;height:15px;display:inline-block;margin-right:5px;"></span>No Data</div>
                     </div>
-                `} else if (this.selectedVariable === "RHenc_max") {
+                  `;
+                } else if (this.selectedVariable === "CellQlt") {
+                  div.innerHTML = `
+                    <h4>${this.selectedVariable}</h4>
+                    <div style="display:flex;flex-direction:column;">
+                      <div><span style="background:green;width:15px;height:15px;display:inline-block;margin-right:5px;"></span>> -15</div>
+                      <div><span style="background:orange;width:15px;height:15px;display:inline-block;margin-right:5px;"></span>-16 to -20</div>
+                      <div><span style="background:red;width:15px;height:15px;display:inline-block;margin-right:5px;"></span>< -20, -99, or 0</div>
+                      <div><span style="background:gray;width:15px;height:15px;display:inline-block;margin-right:5px;"></span>No Data</div>
+                    </div>
+                  `;
+              } else if (this.selectedVariable === "RHenc_max") {
                     div.innerHTML = `
                     <h4>${this.selectedVariable}</h4>
                     <div style="display: flex; flex-direction: column;">
@@ -686,14 +672,15 @@ export class DiagnosticMapComponent implements AfterViewInit {
           return "Good";
 
         case "CellStr":
-          if (numValue === 0) return "No Data";
-          if (numValue < -115) return "Critical";
-          if (numValue < -106) return "Warning";
+          if (numValue === 0 || numValue === -130) return "Critical";
+          if (numValue < -120) return "Critical";
+          if (numValue < -115) return "Warning";
           return "Good";
 
         case "CellQlt":
-          if (numValue === 0) return "No Data";
-          if (numValue < -12) return "Warning";
+          if (numValue === 0 || numValue === -99) return "Critical";
+          if (numValue < -20) return "Critical";
+          if (numValue < -15) return "Warning";
           return "Good";
 
         case "Tair_diff":

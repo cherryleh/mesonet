@@ -57,7 +57,6 @@ export class DiagnosticTableComponent implements OnInit {
 
         this.monitorService.getStationData().subscribe({
           next: (resp) => {
-            // ✅ unwrap new API structure
             const raw = resp?.data || {};
             const pivoted = this.pivotStationData(raw);
             this.stationData = pivoted;
@@ -143,14 +142,15 @@ export class DiagnosticTableComponent implements OnInit {
         return "Good";
 
       case "CellStr":
-        if (numValue === 0) return "No Data";
-        if (numValue < -115) return "Critical";
-        if (numValue < -106) return "Warning"; // merged
+        if (numValue === 0 || numValue === -130) return "Critical";
+        if (numValue < -120) return "Critical";
+        if (numValue < -115) return "Warning";
         return "Good";
 
       case "CellQlt":
-        if (numValue === 0) return "No Data";
-        if (numValue < -12) return "Warning"; // only Warning now
+        if (numValue === 0 || numValue === -99) return "Critical";
+        if (numValue < -20) return "Critical";
+        if (numValue < -15) return "Warning";
         return "Good";
 
       case "Tair_diff":
@@ -206,16 +206,19 @@ export class DiagnosticTableComponent implements OnInit {
       ['24hr_min', '24hr_max', '24hr_>50', '24hr_avg_diff'].forEach(section => {
         const sectionData = details[section] || {};
         Object.entries(sectionData).forEach(([varName, val]: [string, any]) => {
-          let newVal = val ?? null;
-          if (
-            (section === '24hr_avg_diff' && (varName === 'Tair_Avg' || varName === 'RH_Avg')) ||
-            (section === '24hr_>50' && varName === 'RHenc')
-          ) {
-            if (typeof newVal === 'number') {
-              newVal = Math.round(newVal * 100) / 100;
-            }
+        let newVal = val ?? null;
+        if (section === '24hr_avg_diff' && (varName === 'Tair_Avg' || varName === 'RH_Avg')) {
+          if (typeof newVal === 'number') {
+            newVal = Math.abs(newVal);                 
+            newVal = Math.round(newVal * 100) / 100;   
           }
-          row[`${section}_${varName}`] = newVal;
+        } else if (section === '24hr_>50' && varName === 'RHenc') {
+          if (typeof newVal === 'number') {
+            newVal = Math.round(newVal * 100) / 100; 
+          }
+        }
+
+        row[`${section}_${varName}`] = newVal;
         });
       });
 
@@ -277,8 +280,8 @@ export class DiagnosticTableComponent implements OnInit {
     { variable: 'BattVolt', critical: '< 11.8', warning: '< 12.2' },
     { variable: 'RHenc_max', critical: '≥ 75', warning: '≥ 50' },
     { variable: 'RHenc_50', critical: '≥ 30', warning: '> 10' },
-    { variable: 'CellStr', critical: '< -115', warning: '< -106' },
-    { variable: 'CellQlt', critical: 'N/A', warning: '< -12' },
+    { variable: 'CellStr', critical: '< -120 OR = -130 OR = 0', warning: '< -115' },
+    { variable: 'CellQlt', critical: '< -20 OR = -99 OR = 0', warning: '< -15' },
     { variable: 'Tair_diff', critical: '> 0.2', warning: '> 0.1' },
     { variable: 'RH_diff', critical: '> 2', warning: '> 1.5' }
   ];
