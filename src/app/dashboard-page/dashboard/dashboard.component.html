@@ -5,7 +5,7 @@
         <app-sidebar [class.collapsed]="isCollapsed" (toggle)="onToggleSidebar($event)"></app-sidebar>
         <div class="main-content" [class.collapsed]="isCollapsed">
             <div class="dashboard-header">
-                <p class="last-updated">Last updated: {{ lastUpdated }}</p>
+                <p class="last-updated">Last updated: {{ lastUpdated }} HST</p>
             </div>
             <div class="grid-container">
                 <div class="graph-grid">
@@ -53,10 +53,20 @@
 
                     </div>
                 </div>
-                <div class="data-side">
+                    <div class="data-side">
+
+                      <ng-container *ngIf="isLoading; else showData">
+                        <div class="loading-container">
+                          <div class="spinner"></div>
+                          <p>Loading data...</p>
+                        </div>
+                      </ng-container>
+
+                      <ng-template #showData>
                     <div class="data-side-header">
                         <h3>Current Conditions</h3>
                     </div>
+                    
                     <div class="data-side-grid">
                         <div class="data-ele">
                             <div class="data-content">
@@ -71,7 +81,7 @@
                             <div class="title">{{ isStreamStation ? 'Water Temperature' : 'Temperature' }}</div>
                             <div class="index">
                               {{ isStreamStation ? variables['Water Temperature'] : variables['Temperature'] || 'N/A' }}
-                              <span class="unit"> &deg;{{ selectedUnit === 'standard' ? 'F' : 'C' }}</span>
+                              <span class="unit">&deg;{{ selectedUnit === 'standard' ? 'F' : 'C' }}</span>
                             </div>
                           </div>
                         </div>
@@ -93,7 +103,7 @@
                                 <div class="index">
                                     <span class="unit">{{ variables['Wind Direction'] || 'N/A' }}</span>
                                     {{ variables['Wind Speed'] || 'N/A' }}
-                                    <span class="unit"> {{ selectedUnit === 'standard' ? 'mph' : 'm/s' }}</span>
+                                    <span class="unit">{{ selectedUnit === 'standard' ? 'mph' : 'm/s' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -149,7 +159,8 @@
                                 </div>
                             </div>
                         </div>
-                    </div> <!-- Correctly closing .data-side-grid -->
+                    </div> 
+                    </ng-template>
                 </div> 
             </div>
         </div>

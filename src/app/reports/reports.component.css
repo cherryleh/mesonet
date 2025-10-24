@@ -60,7 +60,7 @@ table th, table td {
   flex-direction: column;
   padding: 20px;
   transition: height 0.3s ease;
-  min-height: 160px; /* fallback height */
+  margin-bottom: 2%;
 }
 
 .table-container.no-data-present {

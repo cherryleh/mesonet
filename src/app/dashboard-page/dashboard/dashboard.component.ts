@@ -166,6 +166,7 @@ convertCtoF(value: number): number {
   };
 
   objectKeys = Object.keys;
+  isLoading = true;
 
   fetchData(id: string): void {
     this.dataService.getData(id).pipe(takeUntil(this.destroy$)).subscribe({
@@ -174,7 +175,6 @@ convertCtoF(value: number): number {
           this.latestTimestamp = response[0].timestamp;
         }
         this.lastUpdated = this.getFormattedTimestamp();
-
         Object.keys(this.variableMapping).forEach((key) => {
           const variableData = response.find(
             (item: any) => item.variable === this.variableMapping[key]
@@ -212,11 +212,12 @@ convertCtoF(value: number): number {
             this.variables[key] = variableData.value;
           }
         });
-
+        this.isLoading = false;
         this.cdRef.detectChanges();
       },
       error: (error) => {
         console.error('Error fetching data:', error);
+        this.isLoading = false;
       },
     });
 
