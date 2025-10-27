@@ -151,21 +151,60 @@ li {
   filter: brightness(0) saturate(100%) invert(32%) sepia(90%) saturate(700%) hue-rotate(180deg);
 }
 
+
 .contact {
   font-size: 0.9em;
   text-align: center;
-  margin-top: auto; /* Push to the bottom of sidebar */
+  margin-top: auto;
   padding-top: 1vh;
   color: #8f9bb3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
 }
 
 .contact a {
   color: #8f9bb3;
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   transition: color 0.3s ease-in-out;
 }
 
 .contact a:hover {
-  color: #007bff; /* Same hover color as sidebar-toggle */
+  color: #007bff;
   text-decoration: underline;
 }
+
+.contact-icon {
+  width: 20px;
+  height: 20px;
+  transition: margin 0.3s ease-in-out;
+}
+
+/* Hide text when collapsed */
+.sidebar.collapsed .contact-text {
+  display: none;
+}
+
+/* Center icon in collapsed mode */
+.sidebar.collapsed .contact {
+  justify-content: center;
+  padding-bottom: 1vh;
+}
+
+.contact-icon {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) saturate(100%) invert(58%) sepia(7%) saturate(338%) hue-rotate(180deg) brightness(96%) contrast(91%);
+  transition: filter 0.3s ease-in-out;
+}
+
+/* Match hover color to your sidebar accent */
+.contact a:hover .contact-icon {
+  filter: brightness(0) saturate(100%) invert(32%) sepia(90%) saturate(700%) hue-rotate(180deg);
+}
+
+
