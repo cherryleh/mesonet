@@ -1,24 +1,29 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders} from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
-
+import { HttpClient } from '@angular/common/http';
+import { Observable, of, map, tap } from 'rxjs';
+import { parse } from 'papaparse';
 @Injectable({
   providedIn: 'root'
 })
 export class StationDataService {
-  private apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?';
+  private csvUrl = 'https://raw.githubusercontent.com/HCDP/loggernet_station_data/refs/heads/main/csv_data/stations/station_metadata.csv';
+  private cache: any[] | null = null; // in-memory cache
 
   constructor(private http: HttpClient) {}
 
-  getStationData(id: string): Observable<any> {
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${environment.apiToken}`,
-      'X-Skip-Logging': 'true' 
-    });
-    const locationParam = id.startsWith('1') ? '&location=american_samoa' : '&location=hawaii';
-    const url = `${this.apiUrl}&station_ids=${id}${locationParam}`;
-    console.log('Fetching for station metadata: ',url);
-    return this.http.get<any>(url, { headers });
+  getStationData(id: string): Observable<any[]> {
+    // If we already fetched the CSV, reuse it
+    if (this.cache) {
+      return of(this.cache.filter(row => row.station_id === id));
+    }
+
+    // Otherwise fetch and cache it
+    return this.http.get(this.csvUrl, { responseType: 'text' }).pipe(
+      map(csvText => {
+        const parsed = parse(csvText, { header: true, skipEmptyLines: true }).data as any[];
+        this.cache = parsed; // cache for reuse
+        return parsed.filter(row => row.station_id === id);
+      })
+    );
   }
 }

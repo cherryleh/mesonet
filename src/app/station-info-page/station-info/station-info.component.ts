@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { HeaderComponent } from '../../header/header.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { StationTitleComponent } from '../../station-title/station-title.component';
@@ -11,17 +11,21 @@ import { Subscription, forkJoin } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { map } from 'rxjs/operators';
 
-
 @Component({
   selector: 'app-station-info',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, SidebarComponent, StationTitleComponent, StationSpecificMapComponent],
+  imports: [
+    CommonModule,
+    HeaderComponent,
+    SidebarComponent,
+    StationTitleComponent,
+    StationSpecificMapComponent
+  ],
   templateUrl: './station-info.component.html',
   styleUrls: ['./station-info.component.css']
 })
 export class StationInfoComponent implements OnInit, OnDestroy {
   stationId: string = '';
-  startDate: Date | null = null; 
   stationStartDate: string = ''; 
   elevationFeet: number | null = null;
   elevationMeters: number | null = null;
@@ -30,10 +34,7 @@ export class StationInfoComponent implements OnInit, OnDestroy {
   status: string = '';
   isCollapsed = false;
 
-  onToggleSidebar(collapsed: boolean) {
-    this.isCollapsed = collapsed;
-  }
-  private subscription: Subscription = new Subscription();
+  private subscription = new Subscription();
 
   constructor(
     private route: ActivatedRoute,
@@ -45,9 +46,10 @@ export class StationInfoComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     console.log('[StationInfoComponent] ngOnInit');
     this.route.queryParams.subscribe(params => {
-      this.stationId = params['id'] || 'default_station_id'; 
-
-      this.fetchStationData();
+      this.stationId = params['id'] || '';
+      if (this.stationId) {
+        this.fetchStationData();
+      }
     });
 
     this.subscription.add(
@@ -57,18 +59,17 @@ export class StationInfoComponent implements OnInit, OnDestroy {
     );
   }
 
-
   fetchStationData(): void {
-    console.log('FETCHING STATION DATA'),
+    console.log('FETCHING STATION DATA');
     this.subscription.add(
       forkJoin({
         minDate: this.stationDatesService.getMinDate(this.stationId).pipe(
           map((res: any[]) => res[0]?.timestamp ? new Date(res[0].timestamp) : null)
         ),
-
         metadata: this.stationDataService.getStationData(this.stationId)
       }).subscribe({
         next: (results) => {
+          /** ---------- HANDLE MIN DATE ---------- */
           const date = results.minDate;
           if (date && !isNaN(date.getTime())) {
             this.stationStartDate = date.toLocaleDateString('en-US', {
@@ -77,20 +78,33 @@ export class StationInfoComponent implements OnInit, OnDestroy {
               day: 'numeric'
             });
           } else {
-            console.warn('Invalid timestamp received:', date);
+            console.warn('Invalid or missing timestamp:', date);
           }
 
-
+          /** ---------- HANDLE METADATA ---------- */
           const metadataResponse = results.metadata;
           if (metadataResponse && metadataResponse.length > 0) {
             const station = metadataResponse[0];
-            this.elevationMeters = station.elevation;
-            this.elevationFeet = this.elevationMeters !== null ? +(this.elevationMeters * 3.28084).toFixed(0) : null;
-            this.lat = station.lat.toFixed(2);
-            this.lon = station.lng.toFixed(2);
-            this.status = station.status;
+
+            // Convert strings → numbers safely
+            this.elevationMeters = station.elevation ? +station.elevation : null;
+            this.elevationFeet = this.elevationMeters !== null
+              ? Math.round(this.elevationMeters * 3.28084)
+              : null;
+
+            this.lat = station.lat ? +station.lat : null;
+            this.lon = station.lng ? +station.lng : null;
+            this.status = station.status || '';
+
+            console.log('[StationInfoComponent] Metadata loaded:', {
+              id: this.stationId,
+              name: station.full_name,
+              status: this.status,
+              lat: this.lat,
+              lon: this.lon
+            });
           } else {
-            console.warn('No station data found for ID:', this.stationId);
+            console.warn('No metadata found for ID:', this.stationId);
           }
         },
         error: (error) => {
@@ -100,8 +114,9 @@ export class StationInfoComponent implements OnInit, OnDestroy {
     );
   }
 
-
-
+  onToggleSidebar(collapsed: boolean) {
+    this.isCollapsed = collapsed;
+  }
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
