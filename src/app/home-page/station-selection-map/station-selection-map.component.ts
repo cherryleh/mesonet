@@ -117,7 +117,8 @@ export class StationSelectionMapComponent implements AfterViewInit {
   }
 
   fetchStationData(): void {
-    const csvUrl = 'https://raw.githubusercontent.com/HCDP/loggernet_station_data/refs/heads/main/csv_data/stations/station_metadata.csv';
+    const csvUrl = `https://raw.githubusercontent.com/HCDP/loggernet_station_data/refs/heads/main/csv_data/stations/station_metadata.csv?t=${Date.now()}`;
+
 
     Papa.parse(csvUrl, {
       download: true,
