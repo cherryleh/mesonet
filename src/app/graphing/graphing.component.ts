@@ -67,7 +67,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     { label: 'Wind Speed', value: 'WS_1_Avg', yAxisTitle: 'Wind Speed (m/s)' },
     { label: 'Wind Direction', value: 'WDrs_1_Avg', yAxisTitle: 'Wind Direction (°)' },
     { label: 'Pressure', value: 'P_1', yAxisTitle: 'Pressure (kPa)' },
-    { label: 'Sea level pressure', value: 'Psl_1', yAxisTitle: 'Pressure (kPa)' },
+    { label: 'Sea level pressure', value: 'Psl_1', yAxisTitle: 'Sea Level Pressure (kPa)' },
     { label: 'Soil Temperature, Sensor 1', value: 'Tsoil_1_Avg', yAxisTitle: 'Soil Temperature Sensor 1 (°C)' },
     { label: 'Soil Temperature, Sensor 2', value: 'Tsoil_2', yAxisTitle: 'Soil Temperature Sensor 2 (°C)' },
     { label: 'Soil Temperature, Sensor 3', value: 'Tsoil_3', yAxisTitle: 'Soil Temperature Sensor 3 (°C)' },
@@ -576,6 +576,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       Tsoil_2:     `Soil Temperature Sensor 2 (${isStandard ? '°F' : '°C'})`,
       Tsoil_3:     `Soil Temperature Sensor 3 (${isStandard ? '°F' : '°C'})`,
       Tsoil_4:     `Soil Temperature Sensor 4 (${isStandard ? '°F' : '°C'})`,
+      WS_1_Avg: `Wind Speed (${isStandard ? 'mph' : 'm/s'})`,
       RF_1_Tot300s: `Rainfall (${isStandard ? 'in' : 'mm'})`,
       Wlvl_1_Avg: `Water Level (${isStandard ? 'ft' : 'm'})`,
     };
