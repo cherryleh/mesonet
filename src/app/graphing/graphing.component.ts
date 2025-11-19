@@ -21,12 +21,13 @@ import { StationDatesService } from '../services/station-dates.service';
 import { SidebarService } from '../services/sidebar.service';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
-
+import { BannerService } from '../services/banner.service';
+import { BannerComponent } from '../banner/banner.component';
 
 @Component({
   selector: 'app-graphing',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, SidebarComponent, StationTitleComponent, MatSelectModule,MatFormFieldModule, FormsModule,MatDateRangeInput, MatDateRangePicker,MatDatepickerToggle, MatDatepickerModule, MatNativeDateModule, MatInputModule,MatDatepickerInput],
+  imports: [CommonModule, RouterModule, HeaderComponent, SidebarComponent, StationTitleComponent, MatSelectModule,MatFormFieldModule, FormsModule,MatDateRangeInput, MatDateRangePicker,MatDatepickerToggle, MatDatepickerModule, MatNativeDateModule, MatInputModule,MatDatepickerInput,BannerComponent],
   templateUrl: './graphing.component.html',
   styleUrl: './graphing.component.css'
 })
@@ -37,7 +38,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   isCollapsed = false;
   chart: Highcharts.Chart | null = null;
   isLoading = false;
-
+  bannerMessage: string | null = null;
   selectedUnit: string = 'metric'; 
   private unitSubscription!: Subscription;
 
@@ -95,6 +96,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     private unitService: UnitService,
     private stationDatesService: StationDatesService,
     private sidebarService: SidebarService,
+    private bannerService: BannerService,
     private http: HttpClient
   ) {}
 
@@ -104,6 +106,10 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   stationVariablesMap: { [stationId: string]: string[] } = {};
 
   ngOnInit(): void {
+    this.bannerService.banner$.subscribe(msg => {
+      this.bannerMessage = msg;
+    });
+    this.bannerService.set(this.bannerService.messages.maintenance);
     this.unitSubscription = this.unitService.getUnit().subscribe(unit => {
       this.selectedUnit = unit;
     });

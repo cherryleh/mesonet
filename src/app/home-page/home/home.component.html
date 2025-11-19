@@ -2,7 +2,9 @@
   <img src="logo.png" alt="Hawaii Mesonet Logo" />
   <p class="title">Hawai&#699;i Mesonet Live Data Access</p>
 </section>
-
+<app-banner 
+    [message]="bannerMessage">
+</app-banner>
 <div class="nav-button">
   <button mat-flat-button class="custom-blue-button" [routerLink]="'/data-map'">
     Data Maps

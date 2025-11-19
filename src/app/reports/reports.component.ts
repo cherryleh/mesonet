@@ -29,6 +29,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { EmailDialogComponent } from '../email-dialog/email-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
+import { BannerComponent } from '../banner/banner.component';
+import { BannerService } from '../services/banner.service';
 
 @Component({
   selector: 'app-reports',
@@ -53,7 +55,8 @@ import { MatIconModule } from '@angular/material/icon';
     MatSelectModule,
     MatDialogModule,
     MatIconModule,
-    EmailDialogComponent
+    EmailDialogComponent,
+    BannerComponent
   ],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.css',
@@ -131,7 +134,7 @@ export class ReportsComponent implements OnInit {
 
   public headers = Object.keys(this.headersMap);   
   public displayHeaders = Object.values(this.headersMap);
-
+  bannerMessage: string | null = null;
   constructor(
     private route: ActivatedRoute,
     private fb: FormBuilder,
@@ -139,7 +142,8 @@ export class ReportsComponent implements OnInit {
     private StationDatesService: StationDatesService,
     private sidebarService: SidebarService,
     private reportsApiService: ReportsApiService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private bannerService: BannerService
   ) {
     this.reportForm = this.fb.group({
       startDate: ['', Validators.required],
@@ -152,6 +156,10 @@ export class ReportsComponent implements OnInit {
   private sidebarSubscription!: Subscription;
 
   ngOnInit(): void {
+    this.bannerService.banner$.subscribe(msg => {
+      this.bannerMessage = msg;
+    });
+    this.bannerService.set(this.bannerService.messages.maintenance);
     const today = new Date();
     this.maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     this.route.queryParams.subscribe(params => {

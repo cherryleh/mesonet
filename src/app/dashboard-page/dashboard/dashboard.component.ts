@@ -24,7 +24,8 @@ import { SidebarService } from '../../services/sidebar.service';
 import { ChangeDetectorRef } from '@angular/core';
 
 import { IntervalHandler } from '../../utils/interval-handler';
-
+import { BannerComponent } from '../../banner/banner.component';
+import { BannerService } from '../../services/banner.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -37,7 +38,8 @@ import { IntervalHandler } from '../../utils/interval-handler';
     HeaderComponent,
     SidebarComponent,
     DurationSelectorComponent,
-    StationTitleComponent
+    StationTitleComponent,
+    BannerComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -52,6 +54,9 @@ export class DashboardComponent implements AfterViewInit {
   private isDestroyed = false; 
   private reloadHandler!: IntervalHandler;
 
+  bannerMessage: string | null = null;
+
+  
   totalRainfall: number = 0;
   meanTemp: number = 0;
   minTemp: number = 0;
@@ -88,6 +93,7 @@ export class DashboardComponent implements AfterViewInit {
     private unitService: UnitService,
     private sidebarService: SidebarService,
     private cdRef: ChangeDetectorRef,
+    private bannerService: BannerService
  ) {
     Chart.register(...registerables);
     this.unitService.selectedUnit$.subscribe((unit: 'standard' | 'metric') => {
@@ -307,6 +313,10 @@ convertCtoF(value: number): number {
 
 
   ngOnInit(): void {
+    this.bannerService.banner$.subscribe(msg => {
+      this.bannerMessage = msg;
+    });
+    this.bannerService.set(this.bannerService.messages.maintenance);
     this.aggregateService.totalRainfall$.subscribe((totalRainfall: number) => {
       this.totalRainfall = totalRainfall;
     });

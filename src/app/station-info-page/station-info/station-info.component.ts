@@ -10,6 +10,8 @@ import { SidebarService } from '../../services/sidebar.service';
 import { Subscription, forkJoin } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { map } from 'rxjs/operators';
+import { BannerComponent } from '../../banner/banner.component';
+import { BannerService } from '../../services/banner.service';
 
 @Component({
   selector: 'app-station-info',
@@ -19,7 +21,8 @@ import { map } from 'rxjs/operators';
     HeaderComponent,
     SidebarComponent,
     StationTitleComponent,
-    StationSpecificMapComponent
+    StationSpecificMapComponent,
+    BannerComponent
   ],
   templateUrl: './station-info.component.html',
   styleUrls: ['./station-info.component.css']
@@ -33,17 +36,22 @@ export class StationInfoComponent implements OnInit, OnDestroy {
   lon: number | null = null;
   status: string = '';
   isCollapsed = false;
-
+  bannerMessage: string | null = null;
   private subscription = new Subscription();
 
   constructor(
     private route: ActivatedRoute,
     private stationDatesService: StationDatesService,
     private stationDataService: StationDataService,
-    private sidebarService: SidebarService
+    private sidebarService: SidebarService,
+    private bannerService: BannerService
   ) {}
 
   ngOnInit(): void {
+    this.bannerService.banner$.subscribe(msg => {
+      this.bannerMessage = msg;
+    });
+    this.bannerService.set(this.bannerService.messages.maintenance);
     console.log('[StationInfoComponent] ngOnInit');
     this.route.queryParams.subscribe(params => {
       this.stationId = params['id'] || '';

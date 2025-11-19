@@ -1,0 +1,18 @@
+.banner {
+  padding: 10px 16px;
+  background: #fef3c7;
+  border-left: 4px solid #d97706;
+  color: #7c2d12;
+  position: relative;
+  z-index: 20;
+  margin-left: 0; /* default for pages with no sidebar */
+}
+
+/* Sidebar pages override margin */
+.banner.sidebar {
+  margin-left: var(--sidebar-width, 15%);
+}
+
+.banner.sidebar.collapsed {
+  margin-left: var(--sidebar-collapsed-width, 60px);
+}

@@ -14,11 +14,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { UnitService } from '../services/unit.service'; 
 import { Subscription } from 'rxjs';
 import { SidebarService } from '../services/sidebar.service';
+import { BannerComponent } from '../banner/banner.component';
+import { BannerService } from '../services/banner.service';
 
 @Component({
   selector: 'app-climatology',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, SidebarComponent, StationTitleComponent, MatFormFieldModule, FormsModule, MatSelectModule],
+  imports: [CommonModule, RouterModule, HeaderComponent, SidebarComponent, StationTitleComponent, MatFormFieldModule, FormsModule, MatSelectModule, BannerComponent],
   templateUrl: './climatology.component.html',
   styleUrls: ['./climatology.component.css'],
 })
@@ -38,16 +40,21 @@ export class ClimatologyComponent implements OnInit {
   private unitSubscription!: Subscription;
   private sidebarSubscription!: Subscription;
 
-
+  bannerMessage: string | null = null;
   isCollapsed = false;
 
   onToggleSidebar(collapsed: boolean) {
     this.isCollapsed = collapsed;
   }
   
-  constructor(private http: HttpClient,private route: ActivatedRoute, private unitService: UnitService,private sidebarService: SidebarService) {}
+  constructor(private http: HttpClient,private route: ActivatedRoute, private unitService: UnitService,private sidebarService: SidebarService, private bannerService: BannerService) {}
 
   ngOnInit(): void {
+    this.bannerService.banner$.subscribe(msg => {
+      this.bannerMessage = msg;
+    });
+    this.bannerService.set(this.bannerService.messages.maintenance);
+
     this.unitSubscription = this.unitService.getUnit().subscribe(unit => {
       this.selectedUnit = unit as 'metric' | 'standard';
     });

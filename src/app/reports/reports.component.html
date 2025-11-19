@@ -1,6 +1,11 @@
 <div class="layout">
-  <app-header></app-header>
   <div class="parent-container">
+  <app-header></app-header>
+    <app-banner 
+        [message]="bannerMessage"
+        [collapsed]="isCollapsed"
+      [sidebar]="true">
+    </app-banner>
     <app-station-title [isCollapsed]="isCollapsed"></app-station-title>
     
     <app-sidebar [class.collapsed]="isCollapsed" (toggle)="onToggleSidebar($event)"></app-sidebar>
