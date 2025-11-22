@@ -313,10 +313,11 @@ convertCtoF(value: number): number {
 
 
   ngOnInit(): void {
-    this.bannerService.banner$.subscribe(msg => {
-      this.bannerMessage = msg;
-    });
-    this.bannerService.set(this.bannerService.messages.maintenance);
+    // this.bannerService.banner$.subscribe(msg => {
+    //   this.bannerMessage = msg;
+    // });
+    // this.bannerService.set(this.bannerService.messages.maintenance);
+    this.bannerService.set(null);
     this.aggregateService.totalRainfall$.subscribe((totalRainfall: number) => {
       this.totalRainfall = totalRainfall;
     });

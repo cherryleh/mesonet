@@ -156,10 +156,11 @@ export class ReportsComponent implements OnInit {
   private sidebarSubscription!: Subscription;
 
   ngOnInit(): void {
-    this.bannerService.banner$.subscribe(msg => {
-      this.bannerMessage = msg;
-    });
-    this.bannerService.set(this.bannerService.messages.maintenance);
+    // this.bannerService.banner$.subscribe(msg => {
+    //   this.bannerMessage = msg;
+    // });
+    // this.bannerService.set(this.bannerService.messages.maintenance);
+    this.bannerService.set(null);
     const today = new Date();
     this.maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     this.route.queryParams.subscribe(params => {

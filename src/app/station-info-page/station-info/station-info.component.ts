@@ -48,10 +48,11 @@ export class StationInfoComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.bannerService.banner$.subscribe(msg => {
-      this.bannerMessage = msg;
-    });
-    this.bannerService.set(this.bannerService.messages.maintenance);
+    // this.bannerService.banner$.subscribe(msg => {
+    //   this.bannerMessage = msg;
+    // });
+    // this.bannerService.set(this.bannerService.messages.maintenance);
+    this.bannerService.set(null);
     console.log('[StationInfoComponent] ngOnInit');
     this.route.queryParams.subscribe(params => {
       this.stationId = params['id'] || '';

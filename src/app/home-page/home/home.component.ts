@@ -22,11 +22,11 @@ export class HomeComponent {
 
   bannerMessage: string | null = null
   ngOnInit() {
-    this.bannerService.banner$.subscribe(msg => {
-      this.bannerMessage = msg;
-    });
-    this.bannerService.set(this.bannerService.messages.maintenance);
-    
+    // this.bannerService.banner$.subscribe(msg => {
+    //   this.bannerMessage = msg;
+    // });
+    // this.bannerService.set(this.bannerService.messages.maintenance);
+    this.bannerService.set(null);
     const userAgreed = localStorage.getItem('userAgreed');
     if (!userAgreed) {
       this.showAgreement = true; 

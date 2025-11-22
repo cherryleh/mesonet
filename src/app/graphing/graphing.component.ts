@@ -106,10 +106,11 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   stationVariablesMap: { [stationId: string]: string[] } = {};
 
   ngOnInit(): void {
-    this.bannerService.banner$.subscribe(msg => {
-      this.bannerMessage = msg;
-    });
-    this.bannerService.set(this.bannerService.messages.maintenance);
+    // this.bannerService.banner$.subscribe(msg => {
+    //   this.bannerMessage = msg;
+    // });
+    // this.bannerService.set(this.bannerService.messages.maintenance);
+    this.bannerService.set(null);
     this.unitSubscription = this.unitService.getUnit().subscribe(unit => {
       this.selectedUnit = unit;
     });

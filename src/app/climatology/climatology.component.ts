@@ -50,10 +50,11 @@ export class ClimatologyComponent implements OnInit {
   constructor(private http: HttpClient,private route: ActivatedRoute, private unitService: UnitService,private sidebarService: SidebarService, private bannerService: BannerService) {}
 
   ngOnInit(): void {
-    this.bannerService.banner$.subscribe(msg => {
-      this.bannerMessage = msg;
-    });
-    this.bannerService.set(this.bannerService.messages.maintenance);
+    // this.bannerService.banner$.subscribe(msg => {
+    //   this.bannerMessage = msg;
+    // });
+    // this.bannerService.set(this.bannerService.messages.maintenance);
+    this.bannerService.set(null);
 
     this.unitSubscription = this.unitService.getUnit().subscribe(unit => {
       this.selectedUnit = unit as 'metric' | 'standard';
