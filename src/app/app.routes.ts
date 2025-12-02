@@ -17,6 +17,8 @@ import { AcknowledgementsComponent } from './acknowledgements/acknowledgements.c
 import { HowToCiteComponent } from './how-to-cite/how-to-cite.component';
 import { WindMapComponent } from './wind-map/wind-map.component';
 import { DiagnosticTableComponent } from './diagnostic-table/diagnostic-table.component';
+import { ErrorReportingComponent } from './error-reporting/error-reporting.component';
+import { RecordsComponent } from './records/records.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent }, // Root route displays Home
@@ -38,5 +40,7 @@ export const routes: Routes = [
   { path: 'acknowledgements', component: AcknowledgementsComponent},
   { path: 'how-to-cite', component: HowToCiteComponent},
   { path: 'wind-map', component: WindMapComponent},
+  { path: 'error-reporting', component: ErrorReportingComponent},
+  { path: 'records.csv', component: RecordsComponent},
   { path: '**', redirectTo: '' } // Wildcard route redirects to Home
 ];

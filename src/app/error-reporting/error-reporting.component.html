@@ -1,0 +1,59 @@
+<div class="container">
+  <h2>CSV Form Export</h2>
+
+    <form (ngSubmit)="submitForm()">
+
+      <label>Username</label>
+      <input type="text" [(ngModel)]="formData.username" name="username" required />
+
+      <label>Station</label>
+
+      <div class="dropdown">
+
+        <!-- Selected value box -->
+        <div class="dropdown-display" (click)="dropdownOpen = !dropdownOpen">
+          {{ formData.stationNumber || 'Select a station...' }}
+        </div>
+
+        <!-- Dropdown panel -->
+        <div class="dropdown-panel" *ngIf="dropdownOpen">
+
+          <!-- Embedded search box -->
+          <input
+            type="text"
+            placeholder="Search..."
+            [(ngModel)]="stationSearch"
+            (input)="filterStations()"
+            name="stationSearch"
+            class="dropdown-search"
+          />
+
+          <!-- Filtered results -->
+          <div 
+            class="dropdown-option"
+            *ngFor="let st of filteredStations"
+            (click)="selectStation(st)"
+          >
+            {{ st.station_id }} {{ st.name }}
+          </div>
+
+        </div>
+      </div>
+
+      <label>Variable ID</label>
+      <input type="text" [(ngModel)]="formData.variableId" name="variableId" />
+
+      <label>Start Date</label>
+      <input type="date" [(ngModel)]="formData.startDate" name="startDate" />
+
+      <label>End Date</label>
+      <input type="date" [(ngModel)]="formData.endDate" name="endDate" />
+
+      <label>Notes</label>
+      <textarea [(ngModel)]="formData.notes" name="notes"></textarea>
+
+      <button type="submit">Submit</button>
+
+    </form>
+
+</div>
