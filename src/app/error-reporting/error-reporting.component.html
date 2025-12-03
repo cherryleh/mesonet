@@ -10,15 +10,12 @@
 
       <div class="dropdown">
 
-        <!-- Selected value box -->
         <div class="dropdown-display" (click)="dropdownOpen = !dropdownOpen">
           {{ formData.stationNumber || 'Select a station...' }}
         </div>
 
-        <!-- Dropdown panel -->
         <div class="dropdown-panel" *ngIf="dropdownOpen">
 
-          <!-- Embedded search box -->
           <input
             type="text"
             placeholder="Search..."
@@ -28,7 +25,6 @@
             class="dropdown-search"
           />
 
-          <!-- Filtered results -->
           <div 
             class="dropdown-option"
             *ngFor="let st of filteredStations"
@@ -40,14 +36,48 @@
         </div>
       </div>
 
-      <label>Variable ID</label>
-      <input type="text" [(ngModel)]="formData.variableId" name="variableId" />
+      <label>Variable ID(s)</label>
+
+      <div class="dropdown">
+        <div class="dropdown-display" (click)="varDropdownOpen = !varDropdownOpen">
+          <span *ngIf="formData.variableId.length === 0">
+            Select variable(s)...
+          </span>
+
+          <span class="chip" *ngFor="let v of formData.variableId">
+            {{ v }}
+          </span>
+        </div>
+
+        <div class="dropdown-panel" *ngIf="varDropdownOpen">
+
+          <input
+            type="text"
+            placeholder="Search variable..."
+            [(ngModel)]="variableSearch"
+            (input)="filterVariables()"
+            name="variableSearch"
+            class="dropdown-search"
+          />
+          <div
+            class="dropdown-option"
+            *ngFor="let v of filteredVariables"
+            (click)="toggleVariable(v)"
+          >
+            <input type="checkbox" [checked]="formData.variableId.includes(v)" />
+            {{ v }}
+          </div>
+
+        </div>
+      </div>
+
+
 
       <label>Start Date</label>
-      <input type="date" [(ngModel)]="formData.startDate" name="startDate" />
+      <input type="datetime-local" [(ngModel)]="formData.startDate" name="startDate" />
 
       <label>End Date</label>
-      <input type="date" [(ngModel)]="formData.endDate" name="endDate" />
+      <input type="datetime-local" [(ngModel)]="formData.endDate" name="endDate" />
 
       <label>Notes</label>
       <textarea [(ngModel)]="formData.notes" name="notes"></textarea>
