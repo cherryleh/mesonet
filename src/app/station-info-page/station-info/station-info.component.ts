@@ -28,6 +28,8 @@ import { BannerService } from '../../services/banner.service';
   styleUrls: ['./station-info.component.css']
 })
 export class StationInfoComponent implements OnInit, OnDestroy {
+  isLoading = true;
+
   stationId: string = '';
   stationStartDate: string = ''; 
   elevationFeet: number | null = null;
@@ -69,7 +71,7 @@ export class StationInfoComponent implements OnInit, OnDestroy {
   }
 
   fetchStationData(): void {
-    console.log('FETCHING STATION DATA');
+    this.isLoading = true;
     this.subscription.add(
       forkJoin({
         minDate: this.stationDatesService.getMinDate(this.stationId).pipe(
@@ -78,7 +80,6 @@ export class StationInfoComponent implements OnInit, OnDestroy {
         metadata: this.stationDataService.getStationData(this.stationId)
       }).subscribe({
         next: (results) => {
-          /** ---------- HANDLE MIN DATE ---------- */
           const date = results.minDate;
           if (date && !isNaN(date.getTime())) {
             this.stationStartDate = date.toLocaleDateString('en-US', {
@@ -86,16 +87,15 @@ export class StationInfoComponent implements OnInit, OnDestroy {
               month: 'long',
               day: 'numeric'
             });
+            this.isLoading = false;
           } else {
             console.warn('Invalid or missing timestamp:', date);
           }
 
-          /** ---------- HANDLE METADATA ---------- */
           const metadataResponse = results.metadata;
           if (metadataResponse && metadataResponse.length > 0) {
             const station = metadataResponse[0];
 
-            // Convert strings → numbers safely
             this.elevationMeters = station.elevation ? +station.elevation : null;
             this.elevationFeet = this.elevationMeters !== null
               ? Math.round(this.elevationMeters * 3.28084)

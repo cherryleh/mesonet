@@ -10,30 +10,67 @@
         <app-station-title [isCollapsed]="isCollapsed"></app-station-title>
         <app-sidebar [class.collapsed]="isCollapsed" (toggle)="onToggleSidebar($event)"></app-sidebar>
         <div class="main-content" [class.collapsed]="isCollapsed">
+            <div class="special-text" [class.collapsed]="isCollapsed" *ngIf="stationId === '0257' || stationId === '0258'">
+              <p>
+                <strong>ʻIo</strong> was chosen as a name for the mauka station to honor the abundance of this sacred manu <strong>aliʻi
+                </strong>(chiefly birds) that soars above Kohala. In moʻolelo such as that of Pikoi, the famous rat-snarer,
+                the ʻio and the pueo appear as guardians of the uplands—echoing the mana and presence of these birds
+                across the mauna lands of ʻIole. Their flight reminds us of observation, protection, and the intimate
+                relationship between nature and our kūpuna.
+              </p>
+
+              <p>
+                <strong>ʻIole</strong> was chosen to honor the inoa of the ahupuaʻa and the <strong>ka'ao of Pikoi</strong> (legend of Pikoi), a wahi pana
+                that carries the footsteps of aliʻi, kahu, leaders, plantation workers, and the generations shaped by
+                Kohala Seminary and this ʻāina. To say the name ʻIole is to acknowledge all the people, stories, and lessons
+                that have passed through this place and continue to give it life.
+              </p>
+
+              <p>
+                Together, <strong>ʻIo</strong> and <strong>ʻIole</strong> uplift the ʻike, heritage, and aloha of Kohala—grounding the work of the weather
+                station in the spirit of the land and its storied history.
+              </p>
+            </div>
             <div class="station-info-container">
                 <app-station-specific-map class="left"></app-station-specific-map>
-                <div class="right info-grid">
-                    <div class="info top-left">
-                        <p class="info-label">Station Installation Date</p>
-                        <p class="info-value">{{stationStartDate}}</p>
-                    </div>
-                    <div class="info top-right">
-                        <p class="info-label">Elevation</p>
-                        <p class="info-value">
-                            {{ elevationFeet }} ft / {{ elevationMeters }} m
-                          </p>
-  
-                    </div>
-                    <div class="info bottom-left">
-                        <p class="info-label">Lat/Lon</p>
-                        <p class="info-value">{{lat}} / {{lon}}</p>
-                    </div>
-                    <div class="info bottom-right">
-                        <p class="info-label">Station Status</p>
-                        <p class="info-value">{{ status | titlecase }}</p>
-                    </div>
-                    <img [attr.src]="'./station_photos/' + stationId + '.jpeg'" alt="station-photo" class="station-photo">
+                <div class="right">
+                  <div class="info-wrapper">
+    
+                      <div class="info-loading-wrapper" *ngIf="isLoading">
+                          <div class="loading-spinner"></div>
+                      </div>
+                      <div class="info-grid" *ngIf="!isLoading">
+                          <div class="info top-left">
+                              <p class="info-label">Station Installation Date</p>
+                              <p class="info-value">{{ stationStartDate }}</p>
+                          </div>
+
+                          <div class="info top-right">
+                              <p class="info-label">Elevation</p>
+                              <p class="info-value">{{ elevationFeet }} ft / {{ elevationMeters }} m</p>
+                          </div>
+
+                          <div class="info bottom-left">
+                              <p class="info-label">Lat/Lon</p>
+                              <p class="info-value">{{ lat }} / {{ lon }}</p>
+                          </div>
+
+                          <div class="info bottom-right">
+                              <p class="info-label">Station Status</p>
+                              <p class="info-value">{{ status | titlecase }}</p>
+                          </div>
+                      </div>
+
+                  </div>
+
+                  <img
+                    [attr.src]="'./station_photos/' + stationId + '.jpeg'"
+                    alt="station-photo"
+                    class="station-photo"
+                  />
+
                 </div>
+
             </div>
         </div>
     </div>
