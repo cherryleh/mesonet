@@ -68,6 +68,7 @@ export class DashboardComponent implements AfterViewInit {
   isStreamStation = false;
 
   lastUpdated: string = '';
+  timezoneAbbreviation: 'HST' | 'SST' = 'HST';
 
   isCollapsed = false;
 
@@ -283,6 +284,7 @@ convertCtoF(value: number): number {
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.id = params['id'];
       if (this.id) {
+        this.timezoneAbbreviation = this.id.startsWith('1') ? 'SST' : 'HST';
         this.isStreamStation = this.id.startsWith('14');
 
         if (this.isStreamStation) {
