@@ -27,6 +27,8 @@ export class ErrorReportingComponent {
 
   formData: {
     username: string;
+    screenStartDate: string;
+    screenEndDate: string;
     stationNumber: string;
     variableId: string[];
     startDate: string;
@@ -34,6 +36,8 @@ export class ErrorReportingComponent {
     notes: string;
   } = {
     username: '',
+    screenStartDate: '',
+    screenEndDate: '',
     stationNumber: '',
     variableId: [],
     startDate: '',
@@ -52,15 +56,54 @@ export class ErrorReportingComponent {
     this.loadStations();
   }
 
-  variableList: string[] = [
-    "SWin_1_Avg","SWout_1_Avg","LWin_1_Avg","LWout_1_Avg","SWnet_1_Avg",
-    "LWnet_1_Avg","Rnet_1_Avg","Albedo_1_Avg","Tsrf_1_Avg","Tsky_1_Avg",
-    "Tair_1_Avg","Tair_2_Avg","RH_1_Avg","RH_2_Avg","VP_1_Avg",
-    "VP_2_Avg","VPsat_1_Avg","VPsat_2_Avg","VPD_1_Avg","VPD_2_Avg",
-    "WS_1_Avg","WDrs_1_Avg","P_1","Psl_1","Tsoil_1_Avg",
-    "SHFsrf_1_Avg","SM_1_Avg","SM_2_Avg","SM_3_Avg",
-    "Tsoil_2","Tsoil_3","Tsoil_4","RF_1_Tot300s","RFint_1_Max"
+  public variableList: string[] = [
+    "Incoming Solar Radiation (W/m2) - 'SWin_1_Avg'",
+    "Outgoing Solar Radiation (W/m2) - 'SWout_1_Avg'",
+    "Incoming Longwave Radiation (W/m2) - 'LWin_1_Avg'",
+    "Outgoing Longwave Radiation (W/m2) - 'LWout_1_Avg'",
+    "Net Solar Radiation (W/m2) - 'SWnet_1_Avg'",
+    "Net Longwave Radiation (W/m2) - 'LWnet_1_Avg'",
+    "Net Radiation (W/m2) - 'Rnet_1_Avg'",
+    "Albedo - 'Albedo_1_Avg'",
+    "Surface Temperature (C) - 'Tsrf_1_Avg'",
+    "Sky Temperature (C) - 'Tsky_1_Avg'",
+
+    "Temperature Sensor 1 (C) - 'Tair_1_Avg'",
+    "Temperature Sensor 2 (C) - 'Tair_2_Avg'",
+
+    "Relative Humidity Sensor 1 (%) - 'RH_1_Avg'",
+    "Relative Humidity Sensor 2 (%) - 'RH_2_Avg'",
+
+    "Vapor Pressure Sensor 1 (hPa) - 'VP_1_Avg'",
+    "Vapor Pressure Sensor 2 (hPa) - 'VP_2_Avg'",
+
+    "Saturation Vapor Pressure Sensor 1 (hPa) - 'VPsat_1_Avg'",
+    "Saturation Vapor Pressure Sensor 2 (hPa) - 'VPsat_2_Avg'",
+
+    "Vapor Pressure Deficit Sensor 1 (hPa) - 'VPD_1_Avg'",
+    "Vapor Pressure Deficit Sensor 2 (hPa) - 'VPD_2_Avg'",
+
+    "Wind Speed (m/s) - 'WS_1_Avg'",
+    "Wind Direction (degrees) - 'WDrs_1_Avg'",
+
+    "Pressure (kPa) - 'P_1'",
+    "Sea Level Pressure (hPa) - 'Psl_1'",
+
+    "Soil Temperature 1 (C) - 'Tsoil_1_Avg'",
+    "Soil Temperature 2 (C) - 'Tsoil_2'",
+    "Soil Temperature 3 (C) - 'Tsoil_3'",
+    "Soil Temperature 4 (C) - 'Tsoil_4'",
+
+    "Soil Moisture 1 (%) - 'SM_1_Avg'",
+    "Soil Moisture 2 (%) - 'SM_2_Avg'",
+    "Soil Moisture 3 (%) - 'SM_3_Avg'",
+
+    "Soil Heat Flux (W/m2) - 'SHFsrf_1_Avg'",
+
+    "Rainfall (mm) - 'RF_1_Tot300s'",
+    "Rainfall Intensity (mm/hr) - 'RFint_1_Max'"
   ];
+
 
   filteredVariables: string[] = [...this.variableList];
   variableSearch = '';
@@ -107,16 +150,25 @@ export class ErrorReportingComponent {
   }
 
   submitForm() {
-    this.submitToGoogleSheet(this.formData);
+    this.submitToGoogleSheet(this.formData)
+    .then(() => {
+      alert('Report submitted successfully.');
 
-    this.formData = {
-      username: '',
-      stationNumber: '',
-      variableId: [] as string[],
-      startDate: '',
-      endDate: '',
-      notes: ''
-    };
+      this.formData = {
+        username: '',
+        screenStartDate: '',
+        screenEndDate: '',
+        stationNumber: '',
+        variableId: [],
+        startDate: '',
+        endDate: '',
+        notes: ''
+      };
+    })
+    .catch(() => {
+      alert('Submission failed. Please try again.');
+    });
+  
   }
   toggleVariable(v: string) {
     if (this.formData.variableId.includes(v)) {
@@ -128,16 +180,15 @@ export class ErrorReportingComponent {
 
 
   submitToGoogleSheet(record: any) {
-    const url = 'https://script.google.com/macros/s/AKfycbzT1GnXos5ahoeJAyDTBx73NmntjIovI49UbYgs_HM9RUK0cPpxaNIHUosD40EE9U6Q/exec';
+    const url = 'https://script.google.com/macros/s/AKfycbybVw0OZ7Lw7nL1Ryb03co8u5_sq_jZmV7J8m2l4erqq_1jrrL63pS-qMbJuACsaXKq/exec';
 
-    return fetch(url, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(record)
-    });
+  return fetch(url, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(record)
+  }).then(() => {});
   }
-
 }

@@ -1,7 +1,8 @@
 <div class="container">
   <h2>Mesonet Error Reporting Form</h2>
 
-    <form (ngSubmit)="submitForm()">
+      <form #f="ngForm" (ngSubmit)="submitForm()" novalidate>
+
 
       <label>Username</label>
       <input type="text" [(ngModel)]="formData.username" name="username" required />
@@ -23,6 +24,7 @@
             (input)="filterStations()"
             name="stationSearch"
             class="dropdown-search"
+          required
           />
 
           <div 
@@ -35,6 +37,12 @@
 
         </div>
       </div>
+
+      <label>SCREENING Start Date</label>
+      <input type="datetime-local" [(ngModel)]="formData.screenStartDate" name="screenStartDate" required/>
+
+      <label>SCREENING End Date</label>
+      <input type="datetime-local" [(ngModel)]="formData.screenEndDate" name="screenEndDate" required/>
 
       <label>Variable ID(s)</label>
 
@@ -58,6 +66,7 @@
             (input)="filterVariables()"
             name="variableSearch"
             class="dropdown-search"
+          required
           />
           <div
             class="dropdown-option"
@@ -71,12 +80,10 @@
         </div>
       </div>
 
+      <label>FLAG Start Date</label>
+      <input type="datetime-local" [(ngModel)]="formData.startDate" name="startDate" required/>
 
-
-      <label>Start Date</label>
-      <input type="datetime-local" [(ngModel)]="formData.startDate" name="startDate" />
-
-      <label>End Date</label>
+      <label>FLAG End Date</label>
       <input type="datetime-local" [(ngModel)]="formData.endDate" name="endDate" />
 
       <label>Notes</label>
