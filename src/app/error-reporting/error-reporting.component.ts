@@ -82,8 +82,8 @@ interface StationMeta {
   }
 
   allowedEmails: string[] = [
-    'cherryle@hawaii.edu',
     'thomas@hawaii.edu',
+    'cherryle@hawaii.edu',
     'tsenghan@hawaii.edu',
     'akuegler@hawaii.edu',
     'zkt9@hawaii.edu',
