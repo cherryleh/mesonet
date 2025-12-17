@@ -1,11 +1,22 @@
+<div *ngIf="!auth.isLoggedIn()" class="login-gate">
+  <h2>Please log in to continue</h2>
+  <div id="googleBtn" class="google-btn-wrapper"></div>
+</div>
+
 <div class="container">
   <h2>Mesonet Error Reporting Form</h2>
 
-      <form #f="ngForm" (ngSubmit)="submitForm()" novalidate>
+      <form *ngIf="auth.isLoggedIn()" (ngSubmit)="submitForm()">
 
 
       <label>Username</label>
-      <input type="text" [(ngModel)]="formData.username" name="username" required />
+      <input
+        type="text"
+        [(ngModel)]="formData.username"
+        name="username"
+        readonly
+      />
+
 
       <label>Station</label>
 

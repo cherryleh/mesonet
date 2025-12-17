@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { ErrorReportService } from '../services/error-report.service';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../services/auth.service';
 
 
 interface StationMeta {
@@ -18,7 +19,10 @@ interface StationMeta {
   templateUrl: './error-reporting.component.html',
   styleUrls: ['./error-reporting.component.css']
 })
-export class ErrorReportingComponent {
+
+  export class ErrorReportingComponent implements OnInit, AfterViewInit {
+
+
 
   stations: StationMeta[] = [];
   filteredStations: StationMeta[] = [];
@@ -51,10 +55,57 @@ export class ErrorReportingComponent {
 
   constructor(
     private http: HttpClient,
-    private errorService: ErrorReportService
+    private errorService: ErrorReportService,
+    public auth: AuthService
   ) {
     this.loadStations();
   }
+
+  ngOnInit() {
+    // @ts-ignore
+    google.accounts.id.initialize({
+      client_id: '698347510630-5vrgd7oallfrjd5afsr778ngevac5f7a.apps.googleusercontent.com',
+      callback: (response: any) => this.handleCredential(response)
+    });
+  }
+
+  ngAfterViewInit() {
+    const el = document.getElementById('googleBtn');
+    if (!el) return;
+
+    // @ts-ignore
+    google.accounts.id.renderButton(el, {
+      theme: 'outline',
+      size: 'large',
+      text: 'signin_with'
+    });
+  }
+
+  allowedEmails: string[] = [
+    'cherryle@hawaii.edu',
+    'thomas@hawaii.edu',
+    'tsenghan@hawaii.edu',
+    'akuegler@hawaii.edu',
+    'zkt9@hawaii.edu',
+    'tbusch@hawaii.edu'
+  ];
+
+
+
+  handleCredential(response: any) {
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    const email = payload.email;
+
+    if (!this.allowedEmails.includes(email)) {
+      alert('This account is not authorized to access this form.');
+      return;
+    }
+
+    this.auth.setUser(email);
+    this.formData.username = email;
+  }
+
+
 
   public variableList: string[] = [
     "Incoming Solar Radiation (W/m2) - 'SWin_1_Avg'",
@@ -170,6 +221,7 @@ export class ErrorReportingComponent {
     });
   
   }
+  
   toggleVariable(v: string) {
     if (this.formData.variableId.includes(v)) {
       this.formData.variableId = this.formData.variableId.filter(x => x !== v);

@@ -125,3 +125,7 @@ button:hover {
 .dropdown-option:hover {
   background: #efefef;
 }
+
+.google-btn-wrapper {
+  max-width: 220px;  
+}
