@@ -22,10 +22,13 @@
         <form #f="ngForm" (ngSubmit)="submitForm()" novalidate>
 
 
-        <label>Username</label>
+        <label>
+          Username<span class="required">*</span>
+        </label>
+
         <input type="text" [(ngModel)]="formData.username" name="username" required />
 
-        <label>Station</label>
+        <label>Station<span class="required">*</span></label>
 
         <div class="dropdown">
 
@@ -62,7 +65,7 @@
         <label>SCREENING End Date</label>
         <input type="datetime-local" [(ngModel)]="formData.screenEndDate" name="screenEndDate" required/>
 
-        <label>Variable ID(s)</label>
+        <label>Variable ID(s)<span class="required">*</span></label>
 
         <div class="dropdown">
           <div class="dropdown-display" (click)="varDropdownOpen = !varDropdownOpen">
@@ -98,13 +101,13 @@
           </div>
         </div>
 
-        <label>FLAG Start Date</label>
+        <label>FLAG Start Date<span class="required">*</span></label>
         <input type="datetime-local" [(ngModel)]="formData.startDate" name="startDate" required/>
 
-        <label>FLAG End Date</label>
+        <label>FLAG End Date (Leave blank if ongoing)</label>
         <input type="datetime-local" [(ngModel)]="formData.endDate" name="endDate" />
 
-        <label>Flag</label>
+        <label>Flag<span class="required">*</span></label>
         <select [(ngModel)]="formData.flag" name="flag" required>
           <option *ngFor="let option of flagOptions" [value]="option">{{ option }}</option>
         </select>

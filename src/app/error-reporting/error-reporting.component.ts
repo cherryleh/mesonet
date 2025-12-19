@@ -178,8 +178,22 @@ export class ErrorReportingComponent {
     this.formData.stationNumber = st.station_id;
     this.dropdownOpen = false;
   }
-
   submitForm() {
+
+    if (!this.hasRequiredFields()) {
+      alert(
+        'Please complete all required fields: Username, Station, Variable, and Flag Start Date.'
+      );
+      return;
+    }
+
+    if (!this.isFlagDateWithinScreening()) {
+      alert(
+        'Flag start and end dates must fall within the screening date range.'
+      );
+      return;
+    }
+
     this.submitToGoogleSheet(this.formData);
 
     alert('Report submitted successfully.');
@@ -215,10 +229,51 @@ export class ErrorReportingComponent {
       body: JSON.stringify(record),
       keepalive: true
     }).catch(() => {
-      // intentionally swallow errors
     });
   }
 
+  private isFlagDateWithinScreening(): boolean {
+    const {
+      screenStartDate,
+      screenEndDate,
+      startDate,
+      endDate
+    } = this.formData;
+
+    if (!screenStartDate || !screenEndDate || !startDate || !endDate) {
+      return true; 
+    }
+
+    const screenStart = new Date(screenStartDate);
+    const screenEnd   = new Date(screenEndDate);
+    const flagStart   = new Date(startDate);
+    const flagEnd     = new Date(endDate);
+
+    return (
+      flagStart >= screenStart &&
+      flagEnd   <= screenEnd &&
+      flagStart <= flagEnd
+    );
+  }
+
+  private hasRequiredFields(): boolean {
+    const {
+      username,
+      stationNumber,
+      variableId,
+      startDate,
+      flag
+    } = this.formData;
+
+    return (
+      !!username?.trim() &&
+      !!stationNumber &&
+      Array.isArray(variableId) &&
+      variableId.length > 0 &&
+      !!startDate &&
+      !!flag
+    );
+  }
 
 
 }

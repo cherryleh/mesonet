@@ -129,3 +129,8 @@ button:hover {
 .google-btn-wrapper {
   max-width: 220px;  
 }
+
+.required {
+  color: #c62828;
+  font-weight: 600;
+}
