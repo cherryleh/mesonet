@@ -1,107 +1,121 @@
-<div *ngIf="!auth.isLoggedIn()" class="login-gate">
-  <h2>Please log in to continue</h2>
-  <div id="googleBtn" class="google-btn-wrapper"></div>
+<div class="container">
+
+<div *ngIf="!authorized" class="login-box">
+  <h2>Restricted Access</h2>
+
+  <input
+    type="password"
+    [(ngModel)]="passwordInput"
+    placeholder="Enter password"
+  />
+
+  <button (click)="checkPassword()">Enter</button>
+
+  <p class="error" *ngIf="authError">
+    Incorrect password
+  </p>
 </div>
 
-<div class="container">
-  <h2>Mesonet Error Reporting Form</h2>
+<div *ngIf="authorized">
+    <h2>Mesonet Error Reporting Form</h2>
 
-      <form *ngIf="auth.isLoggedIn()" (ngSubmit)="submitForm()">
-
-
-      <label>Username</label>
-      <input
-        type="text"
-        [(ngModel)]="formData.username"
-        name="username"
-        readonly
-      />
+        <form #f="ngForm" (ngSubmit)="submitForm()" novalidate>
 
 
-      <label>Station</label>
+        <label>Username</label>
+        <input type="text" [(ngModel)]="formData.username" name="username" required />
 
-      <div class="dropdown">
+        <label>Station</label>
 
-        <div class="dropdown-display" (click)="dropdownOpen = !dropdownOpen">
-          {{ formData.stationNumber || 'Select a station...' }}
-        </div>
+        <div class="dropdown">
 
-        <div class="dropdown-panel" *ngIf="dropdownOpen">
-
-          <input
-            type="text"
-            placeholder="Search..."
-            [(ngModel)]="stationSearch"
-            (input)="filterStations()"
-            name="stationSearch"
-            class="dropdown-search"
-          required
-          />
-
-          <div 
-            class="dropdown-option"
-            *ngFor="let st of filteredStations"
-            (click)="selectStation(st)"
-          >
-            {{ st.station_id }} {{ st.name }}
+          <div class="dropdown-display" (click)="dropdownOpen = !dropdownOpen">
+            {{ formData.stationNumber || 'Select a station...' }}
           </div>
 
+          <div class="dropdown-panel" *ngIf="dropdownOpen">
+
+            <input
+              type="text"
+              placeholder="Search..."
+              [(ngModel)]="stationSearch"
+              (input)="filterStations()"
+              name="stationSearch"
+              class="dropdown-search"
+            required
+            />
+
+            <div 
+              class="dropdown-option"
+              *ngFor="let st of filteredStations"
+              (click)="selectStation(st)"
+            >
+              {{ st.station_id }} {{ st.name }}
+            </div>
+
+          </div>
         </div>
-      </div>
 
-      <label>SCREENING Start Date</label>
-      <input type="datetime-local" [(ngModel)]="formData.screenStartDate" name="screenStartDate" required/>
+        <label>SCREENING Start Date</label>
+        <input type="datetime-local" [(ngModel)]="formData.screenStartDate" name="screenStartDate" required/>
 
-      <label>SCREENING End Date</label>
-      <input type="datetime-local" [(ngModel)]="formData.screenEndDate" name="screenEndDate" required/>
+        <label>SCREENING End Date</label>
+        <input type="datetime-local" [(ngModel)]="formData.screenEndDate" name="screenEndDate" required/>
 
-      <label>Variable ID(s)</label>
+        <label>Variable ID(s)</label>
 
-      <div class="dropdown">
-        <div class="dropdown-display" (click)="varDropdownOpen = !varDropdownOpen">
-          <span *ngIf="formData.variableId.length === 0">
-            Select variable(s)...
-          </span>
+        <div class="dropdown">
+          <div class="dropdown-display" (click)="varDropdownOpen = !varDropdownOpen">
+            <span *ngIf="formData.variableId.length === 0">
+              Select variable(s)...
+            </span>
 
-          <span class="chip" *ngFor="let v of formData.variableId">
-            {{ v }}
-          </span>
-        </div>
-
-        <div class="dropdown-panel" *ngIf="varDropdownOpen">
-
-          <input
-            type="text"
-            placeholder="Search variable..."
-            [(ngModel)]="variableSearch"
-            (input)="filterVariables()"
-            name="variableSearch"
-            class="dropdown-search"
-          required
-          />
-          <div
-            class="dropdown-option"
-            *ngFor="let v of filteredVariables"
-            (click)="toggleVariable(v)"
-          >
-            <input type="checkbox" [checked]="formData.variableId.includes(v)" />
-            {{ v }}
+            <span class="chip" *ngFor="let v of formData.variableId">
+              {{ v }}
+            </span>
           </div>
 
+          <div class="dropdown-panel" *ngIf="varDropdownOpen">
+
+            <input
+              type="text"
+              placeholder="Search variable..."
+              [(ngModel)]="variableSearch"
+              (input)="filterVariables()"
+              name="variableSearch"
+              class="dropdown-search"
+            required
+            />
+            <div
+              class="dropdown-option"
+              *ngFor="let v of filteredVariables"
+              (click)="toggleVariable(v)"
+            >
+              <input type="checkbox" [checked]="formData.variableId.includes(v)" />
+              {{ v }}
+            </div>
+
+          </div>
         </div>
-      </div>
 
-      <label>FLAG Start Date</label>
-      <input type="datetime-local" [(ngModel)]="formData.startDate" name="startDate" required/>
+        <label>FLAG Start Date</label>
+        <input type="datetime-local" [(ngModel)]="formData.startDate" name="startDate" required/>
 
-      <label>FLAG End Date</label>
-      <input type="datetime-local" [(ngModel)]="formData.endDate" name="endDate" />
+        <label>FLAG End Date</label>
+        <input type="datetime-local" [(ngModel)]="formData.endDate" name="endDate" />
 
-      <label>Notes</label>
-      <textarea [(ngModel)]="formData.notes" name="notes"></textarea>
+        <label>Flag</label>
+        <select [(ngModel)]="formData.flag" name="flag" required>
+          <option *ngFor="let option of flagOptions" [value]="option">{{ option }}</option>
+        </select>
 
-      <button type="submit">Submit</button>
+        <label>Notes</label>
+        <textarea [(ngModel)]="formData.notes" name="notes"></textarea>
 
-    </form>
+        <button type="submit">Submit</button>
+
+      </form>
+
+</div>
 
 </div>

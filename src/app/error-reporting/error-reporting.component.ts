@@ -1,9 +1,8 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { ErrorReportService } from '../services/error-report.service';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../services/auth.service';
 
 
 interface StationMeta {
@@ -19,10 +18,7 @@ interface StationMeta {
   templateUrl: './error-reporting.component.html',
   styleUrls: ['./error-reporting.component.css']
 })
-
-  export class ErrorReportingComponent implements OnInit, AfterViewInit {
-
-
+export class ErrorReportingComponent {
 
   stations: StationMeta[] = [];
   filteredStations: StationMeta[] = [];
@@ -37,6 +33,7 @@ interface StationMeta {
     variableId: string[];
     startDate: string;
     endDate: string;
+    flag: string;
     notes: string;
   } = {
     username: '',
@@ -46,6 +43,7 @@ interface StationMeta {
     variableId: [],
     startDate: '',
     endDate: '',
+    flag: '',
     notes: ''
   };
 
@@ -55,57 +53,25 @@ interface StationMeta {
 
   constructor(
     private http: HttpClient,
-    private errorService: ErrorReportService,
-    public auth: AuthService
+    private errorService: ErrorReportService
   ) {
     this.loadStations();
   }
 
-  ngOnInit() {
-    // @ts-ignore
-    google.accounts.id.initialize({
-      client_id: '698347510630-5vrgd7oallfrjd5afsr778ngevac5f7a.apps.googleusercontent.com',
-      callback: (response: any) => this.handleCredential(response)
-    });
-  }
-
-  ngAfterViewInit() {
-    const el = document.getElementById('googleBtn');
-    if (!el) return;
-
-    // @ts-ignore
-    google.accounts.id.renderButton(el, {
-      theme: 'outline',
-      size: 'large',
-      text: 'signin_with'
-    });
-  }
-
-  allowedEmails: string[] = [
-    'thomas@hawaii.edu',
-    'cherryle@hawaii.edu',
-    'tsenghan@hawaii.edu',
-    'akuegler@hawaii.edu',
-    'zkt9@hawaii.edu',
-    'tbusch@hawaii.edu'
+  public flagOptions: string[] = [
+    "No data (blank, NaN, other missing code)",
+    "Out of range - high",
+    "Out of range - low",
+    "Inconsistent with related variable(s)",
+    "Inconsistent with nearby station",
+    "Timestamp error",
+    "Stuck at a constant value",
+    "Clogged rain gauge",
+    "Upspike",
+    "Downspike",
+    "Erratic",
+    "Other"
   ];
-
-
-
-  handleCredential(response: any) {
-    const payload = JSON.parse(atob(response.credential.split('.')[1]));
-    const email = payload.email;
-
-    if (!this.allowedEmails.includes(email)) {
-      alert('This account is not authorized to access this form.');
-      return;
-    }
-
-    this.auth.setUser(email);
-    this.formData.username = email;
-  }
-
-
 
   public variableList: string[] = [
     "Incoming Solar Radiation (W/m2) - 'SWin_1_Avg'",
@@ -154,6 +120,20 @@ interface StationMeta {
     "Rainfall (mm) - 'RF_1_Tot300s'",
     "Rainfall Intensity (mm/hr) - 'RFint_1_Max'"
   ];
+  authorized = false;
+  passwordInput = '';
+  authError = false;
+
+  private readonly PAGE_PWRD = 'Halenet1988';
+
+  checkPassword() {
+    if (this.passwordInput === this.PAGE_PWRD) {
+      this.authorized = true;
+      this.authError = false;
+    } else {
+      this.authError = true;
+    }
+  }
 
 
   filteredVariables: string[] = [...this.variableList];
@@ -166,7 +146,6 @@ interface StationMeta {
       v.toLowerCase().includes(q)
     );
   }
-
 
   loadStations() {
     this.http.get(this.stationCsvUrl, { responseType: 'text' })
@@ -202,26 +181,26 @@ interface StationMeta {
 
   submitForm() {
     this.submitToGoogleSheet(this.formData)
-    .then(() => {
-      alert('Report submitted successfully.');
+      .then(() => {
+        alert('Report submitted successfully.');
 
-      this.formData = {
-        username: '',
-        screenStartDate: '',
-        screenEndDate: '',
-        stationNumber: '',
-        variableId: [],
-        startDate: '',
-        endDate: '',
-        notes: ''
-      };
-    })
-    .catch(() => {
-      alert('Submission failed. Please try again.');
-    });
-  
+        this.formData = {
+          username: this.formData.username,
+          screenStartDate: this.formData.screenStartDate,
+          screenEndDate: this.formData.screenEndDate,
+          stationNumber: this.formData.stationNumber,
+          variableId: [],
+          startDate: '',
+          endDate: '',
+          flag: '',
+          notes: ''
+        };
+      })
+      .catch(() => {
+        alert('Submission failed. Please try again.');
+      });
   }
-  
+
   toggleVariable(v: string) {
     if (this.formData.variableId.includes(v)) {
       this.formData.variableId = this.formData.variableId.filter(x => x !== v);
