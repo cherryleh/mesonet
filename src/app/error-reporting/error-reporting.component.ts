@@ -180,26 +180,23 @@ export class ErrorReportingComponent {
   }
 
   submitForm() {
-    this.submitToGoogleSheet(this.formData)
-      .then(() => {
-        alert('Report submitted successfully.');
+    this.submitToGoogleSheet(this.formData);
 
-        this.formData = {
-          username: this.formData.username,
-          screenStartDate: this.formData.screenStartDate,
-          screenEndDate: this.formData.screenEndDate,
-          stationNumber: this.formData.stationNumber,
-          variableId: [],
-          startDate: '',
-          endDate: '',
-          flag: '',
-          notes: ''
-        };
-      })
-      .catch(() => {
-        alert('Submission failed. Please try again.');
-      });
+    alert('Report submitted successfully.');
+
+    this.formData = {
+      username: this.formData.username,
+      screenStartDate: this.formData.screenStartDate,
+      screenEndDate: this.formData.screenEndDate,
+      stationNumber: this.formData.stationNumber,
+      variableId: [],
+      startDate: '',
+      endDate: '',
+      flag: '',
+      notes: ''
+    };
   }
+
 
   toggleVariable(v: string) {
     if (this.formData.variableId.includes(v)) {
@@ -209,17 +206,19 @@ export class ErrorReportingComponent {
     }
   }
 
-
   submitToGoogleSheet(record: any) {
-    const url = 'https://script.google.com/macros/s/AKfycbybVw0OZ7Lw7nL1Ryb03co8u5_sq_jZmV7J8m2l4erqq_1jrrL63pS-qMbJuACsaXKq/exec';
+    const url =
+      'https://script.google.com/macros/s/AKfycbybVw0OZ7Lw7nL1Ryb03co8u5_sq_jZmV7J8m2l4erqq_1jrrL63pS-qMbJuACsaXKq/exec';
 
-  return fetch(url, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(record)
-  }).then(() => {});
+    fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(record),
+      keepalive: true
+    }).catch(() => {
+      // intentionally swallow errors
+    });
   }
+
+
+
 }
