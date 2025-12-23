@@ -215,10 +215,13 @@ export class ErrorReportingComponent {
 
 
   toggleVariable(v: string) {
-    if (this.formData.variableId.includes(v)) {
-      this.formData.variableId = this.formData.variableId.filter(x => x !== v);
+    const match = v.match(/'([^']+)'/);
+    const id = match ? match[1] : v; 
+
+    if (this.formData.variableId.includes(id)) {
+      this.formData.variableId = this.formData.variableId.filter(x => x !== id);
     } else {
-      this.formData.variableId.push(v);
+      this.formData.variableId.push(id);
     }
   }
 
