@@ -59,6 +59,7 @@ export class ErrorReportingComponent {
   }
 
   public flagOptions: string[] = [
+    "No flags - screening period clean",
     "No data (blank, NaN, other missing code)",
     "Out of range - high",
     "Out of range - low",
@@ -74,6 +75,7 @@ export class ErrorReportingComponent {
   ];
 
   public variableList: string[] = [
+    "None - Screening period clean",
     "Incoming Solar Radiation (W/m2) - 'SWin_1_Avg'",
     "Outgoing Solar Radiation (W/m2) - 'SWout_1_Avg'",
     "Incoming Longwave Radiation (W/m2) - 'LWin_1_Avg'",
@@ -274,6 +276,42 @@ export class ErrorReportingComponent {
       !!flag
     );
   }
+
+  selectAllVariables(checked: boolean) {
+    if (checked) {
+      this.formData.variableId = [...this.variableList];
+    } else {
+      this.formData.variableId = [];
+    }
+  }
+
+
+  allVariablesSelected(): boolean {
+    return (
+      this.formData.variableId.length === this.variableList.length
+    );
+  }
+
+  getVariableSummary(): string {
+    const selected = this.formData.variableId;
+    const total = this.variableList.length;
+
+    if (!selected || selected.length === 0) {
+      return 'Select variables...';
+    }
+
+    if (selected.length === total) {
+      return `${total} variables selected`;
+    }
+
+    if (selected.length <= 3) {
+      return selected.join(', ');
+    }
+
+    return `${selected.length} variables selected`;
+  }
+
+
 
 
 }

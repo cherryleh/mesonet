@@ -134,3 +134,41 @@ button:hover {
   color: #c62828;
   font-weight: 600;
 }
+
+.dropdown-panel {
+  padding: 8px 10px;
+}
+
+.select-all-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.select-all-row label,
+.variable-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;              
+  line-height: 1.2;
+}
+
+.select-all-row input,
+.variable-option input {
+  margin: 0;
+}
+
+.variable-option {
+  padding: 2px 0;      
+}
+
+.dropdown-search {
+  margin: 6px 0 8px 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.divider {
+  margin: 6px 0;
+  opacity: 0.3;
+}
