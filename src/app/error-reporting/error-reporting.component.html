@@ -59,12 +59,6 @@
           </div>
         </div>
 
-        <label>SCREENING Start Date</label>
-        <input type="datetime-local" [(ngModel)]="formData.screenStartDate" name="screenStartDate" required/>
-
-        <label>SCREENING End Date</label>
-        <input type="datetime-local" [(ngModel)]="formData.screenEndDate" name="screenEndDate" required/>
-
         <label>
           Variable ID(s)<span class="required">*</span>
         </label>
@@ -120,6 +114,12 @@
           </div>
         </div>
 
+
+        <label>SCREENING Start Date</label>
+        <input type="datetime-local" [(ngModel)]="formData.screenStartDate" name="screenStartDate" required/>
+
+        <label>SCREENING End Date</label>
+        <input type="datetime-local" [(ngModel)]="formData.screenEndDate" name="screenEndDate" required/>
 
         <label>FLAG Start Date<span class="required">*</span></label>
         <input type="datetime-local" [(ngModel)]="formData.startDate" name="startDate" required/>

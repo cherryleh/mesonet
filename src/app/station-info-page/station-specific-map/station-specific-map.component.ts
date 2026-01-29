@@ -72,26 +72,30 @@ export class StationSpecificMapComponent {
         let selectedStation: { lat: number; lon: number; name: string } | undefined; 
 
         data.forEach(station => {
-          if (station.lat && station.lng && station.name) {
-            let coords = this.randomizeLatLon(station.lat, station.lng);
+          const lat = Number((station as any).lat);
+          const lng = Number((station as any).lng);
 
-            if (stationId && station.station_id === stationId) {
-              selectedStation = { lat: coords.lat, lon: coords.lon, name: station.name }; 
-            }
+          if (!Number.isFinite(lat) || !Number.isFinite(lng) || !station.name) return;
 
-            const circle = L.circleMarker([coords.lat, coords.lon], {
-              radius: 8,
-              color: 'blue',
-              fillColor: 'blue',
-              fillOpacity: 0.2,
-              weight: 2
-            });
+          const coords = this.randomizeLatLon(lat, lng);
 
-            const url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`;
-            circle.bindPopup(`<a href="${url}" style="font-size: 20px" target="_blank">${station.name}</a>`);
-            circle.addTo(this.map);
+          if (stationId && station.station_id === stationId) {
+            selectedStation = { lat: coords.lat, lon: coords.lon, name: station.name };
           }
+
+          const circle = L.circleMarker([coords.lat, coords.lon], {
+            radius: 8,
+            color: 'blue',
+            fillColor: 'blue',
+            fillOpacity: 0.2,
+            weight: 2
+          });
+
+          const url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${station.station_id}`;
+          circle.bindPopup(`<a href="${url}" style="font-size: 20px" target="_blank">${station.name}</a>`);
+          circle.addTo(this.map);
         });
+
 
         if (selectedStation !== undefined) { 
           const selectedCircle = L.circleMarker([selectedStation.lat, selectedStation.lon], {
