@@ -34,6 +34,7 @@ export class ErrorReportingComponent {
     startDate: string;
     endDate: string;
     flag: string;
+    severity: '' | 'suspect' | 'bad';
     notes: string;
   } = {
     username: '',
@@ -44,6 +45,7 @@ export class ErrorReportingComponent {
     startDate: '',
     endDate: '',
     flag: '',
+    severity: '',
     notes: ''
   };
 
@@ -75,7 +77,6 @@ export class ErrorReportingComponent {
   ];
 
   public variableList: string[] = [
-    "None - Screening period clean",
     "Incoming Solar Radiation (W/m2) - 'SWin_1_Avg'",
     "Outgoing Solar Radiation (W/m2) - 'SWout_1_Avg'",
     "Incoming Longwave Radiation (W/m2) - 'LWin_1_Avg'",
@@ -135,6 +136,19 @@ export class ErrorReportingComponent {
     } else {
       this.authError = true;
     }
+  }
+
+  public severityOptions: Array<'suspect' | 'bad'> = ['suspect', 'bad'];
+
+  private readonly FLAGS_REQUIRING_SEVERITY = new Set<string>([
+    'Out of range - high',
+    'Out of range - low',
+    'Inconsistent with related variable(s)',
+    'Inconsistent with nearby station'
+  ]);
+
+  severityRequired(): boolean {
+    return this.FLAGS_REQUIRING_SEVERITY.has(this.formData.flag);
   }
 
 
@@ -209,6 +223,7 @@ export class ErrorReportingComponent {
       startDate: '',
       endDate: '',
       flag: '',
+      severity: '',
       notes: ''
     };
   }
@@ -266,7 +281,6 @@ export class ErrorReportingComponent {
       username,
       stationNumber,
       variableId,
-      startDate,
       flag
     } = this.formData;
 
@@ -275,7 +289,6 @@ export class ErrorReportingComponent {
       !!stationNumber &&
       Array.isArray(variableId) &&
       variableId.length > 0 &&
-      !!startDate &&
       !!flag
     );
   }

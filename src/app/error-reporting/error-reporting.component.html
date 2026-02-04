@@ -121,17 +121,27 @@
         <label>SCREENING End Date</label>
         <input type="datetime-local" [(ngModel)]="formData.screenEndDate" name="screenEndDate" required/>
 
-        <label>FLAG Start Date<span class="required">*</span></label>
+        <label>FLAG Start Date</label>
         <input type="datetime-local" [(ngModel)]="formData.startDate" name="startDate" required/>
 
         <label>FLAG End Date (Leave blank if ongoing)</label>
-        <input type="datetime-local" [(ngModel)]="formData.endDate" name="endDate" />
+        <input type="datetime-local" [(ngModel)]="formData.endDate" name="ecndDate" />
 
         <label>Flag<span class="required">*</span></label>
         <select [(ngModel)]="formData.flag" name="flag" required>
           <option *ngFor="let option of flagOptions" [value]="option">{{ option }}</option>
         </select>
-        
+        <div *ngIf="severityRequired()">
+          <label>Severity<span class="required">*</span></label>
+          <select
+            [(ngModel)]="formData.severity"
+            name="severity"
+            required
+          >
+            <option value="" disabled>Select severity...</option>
+            <option *ngFor="let s of severityOptions" [value]="s">{{ s }}</option>
+          </select>
+        </div>
 
         <label>Notes</label>
         <textarea [(ngModel)]="formData.notes" name="notes"></textarea>
