@@ -77,52 +77,37 @@ export class ErrorReportingComponent {
   ];
 
   public variableList: string[] = [
-    "Incoming Solar Radiation (W/m2) - 'SWin_1_Avg'",
-    "Outgoing Solar Radiation (W/m2) - 'SWout_1_Avg'",
-    "Incoming Longwave Radiation (W/m2) - 'LWin_1_Avg'",
-    "Outgoing Longwave Radiation (W/m2) - 'LWout_1_Avg'",
-    "Net Solar Radiation (W/m2) - 'SWnet_1_Avg'",
-    "Net Longwave Radiation (W/m2) - 'LWnet_1_Avg'",
-    "Net Radiation (W/m2) - 'Rnet_1_Avg'",
-    "Albedo - 'Albedo_1_Avg'",
-    "Surface Temperature (C) - 'Tsrf_1_Avg'",
-    "Sky Temperature (C) - 'Tsky_1_Avg'",
-
-    "Temperature Sensor 1 (C) - 'Tair_1_Avg'",
-    "Temperature Sensor 2 (C) - 'Tair_2_Avg'",
-
-    "Relative Humidity Sensor 1 (%) - 'RH_1_Avg'",
-    "Relative Humidity Sensor 2 (%) - 'RH_2_Avg'",
-
-    "Vapor Pressure Sensor 1 (hPa) - 'VP_1_Avg'",
-    "Vapor Pressure Sensor 2 (hPa) - 'VP_2_Avg'",
-
-    "Saturation Vapor Pressure Sensor 1 (hPa) - 'VPsat_1_Avg'",
-    "Saturation Vapor Pressure Sensor 2 (hPa) - 'VPsat_2_Avg'",
-
-    "Vapor Pressure Deficit Sensor 1 (hPa) - 'VPD_1_Avg'",
-    "Vapor Pressure Deficit Sensor 2 (hPa) - 'VPD_2_Avg'",
-
-    "Wind Speed (m/s) - 'WS_1_Avg'",
-    "Wind Direction (degrees) - 'WDrs_1_Avg'",
-
-    "Pressure (kPa) - 'P_1'",
-    "Sea Level Pressure (hPa) - 'Psl_1'",
-
-    "Soil Temperature 1 (C) - 'Tsoil_1_Avg'",
-    "Soil Temperature 2 (C) - 'Tsoil_2'",
-    "Soil Temperature 3 (C) - 'Tsoil_3'",
-    "Soil Temperature 4 (C) - 'Tsoil_4'",
-
-    "Soil Moisture 1 (%) - 'SM_1_Avg'",
-    "Soil Moisture 2 (%) - 'SM_2_Avg'",
-    "Soil Moisture 3 (%) - 'SM_3_Avg'",
-
-    "Soil Heat Flux (W/m2) - 'SHFsrf_1_Avg'",
-
-    "Rainfall (mm) - 'RF_1_Tot300s'",
-    "Rainfall Intensity (mm/hr) - 'RFint_1_Max'"
+    "Incoming shortwave radiation (W/m²),	SWin_1_Avg",
+    "Outgoing shortwave radiation (W/m²),	SWout_1_Avg",
+    "Incoming longwave radiation (W/m²),	LWin_1_Avg",
+    "Outgoing longwave radiation (W/m²),	LWout_1_Avg",
+    "Air temperature sensor 1 (°C),	Tair_1_Avg",
+    "Relative humidity sensor 1 (%),	RH_1_Avg",
+    "Air temperature sensor 2 (°C),	Tair_2_Avg",
+    "Relative humidity sensor 2 (%),	RH_2_Avg",
+    "Wind speed, scalar average (m/s),	WS_1_Avg",
+    "Wind direction, scalar average (°),	WDuv_1_Avg",
+    "Air Pressure (kPa),	P_1_Avg",
+    "Soil moisture/Soil volumetric water content (m³/m³),	SM_1_Avg",
+    "Soil moisture/Soil volumetric water content sensor 2 (m³/m³),	SM_2_Avg",
+    "Soil moisture/Soil volumetric water content sensor 3 (m³/m³),	SM_3_Avg",
+    "Soil temperature (°C),	Tsoil_1_Avg",
+    "Soil temperature sensor 2 (°C),	Tsoil_2_Avg",
+    "Soil temperature sensor 3 (°C),	Tsoil_3_Avg",
+    "Soil temperature sensor 4 (°C),	Tsoil_4_Avg",
+    "Soil heat flux at ground surface, sensor 2 (W/m²),	SHF_1_Avg",
+    "Soil heat flux at ground surface, sensor 1 (W/m²),	SHF_2_Avg",
+    "Rainfall 5-minute total (mm),	RF_1_Tot300s",
+    "Maximum rain intensity (mm/hour),	RFint_1_Max",
+    "Rainfall, 5-minute total sensor 2 (mm),	RF_2_Tot300s",
+    "Maximum rain intensity, sensor 2 (mm/hour),	RFint_2_Max",
+    "Fuel moisture (%), FM_1_Avg",
+    "Fuel temperature (°C),	FT_1_Avg",
+    "Fog collection, 5-minute total (ml),	FC_1_Tot300s",
+    "Water level (m),	WTlvl_1_Avg",
+    "Water table level (m),	Wlvl_1_Avg"
   ];
+  
   authorized = false;
   passwordInput = '';
   authError = false;

@@ -45,7 +45,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
   variables = [
     { label: 'Air Temperature, Sensor 1', value: 'Tair_1_Avg', yAxisTitle: 'Temperature Sensor 1 (°C)' },
     { label: 'Air Temperature, Sensor 2', value: 'Tair_2_Avg', yAxisTitle: 'Temperature Sensor 2 (°C)' },
-    { label: 'Rainfall', value: 'RF_1_Tot300s', yAxisTitle: 'Rainfall (mm)' },
+    { label: 'Rainfall, 5-minute total', value: 'RF_1_Tot300s', yAxisTitle: 'Rainfall (mm)' },
     { label: 'Soil Moisture, Sensor 1', value: 'SM_1_Avg', yAxisTitle: 'Soil Moisture Sensor 1 (%)' },
     { label: 'Soil Moisture, Sensor 2', value: 'SM_2_Avg', yAxisTitle: 'Soil Moisture Sensor 2 (%)' },
     { label: 'Soil Moisture, Sensor 3', value: 'SM_3_Avg', yAxisTitle: 'Soil Moisture Sensor 3 (%)' },
@@ -67,12 +67,12 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     { label: 'Vapor pressure deficit, Sensor 2', value: 'VPD_2_Avg', yAxisTitle: 'Vapor Pressure Deficit Sensor 2 (kPa)' },
     { label: 'Wind Speed', value: 'WS_1_Avg', yAxisTitle: 'Wind Speed (m/s)' },
     { label: 'Wind Direction', value: 'WDrs_1_Avg', yAxisTitle: 'Wind Direction (°)' },
-    { label: 'Pressure', value: 'P_1', yAxisTitle: 'Pressure (kPa)' },
-    { label: 'Sea level pressure', value: 'Psl_1', yAxisTitle: 'Sea Level Pressure (kPa)' },
+    { label: 'Pressure', value: 'P_1_Avg', yAxisTitle: 'Pressure (kPa)' },
+    { label: 'Sea level pressure', value: 'Psl_1_Avg', yAxisTitle: 'Sea Level Pressure (kPa)' },
     { label: 'Soil Temperature, Sensor 1', value: 'Tsoil_1_Avg', yAxisTitle: 'Soil Temperature Sensor 1 (°C)' },
-    { label: 'Soil Temperature, Sensor 2', value: 'Tsoil_2', yAxisTitle: 'Soil Temperature Sensor 2 (°C)' },
-    { label: 'Soil Temperature, Sensor 3', value: 'Tsoil_3', yAxisTitle: 'Soil Temperature Sensor 3 (°C)' },
-    { label: 'Soil Temperature, Sensor 4', value: 'Tsoil_4', yAxisTitle: 'Soil Temperature Sensor 4 (°C)' },
+    { label: 'Soil Temperature, Sensor 2', value: 'Tsoil_2_Avg', yAxisTitle: 'Soil Temperature Sensor 2 (°C)' },
+    { label: 'Soil Temperature, Sensor 3', value: 'Tsoil_3_Avg', yAxisTitle: 'Soil Temperature Sensor 3 (°C)' },
+    { label: 'Soil Temperature, Sensor 4', value: 'Tsoil_4_Avg', yAxisTitle: 'Soil Temperature Sensor 4 (°C)' },
     { label: 'Surface soil heat flux', value: 'SHFsrf_1_Avg', yAxisTitle: 'Surface Soil Heat Flux (W/m²)' },
     { label: 'Maximum Rainfall Intensity', value: 'RFint_1_Max', yAxisTitle: 'Maximum Rainfall Intensity (mm/hr)' },
     { label: 'Water temperature', value: 'Twt_1_Avg', yAxisTitle: 'Water Temperature (°C)'},
@@ -135,7 +135,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
           this.stationId = params['id'] || 'default_station_id';
           const shortId = this.stationId.substring(0, 4);
 
-          const fallbackVarList = `SWin_1_Avg;SWout_1_Avg;LWin_1_Avg;LWout_1_Avg;SWnet_1_Avg;LWnet_1_Avg;Rnet_1_Avg;Albedo_1_Avg;Tsrf_1_Avg;Tsky_1_Avg;Tair_1_Avg;Tair_2_Avg;RH_1_Avg;RH_2_Avg;VP_1_Avg;VP_2_Avg;VPsat_1_Avg;VPsat_2_Avg;VPD_1_Avg;VPD_2_Avg;WS_1_Avg;WDrs_1_Avg;P_1;Psl_1;Tsoil_1_Avg;SHFsrf_1_Avg;SM_1_Avg;SM_2_Avg;SM_3_Avg;Tsoil_2;Tsoil_3;Tsoil_4;RF_1_Tot300s;RFint_1_Max`.split(';');
+          const fallbackVarList = `SWin_1_Avg;SWout_1_Avg;LWin_1_Avg;LWout_1_Avg;SWnet_1_Avg;LWnet_1_Avg;Rnet_1_Avg;Albedo_1_Avg;Tsrf_1_Avg;Tsky_1_Avg;Tair_1_Avg;Tair_2_Avg;RH_1_Avg;RH_2_Avg;VP_1_Avg;VP_2_Avg;VPsat_1_Avg;VPsat_2_Avg;VPD_1_Avg;VPD_2_Avg;WS_1_Avg;WDrs_1_Avg;P_1_Avg;Psl_1_Avg;Tsoil_1_Avg;SHFsrf_1_Avg;SM_1_Avg;SM_2_Avg;SM_3_Avg;Tsoil_2_Avg;Tsoil_3_Avg;Tsoil_4_Avg;RF_1_Tot300s;RFint_1_Max`.split(';');
           const allowedVariables = this.stationVariablesMap[shortId] ?? fallbackVarList;
 
           this.filteredVariables = this.variables.filter(v => allowedVariables.includes(v.value));
@@ -427,7 +427,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       ['VPsat_1_Avg', 'VPsat_2_Avg'],
       ['VPD_1_Avg', 'VPD_2_Avg'],
       ['RH_1_Avg', 'RH_2_Avg'],
-      ['Tsoil_1_Avg', 'Tsoil_2', 'Tsoil_3', 'Tsoil_4'],
+      ['Tsoil_1_Avg', 'Tsoil_2_Avg', 'Tsoil_3_Avg', 'Tsoil_4_Avg'],
       [
         'SWin_1_Avg', 'SWout_1_Avg', 'LWin_1_Avg', 'LWout_1_Avg',
         'SWnet_1_Avg', 'LWnet_1_Avg', 'Rnet_1_Avg', 'SHFsrf_1_Avg'
@@ -555,7 +555,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
     }
 
     if (this.selectedUnit === 'standard') {
-      if (['Tair_1_Avg', 'Tsrf_1_Avg', 'Tsky_1_Avg', 'Tair_2_Avg', 'Tsoil_1_Avg', 'Tsoil_2', 'Tsoil_3', 'Tsoil_4','Twt_1_Avg'].includes(variable)) {
+      if (['Tair_1_Avg', 'Tsrf_1_Avg', 'Tsky_1_Avg', 'Tair_2_Avg', 'Tsoil_1_Avg', 'Tsoil_2_Avg', 'Tsoil_3_Avg', 'Tsoil_4_Avg','Twt_1_Avg'].includes(variable)) {
         return (value * 9/5) + 32; // Convert °C to °F
       } else if (variable === 'RF_1_Tot300s') {
         return value / 25.4; // Convert mm to inches
@@ -580,9 +580,9 @@ export class GraphingComponent implements OnInit, AfterViewInit {
       Tsrf_1_Avg: `Surface Temperature (${isStandard ? '°F' : '°C'})`,
       Tsky_1_Avg: `Sky Temperature (${isStandard ? '°F' : '°C'})`,
       Tsoil_1_Avg: `Soil Temperature Sensor 1 (${isStandard ? '°F' : '°C'})`,
-      Tsoil_2:     `Soil Temperature Sensor 2 (${isStandard ? '°F' : '°C'})`,
-      Tsoil_3:     `Soil Temperature Sensor 3 (${isStandard ? '°F' : '°C'})`,
-      Tsoil_4:     `Soil Temperature Sensor 4 (${isStandard ? '°F' : '°C'})`,
+      Tsoil_2_Avg:     `Soil Temperature Sensor 2 (${isStandard ? '°F' : '°C'})`,
+      Tsoil_3_Avg:     `Soil Temperature Sensor 3 (${isStandard ? '°F' : '°C'})`,
+      Tsoil_4_Avg:     `Soil Temperature Sensor 4 (${isStandard ? '°F' : '°C'})`,
       WS_1_Avg: `Wind Speed (${isStandard ? 'mph' : 'm/s'})`,
       RF_1_Tot300s: `Rainfall (${isStandard ? 'in' : 'mm'})`,
       Wlvl_1_Avg: `Water Level (${isStandard ? 'ft' : 'm'})`,
