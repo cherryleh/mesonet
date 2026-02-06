@@ -38,53 +38,69 @@ export class AsStationSelectionMapComponent implements AfterViewInit {
   }
 
   fetchStationData(): void {
-    const apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?location=american_samoa'; 
-    const apiToken = environment.apiToken; 
+    const apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?location=american_samoa';
+    const apiToken = environment.apiToken;
 
     fetch(apiUrl, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${apiToken}`, 
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${apiToken}`,
+        'Content-Type': 'application/json',
+      },
     })
-    .then(response => response.json())
-    .then((data: any[]) => {
-      data.forEach(station => {
-        if (station.lat && station.lng && station.name && station.station_id) {
-          const randomizedCoords = this.randomizeLatLon(station.lat, station.lng);
-          const stationId = station.station_id.toString();
+      .then(async (response) => {
+        if (!response.ok) {
+          const text = await response.text().catch(() => '');
+          throw new Error(`Stations request failed: ${response.status} ${response.statusText} ${text}`);
+        }
+        return response.json();
+      })
+      .then((data: any[]) => {
+        console.log('Fetched data:', data);
 
-          let color = 'blue'; // Default color
-          let stationType = 'Weather station'; // Default type
+        data.forEach((station) => {
+          const lat = station.lat != null ? parseFloat(station.lat) : NaN;
+          const lng = station.lng != null ? parseFloat(station.lng) : NaN;
 
-          if (stationId.startsWith('14')) {
-            color = 'red';
-            stationType = 'Stream gauge';
+          if (!Number.isFinite(lat) || !Number.isFinite(lng) || !station.name || !station.station_id) {
+            return; // skip null/invalid coords
           }
 
-          const circle = L.circleMarker([randomizedCoords.lat, randomizedCoords.lon], {
-            radius: 6, 
-            color: color, 
-            fillColor: color, 
-            fillOpacity: 0.5, 
-            weight: 2
+          const randomized = this.randomizeLatLon(lat, lng);
+          const stationId = String(station.station_id);
+
+          const isStreamGauge = stationId.startsWith('14');
+          const color = isStreamGauge ? 'red' : 'blue';
+          const stationType = isStreamGauge ? 'Stream gauge' : 'Weather station';
+
+          const circle = L.circleMarker([randomized.lat, randomized.lon], {
+            radius: 6,
+            color,
+            fillColor: color,
+            fillOpacity: 0.5,
+            weight: 2,
           });
 
           const url = `https://www.hawaii.edu/climate-data-portal/hawaii-mesonet-data/#/dashboard?id=${stationId}`;
           circle.bindPopup(`
-            <a href="${url}" style="font-size: 20px" target="_blank">${station.name}</a><br>
+            <a href="${url}" style="font-size: 20px" target="_blank" rel="noopener">${station.name}</a><br>
             <b>${stationType}</b>
           `);
 
           circle.addTo(this.map);
-        }
+        });
+      })
+      .catch((error) => {
+        console.error('Error fetching station data:', error);
       });
-    })
-    .catch(error => {
-      console.error('Error fetching station data:', error);
-    });
   }
+
+  private randomizeLatLon(lat: number, lon: number): { lat: number; lon: number } {
+    const latOffset = (Math.random() - 0.5) * 0.0002;
+    const lonOffset = (Math.random() - 0.5) * 0.0002;
+    return { lat: lat + latOffset, lon: lon + lonOffset };
+  }
+
 
   private addLegend(): void {
     const legend = new (L.Control.extend({
@@ -105,12 +121,6 @@ export class AsStationSelectionMapComponent implements AfterViewInit {
   }
 
 
-
-  private randomizeLatLon(lat: number, lon: number): { lat: number; lon: number } {
-    const latOffset = (Math.random() - 0.5) * 0.0002; 
-    const lonOffset = (Math.random() - 0.5) * 0.0002;
-    return { lat: lat + latOffset, lon: lon + lonOffset };
-  }
 
   invalidateSize() {
     if (this.map) {
