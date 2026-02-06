@@ -5,8 +5,17 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { environment } from '../../../environments/environment';
 import { MatSort, MatSortModule } from '@angular/material/sort';
+import * as Papa from 'papaparse';
+
+type StationRow = {
+  station_id: string;
+  status: string;
+  full_name: string;
+  lat: number;
+  lng: number;
+  elevation: number;
+};
 
 @Component({
   selector: 'app-station-table',
@@ -24,68 +33,88 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
   ],
 })
 export class StationTableComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'status','full_name', 'island', 'lat', 'lng','elevation']; // Define columns to display
-  dataSource = new MatTableDataSource<any>([]); // Initialize data source
+  displayedColumns: string[] = ['id', 'status', 'full_name', 'island', 'lat', 'lng', 'elevation'];
+  dataSource = new MatTableDataSource<StationRow>([]);
   searchTerm: string = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-
-  constructor() {}
-
   ngOnInit(): void {
-    this.fetchStationData();
-
-    this.dataSource.sortingDataAccessor = (item, property) => {
-      if (property === 'island') {
-        return this.getIsland(item.station_id); // use derived value
-      }
-      return item[property];
+    // Derived "island" sorting
+    this.dataSource.sortingDataAccessor = (item: StationRow, property: string) => {
+      if (property === 'island') return this.getIsland(item.station_id);
+      // fallback to direct property
+      return (item as any)[property];
     };
-  }
 
+    // Optional: make the filter also match derived island
+    this.dataSource.filterPredicate = (data: StationRow, filter: string) => {
+      const f = filter.trim().toLowerCase();
+      const island = this.getIsland(data.station_id).toLowerCase();
+      return (
+        (data.station_id ?? '').toLowerCase().includes(f) ||
+        (data.status ?? '').toLowerCase().includes(f) ||
+        (data.full_name ?? '').toLowerCase().includes(f) ||
+        island.includes(f) ||
+        String(data.lat ?? '').includes(f) ||
+        String(data.lng ?? '').includes(f) ||
+        String(data.elevation ?? '').includes(f)
+      );
+    };
+
+    this.fetchStationDataFromCsv();
+  }
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator; 
-    this.dataSource.sort = this.sort; 
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
   }
 
-  async fetchStationData(): Promise<void> {
-    const apiUrl = 'https://api.hcdp.ikewai.org/mesonet/db/stations?location=hawaii';
-    const apiToken = environment.apiToken;
+  fetchStationDataFromCsv(): void {
+    const csvUrl =
+      `https://raw.githubusercontent.com/HCDP/loggernet_station_data/refs/heads/main/csv_data/stations/station_metadata.csv?t=${Date.now()}`;
 
-    try {
-      const response = await fetch(apiUrl, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${apiToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
+    Papa.parse(csvUrl, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: (results: Papa.ParseResult<any>) => {
+        const rows = (results.data ?? []) as any[];
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const parsed: StationRow[] = rows
+          .map((r) => {
+            const lat = parseFloat(r.lat);
+            const lng = parseFloat(r.lng);
+            const elevation = r.elevation !== undefined && r.elevation !== null && r.elevation !== ''
+              ? parseFloat(r.elevation)
+              : NaN;
+
+            return {
+              station_id: (r.station_id ?? '').toString().trim(),
+              status: (r.status ?? '').toString().trim(),
+              full_name: (r.full_name ?? r.name ?? '').toString().trim(),
+              lat,
+              lng,
+              elevation: isNaN(elevation) ? NaN : elevation,
+            };
+          })
+          // Filter out rows with missing coords (same behavior you had in API version)
+          .filter((s) => s.station_id && !isNaN(s.lat) && !isNaN(s.lng));
+
+        this.dataSource.data = parsed;
+
+        // If you want to show the table already sorted, you can set an initial sort here.
+        this.dataSource.sort = this.sort;
+        this.dataSource.paginator = this.paginator;
+      },
+      error: (err) => {
+        console.error('Error loading station CSV:', err);
       }
-
-      const responseData = await response.json();
-
-      // Filter out stations with missing lat or lng
-      const filteredData = responseData.filter(
-        (station: any) => station.lat !== null && station.lng !== null
-      );
-
-      console.log('Filtered data:', filteredData);
-      this.dataSource.data = filteredData;
-
-      this.dataSource.sort = this.sort;
-      this.dataSource.paginator = this.paginator;
-    } catch (error) {
-      console.error('Error fetching station data:', error);
-    }
+    });
   }
 
-  getStationUrl(element: any): string {
+  getStationUrl(element: StationRow): string {
     const status = element.status?.toLowerCase();
     const id = element.station_id;
 
@@ -102,18 +131,20 @@ export class StationTableComponent implements OnInit {
     const normalized = status?.toLowerCase();
     if (normalized === 'planned') return 'orange';
     if (normalized === 'inactive') return 'gray';
-    return 'green'; // treating "active" and others as green
+    return 'green';
   }
 
-
   applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value;
+    const filterValue = (event.target as HTMLInputElement).value ?? '';
     this.dataSource.filter = filterValue.trim().toLowerCase();
+
+    // Optional quality-of-life: jump back to first page after filtering
+    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
   }
 
   getIsland(stationId: string): string {
     if (!stationId) return '';
-    const firstDigit = stationId[1];
+    const firstDigit = stationId[1]; // your existing logic
     switch (firstDigit) {
       case '1': return 'Maui';
       case '2': return 'Hawaii';
@@ -123,5 +154,4 @@ export class StationTableComponent implements OnInit {
       default: return 'Unknown';
     }
   }
-
 }
