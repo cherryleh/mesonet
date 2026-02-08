@@ -41,14 +41,12 @@ export class StationTableComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
-    // Derived "island" sorting
     this.dataSource.sortingDataAccessor = (item: StationRow, property: string) => {
       if (property === 'island') return this.getIsland(item.station_id);
-      // fallback to direct property
+
       return (item as any)[property];
     };
 
-    // Optional: make the filter also match derived island
     this.dataSource.filterPredicate = (data: StationRow, filter: string) => {
       const f = filter.trim().toLowerCase();
       const island = this.getIsland(data.station_id).toLowerCase();
@@ -99,12 +97,10 @@ export class StationTableComponent implements OnInit {
               elevation: isNaN(elevation) ? NaN : elevation,
             };
           })
-          // Filter out rows with missing coords (same behavior you had in API version)
           .filter((s) => s.station_id && !isNaN(s.lat) && !isNaN(s.lng));
 
         this.dataSource.data = parsed;
 
-        // If you want to show the table already sorted, you can set an initial sort here.
         this.dataSource.sort = this.sort;
         this.dataSource.paginator = this.paginator;
       },
@@ -138,13 +134,12 @@ export class StationTableComponent implements OnInit {
     const filterValue = (event.target as HTMLInputElement).value ?? '';
     this.dataSource.filter = filterValue.trim().toLowerCase();
 
-    // Optional quality-of-life: jump back to first page after filtering
     if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
   }
 
   getIsland(stationId: string): string {
     if (!stationId) return '';
-    const firstDigit = stationId[1]; // your existing logic
+    const firstDigit = stationId[1]; 
     switch (firstDigit) {
       case '1': return 'Maui';
       case '2': return 'Hawaii';

@@ -48,7 +48,7 @@
             required
             />
 
-            <div 
+            <div
               class="dropdown-option"
               *ngFor="let st of filteredStations"
               (click)="selectStation(st)"
@@ -116,10 +116,22 @@
 
 
         <label>SCREENING Start Date</label>
-        <input type="datetime-local" [(ngModel)]="formData.screenStartDate" name="screenStartDate" required/>
+        <input
+          type="date"
+          [(ngModel)]="formData.screenStartDate"
+          name="screenStartDate"
+          required
+        />
 
         <label>SCREENING End Date</label>
-        <input type="datetime-local" [(ngModel)]="formData.screenEndDate" name="screenEndDate" required/>
+        <input
+          type="date"
+          [(ngModel)]="formData.screenEndDate"
+          name="screenEndDate"
+          [min]="formData.screenStartDate"
+          required
+        />
+
 
         <label>FLAG Start Date</label>
         <input type="datetime-local" [(ngModel)]="formData.startDate" name="startDate" required/>

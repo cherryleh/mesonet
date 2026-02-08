@@ -107,7 +107,7 @@ export class ErrorReportingComponent {
     "Water level (m),	WTlvl_1_Avg",
     "Water table level (m),	Wlvl_1_Avg"
   ];
-  
+
   authorized = false;
   passwordInput = '';
   authError = false;
@@ -183,8 +183,13 @@ export class ErrorReportingComponent {
 
     if (!this.hasRequiredFields()) {
       alert(
-        'Please complete all required fields: Username, Station, Variable, and Flag Start Date.'
+        'Please complete all required fields: Username, Station, and Variable.'
       );
+      return;
+    }
+
+    if (!this.isScreeningRangeValid()) {
+      alert('Screening end date must be the same as or after the screening start date.');
       return;
     }
 
@@ -204,7 +209,7 @@ export class ErrorReportingComponent {
       screenStartDate: this.formData.screenStartDate,
       screenEndDate: this.formData.screenEndDate,
       stationNumber: this.formData.stationNumber,
-      variableId: [],
+      variableId: this.formData.variableId,
       startDate: '',
       endDate: '',
       flag: '',
@@ -216,7 +221,7 @@ export class ErrorReportingComponent {
 
   toggleVariable(v: string) {
     const match = v.match(/'([^']+)'/);
-    const id = match ? match[1] : v; 
+    const id = match ? match[1] : v;
 
     if (this.formData.variableId.includes(id)) {
       this.formData.variableId = this.formData.variableId.filter(x => x !== id);
@@ -237,6 +242,20 @@ export class ErrorReportingComponent {
     });
   }
 
+  private isScreeningRangeValid(): boolean {
+    const { screenStartDate, screenEndDate } = this.formData;
+
+    if (!screenStartDate || !screenEndDate) return true;
+
+    const start = new Date(screenStartDate);
+    const end = new Date(screenEndDate);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return false;
+
+    return end >= start;
+  }
+
+
   private isFlagDateWithinScreening(): boolean {
     const {
       screenStartDate,
@@ -246,7 +265,7 @@ export class ErrorReportingComponent {
     } = this.formData;
 
     if (!screenStartDate || !screenEndDate || !startDate || !endDate) {
-      return true; 
+      return true;
     }
 
     const screenStart = new Date(screenStartDate);
