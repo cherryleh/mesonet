@@ -1,7 +1,7 @@
 import { Component, AfterViewInit, ChangeDetectorRef,ViewEncapsulation } from '@angular/core';
 import * as L from 'leaflet';
 import { CommonModule } from '@angular/common';
-import { environment } from "../../environments/environment";  
+import { environment } from "../../environments/environment";
 import { interpolateViridis } from "d3-scale-chromatic";
 import { interpolateTurbo } from 'd3-scale-chromatic';
 import { HeaderComponent } from '../header/header.component';
@@ -48,20 +48,20 @@ export class DataMapComponent implements AfterViewInit {
     if ((window as any).L?.WindBarb) {
       return;
     }
-  
+
     return new Promise((resolve, reject) => {
       const scriptId = 'leaflet-windbarb-js';
-  
+
       if (document.getElementById(scriptId)) {
         resolve();
         return;
       }
-  
+
       const script = document.createElement('script');
       script.id = scriptId;
       script.src = 'assets/libs/leaflet-windbarb.js';
       script.onload = () => {
-        console.log('L.WindBarb:', (window as any).L?.WindBarb);  
+        console.log('L.WindBarb:', (window as any).L?.WindBarb);
         if ((window as any).L?.WindBarb?.icon) {
           resolve();
         } else {
@@ -72,10 +72,10 @@ export class DataMapComponent implements AfterViewInit {
       document.body.appendChild(script);
     });
   }
-  
 
-  
-  selectedVariable = "Tair_1_Avg"; 
+
+
+  selectedVariable = "Tair_1_Avg";
   variableOptions = [
     { id: "Tair_1_Avg", name: "Air Temperature" },
     { id: "RF_1_Tot300s_24H", name: "24H Rainfall" },
@@ -95,7 +95,7 @@ export class DataMapComponent implements AfterViewInit {
         const url = `${this.measurementsUrl}&var_ids=${this.selectedVariable}&station_ids=0115&local_tz=True&limit=1`;
 
         console.log("Fetching latest observation time from:", url);
-        
+
         const response = await fetch(url, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${this.apiToken}`, 'Content-Type': 'application/json' }
@@ -119,7 +119,7 @@ export class DataMapComponent implements AfterViewInit {
 
 formatTimestamp(timestamp: string): string {
     const date = new Date(timestamp);
-    date.setMinutes(date.getMinutes() - 5); 
+    date.setMinutes(date.getMinutes() - 5);
 
     const formattedDate = date.toLocaleDateString('en-US', {
         month: 'long',  // Full month name (e.g., "February")
@@ -134,7 +134,7 @@ formatTimestamp(timestamp: string): string {
         timeZone: 'Pacific/Honolulu' // Ensure HST is displayed
     });
 
-    return `${formattedDate} ${formattedTime}`; 
+    return `${formattedDate} ${formattedTime}`;
 }
 
 async fetchStationData(): Promise<void> {
@@ -188,41 +188,41 @@ async fetchStationData(): Promise<void> {
 
     const variableData: { [key: string]: { value: number | null, timestamp: string | null } } = {};
 
-    if (varId === 'RF_1_Tot300s') {
-      // Sum rainfall per station
-      const rainMap: { [key: string]: { total: number, timestamp: string | null } } = {};
-      const now = new Date();
+      if (varId === 'RF_1_Tot300s') {
+        // Sum last 24 hours per station (288 x 5-min intervals)
+        const rainMap: { [key: string]: { total: number; latestTs: string | null } } = {};
+        const now = new Date();
+        const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-      for (const entry of data) {
-        const sid = entry.station_id;
-        const val = parseFloat(entry.value);
-        const ts = entry.timestamp;
-        const tsDate = new Date(ts);
+        for (const entry of data) {
+          const sid = entry.station_id;
+          const val = parseFloat(entry.value);
+          const ts = entry.timestamp;
 
-        const withinOneHour = (now.getTime() - tsDate.getTime()) <= 60 * 60 * 1000;
+          if (!ts || isNaN(val)) continue;
 
-        if (!isNaN(val) && withinOneHour) {
-          if (
-            !variableData[sid] ||
-            tsDate > new Date(variableData[sid].timestamp || 0)
-          ) {
-            variableData[sid] = {
-              value: val,
-              timestamp: ts
-            };
+          const tsDate = new Date(ts);
+          if (tsDate < cutoff) continue; // older than 24h -> ignore
+
+          if (!rainMap[sid]) {
+            rainMap[sid] = { total: 0, latestTs: null };
           }
-        } else {
-          console.log(`Skipping ${sid}: data too old (${ts})`);
-        }
-      }
 
-      for (const sid in rainMap) {
-        variableData[sid] = {
-          value: rainMap[sid].total,
-          timestamp: rainMap[sid].timestamp
-        };
-      }
-    } else {
+          rainMap[sid].total += val;
+
+          if (!rainMap[sid].latestTs || tsDate > new Date(rainMap[sid].latestTs)) {
+            rainMap[sid].latestTs = ts;
+          }
+        }
+
+        // Convert summed totals into variableData for downstream rendering
+        for (const sid in rainMap) {
+          variableData[sid] = {
+            value: rainMap[sid].total,
+            timestamp: rainMap[sid].latestTs
+          };
+        }
+      } else {
       // Take first valid value per station
       for (const entry of data) {
         const sid = entry.station_id;
@@ -248,7 +248,7 @@ async fetchStationData(): Promise<void> {
       const entry = variableData[sid];
       if (!entry || entry.value == null) continue;
 
-      const value = Number(entry.value);  
+      const value = Number(entry.value);
       if (this.selectedVariable === 'Tsoil_1_Avg' && value > 50) continue;
       if (this.selectedVariable === 'SM_1_Avg' && value > 1) continue;
 
@@ -268,7 +268,7 @@ async fetchStationData(): Promise<void> {
     if (this.selectedVariable === 'RF_1_Tot300s_24H') {
       minValue = 0;
 
-      const fixedMax = 1;  
+      const fixedMax = 1;
       maxValue = maxValue > fixedMax ? maxValue : fixedMax;
     }
 
@@ -318,7 +318,7 @@ async fetchStationData(): Promise<void> {
     console.error("Error fetching station data:", error);
   } finally {
     this.isLoading = false;
-    this.cdr.detectChanges(); 
+    this.cdr.detectChanges();
   }
 }
 
@@ -428,8 +428,8 @@ private async plotWindBarbs(): Promise<void> {
   }
 }
 
-  
-  
+
+
 
 async fetchStationDetails(stationId: string): Promise<void> {
     try {
@@ -562,7 +562,7 @@ async fetchStationDetails(stationId: string): Promise<void> {
       : interpolateTurbo(normalizedValue);
   }
 
-  
+
 
   ngAfterViewInit(): void {
     requestAnimationFrame(() => {
@@ -570,7 +570,7 @@ async fetchStationDetails(stationId: string): Promise<void> {
         center: [20.493410, -158.064388],
         zoom: 8,
         layers: [L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')],
-        zoomControl: false 
+        zoomControl: false
       });
 
       L.control.zoom({ position: "bottomleft" }).addTo(this.map);
@@ -582,7 +582,7 @@ async fetchStationDetails(stationId: string): Promise<void> {
     });
   }
 
-  
+
 
   private addLegend(minValue: number, maxValue: number): void {
     if (this.selectedVariable === 'wind') {
@@ -629,7 +629,7 @@ async fetchStationDetails(stationId: string): Promise<void> {
     setTimeout(() => {
         const gradientDiv = document.getElementById("legend-gradient");
         if (gradientDiv) {
-            gradientDiv.style.background = `linear-gradient(to right, 
+            gradientDiv.style.background = `linear-gradient(to right,
             ${this.selectedVariable === "RF_1_Tot300s_24H"
                 ? `${interpolateViridis(1)}, ${interpolateViridis(0.75)}, ${interpolateViridis(0.5)}, ${interpolateViridis(0.25)}, ${interpolateViridis(0)}`
                 : this.selectedVariable === "SM_1_Avg" || this.selectedVariable === "RH_1_Avg"
@@ -679,7 +679,7 @@ async fetchStationDetails(stationId: string): Promise<void> {
       "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
       "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW", "N"
     ];
-  
+
     const index = Math.round(degrees / 22.5) % 16;
     return directions[index];
   }
@@ -692,15 +692,15 @@ async fetchStationDetails(stationId: string): Promise<void> {
       // Convert temperature (°C ↔ °F)
       if (this.selectedStation.details['Tair_1_Avg']) {
           const tempC = parseFloat(this.selectedStation.details['Tair_1_Avg']);
-          this.convertedDetails['Tair_1_Avg'] = this.unitSystem === 'standard' 
-              ? `${((tempC * 9/5) + 32).toFixed(1)}°F` 
+          this.convertedDetails['Tair_1_Avg'] = this.unitSystem === 'standard'
+              ? `${((tempC * 9/5) + 32).toFixed(1)}°F`
               : `${tempC.toFixed(1)}°C`;
       }
 
       if (this.selectedStation.details['Tsoil_1_Avg']) {
           const tempC = parseFloat(this.selectedStation.details['Tsoil_1_Avg']);
-          this.convertedDetails['Tsoil_1_Avg'] = this.unitSystem === 'standard' 
-              ? `${((tempC * 9/5) + 32).toFixed(1)}°F` 
+          this.convertedDetails['Tsoil_1_Avg'] = this.unitSystem === 'standard'
+              ? `${((tempC * 9/5) + 32).toFixed(1)}°F`
               : `${tempC.toFixed(1)}°C`;
       }
 
@@ -708,14 +708,14 @@ async fetchStationDetails(stationId: string): Promise<void> {
       if (this.selectedStation.details['RF_1_Tot300s']) {
           const rainMM = parseFloat(this.selectedStation.details['RF_1_Tot300s']);
           this.convertedDetails['RF_1_Tot300s'] = this.unitSystem === 'standard'
-              ? `${(rainMM / 25.4).toFixed(2)} in` 
+              ? `${(rainMM / 25.4).toFixed(2)} in`
               : `${rainMM.toFixed(1)} mm`;
       }
 
       if (this.selectedStation.details['WS_1_Avg']) {
           const windMS = parseFloat(this.selectedStation.details['WS_1_Avg']);
-          this.convertedDetails['WS_1_Avg'] = this.unitSystem === 'standard' 
-              ? `${(windMS * 2.23694).toFixed(2)} mph` 
+          this.convertedDetails['WS_1_Avg'] = this.unitSystem === 'standard'
+              ? `${(windMS * 2.23694).toFixed(2)} mph`
               : `${windMS.toFixed(1)} m/s`;
       }
       if (this.selectedStation.details['WDrs_1_Avg']) {
