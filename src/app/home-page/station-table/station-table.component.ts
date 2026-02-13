@@ -97,6 +97,7 @@ export class StationTableComponent implements OnInit {
               elevation: isNaN(elevation) ? NaN : elevation,
             };
           })
+          .filter((s) => s.station_id && s.station_id.startsWith('0'))
           .filter((s) => s.station_id && !isNaN(s.lat) && !isNaN(s.lng));
 
         this.dataSource.data = parsed;
@@ -139,7 +140,7 @@ export class StationTableComponent implements OnInit {
 
   getIsland(stationId: string): string {
     if (!stationId) return '';
-    const firstDigit = stationId[1]; 
+    const firstDigit = stationId[1];
     switch (firstDigit) {
       case '1': return 'Maui';
       case '2': return 'Hawaii';
