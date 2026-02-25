@@ -68,6 +68,7 @@ export class ErrorReportingComponent {
     "Inconsistent with related variable(s)",
     "Inconsistent with nearby station",
     "Timestamp error",
+    "Midnight-specific spikes",
     "Stuck at a constant value",
     "Clogged rain gauge",
     "Upspike",
@@ -183,7 +184,7 @@ export class ErrorReportingComponent {
 
     if (!this.hasRequiredFields()) {
       alert(
-        'Please complete all required fields: Username, Station, and Variable.'
+        'Please complete all required fields: Username, Station, Screening Start Date, and Variable.'
       );
       return;
     }
@@ -284,6 +285,7 @@ export class ErrorReportingComponent {
     const {
       username,
       stationNumber,
+      screenStartDate,
       variableId,
       flag
     } = this.formData;
