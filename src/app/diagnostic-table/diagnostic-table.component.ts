@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 
 interface StationRow {
   stationId: string;
-  [key: string]: string | number | null; 
+  [key: string]: string | number | null;
 }
 
 @Component({
@@ -90,7 +90,6 @@ export class DiagnosticTableComponent implements OnInit {
     });
   }
 
-  // ---------- Sorting ----------
   sortColumn: string | null = null;
   sortDirection: 'asc' | 'desc' = 'asc';
 
@@ -110,57 +109,91 @@ export class DiagnosticTableComponent implements OnInit {
       if (aVal == null) return 1;
       if (bVal == null) return -1;
 
-      if (typeof aVal === 'number' && typeof bVal === 'number') {
-        return this.sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+      // Helper to convert values to numbers for sorting
+      const getSortValue = (val: any) => {
+        const isLowBad = column.includes('Cell') || column.includes('BattVolt');
+        const isHighBad = column.includes('RHenc') || column.includes('diff');
+
+        // Catch missing data strings
+        if (val === 'No Data' || val === 'Missing' || val === '') {
+          return isHighBad ? Infinity : -Infinity;
+        }
+
+        // Catch 0 as a critical error code for Cell and Battery columns
+        if (val === 0 && isLowBad) {
+          return -Infinity;
+        }
+
+        // Parse percentages
+        if (typeof val === 'string' && val.endsWith('%')) {
+          return parseFloat(val);
+        }
+
+        return val;
+      };
+
+      const aCompare = getSortValue(aVal);
+      const bCompare = getSortValue(bVal);
+
+      // Compare as numbers if both are valid numbers (including Infinity)
+      if (typeof aCompare === 'number' && typeof bCompare === 'number' && !isNaN(aCompare) && !isNaN(bCompare)) {
+        if (aCompare === bCompare) return 0; // Prevents NaN when subtracting Infinity from Infinity
+        return this.sortDirection === 'asc' ? aCompare - bCompare : bCompare - aCompare;
       }
 
+      // Fallback to alphabetical sorting for anything else
       return this.sortDirection === 'asc'
         ? String(aVal).localeCompare(String(bVal))
         : String(bVal).localeCompare(String(aVal));
     });
   }
 
-  // ---------- Status evaluation ----------
-  private evaluateStatus(variable: string, numValue: number | null): string {
-    if (numValue === null || numValue === undefined) return "No Data";
+  private evaluateStatus(variable: string, numValue: any): string {
+    if (
+      numValue === "Missing" ||
+      numValue === null ||
+      numValue === undefined ||
+      numValue === "No Data" ||
+      numValue === ""
+    ) {
+      return "Critical";
+    }
 
     switch (variable) {
       case "BattVolt":
         if (numValue === 0) return "No Data";
         if (numValue < 11.8) return "Critical";
-        if (numValue < 12.2) return "Warning"; // merged caution + warning
+        if (numValue < 12.2) return "Warning";
         return "Good";
 
       case "RHenc_max":
-        if (numValue >= 75) return "Critical";
-        if (numValue >= 50) return "Warning"; // merged caution
+        if (numValue >= 80) return "Critical";
+        if (numValue >= 60) return "Warning";
         return "Good";
 
       case "RHenc_50":
         if (numValue >= 30) return "Critical";
-        if (numValue > 10) return "Warning"; // merged caution
+        if (numValue > 10) return "Warning";
         return "Good";
 
       case "CellStr":
         if (numValue === 0 || numValue === -130) return "Critical";
-        if (numValue < -120) return "Critical";
-        if (numValue < -115) return "Warning";
+        if (numValue < -120) return "Warning";
         return "Good";
 
       case "CellQlt":
         if (numValue === 0 || numValue === -99) return "Critical";
-        if (numValue < -20) return "Critical";
-        if (numValue < -15) return "Warning";
+        if (numValue < -18) return "Warning";
         return "Good";
 
       case "Tair_diff":
         if (numValue > 0.2) return "Critical";
-        if (numValue > 0.1) return "Warning"; // merged caution
+        if (numValue > 0.1) return "Warning";
         return "Good";
 
       case "RH_diff":
         if (numValue > 2) return "Critical";
-        if (numValue > 1.5) return "Warning"; // merged caution
+        if (numValue > 1.5) return "Warning";
         return "Good";
 
       default:
@@ -170,14 +203,21 @@ export class DiagnosticTableComponent implements OnInit {
 
 
   evaluateCell(variable: string, value: any): string {
-    if (value === null || value === undefined || value === '') return "No Data";
+    if (value === "Missing") {
+      const mappings: Record<string, string> = { "24hr_min_CellStr": "CellStr" };
+      return this.evaluateStatus(mappings[variable] || "", value);
+    }
+
+    if (value === null || value === undefined || value === '' || value === "No Data") {
+      return "No Data";
+    }
 
     const mappings: Record<string, string> = {
+      "24hr_min_CellStr": "CellStr",
+      "24hr_min_CellQlt": "CellQlt",
       "24hr_min_BattVolt": "BattVolt",
       "24hr_max_RHenc": "RHenc_max",
       "24hr_>50_RHenc": "RHenc_50",
-      "24hr_min_CellStr": "CellStr",
-      "24hr_min_CellQlt": "CellQlt",
       "24hr_avg_diff_Tair_Avg": "Tair_diff",
       "24hr_avg_diff_RH_Avg": "RH_diff"
     };
@@ -185,7 +225,12 @@ export class DiagnosticTableComponent implements OnInit {
     const thresholdKey = mappings[variable];
     if (!thresholdKey) return "";
 
-    return this.evaluateStatus(thresholdKey, typeof value === "number" ? value : null);
+    let evalValue = value;
+    if (typeof value === 'string' && value.endsWith('%')) {
+      evalValue = parseFloat(value);
+    }
+
+    return this.evaluateStatus(thresholdKey, evalValue);
   }
 
   // ---------- Pivot ----------
@@ -201,20 +246,32 @@ export class DiagnosticTableComponent implements OnInit {
     ];
 
     Object.entries(raw).forEach(([stationId, details]: [string, any]) => {
-      const row: any = { stationId };
+      const row: any = {
+        stationId,
+        '24hr_min_CellStr': 'No Data',
+        '24hr_min_CellQlt': 'No Data',
+        '24hr_min_BattVolt': 'No Data',
+        '24hr_max_RHenc': 'No Data',
+        '24hr_>50_RHenc': 'No Data',
+        '24hr_avg_diff_Tair_Avg': 'No Data',
+        '24hr_avg_diff_RH_Avg': 'No Data',
+        'Missing_Latest': 'No Data'
+      };
 
       ['24hr_min', '24hr_max', '24hr_>50', '24hr_avg_diff'].forEach(section => {
         const sectionData = details[section] || {};
         Object.entries(sectionData).forEach(([varName, val]: [string, any]) => {
-        let newVal = val ?? null;
+        let newVal = (val === null || val === undefined || val === '')
+        ? "No Data"
+        : val;
         if (section === '24hr_avg_diff' && (varName === 'Tair_Avg' || varName === 'RH_Avg')) {
           if (typeof newVal === 'number') {
-            newVal = Math.abs(newVal);                 
-            newVal = Math.round(newVal * 100) / 100;   
+            newVal = Math.abs(newVal);
+            newVal = Math.round(newVal * 100) / 100;
           }
         } else if (section === '24hr_>50' && varName === 'RHenc') {
           if (typeof newVal === 'number') {
-            newVal = Math.round(newVal * 100) / 100; 
+            newVal = (Math.round(newVal * 100) / 100) + '%';
           }
         }
 
@@ -247,9 +304,17 @@ export class DiagnosticTableComponent implements OnInit {
       let hasCritical = false;
       let hasWarning = false;
 
-      Object.entries(mappings).forEach(([colName, thresholdKey]) => {
-        const val = row[colName] as number | null;
-        const status = this.evaluateStatus(thresholdKey, typeof val === "number" ? val : null);
+        Object.entries(mappings).forEach(([colName, thresholdKey]) => {
+        const val = row[colName];
+
+        let numVal: number | null = null;
+        if (typeof val === "number") {
+          numVal = val;
+        } else if (typeof val === "string" && val.endsWith('%')) {
+          numVal = parseFloat(val);
+        }
+
+        const status = this.evaluateStatus(thresholdKey, numVal);
         if (status === "Critical") hasCritical = true;
         if (status === "Warning") hasWarning = true;
       });
@@ -277,13 +342,13 @@ export class DiagnosticTableComponent implements OnInit {
   showCriteria = false;
 
   criteriaReference = [
-    { variable: 'BattVolt', critical: '< 11.8', warning: '< 12.2' },
-    { variable: 'RHenc_max', critical: '≥ 75', warning: '≥ 50' },
-    { variable: 'RHenc_50', critical: '≥ 30', warning: '> 10' },
-    { variable: 'CellStr', critical: '< -120 OR = -130 OR = 0', warning: '< -115' },
-    { variable: 'CellQlt', critical: '< -20 OR = -99 OR = 0', warning: '< -15' },
-    { variable: 'Tair_diff', critical: '> 0.2', warning: '> 0.1' },
-    { variable: 'RH_diff', critical: '> 2', warning: '> 1.5' }
+    { variable: '24hr_min_CellStr', description: '24-hour minimum Cell String', critical: '< -130, 0, or NAN', warning: '< 120' },
+    { variable: '24hr_min_CellQlt', description: '24-hour minimum Cell Quality', critical: '-99, 0, or NAN', warning: '< -18' },
+    { variable: '24hr_min_BattVolt', description: '24-hour minimum Battery Voltage', critical: '< 11.8', warning: '< 12.2' },
+    { variable: '24hr_max_RHenc', description: '24-hour maximum Relative Humidity Enclosure', critical: '≥ 80', warning: '≥ 60' },
+    { variable: '24hr_>50_RHenc', description: 'Percent time RHenc is over 50% in the last 24 hours', critical: '≥ 30', warning: '> 10' },
+    { variable: '24hr_avg_diff_Tair_Avg', description: '24-hour average difference Temperature Air Average', critical: '> 0.2', warning: '> 0.1' },
+    { variable: '24hr_avg_diff_RH_Avg', description: '24-hour average difference Relative Humidity Average', critical: '> 2', warning: '> 1.5' }
   ];
 
 

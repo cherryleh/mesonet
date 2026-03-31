@@ -24,6 +24,7 @@
     <thead>
       <tr>
         <th>Variable</th>
+        <th>Description</th>
         <th>⚠️ Warning</th>
         <th>❌ Critical</th>
       </tr>
@@ -31,6 +32,7 @@
     <tbody>
       <tr *ngFor="let c of criteriaReference">
         <td><b>{{ c.variable }}</b></td>
+        <td>{{ c.description }}</td>
         <td>{{ c.warning }}</td>
         <td>{{ c.critical }}</td>
       </tr>
@@ -59,12 +61,13 @@
       <tr *ngFor="let row of stationData">
         <td>{{ row.stationId }}</td>
         <td *ngFor="let col of columns"
-            [ngClass]="{
-              'critical': evaluateCell(col, row[col]) === 'Critical',
-              'warning': evaluateCell(col, row[col]) === 'Warning',
-              'caution': evaluateCell(col, row[col]) === 'Caution'
-            }">
-          {{ row[col] }}
+          [ngClass]="{
+            'critical': evaluateCell(col, row[col]) === 'Critical'
+                        || ((col === '24hr_min_CellStr' || col === '24hr_min_CellQlt') && row[col] === 'No Data'),
+            'warning': evaluateCell(col, row[col]) === 'Warning',
+            'caution': evaluateCell(col, row[col]) === 'Caution'
+          }">
+          {{ row[col] === null || row[col] === undefined || row[col] === '' ? 'No Data' : row[col] }}
         </td>
         <td [ngClass]="{
               'critical': row['Status'] === 'Critical',
