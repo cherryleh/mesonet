@@ -67,7 +67,7 @@
             'warning': evaluateCell(col, row[col]) === 'Warning',
             'caution': evaluateCell(col, row[col]) === 'Caution'
           }">
-          {{ row[col] === null || row[col] === undefined || row[col] === '' ? 'No Data' : row[col] }}
+          {{ (row[col] === null || row[col] === undefined || row[col] === '') ? (col === 'Missing_Latest' ? '' : 'No Data') : row[col] }}
         </td>
         <td [ngClass]="{
               'critical': row['Status'] === 'Critical',

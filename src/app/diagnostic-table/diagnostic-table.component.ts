@@ -238,10 +238,10 @@ export class DiagnosticTableComponent implements OnInit {
     const rows: any[] = [];
 
     const expectedVars = [
-      'P_1', 'RF_1_Tot300s', 'RH_1_Avg', 'RH_2_Avg',
+      'P_1_Avg', 'RF_1_Tot300s', 'RH_1_Avg', 'RH_2_Avg',
       'SM_1_Avg', 'SM_2_Avg', 'SM_3_Avg',
       'SWin_1_Avg', 'Tair_1_Avg', 'Tair_2_Avg',
-      'Tsoil_1_Avg', 'Tsoil_2', 'Tsoil_3', 'Tsoil_4',
+      'Tsoil_1_Avg', 'Tsoil_2_Avg', 'Tsoil_3_Avg', 'Tsoil_4_Avg',
       'WS_1_Avg'
     ];
 
