@@ -271,4 +271,11 @@ table.mat-table thead th {
   color: #101010; /* Material gray */
 }
 
+.rate-limit-error {
+  display: block;
+  margin-top: 12px;
+  font-size: 14px;
+  color: #c0392b;
+}
+
 

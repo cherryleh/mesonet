@@ -98,6 +98,10 @@
           <button mat-raised-button type="submit">
             Generate Report
           </button>
+
+          <mat-error *ngIf="rateLimitError" class="rate-limit-error">
+            Too many requests. You can submit up to 5 reports every 15 minutes. Please wait before trying again.
+          </mat-error>
         </div>
       </form> 
 

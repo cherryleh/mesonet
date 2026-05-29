@@ -79,6 +79,7 @@ export class ReportsComponent implements OnInit {
   checkboxTooltip = ""; 
 
   hasSubmitted: boolean = false;
+  rateLimitError: boolean = false;
 
   intervalOptions = [
     { value: '5-minute', label: '5-Minute' },
@@ -228,6 +229,7 @@ export class ReportsComponent implements OnInit {
 
   onSubmit(): void {
     this.isLoading = true;
+    this.rateLimitError = false;
 
     const formValues = this.reportForm.getRawValue();
     let { startDate, endDate, email, interval, confirmLongRange } = this.reportForm.getRawValue();
@@ -282,6 +284,9 @@ export class ReportsComponent implements OnInit {
             console.warn('Received 202 response, treating as success.');
             this.isLoading = false;
             this.dialog.open(EmailDialogComponent, { width: '400px' });
+          } else if (err.status === 429) {
+            this.rateLimitError = true;
+            this.isLoading = false;
           } else {
             console.error('Email export failed:', err);
             this.isLoading = false;
@@ -317,7 +322,11 @@ export class ReportsComponent implements OnInit {
           this.isLoading = false;
         },
         error: (err) => {
-          console.error('API fetch failed:', err);
+          if (err.status === 429) {
+            this.rateLimitError = true;
+          } else {
+            console.error('API fetch failed:', err);
+          }
           this.isLoading = false;
         }
       });
