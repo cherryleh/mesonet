@@ -24,7 +24,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { Subscription } from 'rxjs';
 import { SidebarService } from '../services/sidebar.service';
-import { ReportsApiService } from '../services/reports-api.service';
+import { ReportsApiService, STREAM_VAR_IDS, STANDARD_VAR_IDS } from '../services/reports-api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { EmailDialogComponent } from '../email-dialog/email-dialog.component';
@@ -93,7 +93,7 @@ export class ReportsComponent implements OnInit {
   public maxDate: Date = new Date();
   public showExportButton: boolean = false;
 
-  public headersMap: { [key: string]: string } = {
+  private standardHeadersMap: { [key: string]: string } = {
     timestamp: 'Timestamp',
     station_id: 'Station ID',
     Tair_1_Avg: 'Temperature Sensor 1 (C)',
@@ -132,8 +132,27 @@ export class ReportsComponent implements OnInit {
     SHFsrf_1_Avg: 'Soil Heat Flux (W/m2)',
   };
 
-  public headers = Object.keys(this.headersMap);   
-  public displayHeaders = Object.values(this.headersMap);
+  private streamHeadersMap: { [key: string]: string } = {
+    timestamp: 'Timestamp',
+    station_id: 'Station ID',
+    Twt_1_Avg: 'Water Temperature (C)',
+    Wlvl_1_Avg: 'Water Level (m)',
+    RF_1_Tot300s: 'Rainfall, 5-minute total (mm)',
+  };
+
+  get headersMap(): { [key: string]: string } {
+    return this.reportsApiService.isStreamStation(this.stationId)
+      ? this.streamHeadersMap
+      : this.standardHeadersMap;
+  }
+
+  get headers(): string[] {
+    return Object.keys(this.headersMap);
+  }
+
+  get displayHeaders(): string[] {
+    return Object.values(this.headersMap);
+  }
   bannerMessage: string | null = null;
   constructor(
     private route: ActivatedRoute,
@@ -224,11 +243,15 @@ export class ReportsComponent implements OnInit {
       return;
     }
 
+    const location = this.stationId.startsWith('1') ? 'american_samoa' : 'hawaii';
+    const isStream = this.reportsApiService.isStreamStation(this.stationId);
+    const varIds = isStream ? STREAM_VAR_IDS : STANDARD_VAR_IDS;
     const exportPayload = {
       email: email,
       data: {
+        location: location,
         station_ids: [this.stationId],
-        var_ids: ["Tair_1_Avg", "Tair_2_Avg", "RF_1_Tot300s","RFint_1_Max", "SWin_1_Avg", "SWout_1_Avg", "LWin_1_Avg", "LWout_1_Avg", "SWnet_1_Avg", "LWnet_1_Avg", "Rnet_1_Avg", "Albedo_1_Avg", "Tsrf_1_Avg", "Tsky_1_Avg", "RH_1_Avg", "RH_2_Avg", "VP_1_Avg", "VP_2_Avg", "VPsat_1_Avg", "VPsat_2_Avg", "VPD_1_Avg", "VPD_2_Avg", "WS_1_Avg", "WDrs_1_Avg", "P_1_Avg", "Psl_1_Avg", "Tsoil_1_Avg", "SHFsrf_1_Avg", "SM_1_Avg", "SM_2_Avg", "SM_3_Avg", "Tsoil_2_Avg", "Tsoil_3_Avg","Tsoil_4_Avg"],
+        var_ids: varIds,
         start_date: startDate,
         end_date: endDate,
         local_tz: "true",
@@ -327,47 +350,16 @@ export class ReportsComponent implements OnInit {
   }
 
   formatTableData(): void {
+    const varIds = this.reportsApiService.isStreamStation(this.stationId) ? STREAM_VAR_IDS : STANDARD_VAR_IDS;
     const groupedData = this.reportData.reduce((acc, row) => {
       const key = `${row.timestamp}-${row.station_id}`;
       if (!acc[key]) {
-        acc[key] = {
+        const entry: any = {
           timestamp: this.formatTimestampForTable(row.timestamp),
           station_id: row.station_id,
-          Tair_1_Avg: null,
-          Tair_2_Avg: null,
-          RF_1_Tot300s: null,
-          RFint_1_Max: null,
-          SWin_1_Avg: null,
-          SWout_1_Avg: null,
-          LWin_1_Avg: null,
-          LWout_1_Avg: null,
-          SWnet_1_Avg: null,
-          LWnet_1_Avg: null,
-          Rnet_1_Avg: null,
-          Albedo_1_Avg: null,
-          Tsrf_1_Avg: null,
-          Tsky_1_Avg: null,
-          RH_1_Avg: null,
-          RH_2_Avg: null,
-          VP_1_Avg: null,
-          VP_2_Avg: null,
-          VPsat_1_Avg: null,
-          VPsat_2_Avg: null,
-          VPD_1_Avg: null,
-          VPD_2_Avg: null,
-          WS_1_Avg: null,
-          WDrs_1_Avg: null,
-          P_1_Avg: null,
-          Psl_1_Avg: null,
-          Tsoil_1_Avg: null,
-          Tsoil_2_Avg: null,
-          Tsoil_3_Avg: null,
-          Tsoil_4_Avg: null,
-          SM_1_Avg: null,
-          SM_2_Avg: null,
-          SM_3_Avg: null,
-          SHFsrf_1_Avg: null
         };
+        varIds.forEach(v => entry[v] = null);
+        acc[key] = entry;
       }
       if (row.variable in acc[key]) {
         let value = row.value;
