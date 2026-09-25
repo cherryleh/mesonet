@@ -123,3 +123,28 @@
 .custom-green-button:hover {
   background-color: #2E7D32 !important; /* Darker Green */
 }
+.hurricane-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 80%;
+  margin: 0 auto 12px;
+  padding: 10px 16px;
+  background: #e0f2fe;
+  border-left: 4px solid #0369a1;
+  border-radius: 4px;
+  color: #0c4a6e;
+  font-size: 1.05em;
+  text-align: center;
+}
+
+.hurricane-banner a {
+  color: #0369a1;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.hurricane-icon {
+  font-size: 1.4em;
+}

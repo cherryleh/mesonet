@@ -2,9 +2,15 @@
   <img src="logo.png" alt="Hawaii Mesonet Logo" />
   <p class="title">Hawai&#699;i Mesonet Live Data Access</p>
 </section>
-<app-banner 
+<app-banner
     [message]="bannerMessage">
 </app-banner>
+<div class="hurricane-banner" role="note">
+  <span>
+    Tracking the hurricane? Follow it more closely with the
+    <a href="https://www.hawaii.edu/climate-data-portal/nolo-mesonet-viewer/" target="_blank" rel="noopener">Nolo Mesonet Viewer</a>.
+  </span>
+</div>
 <div class="nav-button">
   <button mat-flat-button class="custom-blue-button" [routerLink]="'/data-map'">
     Data Maps
@@ -18,20 +24,20 @@
 
 
 <div class="home-container">
-  <div 
-    class="left-app" 
-    [class.expanded]="selectedView === 'map'" 
-    [class.collapsed]="selectedView === 'table'" 
+  <div
+    class="left-app"
+    [class.expanded]="selectedView === 'map'"
+    [class.collapsed]="selectedView === 'table'"
     (click)="toggleView('map')"
   >
     <app-station-map *ngIf="selectedView === 'map'"></app-station-map>
     <div class="preview-label" *ngIf="selectedView === 'table'">Map Search</div>
   </div>
 
-  <div 
-    class="right-app" 
-    [class.expanded]="selectedView === 'table'" 
-    [class.collapsed]="selectedView === 'map'" 
+  <div
+    class="right-app"
+    [class.expanded]="selectedView === 'table'"
+    [class.collapsed]="selectedView === 'map'"
     (click)="toggleView('table')"
   >
     <app-station-table *ngIf="selectedView === 'table'"></app-station-table>
