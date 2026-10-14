@@ -24,7 +24,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { Subscription } from 'rxjs';
 import { SidebarService } from '../services/sidebar.service';
-import { ReportsApiService, STREAM_VAR_IDS, STANDARD_VAR_IDS } from '../services/reports-api.service';
+import { ReportsApiService } from '../services/reports-api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { EmailDialogComponent } from '../email-dialog/email-dialog.component';
@@ -141,10 +141,20 @@ export class ReportsComponent implements OnInit {
     RF_1_Tot300s: 'Rainfall, 5-minute total (mm)',
   };
 
+  private waterLevelHeadersMap: { [key: string]: string } = {
+    timestamp: 'Timestamp',
+    station_id: 'Station ID',
+    RF_1_Tot300s: 'Rainfall, 5-minute total (mm)',
+    Tair_1_Avg: 'Temperature Sensor 1 (C)',
+    SM_1_Avg: 'Soil Moisture (%)',
+    RH_1_Avg: 'Relative Humidity Sensor 1 (%)',
+    Wlvl_1_Avg: 'Water Level (m)',
+  };
+
   get headersMap(): { [key: string]: string } {
-    return this.reportsApiService.isStreamStation(this.stationId)
-      ? this.streamHeadersMap
-      : this.standardHeadersMap;
+    if (this.reportsApiService.isStreamStation(this.stationId)) return this.streamHeadersMap;
+    if (this.reportsApiService.isWaterLevelStation(this.stationId)) return this.waterLevelHeadersMap;
+    return this.standardHeadersMap;
   }
 
   get headers(): string[] {
@@ -246,8 +256,7 @@ export class ReportsComponent implements OnInit {
     }
 
     const location = this.stationId.startsWith('1') ? 'american_samoa' : 'hawaii';
-    const isStream = this.reportsApiService.isStreamStation(this.stationId);
-    const varIds = isStream ? STREAM_VAR_IDS : STANDARD_VAR_IDS;
+    const varIds = this.reportsApiService.getVarIds(this.stationId);
     const exportPayload = {
       email: email,
       data: {
@@ -359,7 +368,7 @@ export class ReportsComponent implements OnInit {
   }
 
   formatTableData(): void {
-    const varIds = this.reportsApiService.isStreamStation(this.stationId) ? STREAM_VAR_IDS : STANDARD_VAR_IDS;
+    const varIds = this.reportsApiService.getVarIds(this.stationId);
     const groupedData = this.reportData.reduce((acc, row) => {
       const key = `${row.timestamp}-${row.station_id}`;
       if (!acc[key]) {

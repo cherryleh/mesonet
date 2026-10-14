@@ -23,6 +23,7 @@ import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { BannerService } from '../services/banner.service';
 import { BannerComponent } from '../banner/banner.component';
+import { WATER_LEVEL_STATION_VAR_IDS } from '../services/reports-api.service';
 
 @Component({
   selector: 'app-graphing',
@@ -136,7 +137,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
           const shortId = this.stationId.substring(0, 4);
 
           const fallbackVarList = `SWin_1_Avg;SWout_1_Avg;LWin_1_Avg;LWout_1_Avg;SWnet_1_Avg;LWnet_1_Avg;Rnet_1_Avg;Albedo_1_Avg;Tsrf_1_Avg;Tsky_1_Avg;Tair_1_Avg;Tair_2_Avg;RH_1_Avg;RH_2_Avg;VP_1_Avg;VP_2_Avg;VPsat_1_Avg;VPsat_2_Avg;VPD_1_Avg;VPD_2_Avg;WS_1_Avg;WDrs_1_Avg;P_1_Avg;Psl_1_Avg;Tsoil_1_Avg;SHFsrf_1_Avg;SM_1_Avg;SM_2_Avg;SM_3_Avg;Tsoil_2_Avg;Tsoil_3_Avg;Tsoil_4_Avg;RF_1_Tot300s;RFint_1_Max`.split(';');
-          const allowedVariables = this.stationVariablesMap[shortId] ?? fallbackVarList;
+          const allowedVariables = WATER_LEVEL_STATION_VAR_IDS[shortId] ?? this.stationVariablesMap[shortId] ?? fallbackVarList;
 
           this.filteredVariables = this.variables.filter(v => allowedVariables.includes(v.value));
           const isStreamStation = shortId.startsWith('14');

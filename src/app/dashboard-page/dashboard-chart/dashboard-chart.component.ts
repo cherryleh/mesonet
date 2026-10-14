@@ -18,6 +18,7 @@ import { DashboardChartService } from '../../services/dashboard-chart.service';
 import { DurationService } from '../../services/dashboard-chart-dropdown.service';
 import { aggregateService } from '../../services/aggregate.service';
 import { UnitService } from '../../services/unit.service';
+import { WATER_LEVEL_STATION_VAR_IDS } from '../../services/reports-api.service';
 
 Exporting(Highcharts);
 ExportData(Highcharts);
@@ -353,6 +354,8 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
       });
 
       const isStreamStation = id.startsWith('14');
+      const isWaterLevelStation = id in WATER_LEVEL_STATION_VAR_IDS;
+      const radVariable = isWaterLevelStation ? 'Wlvl_1_Avg' : 'SWin_1_Avg';
 
       data.forEach(item => {
         const timestamp = new Date(item.timestamp).getTime();
@@ -375,7 +378,7 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
             } else if (item.variable === 'RF_1_Tot300s') {
               const rain = this.selectedUnit === 'metric' ? value : value / 25.4;
               rainfallData.push([timestamp, rain]);
-            } else if (item.variable === 'SWin_1_Avg') {
+            } else if (item.variable === radVariable) {
               radData.push([timestamp, value]);
             }
           }
@@ -396,7 +399,7 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
         : [
             { title: { text: 'Hourly Temperature (°F)' } },
             { title: { text: 'Hourly Rainfall (in)' }, opposite: true, min: 0 },
-            { title: { text: 'Solar Radiation (W/m²)' }, opposite: true, min: 0 },
+            { title: { text: isWaterLevelStation ? 'Hourly Water Level (m)' : 'Solar Radiation (W/m²)' }, opposite: true, min: 0 },
           ];
       } else {
         this.chartOptions.yAxis = isStreamStation
@@ -408,7 +411,7 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
         : [
             { title: { text: 'Temperature (°F)' } },
             { title: { text: '5-min Rainfall (in)' }, opposite: true, min: 0 },
-            { title: { text: 'Solar Radiation (W/m²)' }, opposite: true, min: 0 },
+            { title: { text: isWaterLevelStation ? 'Water Level (m)' : 'Solar Radiation (W/m²)' }, opposite: true, min: 0 },
           ];
       }
 
@@ -432,6 +435,8 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
       if (isStreamStation) {
         tempLabel = 'Water Temperature (°C)';
         radLabel = 'Water Level (m)';
+      } else if (isWaterLevelStation) {
+        radLabel = 'Water Level (m)';
       }
 
       const rainLabel = this.selectedUnit === 'metric' ? 'Rainfall (mm)' : 'Rainfall (in)';
@@ -445,6 +450,7 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
           type: 'line',
           color: '#41d68f',
           zIndex: 3,
+          visible: !isWaterLevelStation,
         },
         {
           name: rainLabel,
@@ -462,7 +468,7 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
           yAxis: 2,
           type: 'line',
           color: '#f9b721',
-          visible: isStreamStation,
+          visible: isStreamStation || isWaterLevelStation,
         },
       ];
 

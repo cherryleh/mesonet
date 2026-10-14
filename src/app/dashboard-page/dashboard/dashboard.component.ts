@@ -26,6 +26,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { IntervalHandler } from '../../utils/interval-handler';
 import { BannerComponent } from '../../banner/banner.component';
 import { BannerService } from '../../services/banner.service';
+import { WATER_LEVEL_STATION_VAR_IDS } from '../../services/reports-api.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -66,6 +67,7 @@ export class DashboardComponent implements AfterViewInit {
   refreshIntervalMS = 300000;
   dataVariables: string[] = ['Rainfall', 'Temperature', 'Wind Speed', 'Wind Direction', 'Soil Moisture', 'Solar Radiation', 'Relative Humidity'];
   isStreamStation = false;
+  isWaterLevelStation = false;
 
   lastUpdated: string = '';
   timezoneAbbreviation: 'HST' | 'SST' = 'HST';
@@ -201,7 +203,10 @@ convertCtoF(value: number): number {
               ? `${celsius.toFixed(1)}`
               : `${((celsius * 9) / 5 + 32).toFixed(1)}`;
           } else if (key === 'Water Level') {
-            this.variables[key] = variableData.value;
+            const meters = parseFloat(variableData.value);
+            this.variables[key] = this.selectedUnit === 'metric'
+              ? `${meters.toFixed(2)}`
+              : `${(meters * 3.28084).toFixed(2)}`;
           } else if (key === 'Wind Speed') {
             const mps = parseFloat(variableData.value);
             const mph = mps * 2.23694;
@@ -286,6 +291,7 @@ convertCtoF(value: number): number {
       if (this.id) {
         this.timezoneAbbreviation = this.id.startsWith('1') ? 'SST' : 'HST';
         this.isStreamStation = this.id.startsWith('14');
+        this.isWaterLevelStation = this.id in WATER_LEVEL_STATION_VAR_IDS;
 
         if (this.isStreamStation) {
           this.dataVariables = ['Rainfall', 'Water Temperature', 'Water Level'];
@@ -293,6 +299,15 @@ convertCtoF(value: number): number {
             Rainfall: 'RF_1_Tot300s',
             'Water Temperature': 'Twt_1_Avg',
             'Water Level': 'Wlvl_1_Avg'
+          };
+        } else if (this.isWaterLevelStation) {
+          this.dataVariables = ['Rainfall', 'Temperature', 'Water Level', 'Soil Moisture', 'Relative Humidity'];
+          this.variableMapping = {
+            Rainfall: 'RF_1_Tot300s',
+            Temperature: 'Tair_1_Avg',
+            'Water Level': 'Wlvl_1_Avg',
+            'Soil Moisture': 'SM_1_Avg',
+            'Relative Humidity': 'RH_1_Avg'
           };
         } else {
           this.dataVariables = ['Rainfall', 'Temperature', 'Wind Speed', 'Wind Direction', 'Soil Moisture', 'Solar Radiation', 'Relative Humidity'];

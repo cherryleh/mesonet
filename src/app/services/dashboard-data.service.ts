@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { UserIdService } from './user-id.service'; 
+import { WATER_LEVEL_STATION_VAR_IDS } from './reports-api.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,9 +21,12 @@ export class DataService {
     const userId = this.userIdService.getUserId();
 
     const isStreamStation = id.startsWith('14');
+    const isWaterLevelStation = id in WATER_LEVEL_STATION_VAR_IDS;
     const vars = isStreamStation
       ? '&var_ids=Twt_1_Avg,Wlvl_1_Avg'
-      : '&var_ids=Tair_1_Avg,SWin_1_Avg,SM_1_Avg,WS_1_Avg,WDrs_1_Avg,RH_1_Avg';
+      : isWaterLevelStation
+        ? '&var_ids=Tair_1_Avg,SM_1_Avg,RH_1_Avg,Wlvl_1_Avg'
+        : '&var_ids=Tair_1_Avg,SWin_1_Avg,SM_1_Avg,WS_1_Avg,WDrs_1_Avg,RH_1_Avg';
 
     const url = `${this.baseUrl}${vars}&station_ids=${id}${locationParam}&user_id=${userId}`;
     console.log('API request for general dashboard data: ', url);

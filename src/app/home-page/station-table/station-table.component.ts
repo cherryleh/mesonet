@@ -48,17 +48,17 @@ export class StationTableComponent implements OnInit {
     };
 
     this.dataSource.filterPredicate = (data: StationRow, filter: string) => {
-      const f = filter.trim().toLowerCase();
-      const island = this.getIsland(data.station_id).toLowerCase();
-      return (
-        (data.station_id ?? '').toLowerCase().includes(f) ||
-        (data.status ?? '').toLowerCase().includes(f) ||
-        (data.full_name ?? '').toLowerCase().includes(f) ||
-        island.includes(f) ||
-        String(data.lat ?? '').includes(f) ||
-        String(data.lng ?? '').includes(f) ||
-        String(data.elevation ?? '').includes(f)
-      );
+      const f = this.normalizeForSearch(filter);
+      const fields = [
+        data.station_id,
+        data.status,
+        data.full_name,
+        this.getIsland(data.station_id),
+        data.lat,
+        data.lng,
+        data.elevation,
+      ];
+      return fields.some((v) => this.normalizeForSearch(String(v ?? '')).includes(f));
     };
 
     this.fetchStationDataFromCsv();
@@ -129,6 +129,18 @@ export class StationTableComponent implements OnInit {
     if (normalized === 'planned') return 'orange';
     if (normalized === 'inactive') return 'gray';
     return 'green';
+  }
+
+  // Lowercase and strip Hawaiian diacriticals (kahakō and other accents via
+  // Unicode decomposition, plus ʻokina and apostrophe-like characters) so
+  // "Kaneohe" matches "Kāneʻohe".
+  private normalizeForSearch(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[\u02BB\u02BC\u2018\u2019'`]/g, '')
+      .trim()
+      .toLowerCase();
   }
 
   applyFilter(event: Event): void {

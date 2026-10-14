@@ -6,6 +6,11 @@ import { UserIdService } from './user-id.service';
 
 export const STREAM_VAR_IDS = ['Twt_1_Avg', 'Wlvl_1_Avg', 'RF_1_Tot300s'];
 
+// Stations with a water level sensor in place of wind and solar radiation
+export const WATER_LEVEL_STATION_VAR_IDS: { [stationId: string]: string[] } = {
+  '0157': ['RF_1_Tot300s', 'Tair_1_Avg', 'SM_1_Avg', 'RH_1_Avg', 'Wlvl_1_Avg'],
+};
+
 export const STANDARD_VAR_IDS = [
   'Tair_1_Avg', 'Tair_2_Avg', 'RF_1_Tot300s', 'RFint_1_Max',
   'SWin_1_Avg', 'SWout_1_Avg', 'LWin_1_Avg', 'LWout_1_Avg',
@@ -29,6 +34,15 @@ export class ReportsApiService {
     return id.startsWith('14');
   }
 
+  isWaterLevelStation(id: string): boolean {
+    return id in WATER_LEVEL_STATION_VAR_IDS;
+  }
+
+  getVarIds(id: string): string[] {
+    if (this.isStreamStation(id)) return STREAM_VAR_IDS;
+    return WATER_LEVEL_STATION_VAR_IDS[id] ?? STANDARD_VAR_IDS;
+  }
+
   private getLocation(id: string): string {
     return id.startsWith('1') ? 'american_samoa' : 'hawaii';
   }
@@ -37,7 +51,7 @@ export class ReportsApiService {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${environment.apiToken}`);
     const userId = this.userIdService.getUserId();
     const location = this.getLocation(id);
-    const varIds = this.isStreamStation(id) ? STREAM_VAR_IDS : STANDARD_VAR_IDS;
+    const varIds = this.getVarIds(id);
     let url = `${this.baseApiUrl}&var_ids=${varIds.join(',')}&location=${location}&station_ids=${id}&start_date=${startDate}&end_date=${endDate}&local_tz=True&user_id=${userId}`;
 
     if (email) {
