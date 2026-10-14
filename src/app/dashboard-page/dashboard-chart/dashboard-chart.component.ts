@@ -394,24 +394,24 @@ export class DashboardChartComponent implements OnInit, OnDestroy, AfterViewInit
         ? [
             { title: { text: 'Hourly Water Temperature (°C)' } },
             { title: { text: 'Hourly Rainfall (in)' }, opposite: true, min: 0 },
-            { title: { text: 'Hourly Water Level (m)' }, opposite: true, min: 0 },
+            { title: { text: 'Hourly Water Level (m)' }, opposite: true, min: null },
           ]
         : [
             { title: { text: 'Hourly Temperature (°F)' } },
             { title: { text: 'Hourly Rainfall (in)' }, opposite: true, min: 0 },
-            { title: { text: isWaterLevelStation ? 'Hourly Water Level (m)' : 'Solar Radiation (W/m²)' }, opposite: true, min: 0 },
+            { title: { text: isWaterLevelStation ? 'Hourly Water Level (m)' : 'Solar Radiation (W/m²)' }, opposite: true, min: isWaterLevelStation ? null : 0 },
           ];
       } else {
         this.chartOptions.yAxis = isStreamStation
         ? [
             { title: { text: 'Water Temperature (°C)' } },
             { title: { text: '5-min Rainfall (in)' }, opposite: true, min: 0 },
-            { title: { text: 'Water Level (m)' }, opposite: true, min: 0 },
+            { title: { text: 'Water Level (m)' }, opposite: true, min: null },
           ]
         : [
             { title: { text: 'Temperature (°F)' } },
             { title: { text: '5-min Rainfall (in)' }, opposite: true, min: 0 },
-            { title: { text: isWaterLevelStation ? 'Water Level (m)' : 'Solar Radiation (W/m²)' }, opposite: true, min: 0 },
+            { title: { text: isWaterLevelStation ? 'Water Level (m)' : 'Solar Radiation (W/m²)' }, opposite: true, min: isWaterLevelStation ? null : 0 },
           ];
       }
 
