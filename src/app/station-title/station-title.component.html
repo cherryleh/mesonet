@@ -1,5 +1,5 @@
 <!--Exception for station 0119 as full name has "Station" at the end-->
-<div class="station-name"  [class.collapsed]="isCollapsed">
+<div class="station-name" [class.collapsed]="isCollapsed" [class.inline]="inline">
 <h1>
   {{ stationName }}<span *ngIf="id !== '0119'"> Station</span> (#{{ stationID }})
 </h1>

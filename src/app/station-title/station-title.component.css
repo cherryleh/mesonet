@@ -22,3 +22,14 @@
     margin-top: 0.5rem;
   }
   
+  /* Inline: placed inside the page content, left-aligned */
+  .station-name.inline,
+  .station-name.inline.collapsed {
+    margin: 0;
+    width: auto;
+    text-align: left;
+  }
+
+  .station-name.inline h1 {
+    margin: 0;
+  }

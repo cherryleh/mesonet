@@ -21,6 +21,7 @@ export class StationTitleComponent implements OnInit {
   id: string | null = null;
 
   @Input() isCollapsed: boolean = false;
+  @Input() inline: boolean = false; // Left-aligned, no sidebar offset (for use inside .main-content)
 
   constructor(
     private stationDataService: StationDataService,

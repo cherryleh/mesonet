@@ -5,16 +5,19 @@
 
 .dashboard-header {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
   width: 100%;
+  padding-top: 1rem;
 }
 
 .last-updated {
   font-size: 0.9rem;
   color: #555;
-  width: 100%;
+  margin: 0;
   text-align: right;
+  white-space: nowrap;
 }
 
 .grid-container {
