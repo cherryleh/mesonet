@@ -505,7 +505,7 @@ export class GraphingComponent implements OnInit, AfterViewInit {
           const timestamp = new Date(item.timestamp).getTime();
           let value: number | null = parseFloat(item?.value || '');
 
-          if (item?.flag !== 0 || isNaN(value)) {
+          if (isNaN(value)) {
             value = null;
           } else {
             value = this.convertValue(variable, value); 
